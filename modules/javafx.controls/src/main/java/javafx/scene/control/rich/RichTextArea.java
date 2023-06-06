@@ -60,6 +60,7 @@ import javafx.scene.control.rich.skin.RichTextAreaSkin;
 import javafx.scene.control.rich.util.InputMap;
 import javafx.scene.control.rich.util.Util;
 import javafx.util.Duration;
+import com.sun.javafx.scene.control.rich.Params;
 import com.sun.javafx.scene.control.rich.RichTextAreaHelper;
 import com.sun.javafx.scene.control.rich.RichTextAreaSkinHelper;
 import com.sun.javafx.scene.control.rich.VFlow;
@@ -114,7 +115,7 @@ public class RichTextArea extends Control {
     }
 
     private static final double DEFAULT_LINE_SPACING = 0.0;
-    private final Config config;
+    private final ConfigurationParameters config;
     private final InputMap inputMap = new InputMap();
     private final ObjectProperty<StyledTextModel> model = new SimpleObjectProperty<>(this, "model");
     private final SimpleBooleanProperty displayCaretProperty = new SimpleBooleanProperty(this, "displayCaret", true);
@@ -156,7 +157,7 @@ public class RichTextArea extends Control {
      * @param model styled text model
      */
     public RichTextArea(StyledTextModel model) {
-        this(Config.defaultConfig(), model);
+        this(ConfigurationParameters.defaultConfig(), model);
     }
 
     /**
@@ -164,10 +165,10 @@ public class RichTextArea extends Control {
      * @param c configuration parameters
      * @param m styled text model
      */
-    public RichTextArea(Config c, StyledTextModel m) {
+    public RichTextArea(ConfigurationParameters c, StyledTextModel m) {
         this.config = c;
         
-        caretBlinkPeriod = new ReadOnlyObjectWrapper<>(this, "caretBlinkPeriod", Duration.millis(config.caretBlinkPeriod));
+        caretBlinkPeriod = new ReadOnlyObjectWrapper<>(this, "caretBlinkPeriod", Duration.millis(Params.DEFAULT_CARET_BLINK_PERIOD));
 
         setFocusTraversable(true);
         getStyleClass().add("rich-text-area");
@@ -187,16 +188,20 @@ public class RichTextArea extends Control {
         return new RichTextAreaSkin(this, config);
     }
 
-    public void setModel(StyledTextModel m) {
+    /**
+     * Determines the {@link StyledTextModel} to use with this RichTextArea.
+     * The model can be null.
+     */
+    public final ObjectProperty<StyledTextModel> modelProperty() {
+        return model;
+    }
+
+    public final void setModel(StyledTextModel m) {
         modelProperty().set(m);
     }
 
-    public StyledTextModel getModel() {
-        return (model == null ? null : model.get());
-    }
-
-    public ObjectProperty<StyledTextModel> modelProperty() {
-        return model;
+    public final StyledTextModel getModel() {
+        return model.get();
     }
 
     /**
@@ -222,6 +227,10 @@ public class RichTextArea extends Control {
         }
     };
 
+    /**
+     * Indicates whether text should be wrapped in this RichTextArea.
+     * Setting this property to {@code true} has a side effect of hiding the horizontal scroll bar.
+     */
     public final BooleanProperty wrapTextProperty() {
         return wrapText;
     }
@@ -234,6 +243,9 @@ public class RichTextArea extends Control {
         wrapText.setValue(value);
     }
 
+    /**
+     * This property controls whether caret will be displayed or not.
+     */
     public BooleanProperty displayCaretProperty() {
         return displayCaretProperty;
     }
@@ -246,39 +258,45 @@ public class RichTextArea extends Control {
         return displayCaretProperty.get();
     }
 
-    public BooleanProperty editableProperty() {
+    /**
+     * Indicates whether this RichTextArea can be edited by the user.
+     */
+    public final BooleanProperty editableProperty() {
         if (editableProperty == null) {
             editableProperty = new SimpleBooleanProperty(this, "editable", true);
         }
         return editableProperty;
     }
     
-    public boolean isEditable() {
+    public final boolean isEditable() {
         if (editableProperty == null) {
             return true;
         }
         return editableProperty().get();
     }
 
-    public void setEditable(boolean on) {
+    public final void setEditable(boolean on) {
         editableProperty().set(on);
     }
 
-    public BooleanProperty highlightCurrentLineProperty() {
+    /**
+     * Indicates whether the current paragraph will be visually highlighted.
+     */
+    public final BooleanProperty highlightCurrentLineProperty() {
         if (highlightCurrentLine == null) {
             highlightCurrentLine = new SimpleBooleanProperty(this, "highlightCurrentLine", true);
         }
         return highlightCurrentLine;
     }
 
-    public boolean isHighlightCurrentLine() {
+    public final boolean isHighlightCurrentLine() {
         if (highlightCurrentLine == null) {
             return true;
         }
         return highlightCurrentLine.get();
     }
     
-    public void setHighlightCurrentLine(boolean on) {
+    public final void setHighlightCurrentLine(boolean on) {
         highlightCurrentLineProperty().set(on);
     }
 
@@ -385,19 +403,22 @@ public class RichTextArea extends Control {
         Point2D local = vflow().getContentPane().screenToLocal(screenX, screenY);
         return vflow().getTextPosLocal(local.getX(), local.getY());
     }
-    
-    public ReadOnlyObjectProperty<Duration> caretBlinkPeriodProperty() {
+
+    /**
+     * Determines the caret blink rate.
+     */
+    public final ReadOnlyObjectProperty<Duration> caretBlinkPeriodProperty() {
         return caretBlinkPeriod.getReadOnlyProperty();
     }
 
-    public void setCaretBlinkPeriod(Duration period) {
+    public final void setCaretBlinkPeriod(Duration period) {
         if (period == null) {
             throw new NullPointerException("caret blink period cannot be null");
         }
         caretBlinkPeriod.set(period);
     }
 
-    public Duration getCaretBlinkPeriod() {
+    public final Duration getCaretBlinkPeriod() {
         return caretBlinkPeriod.get();
     }
 
@@ -408,33 +429,42 @@ public class RichTextArea extends Control {
             select(p, p);
         }
     }
-    
-    public TextPos getCaretPosition() {
-        return caretPositionProperty().getValue();
-    }
 
-    public ReadOnlyProperty<TextPos> caretPositionProperty() {
+    /**
+     * Tracks the caret position within the document.  Can be null.
+     */
+    public final ReadOnlyProperty<TextPos> caretPositionProperty() {
         return selectionModel.caretPositionProperty();
     }
     
-    public TextPos getAnchorPosition() {
+    public final TextPos getCaretPosition() {
+        return caretPositionProperty().getValue();
+    }
+
+    public final TextPos getAnchorPosition() {
         return anchorPositionProperty().getValue();
     }
-    
-    public ReadOnlyProperty<TextPos> anchorPositionProperty() {
+
+    /**
+     * Tracks the selection anchor position within the document.  Can be null.
+     */
+    public final ReadOnlyProperty<TextPos> anchorPositionProperty() {
         return selectionModel.anchorPositionProperty();
     }
-    
-    public ReadOnlyProperty<SelectionSegment> selectionSegmentProperty() {
+
+    /**
+     * Tracks the current selection segment position.  Can be null.
+     */
+    public final ReadOnlyProperty<SelectionSegment> selectionSegmentProperty() {
         return selectionModel.selectionSegmentProperty();
     }
 
     /** Location of the top left corner. */
-    public ReadOnlyProperty<Origin> originProperty() {
+    public final ReadOnlyProperty<Origin> originProperty() {
         return origin.getReadOnlyProperty();
     }
 
-    public Origin getOrigin() {
+    public final Origin getOrigin() {
         return origin.get();
     }
 
@@ -536,22 +566,29 @@ public class RichTextArea extends Control {
         }
     }
 
-    public void setTabSize(int n) {
-        if ((n < 1) || (n > config.maxTabSize)) {
-            throw new IllegalArgumentException("tab size out of range (1-" + config.maxTabSize + ") " + n);
+    /**
+     * The size of a tab stop in spaces.
+     *
+     * @return the {@code tabSize} property
+     *
+     * @defaultValue 8
+     */
+    public final ReadOnlyIntegerProperty tabSizeProperty() {
+        return tabSizePropertyPrivate().getReadOnlyProperty();
+    }
+
+    public final void setTabSize(int n) {
+        if ((n < 1) || (n > Params.MAX_TAB_SIZE)) {
+            throw new IllegalArgumentException("tab size out of range (1-" + Params.MAX_TAB_SIZE + ") " + n);
         }
         tabSizePropertyPrivate().set(n);
     }
 
-    public int getTabSize() {
+    public final int getTabSize() {
         if (tabSizeProperty == null) {
             return 8;
         }
         return tabSizeProperty.get();
-    }
-
-    public ReadOnlyIntegerProperty tabSizeProperty() {
-        return tabSizePropertyPrivate().getReadOnlyProperty();
     }
 
     private ReadOnlyIntegerWrapper tabSizePropertyPrivate() {
@@ -656,8 +693,11 @@ public class RichTextArea extends Control {
     public void selectEndOfNextWord() {
         execute(Cmd.SELECT_WORD_NEXT_END);
     }
-    
-    public boolean hasSelection() {
+
+    /**
+     * Returns true if a non-empty selection exists.
+     */
+    public boolean hasNonEmptySelection() {
         TextPos ca = getCaretPosition();
         if (ca != null) {
             TextPos an = getAnchorPosition();
@@ -704,7 +744,7 @@ public class RichTextArea extends Control {
             return StyleInfo.NONE;
         }
 
-        if (hasSelection()) {
+        if (hasNonEmptySelection()) {
             TextPos an = getAnchorPosition();
             if (pos.compareTo(an) > 0) {
                 pos = an;
@@ -750,6 +790,9 @@ public class RichTextArea extends Control {
         return (m == null) ? TextPos.ZERO : m.getEndOfParagraphTextPos(index);
     }
 
+    /**
+     * Specifies the left-side paragraph decorator.  Can be null.
+     */
     public final ObjectProperty<SideDecorator> leftDecoratorProperty() {
         if (leftDecorator == null) {
             leftDecorator = new SimpleObjectProperty<>();
@@ -767,7 +810,10 @@ public class RichTextArea extends Control {
     public final void setLeftDecorator(SideDecorator d) {
         leftDecoratorProperty().set(d);
     }
-    
+
+    /**
+     * Specifies the right-side paragraph decorator.  Can be null.
+     */
     public final ObjectProperty<SideDecorator> rightDecoratorProperty() {
         if (rightDecorator == null) {
             rightDecorator = new SimpleObjectProperty<>();
@@ -786,6 +832,9 @@ public class RichTextArea extends Control {
         rightDecoratorProperty().set(d);
     }
 
+    /**
+     * Specifies the padding for the RichTextArea content.  Can be null.
+     */
     public final ObjectProperty<Insets> contentPaddingProperty() {
         if (contentPadding == null) {
             contentPadding = new SimpleStyleableObjectProperty<Insets>(
@@ -806,7 +855,10 @@ public class RichTextArea extends Control {
         }
         return contentPadding.get();
     }
-    
+
+    /**
+     * Determines the spacing between text lines, in pixels.
+     */
     public final DoubleProperty lineSpacingProperty() {
         if (lineSpacing == null) {
             lineSpacing = new SimpleStyleableDoubleProperty(
