@@ -461,6 +461,7 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
      * @param previous whether to delete the preceding character.
      */
     public void deleteChar(boolean previous) {
+        System.err.println("TFS.deleteChar previous=" + previous);
         final double textMaxXOld = textNode.getBoundsInParent().getMaxX();
         final double caretMaxXOld = caretPath.getLayoutBounds().getMaxX() + textTranslateX.get();
         if (previous ? getSkinnable().deletePreviousChar() : getSkinnable().deleteNextChar()) {
@@ -496,6 +497,7 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
     }
 
     private void positionCaret(int pos, boolean leading, boolean select) {
+        System.err.println("TFS.positionCaret pos=" + pos + " leading=" + leading + " select=" + select);
         TextField textField = getSkinnable();
         if (select) {
             textField.selectPositionCaret(pos);
@@ -710,6 +712,7 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
     }
 
     private void updateTextNodeCaretPos(int pos) {
+        System.err.println("TFS.updateTextNodeCaretPos pos=" + pos + " forwardBias=" + isForwardBias());
         if (pos == 0 || isForwardBias()) {
             textNode.setCaretPosition(pos);
         } else {

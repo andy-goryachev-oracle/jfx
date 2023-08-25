@@ -1123,6 +1123,7 @@ public abstract class TextInputControl extends Control {
     }
 
     private void doSelectRange(int anchor, int caretPosition) {
+        System.err.println("TIC.doSelectRange anchor=" + anchor + " caret=" + caretPosition);
         this.caretPosition.set(Utils.clamp(0, caretPosition, getLength()));
         this.anchor.set(Utils.clamp(0, anchor, getLength()));
         this.selection.set(IndexRange.normalize(getAnchor(), getCaretPosition()));

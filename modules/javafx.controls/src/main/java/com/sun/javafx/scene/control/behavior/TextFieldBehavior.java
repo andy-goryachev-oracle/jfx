@@ -182,6 +182,7 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     }
 
     @Override protected void replaceText(int start, int end, String txt) {
+        System.err.println("TFB.replaceText start=" + start + " end=" + end);
         skin.setForwardBias(true);
         skin.replaceText(start, end, txt);
     }
@@ -378,6 +379,7 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     }
 
     protected void mouseSingleClick(HitInfo hit) {
+        System.err.println("TFB.mouseSingleClick hit=" + hit);
         skin.positionCaret(hit, false);
     }
 
