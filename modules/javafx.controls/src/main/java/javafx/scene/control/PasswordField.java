@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,6 +27,8 @@ package javafx.scene.control;
 
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
+import com.sun.javafx.scene.control.ControlHelper;
+import com.sun.javafx.scene.control.behavior.PasswordFieldBehavior;
 
 /**
  * Text field that masks entered characters.
@@ -45,6 +47,7 @@ public class PasswordField extends TextField {
      * Creates a default PasswordField instance.
      */
     public PasswordField() {
+        ControlHelper.setBehavior(this, new PasswordFieldBehavior(this));
         getStyleClass().add("password-field");
         setAccessibleRole(AccessibleRole.PASSWORD_FIELD);
     }

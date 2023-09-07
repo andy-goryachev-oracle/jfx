@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -40,18 +39,18 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.StyleConverter;
+import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableProperty;
-
-import com.sun.javafx.collections.ListListenerHelper;
-import com.sun.javafx.collections.NonIterableChange;
 import javafx.css.converter.SizeConverter;
+import javafx.scene.AccessibleRole;
 import javafx.scene.control.input.FunctionTag;
 import javafx.scene.control.skin.TextAreaSkin;
-
-import javafx.css.Styleable;
-import javafx.scene.AccessibleRole;
+import com.sun.javafx.collections.ListListenerHelper;
+import com.sun.javafx.collections.NonIterableChange;
+import com.sun.javafx.scene.control.ControlHelper;
+import com.sun.javafx.scene.control.behavior.TextAreaBehavior;
 
 /**
  * Text input component that allows a user to enter multiple lines of
@@ -484,7 +483,7 @@ public class TextArea extends TextInputControl {
      */
     public TextArea(String text) {
         super(new TextAreaContent());
-
+        ControlHelper.setBehavior(this, new TextAreaBehavior(this));
         getStyleClass().add("text-area");
         setAccessibleRole(AccessibleRole.TEXT_AREA);
         setText(text);

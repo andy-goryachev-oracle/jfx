@@ -48,7 +48,9 @@ import javafx.scene.control.input.FunctionTag;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import com.sun.javafx.scene.control.ControlHelper;
 import com.sun.javafx.scene.control.FakeFocusTextField;
+import com.sun.javafx.scene.control.behavior.ComboBoxListViewBehavior;
 
 /**
  * An implementation of the {@link ComboBoxBase} abstract class for the most common
@@ -241,6 +243,7 @@ public class ComboBox<T> extends ComboBoxBase<T> {
      * @param items the list of items
      */
     public ComboBox(ObservableList<T> items) {
+        ControlHelper.setBehavior(this, new ComboBoxListViewBehavior<>(this));
         getStyleClass().add(DEFAULT_STYLE_CLASS);
         setAccessibleRole(AccessibleRole.COMBO_BOX);
         setItems(items);

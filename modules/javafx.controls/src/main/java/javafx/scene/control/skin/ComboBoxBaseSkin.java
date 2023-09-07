@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
 package javafx.scene.control.skin;
 
 import java.util.List;
-
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -36,7 +35,7 @@ import javafx.scene.control.SkinBase;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-
+import com.sun.javafx.scene.control.ControlHelper;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
 
@@ -69,11 +68,10 @@ public abstract class ComboBoxBaseSkin<T> extends SkinBase<ComboBoxBase<T>> {
     final ComboBoxMode getMode() { return mode; }
     final void setMode(ComboBoxMode value) { mode = value; }
 
-    private final EventHandler<MouseEvent> mouseEnteredEventHandler  = e ->   getBehavior().mouseEntered(e);
-    private final EventHandler<MouseEvent> mousePressedEventHandler  = e -> { getBehavior().mousePressed(e);  e.consume(); };
-    private final EventHandler<MouseEvent> mouseReleasedEventHandler = e -> { getBehavior().mouseReleased(e); e.consume(); };
-    private final EventHandler<MouseEvent> mouseExitedEventHandler   = e ->   getBehavior().mouseExited(e);
-
+    private final EventHandler<MouseEvent> mouseEnteredEventHandler = this::handleMouseEntered;
+    private final EventHandler<MouseEvent> mousePressedEventHandler = this::handleMousePressed;
+    private final EventHandler<MouseEvent> mouseReleasedEventHandler = this::handleMouseReleased;
+    private final EventHandler<MouseEvent> mouseExitedEventHandler = this::handleMouseExited;
 
 
     /* *************************************************************************
@@ -260,8 +258,26 @@ public abstract class ComboBoxBaseSkin<T> extends SkinBase<ComboBoxBase<T>> {
      *                                                                         *
      **************************************************************************/
 
-    ComboBoxBaseBehavior getBehavior() {
-        return null;
+    final ComboBoxBaseBehavior getBehavior() {
+        return (ComboBoxBaseBehavior)ControlHelper.getBehavior(getSkinnable());
+    }
+
+    private void handleMouseEntered(MouseEvent ev) {
+        getBehavior().mouseEntered(ev);
+    }
+
+    private void handleMousePressed(MouseEvent ev) {
+        getBehavior().mousePressed(ev);
+        ev.consume();
+    }
+    
+    private void handleMouseReleased(MouseEvent ev) {
+        getBehavior().mouseReleased(ev);
+        ev.consume();
+    }
+
+    private void handleMouseExited(MouseEvent ev) {
+        getBehavior().mouseExited(ev);
     }
 
     void focusLost() {

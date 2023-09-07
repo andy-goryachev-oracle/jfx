@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,10 +25,11 @@
 
 package javafx.scene.control;
 
+import java.time.DateTimeException;
+
 // editor and converter code in sync with ComboBox 4858:e60e9a5396e6
 
 import java.time.LocalDate;
-import java.time.DateTimeException;
 import java.time.chrono.Chronology;
 import java.time.chrono.IsoChronology;
 import java.time.format.FormatStyle;
@@ -36,9 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import com.sun.javafx.scene.control.FakeFocusTextField;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -48,14 +46,16 @@ import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.BooleanConverter;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
+import javafx.scene.control.skin.DatePickerSkin;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.util.converter.LocalDateStringConverter;
-
-import javafx.css.converter.BooleanConverter;
-import javafx.scene.control.skin.DatePickerSkin;
+import com.sun.javafx.scene.control.ControlHelper;
+import com.sun.javafx.scene.control.FakeFocusTextField;
+import com.sun.javafx.scene.control.behavior.DatePickerBehavior;
 import com.sun.javafx.scene.control.skin.resources.ControlResources;
 
 /**
@@ -114,6 +114,8 @@ public class DatePicker extends ComboBoxBase<LocalDate> {
      * @param localDate to be set as the currently selected date in the DatePicker. Can be null.
      */
     public DatePicker(LocalDate localDate) {
+        ControlHelper.setBehavior(this, new DatePickerBehavior(this));
+
         valueProperty().addListener(observable -> {
             LocalDate date = getValue();
             Chronology chrono = getChronology();

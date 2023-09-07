@@ -28,7 +28,6 @@ package com.sun.javafx.scene.control.behavior;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.SelectionModel;
-import javafx.scene.control.Skin;
 import javafx.scene.input.KeyCode;
 
 public class ComboBoxListViewBehavior<T> extends ComboBoxBaseBehavior<T> {
@@ -42,12 +41,8 @@ public class ComboBoxListViewBehavior<T> extends ComboBoxBaseBehavior<T> {
     /**
      *
      */
-    public ComboBoxListViewBehavior() {
-    }
-
-    @Override
-    public void install(Skin<ComboBoxBase<T>> skin) {
-        super.install(skin);
+    public ComboBoxListViewBehavior(ComboBoxBase<T> c) {
+        super(c);
 
         regFunc(ComboBox.SELECT_PREV, this::selectPrevious);
         regFunc(ComboBox.SELECT_NEXT, this::selectNext);

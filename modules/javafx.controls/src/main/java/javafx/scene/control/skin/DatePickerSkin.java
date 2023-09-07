@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,7 +28,6 @@ package javafx.scene.control.skin;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.chrono.HijrahChronology;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.event.ActionEvent;
@@ -38,12 +37,9 @@ import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
-
 import com.sun.javafx.scene.control.DatePickerContent;
 import com.sun.javafx.scene.control.DatePickerHijrahContent;
 import com.sun.javafx.scene.control.ListenerHelper;
-import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
-import com.sun.javafx.scene.control.behavior.DatePickerBehavior;
 
 /**
  * Default skin implementation for the {@link DatePicker} control.
@@ -62,8 +58,6 @@ public class DatePickerSkin extends ComboBoxPopupControl<LocalDate> {
     private final DatePicker datePicker;
     private TextField displayNode;
     private DatePickerContent datePickerContent;
-    private final DatePickerBehavior behavior;
-
 
 
     /* *************************************************************************
@@ -83,7 +77,6 @@ public class DatePickerSkin extends ComboBoxPopupControl<LocalDate> {
         super(control);
 
         this.datePicker = control;
-        behavior = new DatePickerBehavior();
 
         ListenerHelper lh = ListenerHelper.get(this);
 
@@ -160,21 +153,6 @@ public class DatePickerSkin extends ComboBoxPopupControl<LocalDate> {
      *                                                                         *
      **************************************************************************/
 
-    @Override
-    public void install() {
-        super.install();
-
-        behavior.install(this);
-    }
-
-    @Override
-    public void dispose() {
-        if (behavior != null) {
-            behavior.dispose();
-        }
-        super.dispose();
-    }
-
     /** {@inheritDoc} */
     @Override public Node getPopupContent() {
         if (datePickerContent == null) {
@@ -236,10 +214,5 @@ public class DatePickerSkin extends ComboBoxPopupControl<LocalDate> {
     /** {@inheritDoc} */
     @Override void focusLost() {
         // do nothing
-    }
-
-    /** {@inheritDoc} */
-    @Override ComboBoxBaseBehavior getBehavior() {
-        return behavior;
     }
 }

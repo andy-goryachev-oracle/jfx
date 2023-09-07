@@ -28,25 +28,24 @@ package javafx.scene.control;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
 import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
+import javafx.css.Styleable;
 import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.EnumConverter;
+import javafx.css.converter.SizeConverter;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
-
-import javafx.css.converter.EnumConverter;
-import javafx.css.converter.SizeConverter;
 import javafx.scene.control.skin.TextFieldSkin;
-
-import javafx.css.Styleable;
+import com.sun.javafx.scene.control.ControlHelper;
+import com.sun.javafx.scene.control.behavior.TextFieldBehavior;
 
 /**
  * Text input component that allows a user to enter a single line of
@@ -131,6 +130,7 @@ public class TextField extends TextInputControl {
      */
     public TextField(String text) {
         super(new TextFieldContent());
+        ControlHelper.setBehavior(this, new TextFieldBehavior(this));
         getStyleClass().add("text-field");
         setAccessibleRole(AccessibleRole.TEXT_FIELD);
         setText(text);

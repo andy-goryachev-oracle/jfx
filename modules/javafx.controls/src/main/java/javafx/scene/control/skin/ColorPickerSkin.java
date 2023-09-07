@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,12 +26,10 @@
 package javafx.scene.control.skin;
 
 import static javafx.scene.paint.Color.*;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.css.CssMetaData;
@@ -54,12 +52,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-
 import com.sun.javafx.css.StyleManager;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.Properties;
-import com.sun.javafx.scene.control.behavior.ColorPickerBehavior;
-import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
 import com.sun.javafx.scene.control.skin.Utils;
 
 /**
@@ -80,7 +75,6 @@ public class ColorPickerSkin extends ComboBoxPopupControl<Color> {
     private StackPane pickerColorBox;
     private Rectangle colorRect;
     private ColorPalette popupContent;
-    private final ColorPickerBehavior behavior;
 
 
 
@@ -114,8 +108,6 @@ public class ColorPickerSkin extends ComboBoxPopupControl<Color> {
         pickerColorBox.getStyleClass().add("picker-color");
         colorRect = new Rectangle(12, 12);
         colorRect.getStyleClass().add("picker-color-rect");
-
-        behavior = new ColorPickerBehavior();
 
         updateColor();
 
@@ -257,22 +249,6 @@ public class ColorPickerSkin extends ComboBoxPopupControl<Color> {
      *                                                                         *
      **************************************************************************/
 
-    @Override
-    public void install() {
-        super.install();
-
-        // install default input map for the control
-        behavior.install(this);
-    }
-
-    @Override
-    public void dispose() {
-        if (behavior != null) {
-            behavior.dispose();
-        }
-        super.dispose();
-    }
-
     /** {@inheritDoc} */
     @Override protected double computePrefWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
         if (!colorLabelVisible.get()) {
@@ -330,11 +306,6 @@ public class ColorPickerSkin extends ComboBoxPopupControl<Color> {
     /** {@inheritDoc} */
     @Override void focusLost() {
         // do nothing
-    }
-
-    /** {@inheritDoc} */
-    @Override ComboBoxBaseBehavior getBehavior() {
-        return behavior;
     }
 
     private void updateComboBoxMode() {

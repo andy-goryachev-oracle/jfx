@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,16 +25,26 @@
 
 package com.sun.javafx.scene.control;
 
-import com.sun.javafx.scene.layout.RegionHelper;
-import com.sun.javafx.util.Utils;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
+import javafx.scene.control.input.BehaviorBase2;
+import com.sun.javafx.scene.layout.RegionHelper;
+import com.sun.javafx.util.Utils;
 
 /*
  * Used to access internal methods of Control.
  */
 public class ControlHelper extends RegionHelper {
+
+    /** Provides access to private methods in Control */
+    public interface ControlAccessor {
+        void doProcessCSS(Node node);
+        StringProperty skinClassNameProperty(Control control);
+        BehaviorBase2 getBehavior(Control c);
+        void setBehavior(Control c, BehaviorBase2 b);
+    }
+
     private static final ControlHelper theInstance;
     private static ControlAccessor controlAccessor;
 
@@ -68,18 +78,18 @@ public class ControlHelper extends RegionHelper {
         controlAccessor.doProcessCSS(node);
     }
 
-
     public static void setControlAccessor(final ControlAccessor newAccessor) {
         if (controlAccessor != null) {
             throw new IllegalStateException();
         }
-
         controlAccessor = newAccessor;
     }
 
-    public interface ControlAccessor {
-        void doProcessCSS(Node node);
-        StringProperty skinClassNameProperty(Control control);
+    public static BehaviorBase2 getBehavior(Control c) {
+        return controlAccessor.getBehavior(c);
     }
 
+    public static void setBehavior(Control c, BehaviorBase2 b) {
+        controlAccessor.setBehavior(c, b);
+    }
 }

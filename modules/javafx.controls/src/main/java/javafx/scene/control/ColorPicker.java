@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,8 +27,10 @@ package javafx.scene.control;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.paint.Color;
 import javafx.scene.control.skin.ColorPickerSkin;
+import javafx.scene.paint.Color;
+import com.sun.javafx.scene.control.ControlHelper;
+import com.sun.javafx.scene.control.behavior.ColorPickerBehavior;
 
 /**
  * <p>ColorPicker control allows the user to select a color from either a standard
@@ -108,6 +110,7 @@ public class ColorPicker extends ComboBoxBase<Color> {
      * @param color to be set as the currently selected color of the ColorPicker.
      */
     public ColorPicker(Color color) {
+        ControlHelper.setBehavior(this, new ColorPickerBehavior(this));
         setValue(color);
         getStyleClass().add(DEFAULT_STYLE_CLASS);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -48,6 +48,7 @@ import javafx.event.EventHandler;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
+import javafx.scene.control.input.BehaviorBase2;
 import javafx.scene.control.input.FunctionTag;
 import javafx.scene.control.input.InputMap2;
 import javafx.scene.input.ContextMenuEvent;
@@ -91,6 +92,14 @@ public abstract class Control extends Region implements Skinnable {
             @Override
             public StringProperty skinClassNameProperty(Control control) {
                 return control.skinClassNameProperty();
+            }
+            @Override
+            public BehaviorBase2 getBehavior(Control c) {
+                return c.behavior;
+            }
+            @Override
+            public void setBehavior(Control c, BehaviorBase2 b) {
+                c.behavior = b;
             }
         });
 
@@ -161,6 +170,7 @@ public abstract class Control extends Region implements Skinnable {
      *                                                                         *
      **************************************************************************/
 
+    private BehaviorBase2 behavior;
     private List<CssMetaData<? extends Styleable, ?>> styleableProperties;
 
     /**

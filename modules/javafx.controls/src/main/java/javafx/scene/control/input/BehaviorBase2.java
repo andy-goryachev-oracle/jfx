@@ -24,40 +24,35 @@
  */
 package javafx.scene.control.input;
 
-import java.util.Objects;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
 import javafx.scene.input.KeyCode;
 
 /**
  * Class provides a foundation for behaviors.
  * <p>
- * A concrete behavior implementation should do three things:
- * 1. provide default behavior methods (a.k.a. functions)
- * 2. in install() method, called from Skin.install(), map control's function tags to
- *    behavior methods, map key bindings to function tags, and add additional event handlers,
- *    using func(), key(), and hand() methods correspondingly.
- *    Important: no mapping should be made in the behavior constructor, only in install().
- * <p>
- * The base class adds a dispose() method (called from Skin.dispose()),
- * which undoes the mapping done in install().
- * <p>
- * TODO rename BehaviorBase and remove IBehavior
+ * A typical implementation would entail:
+ * <ul>
+ * <li>Control: initialize the behavior in the constructor.
+ * <li>Behavior: map Control's function tags to the default methods,
+ *     map key bindings to the function tags, add event handlers.
+ * </ul>
+ * TODO rename BehaviorBase -> Behavior
  */
 public abstract class BehaviorBase2<C extends Control> {
-    private C control;
+    private final C control;
 
     /** The constructor. */
-    public BehaviorBase2() {
+    public BehaviorBase2(C control) {
+        this.control = control;
     }
     
     /**
      * Returns the associated Control instance.
      * TODO rename getControl()
-     * @return the owner
+     * @return the associated Control
      */
     protected final C getNode() {
         return control;
@@ -70,16 +65,6 @@ public abstract class BehaviorBase2<C extends Control> {
      */
     protected final InputMap2 getInputMap2() {
         return control.getInputMap2();
-    }
-
-    /**
-     * Installs this behavior.
-     * This method must be called in Skin.install() to actually install all the default mappings.
-     * @param skin the skin
-     */
-    public void install(Skin<C> skin) {
-        Objects.nonNull(skin);
-        this.control = skin.getSkinnable();
     }
 
     /**

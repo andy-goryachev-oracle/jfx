@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -34,7 +34,6 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Skin;
 import javafx.scene.control.TextField;
 import javafx.scene.control.input.KeyBinding2;
 import javafx.scene.control.skin.TextFieldSkin;
@@ -55,7 +54,6 @@ import com.sun.javafx.scene.control.skin.Utils;
  * Text field behavior.
  */
 public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
-    private TextFieldSkin skin;
     private TwoLevelFocusBehavior tlFocus;
 
     // listeners to focus-related state
@@ -66,17 +64,12 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     private WeakChangeListener<Node> weakFocusOwnerListener;
 
 
-    public TextFieldBehavior() {
+    public TextFieldBehavior(TextField textField) {
+        super(textField);
+
         if (Properties.IS_TOUCH_SUPPORTED) {
             contextMenu.getStyleClass().add("text-input-context-menu");
         }
-    }
-    
-    @Override
-    public void install(Skin<TextField> skin) {
-        super.install(skin);
-        
-        TextField textField = getNode();
         
         focusListener = (observable, oldValue, newValue) -> {
             handleFocusChange();
@@ -156,9 +149,8 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
         return transform;
     }
 
-    // An unholy back-reference!
-    public void setTextFieldSkin(TextFieldSkin skin) {
-        this.skin = skin;
+    private TextFieldSkin skin() {
+        return (TextFieldSkin)getNode().getSkin();
     }
 
     protected void fire(KeyEvent event) {
@@ -184,13 +176,20 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
         }
     }
 
-    @Override protected void deleteChar(boolean previous) {
-        skin.deleteChar(previous);
+    @Override
+    protected void deleteChar(boolean previous) {
+        TextFieldSkin skin = skin();
+        if (skin != null) {
+            skin.deleteChar(previous);
+        }
     }
 
     @Override protected void replaceText(int start, int end, String txt) {
-        skin.setForwardBias(true);
-        skin.replaceText(start, end, txt);
+        TextFieldSkin skin = skin();
+        if (skin != null) {
+            skin.setForwardBias(true);
+            skin.replaceText(start, end, txt);
+        }
     }
 
     @Override protected void deleteFromLineStart() {
@@ -202,7 +201,9 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
         }
     }
 
-    @Override protected void setCaretAnimating(boolean play) {
+    @Override
+    protected void setCaretAnimating(boolean play) {
+        TextFieldSkin skin = skin();
         if (skin != null) {
             skin.setCaretAnimating(play);
         }
@@ -225,7 +226,12 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     private boolean shiftDown = false;
     private boolean deferClick = false;
 
-    @Override public void mousePressed(MouseEvent e) {
+    @Override
+    public void mousePressed(MouseEvent e) {
+        TextFieldSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         TextField textField = getNode();
         // We never respond to events if disabled
         if (!textField.isDisabled()) {
@@ -296,6 +302,10 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     }
 
     @Override public void mouseDragged(MouseEvent e) {
+        TextFieldSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         final TextField textField = getNode();
         // we never respond to events if disabled, but we do notify any onXXX
         // event listeners on the control
@@ -309,6 +319,10 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     }
 
     @Override public void mouseReleased(MouseEvent e) {
+        TextFieldSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         final TextField textField = getNode();
         // we never respond to events if disabled, but we do notify any onXXX
         // event listeners on the control
@@ -324,6 +338,10 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     }
 
     @Override public void contextMenuRequested(ContextMenuEvent e) {
+        TextFieldSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         final TextField textField = getNode();
 
         if (contextMenu.isShowing()) {
@@ -385,7 +403,10 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     }
 
     protected void mouseSingleClick(HitInfo hit) {
-        skin.positionCaret(hit, false);
+        TextFieldSkin skin = skin();
+        if (skin != null) {
+            skin.positionCaret(hit, false);
+        }
     }
 
     protected void mouseDoubleClick(HitInfo hit) {

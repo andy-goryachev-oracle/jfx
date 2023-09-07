@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,7 +27,6 @@ package javafx.scene.control.skin;
 
 import java.util.List;
 import java.util.function.Supplier;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -54,11 +53,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-
 import com.sun.javafx.scene.control.IDisconnectable;
 import com.sun.javafx.scene.control.ListenerHelper;
-import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
-import com.sun.javafx.scene.control.behavior.ComboBoxListViewBehavior;
 
 /**
  * Default skin implementation for the {@link ComboBox} control.
@@ -100,7 +96,6 @@ public class ComboBoxListViewSkin<T> extends ComboBoxPopupControl<T> {
     private boolean listSelectionLock = false;
     private boolean listViewSelectionDirty = false;
 
-    private final ComboBoxListViewBehavior behavior;
     private IDisconnectable selectedItemWatcher;
 
 
@@ -163,8 +158,6 @@ public class ComboBoxListViewSkin<T> extends ComboBoxPopupControl<T> {
 
         // Fix for RT-19431 (also tested via ComboBoxListViewSkinTest)
         updateValue();
-
-        behavior = new ComboBoxListViewBehavior<>();
 
         lh.addChangeListener(control.itemsProperty(), e -> {
             updateComboBoxItems();
@@ -232,21 +225,6 @@ public class ComboBoxListViewSkin<T> extends ComboBoxPopupControl<T> {
      * Public API                                                              *
      *                                                                         *
      **************************************************************************/
-
-    @Override
-    public void install() {
-        super.install();
-        
-        behavior.install(this);
-    }
-
-    @Override
-    public void dispose() {
-        if (behavior != null) {
-            behavior.dispose();
-        }
-        super.dispose();
-    }
 
     /** {@inheritDoc} */
     @Override protected TextField getEditor() {
@@ -377,11 +355,6 @@ public class ComboBoxListViewSkin<T> extends ComboBoxPopupControl<T> {
                 buttonCell.pseudoClassStateChanged(PSEUDO_CLASS_SELECTED, true);
             }
         }
-    }
-
-    /** {@inheritDoc} */
-    @Override ComboBoxBaseBehavior getBehavior() {
-        return behavior;
     }
 
     private void updateComboBoxItems() {

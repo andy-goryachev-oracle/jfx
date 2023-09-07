@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -59,6 +59,7 @@ import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import com.sun.javafx.PlatformUtil;
+import com.sun.javafx.scene.control.ControlHelper;
 import com.sun.javafx.scene.control.behavior.TextAreaBehavior;
 import com.sun.javafx.scene.control.skin.Utils;
 /**
@@ -90,8 +91,6 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
 
     // *** NOTE: Multiple node mode is not yet fully implemented *** //
     private static final boolean USE_MULTIPLE_NODES = false;
-
-    private final TextAreaBehavior behavior;
 
     private double computedMinWidth = Double.NEGATIVE_INFINITY;
     private double computedMinHeight = Double.NEGATIVE_INFINITY;
@@ -219,10 +218,6 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
             }
         });
         contentView.getChildren().add(caretPath);
-
-        // instantiate, but not install, the behavior
-        behavior = new TextAreaBehavior();
-        behavior.setTextAreaSkin(this);
 
         if (SHOW_HANDLES) {
             contentView.getChildren().addAll(caretHandle, selectionHandle1, selectionHandle2);
@@ -445,7 +440,9 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
         }
     }
 
-
+    private TextAreaBehavior behavior() {
+        return (TextAreaBehavior)ControlHelper.getBehavior(getSkinnable());
+    }
 
     /* *************************************************************************
      *                                                                         *
@@ -824,24 +821,12 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
             default: return super.queryAccessibleAttribute(attribute, parameters);
         }
     }
-    
-    @Override
-    public void install() {
-        super.install();
-
-        // install default input map for the text area control
-        behavior.install(this);
-    }
 
     @Override
     public void dispose() {
         if (getSkinnable() != null) {
             getSkinnable().removeEventFilter(ScrollEvent.ANY, scrollEventFilter);
             getChildren().remove(scrollPane);
-            
-            if (behavior != null) {
-                behavior.dispose();
-            }
             
             super.dispose();
         }
@@ -1213,17 +1198,17 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
             getStyleClass().add("content");
 
             addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
-                behavior.mousePressed(event);
+                behavior().mousePressed(event);
                 event.consume();
             });
 
             addEventHandler(MouseEvent.MOUSE_RELEASED, event -> {
-                behavior.mouseReleased(event);
+                behavior().mouseReleased(event);
                 event.consume();
             });
 
             addEventHandler(MouseEvent.MOUSE_DRAGGED, event -> {
-                behavior.mouseDragged(event);
+                behavior().mouseDragged(event);
                 event.consume();
             });
         }

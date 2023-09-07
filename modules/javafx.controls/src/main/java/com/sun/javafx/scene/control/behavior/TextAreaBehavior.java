@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,7 +29,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Skin;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.input.KeyBinding2;
 import javafx.scene.control.skin.TextAreaSkin;
@@ -51,7 +50,6 @@ import com.sun.javafx.scene.control.skin.Utils;
  * Text area behavior.
  */
 public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
-    private TextAreaSkin skin;
     private TwoLevelFocusBehavior tlFocus;
 
     private ChangeListener<Boolean> focusListener;
@@ -60,17 +58,12 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
      * Constructors                                                           *
      *************************************************************************/
 
-    public TextAreaBehavior() {
+    public TextAreaBehavior(TextArea c) {
+        super(c);
+
         if (Properties.IS_TOUCH_SUPPORTED) {
             contextMenu.getStyleClass().add("text-input-context-menu");
         }
-    }
-
-    @Override
-    public void install(Skin<TextArea> sk) {
-        super.install(sk);
-
-        TextArea c = getNode();
         
         focusListener = (src, ov, nv) -> handleFocusChange();
         // Register for change events
@@ -84,24 +77,24 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
         // functions
         regFunc(TextArea.DOCUMENT_END, c::end); // TODO move end() to behavior
         regFunc(TextArea.DOCUMENT_START, c::home); // TODO move home() to behavior
-        regFunc(TextArea.DOWN, () -> skin.moveCaret(TextUnit.LINE, Direction.DOWN, false));
+        regFunc(TextArea.DOWN, () -> moveCaret(TextUnit.LINE, Direction.DOWN, false));
         regFunc(TextArea.LINE_START, () -> lineStart(false));
         regFunc(TextArea.LINE_END, () -> lineEnd(false));
-        regFunc(TextArea.PARAGRAPH_DOWN, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, false));
-        regFunc(TextArea.PARAGRAPH_UP, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.UP, false));
-        regFunc(TextArea.PAGE_DOWN, () -> skin.moveCaret(TextUnit.PAGE, Direction.DOWN, false));
-        regFunc(TextArea.PAGE_UP, () -> skin.moveCaret(TextUnit.PAGE, Direction.UP, false));
-        regFunc(TextArea.SELECT_DOWN, () -> skin.moveCaret(TextUnit.LINE, Direction.DOWN, true));
+        regFunc(TextArea.PARAGRAPH_DOWN, () -> moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, false));
+        regFunc(TextArea.PARAGRAPH_UP, () -> moveCaret(TextUnit.PARAGRAPH, Direction.UP, false));
+        regFunc(TextArea.PAGE_DOWN, () -> moveCaret(TextUnit.PAGE, Direction.DOWN, false));
+        regFunc(TextArea.PAGE_UP, () -> moveCaret(TextUnit.PAGE, Direction.UP, false));
+        regFunc(TextArea.SELECT_DOWN, () -> moveCaret(TextUnit.LINE, Direction.DOWN, true));
         //func(TextArea.SELECT_END_EXTEND, this::selectEndExtend);
         //func(TextArea.SELECT_HOME_EXTEND, this::selectHomeExtend);
         regFunc(TextArea.SELECT_LINE_END, () -> lineEnd(true));
-        regFunc(TextArea.SELECT_PAGE_DOWN, () -> skin.moveCaret(TextUnit.PAGE, Direction.DOWN, true));
-        regFunc(TextArea.SELECT_PAGE_UP, () -> skin.moveCaret(TextUnit.PAGE, Direction.UP, true));
-        regFunc(TextArea.SELECT_PARAGRAPH_DOWN, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, true));
-        regFunc(TextArea.SELECT_PARAGRAPH_UP, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.UP, true));
+        regFunc(TextArea.SELECT_PAGE_DOWN, () -> moveCaret(TextUnit.PAGE, Direction.DOWN, true));
+        regFunc(TextArea.SELECT_PAGE_UP, () -> moveCaret(TextUnit.PAGE, Direction.UP, true));
+        regFunc(TextArea.SELECT_PARAGRAPH_DOWN, () -> moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, true));
+        regFunc(TextArea.SELECT_PARAGRAPH_UP, () -> moveCaret(TextUnit.PARAGRAPH, Direction.UP, true));
         regFunc(TextArea.SELECT_LINE_START, () -> lineStart(true));
-        regFunc(TextArea.SELECT_UP, () -> skin.moveCaret(TextUnit.LINE, Direction.UP, true));
-        regFunc(TextArea.UP, () -> skin.moveCaret(TextUnit.LINE, Direction.UP, false));
+        regFunc(TextArea.SELECT_UP, () -> moveCaret(TextUnit.LINE, Direction.UP, true));
+        regFunc(TextArea.UP, () -> moveCaret(TextUnit.LINE, Direction.UP, false));
         regFunc(TextArea.INSERT_NEW_LINE, this::insertNewLine);
         regFunc(TextArea.INSERT_TAB, this::insertTab);
         
@@ -176,11 +169,6 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
         }
     }
 
-    // An unholy back-reference!
-    public void setTextAreaSkin(TextAreaSkin skin) {
-        this.skin = skin;
-    }
-
     private void insertNewLine() {
         if (isEditable()) {
             setEditing(true);
@@ -219,11 +207,22 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     }
 
     private void lineStart(boolean select) {
-        skin.moveCaret(TextUnit.LINE, Direction.BEGINNING, select);
+        moveCaret(TextUnit.LINE, Direction.BEGINNING, select);
     }
 
     private void lineEnd(boolean select) {
-        skin.moveCaret(TextUnit.LINE, Direction.END, select);
+        moveCaret(TextUnit.LINE, Direction.END, select);
+    }
+
+    private void moveCaret(TextUnit unit, Direction dir, boolean select) {
+        TextAreaSkin skin = skin();
+        if (skin != null) {
+            skin.moveCaret(unit, dir, select);
+        }
+    }
+
+    private TextAreaSkin skin() {
+        return (TextAreaSkin)getNode().getSkin();
     }
 
     @Override protected void replaceText(int start, int end, String txt) {
@@ -239,6 +238,10 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     private boolean deferClick = false;
 
     @Override public void mousePressed(MouseEvent e) {
+        TextAreaSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         TextArea textArea = getNode();
         // We never respond to events if disabled
         if (!textArea.isDisabled()) {
@@ -309,6 +312,10 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     }
 
     @Override public void mouseDragged(MouseEvent e) {
+        TextAreaSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         final TextArea textArea = getNode();
         // we never respond to events if disabled, but we do notify any onXXX
         // event listeners on the control
@@ -323,6 +330,10 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     }
 
     @Override public void mouseReleased(final MouseEvent e) {
+        TextAreaSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         final TextArea textArea = getNode();
         // we never respond to events if disabled, but we do notify any onXXX
         // event listeners on the control
@@ -338,6 +349,10 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     }
 
     @Override public void contextMenuRequested(ContextMenuEvent e) {
+        TextAreaSkin skin = skin();
+        if (skin == null) {
+            return;
+        }
         final TextArea textArea = getNode();
 
         if (contextMenu.isShowing()) {
@@ -399,7 +414,10 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     }
 
     @Override protected void setCaretAnimating(boolean play) {
-        skin.setCaretAnimating(play);
+        TextAreaSkin skin = skin();
+        if (skin != null) {
+            skin.setCaretAnimating(play);
+        }
     }
 
     protected void mouseDoubleClick(HitInfo hit) {
@@ -414,7 +432,7 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
 
     protected void mouseTripleClick(HitInfo hit) {
         // select the line
-        skin.moveCaret(TextUnit.PARAGRAPH, Direction.BEGINNING, false);
-        skin.moveCaret(TextUnit.PARAGRAPH, Direction.END, true);
+        moveCaret(TextUnit.PARAGRAPH, Direction.BEGINNING, false);
+        moveCaret(TextUnit.PARAGRAPH, Direction.END, true);
     }
 }

@@ -26,11 +26,6 @@
 package javafx.scene.control.skin;
 
 import java.util.List;
-
-import com.sun.javafx.scene.control.behavior.PasswordFieldBehavior;
-import com.sun.javafx.scene.control.behavior.TextFieldBehavior;
-import com.sun.javafx.scene.control.behavior.TextInputControlBehavior;
-
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
@@ -60,6 +55,8 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
+import com.sun.javafx.scene.control.ControlHelper;
+import com.sun.javafx.scene.control.behavior.TextFieldBehavior;
 
 /**
  * Default skin implementation for the {@link TextField} control.
@@ -74,8 +71,6 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
      * Private fields
      *
      **************************************************************************/
-
-    private TextFieldBehavior behavior;
 
     /**
      * This group contains the text, caret, and selection rectangle.
@@ -287,7 +282,7 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
         });
 
         registerInvalidationListener(control.textProperty(), e -> {
-            if (!behavior.isEditing()) {
+            if (!behavior().isEditing()) {
                 // Text changed, but not by user action
                 updateTextPos();
             }
@@ -378,27 +373,10 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
      **************************************************************************/
 
     @Override
-    public void install() {
-        super.install();
-        
-        // install default input map for the text field control
-        behavior = (getSkinnable() instanceof PasswordField) ?
-            new PasswordFieldBehavior() :
-            new TextFieldBehavior();
-        behavior.setTextFieldSkin(this);
-        behavior.install(this);
-    }
-
-    @Override
     public void dispose() {
         if (getSkinnable() != null) {
             getChildren().removeAll(textGroup, handleGroup);
             super.dispose();
-    
-            if (behavior != null) {
-                behavior.dispose();
-                behavior = null;
-            }
         }
     }
 
@@ -931,4 +909,7 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
         return textTranslateX.get();
     }
 
+    private TextFieldBehavior behavior() {
+        return (TextFieldBehavior)ControlHelper.getBehavior(getSkinnable());
+    }
 }
