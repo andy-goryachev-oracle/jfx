@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package javafx.scene.control.input;
+package com.sun.javafx.scene.control.input;
 
 import java.util.Objects;
 import javafx.event.Event;
@@ -30,6 +30,10 @@ import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
+import javafx.scene.control.input.EventCriteria;
+import javafx.scene.control.input.FunctionTag;
+import javafx.scene.control.input.InputMap2;
+import javafx.scene.control.input.KeyBinding2;
 import javafx.scene.input.KeyCode;
 
 /**
@@ -45,7 +49,7 @@ import javafx.scene.input.KeyCode;
  * The base class adds a dispose() method (called from Skin.dispose()),
  * which undoes the mapping done in install().
  * <p>
- * TODO rename BehaviorBase
+ * TODO rename BehaviorBase/Behavior
  */
 public abstract class BehaviorBase2<C extends Control> {
     private C control;
@@ -86,7 +90,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * Disposes of this behavior.
      */
     public void dispose() {
-        control.getInputMap2().unregister(this);
+        InputMapHelper.unregister(control.getInputMap2(), this);
     }
     
     /**
@@ -97,7 +101,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param function the function
      */
     protected void regFunc(FunctionTag tag, Runnable function) {
-        getInputMap2().regFunc(this, tag, function);
+        InputMapHelper.regFunc(getInputMap2(), this, tag, function);
     }
 
     /**
@@ -109,7 +113,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param tag the function tag
      */
     protected void regKey(KeyBinding2 k, FunctionTag tag) {
-        getInputMap2().regKey(this, k, tag);
+        InputMapHelper.regKey(getInputMap2(), this, k, tag);
     }
 
     /**
@@ -120,7 +124,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param tag the function tag
      */
     protected void regKey(KeyCode code, FunctionTag tag) {
-        getInputMap2().regKey(this, code, tag);
+        InputMapHelper.regKey(getInputMap2(), this, code, tag);
     }
 
     /**
@@ -157,7 +161,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
-        getInputMap2().addHandler(this, type, true, false, handler);
+        InputMapHelper.addHandler(getInputMap2(), this, type, true, false, handler);
     }
     
     /**
@@ -170,7 +174,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        getInputMap2().addHandler(this, type, consume, false, handler);
+        InputMapHelper.addHandler(getInputMap2(), this, type, consume, false, handler);
     }
     
     /**
@@ -184,7 +188,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandlerTail(EventType<T> type, EventHandler<T> handler) {
-        getInputMap2().addHandler(this, type, true, true, handler);
+        InputMapHelper.addHandler(getInputMap2(), this, type, true, true, handler);
     }
     
     /**
@@ -198,7 +202,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandlerTail(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        getInputMap2().addHandler(this, type, consume, true, handler);
+        InputMapHelper.addHandler(getInputMap2(), this, type, consume, true, handler);
     }
 
     /**
@@ -212,7 +216,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
-        getInputMap2().addHandler(this, criteria, consume, false, handler);
+        InputMapHelper.addHandler(getInputMap2(), this, criteria, consume, false, handler);
     }
 
     /**
@@ -230,7 +234,7 @@ public abstract class BehaviorBase2<C extends Control> {
         boolean consume,
         EventHandler<T> handler
     ) {
-        getInputMap2().addHandler(this, criteria, consume, true, handler);
+        InputMapHelper.addHandler(getInputMap2(), this, criteria, consume, true, handler);
     }
 
     /**
@@ -238,7 +242,7 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param action the action or null
      */
     protected void setOnKeyEventEnter(Runnable action) {
-        getInputMap2().setOnKeyEventEnter(this, action);
+        InputMapHelper.setOnKeyEventEnter(getInputMap2(), this, action);
     }
 
     /**
@@ -246,6 +250,6 @@ public abstract class BehaviorBase2<C extends Control> {
      * @param action the action or null
      */
     protected void setOnKeyEventExit(Runnable action) {
-        getInputMap2().setOnKeyEventExit(this, action);
+        InputMapHelper.setOnKeyEventExit(getInputMap2(), this, action);
     }
 }
