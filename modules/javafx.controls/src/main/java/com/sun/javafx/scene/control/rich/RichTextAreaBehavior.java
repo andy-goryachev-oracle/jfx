@@ -37,7 +37,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.input.BehaviorBase2;
 import javafx.scene.control.input.KeyBinding2;
 import javafx.scene.control.rich.CaretInfo;
 import javafx.scene.control.rich.RichTextArea;
@@ -62,6 +61,7 @@ import javafx.stage.Screen;
 import javafx.util.Duration;
 import com.sun.javafx.PlatformUtil;
 import com.sun.javafx.scene.control.ListenerHelper;
+import com.sun.javafx.scene.control.input.BehaviorBase2;
 
 /**
  * RichTextArea Behavior.
