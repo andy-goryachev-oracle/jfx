@@ -35,16 +35,12 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
 import javafx.scene.control.TextField;
-import javafx.scene.control.input.BehaviorBase2;
-import javafx.scene.control.input.InputMap2;
 import javafx.scene.control.input.KeyBinding2;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import com.sun.javafx.scene.control.inputmap.InputMap;
-import com.sun.javafx.scene.control.inputmap.InputMap.KeyMapping;
-import com.sun.javafx.scene.control.inputmap.InputMap.MouseMapping;
+import com.sun.javafx.scene.control.input.BehaviorBase2;
 import com.sun.javafx.scene.control.skin.Utils;
 
 public class ComboBoxBaseBehavior<T> extends BehaviorBase2<ComboBoxBase<T>> {
