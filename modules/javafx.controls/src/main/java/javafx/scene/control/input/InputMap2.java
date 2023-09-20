@@ -34,6 +34,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import com.sun.javafx.scene.control.input.HList;
@@ -47,17 +48,17 @@ import com.sun.javafx.scene.control.input.HList;
  * @param <C> The type of the Control that the InputMap is installed in.
  */
 public class InputMap2<C extends Control> {
-    /** contains user- and behavior-set key binding or function mappings */
+    /** contains the function mapping made by the user and by the skin */
     private static class Entry { // TODO prename to Mapping?
         Object value;
-        BehaviorBase2 behavior;
-        Object behaviorValue;
+        Skin<?> skin;
+        Object skinValue;
 
         public Object getValue() {
             if (value == NULL) {
                 return null;
             } else if (value == null) {
-                return behaviorValue;
+                return skinValue;
             }
             return value;
         }
@@ -67,7 +68,7 @@ public class InputMap2<C extends Control> {
     private static final Object ON_KEY_ENTER = new Object();
     private static final Object ON_KEY_EXIT = new Object();
     private final C control;
-    // EventType<?> -> Entry with value=List<EventHandler> (behavior only)
+    // EventType<?> -> Entry with value=List<EventHandler> (skin only)
     // KeyBinding -> Entry with value=FunctionTag
     // FunctionTag -> Entry with value=Runnable
     // ON_KEY_ENTER/EXIT -> Entry with value=Runnable
@@ -164,31 +165,30 @@ public class InputMap2<C extends Control> {
     }
 
     /**
-     * Removes all the mappings set by the behavior.
-     * Behavior developers do not need to call this method directly, as it is being called in BehaviorBase.dispose().
+     * Removes all the mappings set by the skin.
      *
-     * @param behavior
+     * @param skin
      */
-    void unregister(BehaviorBase2 behavior) {
-        Objects.nonNull(behavior);
+    void unregister(Skin<?> skin) {
+        Objects.nonNull(skin);
 
         for (Entry en: map.values()) {
-            if (en.behavior == behavior) {
-                en.behavior = null;
-                en.behaviorValue = null;
+            if (en.skin == skin) {
+                en.skin = null;
+                en.skinValue = null;
             }
         }
     }
 
     <T extends Event> void addHandler(
-        BehaviorBase2 behavior,
+        Skin<?> skin,
         EventType<T> type,
         boolean consume,
         boolean tail,
         EventHandler<T> handler
     ) {
         if (consume) {
-            extendHandlers(behavior, type, tail, new EventHandler<T>() {
+            extendHandlers(skin, type, tail, new EventHandler<T>() {
                 @Override
                 public void handle(T ev) {
                     handler.handle(ev);
@@ -196,19 +196,19 @@ public class InputMap2<C extends Control> {
                 }
             });
         } else {
-            extendHandlers(behavior, type, tail, handler);
+            extendHandlers(skin, type, tail, handler);
         }
     }
     
     <T extends Event> void addHandler(
-        BehaviorBase2 behavior,
+        Skin<?> skin,
         EventCriteria<T> criteria,
         boolean consume,
         boolean tail,
         EventHandler<T> handler
     ) {
         EventType<T> type = criteria.getEventType();
-        extendHandlers(behavior, type, tail, new EventHandler<T>() {
+        extendHandlers(skin, type, tail, new EventHandler<T>() {
             @Override
             public void handle(T ev) {
                 if (criteria.isEventAcceptable(ev)) {
@@ -222,23 +222,23 @@ public class InputMap2<C extends Control> {
     }
 
     private <T extends Event> void extendHandlers(
-        BehaviorBase2 behavior,
+        Skin<?> skin,
         EventType<T> t,
         boolean tail,
         EventHandler<T> h
     ) {
-        Objects.nonNull(behavior);
+        Objects.nonNull(skin);
         Entry en = addListenerIfNeeded(t);
 
-        HList handlers = HList.from(en.behaviorValue);
+        HList handlers = HList.from(en.skinValue);
         handlers.add(h, tail);
-        en.behavior = behavior;
-        en.behaviorValue = handlers;
+        en.skin = skin;
+        en.skinValue = handlers;
     }
     
     /**
      * Adds a user-specified function under the given function tag.
-     * This function will override any function set by the behavior.
+     * This function will override any function set by the skin.
      * @param tag the function tag
      * @param function the function
      */
@@ -249,27 +249,28 @@ public class InputMap2<C extends Control> {
     }
 
     /**
-     * Maps a function to the function tag, for use by the behavior.
+     * Maps a function to the function tag, for use by the skin.
      * This method will not override any previous mapping added by {@link #regFunc(FunctionTag,Runnable)}.
      *
-     * @param behavior the owner
+     * @param skin the owner
      * @param tag the function tag
      * @param function the function
      */
-    void regFunc(BehaviorBase2 behavior, FunctionTag tag, Runnable function) {
-        Objects.requireNonNull(behavior, "behavior must not be null");
+    void regFunc(Skin<?> skin, FunctionTag tag, Runnable function) {
+        Objects.requireNonNull(skin, "skin must not be null");
         Objects.requireNonNull(tag, "tag must not be null");
         Objects.requireNonNull(function, "function must not be null");
-        addFunction(tag, function, behavior);
+        addFunction(tag, function, skin);
     }
     
     /**
      * Link a key binding to the specified function tag.
-     * This method will override a mapping set by the behavior.
+     * This method will override a mapping set by the skin.
      *
      * @param k the key binding
      * @param tag the function tag
      */
+    // TODO override -> takes priority over
     public void regKey(KeyBinding2 k, FunctionTag tag) {
         Objects.requireNonNull(k, "KeyBinding must not be null");
         Objects.requireNonNull(tag, "function tag must not be null");
@@ -277,65 +278,65 @@ public class InputMap2<C extends Control> {
     }
     
     /**
-     * Maps a key binding to the specified function tag, for use by the behavior.
+     * Maps a key binding to the specified function tag, for use by the skin.
      * A null key binding will result in no change to this input map.
      * This method will not override a user mapping added by {@link #regKey(KeyBinding2,FunctionTag)}.
      *
-     * @param behavior the owner
+     * @param skin the owner
      * @param k the key binding, can be null TODO variant: KeyBinding.NA
      * @param tag the function tag
      */
-    void regKey(BehaviorBase2 behavior, KeyBinding2 k, FunctionTag tag) {
+    void regKey(Skin<?> skin, KeyBinding2 k, FunctionTag tag) {
         if (k == null) {
             return;
         }
-        Objects.requireNonNull(behavior, "behavior must not be null");
+        Objects.requireNonNull(skin, "skin must not be null");
         Objects.requireNonNull(tag, "function tag must not be null");
-        addBinding(k, tag, behavior);
+        addBinding(k, tag, skin);
     }
 
     /**
-     * Maps a key binding to the specified function tag, as a part of the behavior.
+     * Maps a key binding to the specified function tag, as a part of the skin.
      * This method will not override a user mapping added by {@link #regKey(KeyBinding2,FunctionTag)}.
      *
-     * @param behavior the owner
+     * @param skin the owner
      * @param code the key code to construct a {@link KeyBinding2}
      * @param tag the function tag
      */
-    void regKey(BehaviorBase2 behavior, KeyCode code, FunctionTag tag) {
-        regKey(behavior, KeyBinding2.of(code), tag);
+    void regKey(Skin<?> skin, KeyCode code, FunctionTag tag) {
+        regKey(skin, KeyBinding2.of(code), tag);
     }
 
-    private void addFunction(FunctionTag tag, Runnable function, BehaviorBase2 behavior) {
+    private void addFunction(FunctionTag tag, Runnable function, Skin<?> skin) {
         Entry en = map.get(tag);
         if (en == null) {
             en = new Entry();
             map.put(tag, en);
         }
 
-        if (behavior == null) {
+        if (skin == null) {
             // user mapping
             en.value = function;
         } else {
-            // behavior mapping
-            en.behavior = behavior;
-            en.behaviorValue = function;
+            // skin mapping
+            en.skin = skin;
+            en.skinValue = function;
         }
     }
 
-    private void addBinding(KeyBinding2 k, FunctionTag tag, BehaviorBase2 behavior) {
+    private void addBinding(KeyBinding2 k, FunctionTag tag, Skin<?> skin) {
         Entry en = map.get(k);
         if (en == null) {
             en = new Entry();
             map.put(k, en);
         }
         
-        if (behavior == null) {
+        if (skin == null) {
             // user mapping
         } else {
-            // behavior mapping
-            en.behavior = behavior;
-            en.behaviorValue = tag;
+            // skin mapping
+            en.skin = skin;
+            en.skinValue = tag;
         }
 
         EventType<KeyEvent> type = k.getEventType();
@@ -368,7 +369,7 @@ public class InputMap2<C extends Control> {
     public Runnable getDefaultFunction(FunctionTag tag) {
         Entry en = map.get(tag);
         if (en != null) {
-            Object v = en.behaviorValue;
+            Object v = en.skinValue;
             if (v instanceof Runnable r) {
                 return r;
             }
@@ -405,7 +406,7 @@ public class InputMap2<C extends Control> {
         // TODO this needs to be tested
         Entry en = map.get(k);
         if (en != null) {
-            Object v = en.behaviorValue;
+            Object v = en.skinValue;
             if (v instanceof FunctionTag tag) {
                 return getDefaultFunction(tag);
             }
@@ -453,7 +454,7 @@ public class InputMap2<C extends Control> {
     }
 
     /**
-     * Resets all key bindings set by user to the values set by the behavior, if any.
+     * Resets all key bindings set by user to the values set by the skin, if any.
      */
     public void resetKeyBindings() {
         Iterator<Map.Entry<Object, Entry>> it = map.entrySet().iterator();
@@ -467,7 +468,7 @@ public class InputMap2<C extends Control> {
     }
 
     /**
-     * Restores the specified key binding to the value set by the behavior, if any.
+     * Restores the specified key binding to the value set by the skin, if any.
      *
      * @param k the key binding
      */
@@ -475,14 +476,14 @@ public class InputMap2<C extends Control> {
         Entry en = map.get(k);
         if (en != null) {
             en.value = null;
-            if (en.behaviorValue == null) {
+            if (en.skinValue == null) {
                 map.remove(k);
             }
         }
     }
 
     /**
-     * Restores the specified function tag to the value set by the behavior, if any.
+     * Restores the specified function tag to the value set by the skin, if any.
      *
      * @param tag the function tag
      */
@@ -491,14 +492,14 @@ public class InputMap2<C extends Control> {
         Entry en = map.get(tag);
         if (en != null) {
             en.value = null;
-            if (en.behaviorValue == null) {
+            if (en.skinValue == null) {
                 map.remove(tag);
             }
         }
     }
 
     /**
-     * Collects all mapped key bindings (set either by the user or the behavior).
+     * Collects all mapped key bindings (set either by the user or the skin).
      *
      * @return a Set of key bindings
      */
@@ -521,42 +522,42 @@ public class InputMap2<C extends Control> {
         Entry en1 = map.get(k1);
         if (en1 != null) {
             Entry en2 = new Entry();
-            en2.behavior = en1.behavior;
-            en2.behaviorValue = en1.behaviorValue;
+            en2.skin = en1.skin;
+            en2.skinValue = en1.skinValue;
             en2.value = en1.value;
             map.put(k2, en2);
         }
     }
 
-    void setOnKeyEventEnter(BehaviorBase2 behavior, Runnable action) {
-        Objects.nonNull(behavior);
+    void setOnKeyEventEnter(Skin<?> skin, Runnable action) {
+        Objects.nonNull(skin);
         Entry en = map.get(ON_KEY_ENTER);
         if (en == null) {
             en = new Entry();
             map.put(ON_KEY_ENTER, en);
         }
 
-        if (behavior == null) {
+        if (skin == null) {
             en.value = action;
         } else {
-            en.behavior = behavior;
-            en.behaviorValue = action;
+            en.skin = skin;
+            en.skinValue = action;
         }
     }
 
-   void setOnKeyEventExit(BehaviorBase2 behavior, Runnable action) {
-        Objects.nonNull(behavior);
+   void setOnKeyEventExit(Skin<?> skin, Runnable action) {
+        Objects.nonNull(skin);
         Entry en = map.get(ON_KEY_EXIT);
         if (en == null) {
             en = new Entry();
             map.put(ON_KEY_EXIT, en);
         }
 
-        if (behavior == null) {
+        if (skin == null) {
             en.value = action;
         } else {
-            en.behavior = behavior;
-            en.behaviorValue = action;
+            en.skin = skin;
+            en.skinValue = action;
         }
     }
 }

@@ -28,7 +28,6 @@ package javafx.scene.control;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener.Change;
@@ -36,18 +35,24 @@ import javafx.collections.ObservableList;
 import javafx.css.CssMetaData;
 import javafx.css.PseudoClass;
 import javafx.css.Styleable;
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
+import javafx.scene.control.input.EventCriteria;
+import javafx.scene.control.input.FunctionTag;
+import javafx.scene.control.input.KeyBinding2;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
-
 import com.sun.javafx.scene.control.LambdaMultiplePropertyChangeListenerHandler;
 import com.sun.javafx.scene.control.ListenerHelper;
+import com.sun.javafx.scene.control.input.InputMapHelper;
 
 /**
  * Base implementation class for defining the visual representation of user
@@ -169,6 +174,8 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
         if (listenerHelper != null) {
             listenerHelper.disconnect();
         }
+
+        InputMapHelper.unregister(this);
 
         this.control = null;
     }
@@ -338,6 +345,174 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
         return lambdaChangeListenerHandler.unregisterListChangeListeners(observableList);
     }
 
+    /**
+     * Returns the input map of the associated Control.
+     * TODO rename getInputMap()
+     * @return the input map
+     */
+//    protected final InputMap2 getInputMap2() {
+//        return control.getInputMap2();
+//    }
+    
+    /**
+     * Maps a function to the function tag.
+     * This method will not override any previous mapping added by {@link #regFunc(FunctionTag,Runnable)}.
+     *
+     * @param tag the function tag
+     * @param function the function
+     */
+    protected void regFunc(FunctionTag tag, Runnable function) {
+        InputMapHelper.regFunc(this, tag, function);
+    }
+
+    /**
+     * Maps a key binding to the specified function tag.
+     * A null key binding will result in no change to this input map.
+     * This method will not override a user mapping.
+     *
+     * @param k the key binding, can be null (TODO or KB.NA)
+     * @param tag the function tag
+     */
+    protected void regKey(KeyBinding2 k, FunctionTag tag) {
+        InputMapHelper.regKey(this, k, tag);
+    }
+
+    /**
+     * Maps a key binding to the specified function tag.
+     * This method will not override a user mapping added by {@link #regKey(KeyBinding2,FunctionTag)}.
+     *
+     * @param code the key code to construct a {@link KeyBinding2}
+     * @param tag the function tag
+     */
+    protected void regKey(KeyCode code, FunctionTag tag) {
+        InputMapHelper.regKey(this, code, tag);
+    }
+
+    /**
+     * This convenience method maps the function tag to the specified function, and at the same time
+     * maps the specified key binding to that function tag.
+     * @param tag the function tag
+     * @param k the key binding
+     * @param func the function
+     */
+    protected void reg(FunctionTag tag, KeyBinding2 k, Runnable func) {
+        InputMapHelper.regFunc(this, tag, func);
+        InputMapHelper.regKey(this, k, tag);
+    }
+
+    /**
+     * This convenience method maps the function tag to the specified function, and at the same time
+     * maps the specified key binding to that function tag.
+     * @param tag the function tag
+     * @param code the key code
+     * @param func the function
+     */
+    protected void reg(FunctionTag tag, KeyCode code, Runnable func) {
+        InputMapHelper.regFunc(this, tag, func);
+        InputMapHelper.regKey(this, KeyBinding2.of(code), tag);
+    }
+
+    /**
+     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * The handler will get removed in {@link#dispose()} method.
+     * This mapping always consumes the matching event.
+     *
+     * @param <T> the actual event type
+     * @param type the event type
+     * @param handler the event handler
+     */
+    protected <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
+        InputMapHelper.addHandler(this, type, true, false, handler);
+    }
+    
+    /**
+     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * The handler will get removed in {@link#dispose()} method.
+     *
+     * @param <T> the actual event type
+     * @param type the event type
+     * @param consume determines whether the matching event is consumed or not
+     * @param handler the event handler
+     */
+    protected <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
+        InputMapHelper.addHandler(this, type, consume, false, handler);
+    }
+    
+    /**
+     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * This event handler will get invoked after all handlers added via map() methods.
+     * The handler will get removed in {@link#dispose()} method.
+     * This mapping always consumes the matching event.
+     *
+     * @param <T> the actual event type
+     * @param type the event type
+     * @param handler the event handler
+     */
+    protected <T extends Event> void addHandlerTail(EventType<T> type, EventHandler<T> handler) {
+        InputMapHelper.addHandler(this, type, true, true, handler);
+    }
+    
+    /**
+     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * This event handler will get invoked after all handlers added via map() methods.
+     * The handler will get removed in {@link#dispose()} method.
+     *
+     * @param <T> the actual event type
+     * @param type the event type
+     * @param consume determines whether the matching event is consumed or not
+     * @param handler the event handler
+     */
+    protected <T extends Event> void addHandlerTail(EventType<T> type, boolean consume, EventHandler<T> handler) {
+        InputMapHelper.addHandler(this, type, consume, true, handler);
+    }
+
+    /**
+     * Adds an event handler for the specific event criteria, in the context of this Behavior.
+     * This is a more specific version of {@link #addHandler(EventType,EventHandler)} method.
+     * The handler will get removed in {@link#dispose()} method.
+     *
+     * @param <T> the actual event type
+     * @param criteria the matching criteria
+     * @param consume determines whether the matching event is consumed or not
+     * @param handler the event handler
+     */
+    protected <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
+        InputMapHelper.addHandler(this, criteria, consume, false, handler);
+    }
+
+    /**
+     * Adds an event handler for the specific event criteria, in the context of this Behavior.
+     * This event handler will get invoked after all handlers added via map() methods.
+     * The handler will get removed in {@link#dispose()} method.
+     *
+     * @param <T> the actual event type
+     * @param criteria the matching criteria
+     * @param consume determines whether the matching event is consumed or not
+     * @param handler the event handler
+     */
+    protected <T extends Event> void addHandlerTail(
+        EventCriteria<T> criteria,
+        boolean consume,
+        EventHandler<T> handler
+    ) {
+        InputMapHelper.addHandler(this, criteria, consume, true, handler);
+    }
+
+    /**
+     * Sets the code to be executed just before handling of the key events.
+     * @param action the action or null
+     */
+    protected void setOnKeyEventEnter(Runnable action) {
+        InputMapHelper.setOnKeyEventEnter(this, action);
+    }
+
+    /**
+     * Sets the code to be executed just after handling of the key events.
+     * @param action the action or null
+     */
+    protected void setOnKeyEventExit(Runnable action) {
+        InputMapHelper.setOnKeyEventExit(this, action);
+    }
 
     /* *************************************************************************
      *                                                                         *

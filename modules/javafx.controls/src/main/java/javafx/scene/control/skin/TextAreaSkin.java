@@ -86,12 +86,11 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
      *
      **************************************************************************/
 
-    final private TextArea textArea;
+    private final TextArea textArea;
+    private final TextAreaBehavior behavior;
 
     // *** NOTE: Multiple node mode is not yet fully implemented *** //
     private static final boolean USE_MULTIPLE_NODES = false;
-
-    private final TextAreaBehavior behavior;
 
     private double computedMinWidth = Double.NEGATIVE_INFINITY;
     private double computedMinHeight = Double.NEGATIVE_INFINITY;
@@ -222,7 +221,6 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
 
         // instantiate, but not install, the behavior
         behavior = new TextAreaBehavior();
-        behavior.setTextAreaSkin(this);
 
         if (SHOW_HANDLES) {
             contentView.getChildren().addAll(caretHandle, selectionHandle1, selectionHandle2);
@@ -829,7 +827,6 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
     public void install() {
         super.install();
 
-        // install default input map for the text area control
         behavior.install(this);
     }
 

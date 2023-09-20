@@ -176,11 +176,6 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
         }
     }
 
-    // An unholy back-reference!
-    public void setTextAreaSkin(TextAreaSkin skin) {
-        this.skin = skin;
-    }
-
     private void insertNewLine() {
         if (isEditable()) {
             setEditing(true);

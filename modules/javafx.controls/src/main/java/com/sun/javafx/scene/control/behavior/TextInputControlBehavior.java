@@ -45,7 +45,6 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Skin;
 import javafx.scene.control.TextInputControl;
-import javafx.scene.control.input.BehaviorBase2;
 import javafx.scene.control.input.EventCriteria;
 import javafx.scene.control.input.InputMap2;
 import javafx.scene.control.input.KeyBinding2;
@@ -71,7 +70,7 @@ import com.sun.javafx.scene.control.skin.FXVK;
  * class behaviors.
  *
  */
-public abstract class TextInputControlBehavior<T extends TextInputControl> extends BehaviorBase2<T> {
+public abstract class TextInputControlBehavior<T extends TextInputControl> {
 
     /**
      * Specifies whether we ought to show handles. We should do it on touch platforms
@@ -84,6 +83,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
      * Fields                                                                 *
      *************************************************************************/
 
+    protected final T control;
     protected ContextMenu contextMenu;
 
     private InvalidationListener textListener = observable -> invalidateBidi();
@@ -95,12 +95,12 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
      *                                                                         *
      **************************************************************************/
 
-    public TextInputControlBehavior() {
+    public TextInputControlBehavior(T control) {
+        this.control = control;
         // TODO create upon demand
         contextMenu = new ContextMenu();
     }
 
-    @Override
     public void install(Skin<T> skin) {
         super.install(skin);
 
