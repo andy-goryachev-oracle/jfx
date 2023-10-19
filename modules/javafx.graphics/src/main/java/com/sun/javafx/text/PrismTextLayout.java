@@ -26,6 +26,7 @@
 package com.sun.javafx.text;
 
 
+import javafx.scene.shape.ClosePath;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
@@ -403,12 +404,30 @@ public class PrismTextLayout implements TextLayout {
                             lineX2 = getMirroringWidth() - lineX2;
                         }
                         lineX2 += x;
-                        PathElement[] result = new PathElement[4];
-                        result[0] = new MoveTo(lineX, lineY);
-                        result[1] = new LineTo(lineX, lineY + lineHeight / 2);
-                        result[2] = new MoveTo(lineX2, lineY + lineHeight / 2);
-                        result[3] = new LineTo(lineX2, lineY + lineHeight);
-                        return result;
+//                        PathElement[] result = new PathElement[4];
+//                        result[0] = new MoveTo(lineX, lineY);
+//                        result[1] = new LineTo(lineX, lineY + lineHeight / 2);
+//                        result[2] = new MoveTo(lineX2, lineY + lineHeight / 2);
+//                        result[3] = new LineTo(lineX2, lineY + lineHeight);
+//                        return result;
+                        boolean flip = !run.isLeftToRight() ^ isMirrored();
+                        double y2 = lineY + lineHeight / 2;
+                        double yh = lineY + lineHeight;
+                        double dx = lineHeight * 0.1;
+                        double dy = lineHeight * 0.1;
+                        if (flip) {
+                            dx = -dx;
+                        }
+                        PathElement[] r = new PathElement[8];
+                        r[0] = new MoveTo(lineX, y2);
+                        r[1] = new LineTo(lineX, lineY);
+                        r[2] = new LineTo(lineX - dx, lineY);
+                        r[3] = new LineTo(lineX, lineY + dy);
+                        r[4] = new MoveTo(lineX2, y2);
+                        r[5] = new LineTo(lineX2, yh);
+                        r[6] = new LineTo(lineX2 + dx, yh);
+                        r[7] = new LineTo(lineX2, yh - dy);
+                        return r;
                     }
                 }
             }
