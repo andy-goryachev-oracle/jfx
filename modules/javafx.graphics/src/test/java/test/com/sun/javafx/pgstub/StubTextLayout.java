@@ -31,6 +31,7 @@ import com.sun.javafx.geom.RectBounds;
 import com.sun.javafx.geom.Shape;
 import com.sun.javafx.scene.text.*;
 import javafx.scene.shape.PathElement;
+import javafx.scene.text.CaretInfo;
 import javafx.scene.text.Font;
 
 public class StubTextLayout implements TextLayout {
@@ -224,5 +225,10 @@ public class StubTextLayout implements TextLayout {
             }
         }
         return text;
+    }
+
+    @Override
+    public CaretInfo getCaretInfo(int charIndex, boolean leading, float x, float y) {
+        return null;
     }
 }

@@ -26,6 +26,7 @@
 package com.sun.javafx.scene.text;
 
 import javafx.scene.shape.PathElement;
+import javafx.scene.text.CaretInfo;
 import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.Shape;
 
@@ -214,8 +215,9 @@ public interface TextLayout {
      */
     public Hit getHitInfo(float x, float y, String text, int textRunStart, int curRunStart);
 
-    public PathElement[] getCaretShape(int offset, boolean isLeading,
-                                       float x, float y);
-    public PathElement[] getRange(int start, int end, int type,
-                                  float x, float y);
+    public PathElement[] getCaretShape(int offset, boolean isLeading, float x, float y);
+
+    public PathElement[] getRange(int start, int end, int type, float x, float y);
+
+    public CaretInfo getCaretInfo(int charIndex, boolean leading, float x, float y);
 }
