@@ -458,6 +458,7 @@ public class PrismTextLayout implements TextLayout {
         TextRun[] runs = line.getRuns();
         int runCount = runs.length;
         int runIndex = -1;
+        TextRun r1 = null; // FIX
         for (int i = 0; i < runCount; i++) {
             TextRun run = runs[i];
             int runStart = run.getStart();
@@ -466,6 +467,7 @@ public class PrismTextLayout implements TextLayout {
                 if (!run.isLinebreak()) {
                     runIndex = i;
                 }
+                r1 = run;
                 break;
             }
         }
@@ -533,13 +535,26 @@ public class PrismTextLayout implements TextLayout {
                         }
                         lineX2 += x;
                         // TODO pass ltr+mirrored for both adjacent runs
+                        System.out.println("2: r1=" + f(r1) + " r2=" + f(run));
                         boolean flip = !run.isLeftToRight() ^ isMirrored();
                         return CaretInfoUtil.createDual(lineX, lineY, lineX2, lineHeight, flip);
                     }
                 }
             }
         }
+        System.out.println("1: r1=" + f(r1));
         return CaretInfoUtil.createSingle(lineX, lineY, lineHeight);
+    }
+    
+    private String f(TextRun r) {
+        if(r == null) {
+            return "null";
+        }
+        return r.toString();
+//            "{" +
+//            "text=" + (r.getTextSpan() == null ? "null" : r.getTextSpan().getText()) +
+//            ", ltr=" + r.isLeftToRight() +
+//            "}";
     }
 
     @Override
