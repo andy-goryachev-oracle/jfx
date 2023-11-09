@@ -25,11 +25,15 @@
 
 package com.sun.javafx.text;
 
-
-import javafx.scene.shape.ClosePath;
+import java.text.Bidi;
+import java.text.BreakIterator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Hashtable;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
+import javafx.scene.text.CaretInfo;
 import com.sun.javafx.font.CharToGlyphMapper;
 import com.sun.javafx.font.FontResource;
 import com.sun.javafx.font.FontStrike;
@@ -37,22 +41,17 @@ import com.sun.javafx.font.Metrics;
 import com.sun.javafx.font.PGFont;
 import com.sun.javafx.font.PrismFontFactory;
 import com.sun.javafx.geom.BaseBounds;
+import com.sun.javafx.geom.BoxBounds;
 import com.sun.javafx.geom.Path2D;
 import com.sun.javafx.geom.Point2D;
 import com.sun.javafx.geom.RectBounds;
 import com.sun.javafx.geom.RoundRectangle2D;
 import com.sun.javafx.geom.Shape;
-import com.sun.javafx.geom.BoxBounds;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.javafx.geom.transform.Translate2D;
 import com.sun.javafx.scene.text.GlyphList;
 import com.sun.javafx.scene.text.TextLayout;
 import com.sun.javafx.scene.text.TextSpan;
-import java.text.Bidi;
-import java.text.BreakIterator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
 
 public class PrismTextLayout implements TextLayout {
     private static final BaseTransform IDENTITY = BaseTransform.IDENTITY_TRANSFORM;
@@ -313,8 +312,136 @@ public class PrismTextLayout implements TextLayout {
     }
 
     @Override
-    public PathElement[] getCaretShape(int offset, boolean isLeading,
-                                       float x, float y) {
+    public PathElement[] getCaretShape(int offset, boolean isLeading, float x, float y) {
+        CaretInfo c = getCaretInfo(offset, isLeading, x, y);
+        return c.getShape();
+        // TODO remove
+//        ensureLayout();
+//        int lineIndex = 0;
+//        int lineCount = getLineCount();
+//        while (lineIndex < lineCount - 1) {
+//            TextLine line = lines[lineIndex];
+//            int lineEnd = line.getStart() + line.getLength();
+//            if (lineEnd > offset) break;
+//            lineIndex++;
+//        }
+//        int sliptCaretOffset = -1;
+//        int level = 0;
+//        float lineX = 0, lineY = 0, lineHeight = 0;
+//        TextLine line = lines[lineIndex];
+//        TextRun[] runs = line.getRuns();
+//        int runCount = runs.length;
+//        int runIndex = -1;
+//        for (int i = 0; i < runCount; i++) {
+//            TextRun run = runs[i];
+//            int runStart = run.getStart();
+//            int runEnd = run.getEnd();
+//            if (runStart <= offset && offset < runEnd) {
+//                if (!run.isLinebreak()) {
+//                    runIndex = i;
+//                }
+//                break;
+//            }
+//        }
+//        if (runIndex != -1) {
+//            TextRun run = runs[runIndex];
+//            int runStart = run.getStart();
+//            Point2D location = run.getLocation();
+//            lineX = location.x + run.getXAtOffset(offset - runStart, isLeading);
+//            lineY = location.y;
+//            lineHeight = line.getBounds().getHeight();
+//
+//            if (isLeading) {
+//                if (runIndex > 0 && offset == runStart) {
+//                    level = run.getLevel();
+//                    sliptCaretOffset = offset - 1;
+//                }
+//            } else {
+//                int runEnd = run.getEnd();
+//                if (runIndex + 1 < runs.length && offset + 1 == runEnd) {
+//                    level = run.getLevel();
+//                    sliptCaretOffset = offset + 1;
+//                }
+//            }
+//        } else {
+//            /* end of line (line break or offset>=charCount) */
+//            int maxOffset = 0;
+//
+//            /* set run index to zero to handle empty line case (only break line) */
+//            runIndex = 0;
+//            for (int i = 0; i < runCount; i++) {
+//                TextRun run = runs[i];
+//                /*use the trailing edge of the last logical run*/
+//                if (run.getStart() >= maxOffset && !run.isLinebreak()) {
+//                    maxOffset = run.getStart();
+//                    runIndex = i;
+//                }
+//            }
+//            TextRun run = runs[runIndex];
+//            Point2D location = run.getLocation();
+//            lineX = location.x + (run.isLeftToRight() ? run.getWidth() : 0);
+//            lineY = location.y;
+//            lineHeight = line.getBounds().getHeight();
+//        }
+//        if (isMirrored()) {
+//            lineX = getMirroringWidth() - lineX;
+//        }
+//        lineX += x;
+//        lineY += y;
+//        if (sliptCaretOffset != -1) {
+//            for (int i = 0; i < runs.length; i++) {
+//                TextRun run = runs[i];
+//                int runStart = run.getStart();
+//                int runEnd = run.getEnd();
+//                if (runStart <= sliptCaretOffset && sliptCaretOffset < runEnd) {
+//                    if ((run.getLevel() & 1) != (level & 1)) {
+//                        Point2D location = run.getLocation();
+//                        float lineX2 = location.x;
+//                        if (isLeading) {
+//                            if ((level & 1) != 0) lineX2 += run.getWidth();
+//                        } else {
+//                            if ((level & 1) == 0) lineX2 += run.getWidth();
+//                        }
+//                        if (isMirrored()) {
+//                            lineX2 = getMirroringWidth() - lineX2;
+//                        }
+//                        lineX2 += x;
+////                        PathElement[] result = new PathElement[4];
+////                        result[0] = new MoveTo(lineX, lineY);
+////                        result[1] = new LineTo(lineX, lineY + lineHeight / 2);
+////                        result[2] = new MoveTo(lineX2, lineY + lineHeight / 2);
+////                        result[3] = new LineTo(lineX2, lineY + lineHeight);
+////                        return result;
+//                        boolean flip = !run.isLeftToRight() ^ isMirrored();
+//                        double y2 = lineY + lineHeight / 2;
+//                        double yh = lineY + lineHeight;
+//                        double dx = lineHeight * 0.1;
+//                        double dy = lineHeight * 0.1;
+//                        if (flip) {
+//                            dx = -dx;
+//                        }
+//                        PathElement[] r = new PathElement[8];
+//                        r[0] = new MoveTo(lineX, y2);
+//                        r[1] = new LineTo(lineX, lineY);
+//                        r[2] = new LineTo(lineX - dx, lineY);
+//                        r[3] = new LineTo(lineX, lineY + dy);
+//                        r[4] = new MoveTo(lineX2, y2);
+//                        r[5] = new LineTo(lineX2, yh);
+//                        r[6] = new LineTo(lineX2 + dx, yh);
+//                        r[7] = new LineTo(lineX2, yh - dy);
+//                        return r;
+//                    }
+//                }
+//            }
+//        }
+//        PathElement[] result = new PathElement[2];
+//        result[0] = new MoveTo(lineX, lineY);
+//        result[1] = new LineTo(lineX, lineY + lineHeight);
+//        return result;
+    }
+
+    @Override
+    public CaretInfo getCaretInfo(int offset, boolean isLeading, float x, float y) {
         ensureLayout();
         int lineIndex = 0;
         int lineCount = getLineCount();
@@ -324,7 +451,7 @@ public class PrismTextLayout implements TextLayout {
             if (lineEnd > offset) break;
             lineIndex++;
         }
-        int sliptCaretOffset = -1;
+        int splitCaretOffset = -1;
         int level = 0;
         float lineX = 0, lineY = 0, lineHeight = 0;
         TextLine line = lines[lineIndex];
@@ -353,13 +480,13 @@ public class PrismTextLayout implements TextLayout {
             if (isLeading) {
                 if (runIndex > 0 && offset == runStart) {
                     level = run.getLevel();
-                    sliptCaretOffset = offset - 1;
+                    splitCaretOffset = offset - 1;
                 }
             } else {
                 int runEnd = run.getEnd();
                 if (runIndex + 1 < runs.length && offset + 1 == runEnd) {
                     level = run.getLevel();
-                    sliptCaretOffset = offset + 1;
+                    splitCaretOffset = offset + 1;
                 }
             }
         } else {
@@ -387,12 +514,12 @@ public class PrismTextLayout implements TextLayout {
         }
         lineX += x;
         lineY += y;
-        if (sliptCaretOffset != -1) {
+        if (splitCaretOffset != -1) {
             for (int i = 0; i < runs.length; i++) {
                 TextRun run = runs[i];
                 int runStart = run.getStart();
                 int runEnd = run.getEnd();
-                if (runStart <= sliptCaretOffset && sliptCaretOffset < runEnd) {
+                if (runStart <= splitCaretOffset && splitCaretOffset < runEnd) {
                     if ((run.getLevel() & 1) != (level & 1)) {
                         Point2D location = run.getLocation();
                         float lineX2 = location.x;
@@ -405,38 +532,14 @@ public class PrismTextLayout implements TextLayout {
                             lineX2 = getMirroringWidth() - lineX2;
                         }
                         lineX2 += x;
-//                        PathElement[] result = new PathElement[4];
-//                        result[0] = new MoveTo(lineX, lineY);
-//                        result[1] = new LineTo(lineX, lineY + lineHeight / 2);
-//                        result[2] = new MoveTo(lineX2, lineY + lineHeight / 2);
-//                        result[3] = new LineTo(lineX2, lineY + lineHeight);
-//                        return result;
+                        // TODO pass ltr+mirrored for both adjacent runs
                         boolean flip = !run.isLeftToRight() ^ isMirrored();
-                        double y2 = lineY + lineHeight / 2;
-                        double yh = lineY + lineHeight;
-                        double dx = lineHeight * 0.1;
-                        double dy = lineHeight * 0.1;
-                        if (flip) {
-                            dx = -dx;
-                        }
-                        PathElement[] r = new PathElement[8];
-                        r[0] = new MoveTo(lineX, y2);
-                        r[1] = new LineTo(lineX, lineY);
-                        r[2] = new LineTo(lineX - dx, lineY);
-                        r[3] = new LineTo(lineX, lineY + dy);
-                        r[4] = new MoveTo(lineX2, y2);
-                        r[5] = new LineTo(lineX2, yh);
-                        r[6] = new LineTo(lineX2 + dx, yh);
-                        r[7] = new LineTo(lineX2, yh - dy);
-                        return r;
+                        return CaretInfoUtil.createDual(lineX, lineY, lineX2, lineHeight, flip);
                     }
                 }
             }
         }
-        PathElement[] result = new PathElement[2];
-        result[0] = new MoveTo(lineX, lineY);
-        result[1] = new LineTo(lineX, lineY + lineHeight);
-        return result;
+        return CaretInfoUtil.createSingle(lineX, lineY, lineHeight);
     }
 
     @Override

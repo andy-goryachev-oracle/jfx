@@ -219,6 +219,18 @@ public class TextFlow extends Pane {
     }
 
     /**
+     * Returns shape of caret in local coordinates.
+     *
+     * @param charIndex the character index for the caret
+     * @param leading whether the caret is biased on the leading edge of the character
+     * @return the caret information
+     * @since 999
+     */
+    public CaretInfo getCaretInfo(int charIndex, boolean leading) {
+        return getTextLayout().getCaretInfo(charIndex, leading, 0, 0);
+    }
+
+    /**
      * Returns shape for the range of the text in local coordinates.
      *
      * @param start the beginning character index for the range
