@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
@@ -535,6 +536,49 @@ public class TextFlow extends Pane {
 
     public final void setTabSize(int spaces) {
         tabSizeProperty().set(spaces);
+    }
+
+    /**
+     * Tab stop policy.
+     * This value overrides the {@code tabSize} of this TextFlow as well as
+     * in contained {@link Text} nodes.
+     *
+     * @since 999
+     */
+    private ObjectProperty<TabStopPolicy> tabStopPolicy;
+
+    public final ObjectProperty<TabStopPolicy> tabStopPolicyProperty() {
+        if (tabStopPolicy == null) {
+            tabStopPolicy = new SimpleObjectProperty<>() {
+                @Override
+                public Object getBean() {
+                    return TextFlow.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "tabStopPolicy";
+                }
+
+                @Override
+                protected void invalidated() {
+                    // TODO
+//                    TextLayout layout = getTextLayout();
+//                    if (layout.setTabSize(get())) {
+//                        requestLayout();
+//                    }
+                }
+            };
+        }
+        return tabStopPolicy;
+    }
+
+    public final TabStopPolicy getTabStopPolicy() {
+        return tabStopPolicy == null ? null : tabStopPolicy.get();
+    }
+
+    public final void setTabStopPolicy(TabStopPolicy policy) {
+        tabStopPolicyProperty().set(policy);
     }
 
     @Override public final double getBaselineOffset() {
