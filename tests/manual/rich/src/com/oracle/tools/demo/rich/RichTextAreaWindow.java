@@ -81,7 +81,10 @@ public class RichTextAreaWindow extends Stage {
         bp.setBottom(status);
         
         Scene scene = new Scene(bp);
-        scene.getStylesheets().add(RichTextAreaWindow.class.getResource("RichTextAreaDemo.css").toExternalForm());
+        scene.getStylesheets().addAll(
+            RichTextAreaWindow.class.getResource("RichTextArea-Modena.css").toExternalForm(),
+            RichTextAreaWindow.class.getResource("RichTextAreaDemo.css").toExternalForm()
+        );
 
         setScene(scene);
         setTitle(
