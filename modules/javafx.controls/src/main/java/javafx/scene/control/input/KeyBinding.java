@@ -23,7 +23,7 @@
  * questions.
  */
 
-package javafx.scene.control.behavior;
+package javafx.scene.control.input;
 
 import java.util.EnumSet;
 import java.util.Objects;

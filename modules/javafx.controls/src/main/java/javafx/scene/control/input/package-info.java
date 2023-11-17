@@ -28,4 +28,4 @@
  * to control's behavior: input map, key bindings, and base class for behavior implementations.
  * </p>
  */
-package javafx.scene.control.behavior;
+package javafx.scene.control.input;

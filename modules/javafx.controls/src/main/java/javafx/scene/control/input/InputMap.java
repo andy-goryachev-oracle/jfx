@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package javafx.scene.control.behavior;
+package javafx.scene.control.input;
 
 import java.util.HashMap;
 import java.util.HashSet;
