@@ -36,6 +36,10 @@ module javafx.incubator.controls {
     requires transitive javafx.base;
     requires transitive javafx.graphics;
     requires transitive javafx.controls;
+    requires transitive java.desktop;
 
     exports javafx.incubator.scene.control;
+    exports javafx.incubator.scene.control.rich;
+    exports javafx.incubator.scene.control.rich.skin;
+    exports javafx.incubator.scene.control.rich.model;
 }
