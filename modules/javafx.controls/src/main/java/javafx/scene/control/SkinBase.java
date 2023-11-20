@@ -43,6 +43,7 @@ import javafx.geometry.VPos;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
+import javafx.scene.control.input.SkinInputMap;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 
@@ -160,6 +161,8 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
     /** {@inheritDoc} */
     @Override public void dispose() {
 //        control.removeEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler);
+        // remove behavior handlers
+        setSkinInputMap(null);
 
         // unhook listeners
         if (lambdaChangeListenerHandler != null) {
@@ -173,7 +176,19 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
         this.control = null;
     }
 
-
+    /**
+     * Sets or removes the skin input map.
+     * Setting a non-null map adds all the event handlers to the control instance,
+     * setting a null map has an effect of removing any previously added event handlers.
+     *
+     * @param map the skin input map
+     */
+    // TODO explain that the skin must finish mapping event handlers and key bindings, since there is no reason
+    // to track changes
+    protected final void setSkinInputMap(SkinInputMap<C, ?> map) {
+        // helper?
+        control.getInputMap().setSkinInputMap(this, map);
+    }
 
     /* *************************************************************************
      *                                                                         *

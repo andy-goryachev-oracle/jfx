@@ -41,8 +41,8 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.input.BehaviorBase;
 import javafx.scene.control.input.EventCriteria;
-import javafx.scene.control.input.InputMap;
 import javafx.scene.control.input.KeyBinding;
+import javafx.scene.control.input.SkinInputMap;
 import javafx.scene.control.skin.TextInputControlSkin;
 import javafx.scene.control.skin.TextInputControlSkin.Direction;
 import javafx.scene.control.skin.TextInputControlSkin.TextUnit;
@@ -103,16 +103,16 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
 
         c.textProperty().addListener(textListener);
 
-        registerFunction(TextInputControl.COPY, c::copy);
+        registerFunction(TextInputControl.COPY, c::copy); // TODO move function here to enable user override
         registerFunction(TextInputControl.CUT, this::cut);
         registerFunction(TextInputControl.DELETE_FROM_LINE_START, this::deleteFromLineStart);
         registerFunction(TextInputControl.DELETE_NEXT_CHAR, this::deleteNextChar);
         registerFunction(TextInputControl.DELETE_NEXT_WORD, this::deleteNextWord);
         registerFunction(TextInputControl.DELETE_PREVIOUS_CHAR, this::deletePreviousChar);
         registerFunction(TextInputControl.DELETE_PREVIOUS_WORD, this::deletePreviousWord);
-        registerFunction(TextInputControl.DESELECT, c::deselect);
-        registerFunction(TextInputControl.DOCUMENT_START, c::home);
-        registerFunction(TextInputControl.DOCUMENT_END, c::end);
+        registerFunction(TextInputControl.DESELECT, c::deselect); // TODO move function here to enable user override
+        registerFunction(TextInputControl.DOCUMENT_START, c::home); // TODO move function here to enable user override
+        registerFunction(TextInputControl.DOCUMENT_END, c::end); // TODO move function here to enable user override
         registerFunction(TextInputControl.LEFT, () -> nextCharacterVisually(false));
         registerFunction(TextInputControl.LEFT_WORD, this::leftWord);
         registerFunction(TextInputControl.PASTE, this::paste);
@@ -258,7 +258,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
      * Binds keypad arrow keys to the same function tags as the regular arrow keys.
      */
     protected void addKeyPadMappings() {
-        InputMap m = getInputMap();
+        SkinInputMap m = getInputMap();
         Set<KeyBinding> keys = m.getKeyBindings();
         for (KeyBinding k: keys) {
             KeyCode cd = k.getKeyCode();

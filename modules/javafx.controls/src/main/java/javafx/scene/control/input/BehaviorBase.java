@@ -28,11 +28,12 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
 import javafx.scene.input.KeyCode;
 import com.sun.javafx.PlatformUtil;
 
 /**
- * Class provides a foundation for behaviors.
+ * Class provides a foundation for stateful behaviors.
  * <p>
  * A concrete behavior implementation should do the following:
  * 1. provide default behavior methods (a.k.a. functions)
@@ -44,15 +45,17 @@ import com.sun.javafx.PlatformUtil;
  * The base class adds a dispose() method (called from Skin.dispose()),
  * which undoes the mappings done in install().
  * <p>
- * @since 22
+ * @since 999 TODO
  */
 public abstract class BehaviorBase<C extends Control> {
     /** the instance of Control associated with this behavior */
     protected final C control;
+    protected final SkinInputMap<C, Runnable> inputMap;
 
     /** The constructor. */
     public BehaviorBase(C control) {
         this.control = control;
+        this.inputMap = SkinInputMap.createStateful(control);
     }
 
     /**
@@ -64,16 +67,17 @@ public abstract class BehaviorBase<C extends Control> {
     }
 
     /**
-     * Returns the input map of the associated Control.
-     * TODO rename getInputMap()
+     * Returns the skin input map associated with this behavior.
      * @return the input map
      */
-    protected final InputMap getInputMap() {
-        return control.getInputMap();
+    protected final SkinInputMap getInputMap() {
+        return inputMap;
     }
 
     /**
      * Installs this behavior by registering default key mappings and event handlers.
+     * <p>
+     * If a subclass overrides this method, it is important to call the superclass implementation.
      */
     public abstract void install();
 
@@ -82,11 +86,9 @@ public abstract class BehaviorBase<C extends Control> {
      * this behavior.  This method gets invoked by {@code Skin.dispose()}, the application should not need
      * to call it directly.
      * <p>
-     * If a subclass overrides this method, it is important to call the superclass
-     * implementation.
+     * If a subclass overrides this method, it is important to call the superclass implementation.
      */
-    public void dispose() {
-        getInputMap().unregister(this);
+    protected void dispose() {
     }
 
     /**
@@ -97,7 +99,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param function the function
      */
     protected void registerFunction(FunctionTag tag, Runnable function) {
-        getInputMap().registerFunction(this, tag, function);
+        getInputMap().registerFunction(tag, function);
     }
 
     /**
@@ -109,7 +111,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      */
     protected void registerKey(KeyBinding k, FunctionTag tag) {
-        getInputMap().registerKey(this, k, tag);
+        getInputMap().registerKey(k, tag);
     }
 
     /**
@@ -120,7 +122,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      */
     protected void registerKey(KeyCode code, FunctionTag tag) {
-        getInputMap().registerKey(this, code, tag);
+        getInputMap().registerKey(code, tag);
     }
 
     /**
@@ -131,8 +133,8 @@ public abstract class BehaviorBase<C extends Control> {
      * @param func the function
      */
     protected void register(FunctionTag tag, KeyBinding k, Runnable func) {
-        getInputMap().registerFunction(this, tag, func);
-        getInputMap().registerKey(this, k, tag);
+        getInputMap().registerFunction(tag, func);
+        getInputMap().registerKey(k, tag);
     }
 
     /**
@@ -167,7 +169,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
-        getInputMap().addHandler(this, type, true, false, handler);
+        getInputMap().addHandler(type, handler);
     }
 
     /**
@@ -180,7 +182,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        getInputMap().addHandler(this, type, consume, false, handler);
+        getInputMap().addHandler(type, consume, handler);
     }
 
     /**
@@ -194,7 +196,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandlerLast(EventType<T> type, EventHandler<T> handler) {
-        getInputMap().addHandler(this, type, true, true, handler);
+        getInputMap().addHandler(type, handler);
     }
 
     /**
@@ -208,7 +210,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        getInputMap().addHandler(this, type, consume, true, handler);
+        getInputMap().addHandler(type, consume, handler);
     }
 
     /**
@@ -222,7 +224,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
-        getInputMap().addHandler(this, criteria, consume, false, handler);
+        getInputMap().addHandler(criteria, consume, handler);
     }
 
     /**
@@ -240,7 +242,7 @@ public abstract class BehaviorBase<C extends Control> {
         boolean consume,
         EventHandler<T> handler
     ) {
-        getInputMap().addHandler(this, criteria, consume, true, handler);
+        getInputMap().addHandler(criteria, consume, handler);
     }
 
     /**
@@ -248,7 +250,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param action the action or null
      */
     protected void setOnKeyEventEnter(Runnable action) {
-        getInputMap().setOnKeyEventEnter(this, action);
+        getInputMap().setOnKeyEventEnter(action);
     }
 
     /**
@@ -256,7 +258,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param action the action or null
      */
     protected void setOnKeyEventExit(Runnable action) {
-        getInputMap().setOnKeyEventExit(this, action);
+        getInputMap().setOnKeyEventExit(action);
     }
 
     /**

@@ -202,7 +202,7 @@ public abstract class Control extends Region implements Skinnable {
         }
     };
 
-    private InputMap inputMap2;
+    private InputMap inputMap;
 
 
     /* *************************************************************************
@@ -453,11 +453,6 @@ public abstract class Control extends Region implements Skinnable {
         // we add a listener for menu request events to show the context menu
         // that may be set on the Control
         this.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, contextMenuHandler);
-
-        // TODO re-enable when InputMap moves back to Node / Control
-//        // Most controls need an input map, so we set this to be non-null in
-//        // Control to save people from running into NPEs.
-//        setInputMap(new InputMap(this));
     }
 
 
@@ -471,21 +466,21 @@ public abstract class Control extends Region implements Skinnable {
     /**
      * Returns the {@link InputMap} for this {@code Control}.
      *
-     * @since 22
+     * @since 999 TODO
      * @return the input map
      */
-    public InputMap getInputMap() {
-        if (inputMap2 == null) {
-            inputMap2 = new InputMap(this);
+    public final InputMap getInputMap() {
+        if (inputMap == null) {
+            inputMap = new InputMap();
         }
-        return inputMap2;
+        return inputMap;
     }
 
     /**
      * Executes function mapped to the {@link FunctionTag}.
      * This method does nothing if no mapping is found.
      *
-     * @since 22
+     * @since 999 TODO
      * @param tag the function tag
      */
     protected final void execute(FunctionTag tag) {

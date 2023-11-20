@@ -24,8 +24,8 @@
  */
 
 /**
- * <p>The <code>javafx.scene.control.behavior</code> package contains classes related
- * to control's behavior: input map, key bindings, and base class for behavior implementations.
+ * <p>The <code>javafx.scene.control.input</code> package contains classes related
+ * to the handling of the input events by the Control: input maps, key bindings, and related classes.
  * </p>
  */
 package javafx.scene.control.input;
