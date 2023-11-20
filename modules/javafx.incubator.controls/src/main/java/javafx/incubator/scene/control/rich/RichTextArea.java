@@ -470,16 +470,15 @@ public class RichTextArea extends Control {
 
         private static final CssMetaData<RichTextArea,Boolean> WRAP_TEXT =
             new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), false) {
-
-            @Override
-            public boolean isSettable(RichTextArea t) {
-                return !t.wrapText.isBound();
-            }
-
-            @Override
-            public StyleableProperty<Boolean> getStyleableProperty(RichTextArea t) {
-                return (StyleableProperty<Boolean>)t.wrapTextProperty();
-            }
+                @Override
+                public boolean isSettable(RichTextArea t) {
+                    return !t.wrapText.isBound();
+                }
+    
+                @Override
+                public StyleableProperty<Boolean> getStyleableProperty(RichTextArea t) {
+                    return (StyleableProperty<Boolean>)t.wrapTextProperty();
+                }
             };
 
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = Util.initStyleables(

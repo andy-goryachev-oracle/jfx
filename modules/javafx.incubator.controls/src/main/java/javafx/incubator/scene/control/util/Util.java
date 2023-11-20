@@ -52,9 +52,9 @@ public class Util {
      * Combines CssMetaData items in one unmodifiable list with the size equal to the number
      * of items it holds (i.e. with no unnecessary overhead).
      *
-     * @param list css metadata items, usually from the parent
-     * @param items additional items
-     * @return unmodifiable list containing all the items
+     * @param list the css metadata items, usually from the parent
+     * @param items the additional items
+     * @return the unmodifiable list containing all of the items
      */
     public static List<CssMetaData<? extends Styleable, ?>> initStyleables(
             List<CssMetaData<? extends Styleable, ?>> list,
