@@ -186,8 +186,8 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
     // TODO explain that the skin must finish mapping event handlers and key bindings, since there is no reason
     // to track changes
     protected final void setSkinInputMap(SkinInputMap<C, ?> map) {
-        // helper?
-        control.getInputMap().setSkinInputMap(this, map);
+        // TODO use a helper
+        control.getInputMap().setSkinInputMap(map);
     }
 
     /* *************************************************************************

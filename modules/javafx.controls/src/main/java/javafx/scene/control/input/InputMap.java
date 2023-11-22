@@ -30,15 +30,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import com.sun.javafx.scene.control.input.HList;
+import com.sun.javafx.scene.control.input.EventHandlerPriority;
+import com.sun.javafx.scene.control.input.PHList;
 
 /**
  * InputMap is a class that is set on a given {@link Control}. When the Node receives
@@ -48,9 +47,9 @@ import com.sun.javafx.scene.control.input.HList;
  *
  * @since 999 TODO
  */
-// TODO possibly create a base class for InputMap and SkinInputMap
 public final class InputMap {
     private static final Object NULL = new Object();
+    private final Control control;
     // KeyBinding -> FunctionTag
     // FunctionTag -> Runnable
     // EventType -> HList of listeners (with priority)
@@ -60,7 +59,59 @@ public final class InputMap {
     /**
      * The constructor.
      */
-    public InputMap() {
+    public InputMap(Control control) {
+        this.control = control;
+    }
+
+    /**
+     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * The handler will get removed in {@link#dispose()} method.
+     * This mapping always consumes the matching event.
+     *
+     * @param <T> the actual event type
+     * @param type the event type
+     * @param handler the event handler
+     */
+    public <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
+        PHList hs = handlers(type, true);
+        hs.add(handler, EventHandlerPriority.USER_HIGH);
+    }
+
+    /**
+     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * This event handler will get invoked after all handlers added via map() methods.
+     * The handler will get removed in {@link#dispose()} method.
+     * This mapping always consumes the matching event.
+     *
+     * @param <T> the actual event type
+     * @param type the event type
+     * @param handler the event handler
+     */
+    public <T extends Event> void addHandlerLast(EventType<T> type, EventHandler<T> handler) {
+        PHList hs = handlers(type, true);
+        hs.add(handler, EventHandlerPriority.USER_LOW);
+    }
+
+    public <T extends Event> void removeHandler(EventType<T> type, EventHandler<T> handler) {
+        PHList hs = handlers(type, false);
+        if (hs != null) {
+            hs.remove(handler);
+        }
+    }
+
+    private <T extends Event> PHList handlers(EventType<T> type, boolean create) {
+        Object x = map.get(type);
+        if (x instanceof PHList h) {
+            return h;
+        }
+
+        if (create) {
+            PHList h = new PHList();
+            map.put(type, h);
+            control.addEventHandler(type, this::handleEvent);
+            return h;
+        }
+        return null;
     }
 
     private void handleEvent(Event ev) {
@@ -69,7 +120,7 @@ public final class InputMap {
         }
 
         EventType<?> t = ev.getEventType();
-        HList handlers = getHandlers(t);
+        PHList handlers = handlers(t, false);
         if (handlers != null) {
             for (EventHandler h: handlers) {
                 h.handle(ev);
@@ -78,7 +129,6 @@ public final class InputMap {
                 }
             }
         }
-        // TODO skin
     }
 
     private void handleKeyEvent(Event ev) {
@@ -100,7 +150,7 @@ public final class InputMap {
         }
 
         EventType<?> t = ev.getEventType();
-        HList handlers = getHandlers(t);
+        PHList handlers = handlers(t, false);
         if (handlers != null) {
             handleKeyFunctionEnter();
             try {
@@ -114,8 +164,6 @@ public final class InputMap {
                 handleKeyFunctionExit();
             }
         }
-        
-        // TODO skin
     }
 
     private void handleKeyFunctionEnter() {
@@ -129,79 +177,6 @@ public final class InputMap {
             skinInputMap.handleKeyFunctionExit();
         }
     }
-
-//    /**
-//     * Removes all the mappings set by the behavior.
-//     * Behavior developers do not need to call this method directly, as it is being called in BehaviorBase.dispose().
-//     *
-//     * @param behavior
-//     */
-//    void unregister(BehaviorBase behavior) {
-//        Objects.nonNull(behavior);
-//
-//        for (Entry en: map.values()) {
-//            if (en.behavior == behavior) {
-//                en.behavior = null;
-//                en.behaviorValue = null;
-//            }
-//        }
-//    }
-
-//    <T extends Event> void addHandler(
-//        BehaviorBase behavior,
-//        EventType<T> type,
-//        boolean consume,
-//        boolean tail,
-//        EventHandler<T> handler
-//    ) {
-//        if (consume) {
-//            extendHandlers(behavior, type, tail, new EventHandler<T>() {
-//                @Override
-//                public void handle(T ev) {
-//                    handler.handle(ev);
-//                    ev.consume();
-//                }
-//            });
-//        } else {
-//            extendHandlers(behavior, type, tail, handler);
-//        }
-//    }
-
-//    <T extends Event> void addHandler(
-//        BehaviorBase behavior,
-//        EventCriteria<T> criteria,
-//        boolean consume,
-//        boolean tail,
-//        EventHandler<T> handler
-//    ) {
-//        EventType<T> type = criteria.getEventType();
-//        extendHandlers(behavior, type, tail, new EventHandler<T>() {
-//            @Override
-//            public void handle(T ev) {
-//                if (criteria.isEventAcceptable(ev)) {
-//                    handler.handle(ev);
-//                    if (consume) {
-//                        ev.consume();
-//                    }
-//                }
-//            }
-//        });
-//    }
-
-//    private <T extends Event> void extendHandlers(
-//        BehaviorBase behavior,
-//        EventType<T> t,
-//        boolean tail,
-//        EventHandler<T> h
-//    ) {
-//        Objects.nonNull(behavior);
-//        Entry en = addListenerIfNeeded(t);
-//
-//        HList handlers = HList.from(en.behaviorValue);
-//        handlers.add(h, tail);
-//        en.behavior = behavior;
-//        en.behaviorValue = handlers;
-//    }
 
     /**
      * Adds (or overrides) a user-specified function under the given function tag.
@@ -227,36 +202,6 @@ public final class InputMap {
         Objects.requireNonNull(tag, "function tag must not be null");
         map.put(k, tag);
     }
-
-    /**
-     * Maps a key binding to the specified function tag, for use by the behavior.
-     * A null key binding will result in no change to this input map.
-     * This method will not override a user mapping added by {@link #registerKey(KeyBinding,FunctionTag)}.
-     *
-     * @param behavior the owner
-     * @param k the key binding, can be null TODO variant: KeyBinding.NA
-     * @param tag the function tag
-     */
-//    void registerKey(BehaviorBase behavior, KeyBinding k, FunctionTag tag) {
-//        if (k == null) {
-//            return;
-//        }
-//        Objects.requireNonNull(behavior, "behavior must not be null");
-//        Objects.requireNonNull(tag, "function tag must not be null");
-//        addBinding(behavior, k, tag);
-//    }
-
-    /**
-     * Maps a key binding to the specified function tag, as a part of the behavior.
-     * This method will not override a user mapping added by {@link #registerKey(KeyBinding,FunctionTag)}.
-     *
-     * @param behavior the owner
-     * @param code the key code to construct a {@link KeyBinding}
-     * @param tag the function tag
-     */
-//    void registerKey(BehaviorBase behavior, KeyCode code, FunctionTag tag) {
-//        registerKey(behavior, KeyBinding.of(code), tag);
-//    }
 
     /**
      * Returns a {@code Runnable} mapped to the specified function tag, or null if no such mapping exists.
@@ -328,29 +273,6 @@ public final class InputMap {
     }
 
     /**
-     * Returns a default {@code Runnable} mapped to the specified {@link KeyBinding},
-     * or null if no such mapping exists.
-     *
-     * @param k the key binding
-     * @return the function, or null
-     */
-    // TODO
-//    public Runnable getDefaultFunction(KeyBinding k) {
-//        if (skinInputMap != null) {
-//            return skinInputMap.getFunction(k);
-//        }
-//        return null;
-//    }
-
-    private HList getHandlers(EventType<?> t) {
-        Object x = map.get(t);
-        if (x instanceof HList list) {
-            return list;
-        }
-        return null;
-    }
-
-    /**
      * Unbinds the specified key binding.
      *
      * @param k the key binding
@@ -396,14 +318,10 @@ public final class InputMap {
 
     /**
      * Collects all mapped key bindings (set either by the user or the behavior).
-     *
-     * @return a Set of key bindings
+     * @return the set of key bindings
      */
     public Set<KeyBinding> getKeyBindings() {
-        return map.keySet().stream().
-            filter((k) -> (k instanceof KeyBinding)).
-            map((x) -> (KeyBinding)x).
-            collect(Collectors.toSet());
+        return collectKeyBindings(null);
     }
 
     /**
@@ -412,17 +330,23 @@ public final class InputMap {
      * @return the set of KeyBindings
      */
     public Set<KeyBinding> getKeyBindingFor(FunctionTag tag) {
-        HashSet<KeyBinding> set = new HashSet<>();
-        // TODO skin first, then user
-        for (Map.Entry<Object, Object> k : map.entrySet()) {
-            if (k.getKey() instanceof KeyBinding kb) {
-                Object x = k.getValue();
-                if (x == tag) {
-                    set.add(kb);
+        return collectKeyBindings(tag);
+    }
+
+    private Set<KeyBinding> collectKeyBindings(FunctionTag tag) {
+        HashSet<KeyBinding> bindings = new HashSet<>();
+        for (Map.Entry<Object, Object> en : map.entrySet()) {
+            if (en.getKey() instanceof KeyBinding k) {
+                if ((tag == null) || (tag == en.getValue())) {
+                    bindings.add(k);
                 }
             }
         }
-        return set;
+
+        if (skinInputMap != null) {
+            skinInputMap.collectKeyBindings(bindings, tag);
+        }
+        return bindings;
     }
 
     /**
@@ -445,11 +369,11 @@ public final class InputMap {
     }
 
     // TODO hide behind a helper
-    public void setSkinInputMap(Skin<?> skin, SkinInputMap m) {
+    public void setSkinInputMap(SkinInputMap m) {
         if (skinInputMap != null) {
-            skinInputMap.uninstall(skin);
+            skinInputMap.uninstall(this);
         }
-        // TODO add handlers
         skinInputMap = m;
+        skinInputMap.install(this);
     }
 }

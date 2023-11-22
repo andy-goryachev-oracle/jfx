@@ -471,7 +471,7 @@ public abstract class Control extends Region implements Skinnable {
      */
     public final InputMap getInputMap() {
         if (inputMap == null) {
-            inputMap = new InputMap();
+            inputMap = new InputMap(this);
         }
         return inputMap;
     }

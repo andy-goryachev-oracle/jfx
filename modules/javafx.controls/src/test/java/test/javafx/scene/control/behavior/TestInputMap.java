@@ -114,7 +114,7 @@ public class TestInputMap {
      * @return the input map
      */
     private static InputMap create(Object... items) {
-        InputMap m = new InputMap();
+        InputMap m = new InputMap(new TestControl());
         for (int i = 0; i < items.length;) {
             Object x = items[i++];
             if (x instanceof FunctionTag t) {

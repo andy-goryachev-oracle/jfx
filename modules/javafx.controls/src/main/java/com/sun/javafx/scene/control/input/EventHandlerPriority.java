@@ -24,43 +24,19 @@
  */
 package com.sun.javafx.scene.control.input;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import javafx.event.EventHandler;
-
 /**
- * List of event handlers, which can be added to its head or tail.
- * the order of handlers in the list is guaranteed to be:
- * (first added to the head), (second added to the head), ..., (second added to the tail), (first added to the tail).
+ * Codifies priority of event handler invocation.
  */
-public class HList implements Iterable<EventHandler<?>> {
-    private final ArrayList<EventHandler<?>> handlers = new ArrayList<>(4);
-    private int insertIndex;
+public enum EventHandlerPriority {
+    USER_HIGH(1000),
+    SKIN_HIGH(800),
+    USER_MED(600), // TODO get rid of this and we can use a boolean high/low
+    SKIN_LOW(400),
+    USER_LOW(200);
 
-    public HList() {
-    }
+    final int priority;
 
-    public static HList from(Object x) {
-        if (x instanceof HList h) {
-            return h;
-        }
-        return new HList();
-    }
-
-    public void add(EventHandler<?> h, boolean tail) {
-        if (insertIndex == handlers.size()) {
-            handlers.add(h);
-        } else {
-            handlers.add(insertIndex, h);
-        }
-
-        if (!tail) {
-            insertIndex++;
-        }
-    }
-
-    @Override
-    public Iterator<EventHandler<?>> iterator() {
-        return handlers.iterator();
+    private EventHandlerPriority(int priority) {
+        this.priority = priority;
     }
 }

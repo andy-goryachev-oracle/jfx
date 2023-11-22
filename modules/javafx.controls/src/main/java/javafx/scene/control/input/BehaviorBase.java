@@ -209,6 +209,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
+    @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
         getInputMap().addHandler(type, consume, handler);
     }
@@ -223,6 +224,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
+    @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
         getInputMap().addHandler(criteria, consume, handler);
     }

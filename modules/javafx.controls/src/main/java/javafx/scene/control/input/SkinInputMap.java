@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -38,10 +37,11 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyCode;
-import com.sun.javafx.scene.control.input.HList;
+import com.sun.javafx.scene.control.input.EventHandlerPriority;
+import com.sun.javafx.scene.control.input.PHList;
 
 /**
- * Input Map for use by the Skin.
+ * Input Map for use by the Skins.
  */
 public abstract class SkinInputMap<C extends Skinnable, F> {
     private static final Object ON_KEY_ENTER = new Object();
@@ -50,7 +50,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     // FunctionTag -> Runnable
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
     // EventType -> HList of listeners (with priority)
-    protected HashMap<Object,Object> map = new HashMap<>();
+    final HashMap<Object,Object> map = new HashMap<>();
 
     // use the factory methods to create an instance of SkinInputMap
     private SkinInputMap() {
@@ -66,7 +66,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param handler the event handler
      */
     public <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
-        addHandler(type, true, false, handler);
+        addHandler(type, true, EventHandlerPriority.SKIN_HIGH, handler);
     }
 
     /**
@@ -79,7 +79,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param handler the event handler
      */
     public <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        addHandler(type, consume, false, handler);
+        addHandler(type, consume, EventHandlerPriority.SKIN_HIGH, handler);
     }
 
     /**
@@ -93,7 +93,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param handler the event handler
      */
     public <T extends Event> void addHandlerLast(EventType<T> type, EventHandler<T> handler) {
-        addHandler(type, true, true, handler);
+        addHandler(type, true, EventHandlerPriority.SKIN_LOW, handler);
     }
 
     /**
@@ -107,7 +107,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param handler the event handler
      */
     public <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        addHandler(type, consume, true, handler);
+        addHandler(type, consume, EventHandlerPriority.SKIN_LOW, handler);
     }
 
     /**
@@ -121,7 +121,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param handler the event handler
      */
     public <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
-        addHandler(criteria, consume, false, handler);
+        addHandler(criteria, consume, EventHandlerPriority.SKIN_HIGH, handler);
     }
 
     /**
@@ -139,17 +139,19 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
         boolean consume,
         EventHandler<T> handler
     ) {
-        addHandler(criteria, consume, true, handler);
+        addHandler(criteria, consume, EventHandlerPriority.SKIN_HIGH, handler);
     }
-    
+
+    // FIX remove
     private <T extends Event> void addHandler(
         EventType<T> type,
         boolean consume,
-        boolean tail,
+        EventHandlerPriority pri,
         EventHandler<T> handler)
     {
         if (consume) {
-            extendHandlers(type, tail, new EventHandler<T>() {
+            // FIX remove
+            extendHandlers(type, pri, new EventHandler<T>() {
                 @Override
                 public void handle(T ev) {
                     handler.handle(ev);
@@ -157,18 +159,19 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
                 }
             });
         } else {
-            extendHandlers(type, tail, handler);
+            extendHandlers(type, pri, handler);
         }
     }
-    
+
+    // FIX remove
     private <T extends Event> void addHandler(
         EventCriteria<T> criteria,
         boolean consume,
-        boolean tail,
+        EventHandlerPriority pri,
         EventHandler<T> handler
     ) {
         EventType<T> type = criteria.getEventType();
-        extendHandlers(type, tail, new EventHandler<T>() {
+        extendHandlers(type, pri, new EventHandler<T>() {
             @Override
             public void handle(T ev) {
                 if (criteria.isEventAcceptable(ev)) {
@@ -183,18 +186,18 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
 
     private <T extends Event> void extendHandlers(
         EventType<T> type,
-        boolean tail, // TODO priority (H,L) ?
+        EventHandlerPriority priority,
         EventHandler<T> handler)
     {
         Object x = map.get(type);
-        HList hs;
-        if(x instanceof HList h) {
+        PHList hs;
+        if(x instanceof PHList h) {
             hs = h;
         } else {
-            hs = new HList();
+            hs = new PHList();
             map.put(type, hs);
         }
-        hs.add(handler, tail);
+        hs.add(handler, priority);
     }
 
     /**
@@ -203,7 +206,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param k the key binding
      * @param tag the function tag
      */
-    public final void registerKey(KeyBinding k, FunctionTag tag) {
+    public void registerKey(KeyBinding k, FunctionTag tag) {
         map.put(k, tag);
     }
     
@@ -213,7 +216,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param code the key code to construct a {@link KeyBinding}
      * @param tag the function tag
      */
-    protected void registerKey(KeyCode code, FunctionTag tag) {
+    public void registerKey(KeyCode code, FunctionTag tag) {
         registerKey(KeyBinding.of(code), tag);
     }
 
@@ -284,36 +287,37 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
 
     /**
+     * Collects the key bindings mapped by the skin.
+     *
+     * @return a Set of key bindings
+     */
+    public Set<KeyBinding> getKeyBindings() {
+        return collectKeyBindings(null, null);
+    }
+
+    /**
      * Returns the set of key bindings mapped to the specified function tag.
      * @param tag the function tag
      * @return the set of KeyBindings
      */
     public Set<KeyBinding> getKeyBindingFor(FunctionTag tag) {
-        HashSet<KeyBinding> set = new HashSet<>();
-        // TODO skin first, then user
-        for (Map.Entry<Object, Object> k : map.entrySet()) {
-            if (k.getKey() instanceof KeyBinding kb) {
-                Object x = k.getValue();
-                if (x == tag) {
-                    set.add(kb);
+        return collectKeyBindings(null, tag);
+    }
+
+    Set<KeyBinding> collectKeyBindings(Set<KeyBinding> bindings, FunctionTag tag) {
+        if (bindings == null) {
+            bindings = new HashSet<>();
+        }
+        for (Map.Entry<Object, Object> en : map.entrySet()) {
+            if (en.getKey() instanceof KeyBinding k) {
+                if ((tag == null) || (tag == en.getValue())) {
+                    bindings.add(k);
                 }
             }
         }
-        return set;
+        return bindings;
     }
 
-    /**
-     * Collects all mapped key bindings.
-     *
-     * @return a Set of key bindings
-     */
-    public Set<KeyBinding> getKeyBindings() {
-        return map.keySet().stream().
-            filter((k) -> (k instanceof KeyBinding)).
-            map((x) -> (KeyBinding)x).
-            collect(Collectors.toSet());
-    }
-    
     /**
      * This convenience method registers a copy of the behavior-specific mappings from one key binding to another.
      * The method does nothing if no behavior specific mapping can be found.
@@ -327,61 +331,49 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
         }
     }
 
-    /**
-     * TODO
-     * @param skin
-     */
-    final void uninstall(Skin<C> skin) {
-        // TODO
+    final void install(InputMap parent) {
+        // TODO for each event type: merge phlist
+    }
+    
+    final void uninstall(InputMap parent) {
+        // TODO for each event type: remove all with priority=SKIN_* (and move it to input map)
     }
 
-    abstract Runnable getFunction(FunctionTag tag);
+    final Runnable getFunction(FunctionTag tag) {
+        Object x = map.get(tag);
+        return toRunnable(x);
+    }
 
-//    abstract Runnable getFunction(KeyBinding k);
+    abstract Runnable toRunnable(Object x);
 
-    // TODO control is not needed here!
+    // TODO control arg and generics are not needed, but are needed for createStateless().
+    // maybe have a base class and two final classes instead?
     public static <K extends Control> SkinInputMap<K, Runnable> createStateful(K control) {
         return new SkinInputMap<K, Runnable>() {
             @Override
-            Runnable getFunction(FunctionTag tag) {
-                Object x = map.get(tag);
-                if(x instanceof Runnable r) {
+            Runnable toRunnable(Object x) {
+                if (x instanceof Runnable r) {
                     return r;
-                };
+                }
                 return null;
             }
-
-//            @Override
-//            Runnable getFunction(KeyBinding k) {
-//                Object x = map.get(k);
-//                if(x instanceof Runnable r) {
-//                    return r;
-//                };
-//                return null;
-//            }
         };
     }
 
     public static <K extends Control> SkinInputMap<K, Consumer<K>> createStateless(K control) {
         return new SkinInputMap<K, Consumer<K>>() {
             @Override
-            Runnable getFunction(FunctionTag tag) {
-                Object x = map.get(tag);
-                if(x instanceof Consumer f) {
+            Runnable toRunnable(Object x) {
+                if (x instanceof Consumer f) {
                     return () -> {
                         f.accept(control);
                     };
-                };
+                }
                 return null;
             }
-
-//            @Override
-//            Runnable getFunction(KeyBinding k) {
-//                return null;
-//            }
         };
     }
-    
+
     void unbind(FunctionTag tag) {
         Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
@@ -394,10 +386,18 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
     
     void handleKeyFunctionEnter() {
-        // TODO
+        Object x = map.get(ON_KEY_ENTER);
+        Runnable r = toRunnable(x);
+        if (r != null) {
+            r.run();
+        }
     }
 
     void handleKeyFunctionExit() {
-        // TODO
+        Object x = map.get(ON_KEY_EXIT);
+        Runnable r = toRunnable(x);
+        if (r != null) {
+            r.run();
+        }
     }
 }
