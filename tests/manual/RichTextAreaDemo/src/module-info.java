@@ -1,4 +1,5 @@
 module RichTextAreaDemo {
+    exports com.oracle.tools.demo.codearea;
     exports com.oracle.tools.demo.rich;
 
     requires javafx.base;
