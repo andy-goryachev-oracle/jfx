@@ -49,9 +49,6 @@ public class Params {
     /** default caret blink period, in milliseconds. */
     public static final int DEFAULT_CARET_BLINK_PERIOD = 500;
 
-    /** default paragraph attributes */
-    public static final StyleAttrs DEFAULT_PARAGRAPH_ATTRIBUTES;
-
     /** small space between the end of last character and the right edge when typing, in pixels. */
     public static final double HORIZONTAL_GUARD = 20;
 
@@ -84,8 +81,4 @@ public class Params {
      * Must be > 1.0f for the relative navigation to work.
      */
     public static final float SLIDING_WINDOW_EXTENT = 3.0f;
-
-    static {
-        DEFAULT_PARAGRAPH_ATTRIBUTES = StyleAttrs.builder().build(); // or EMPTY?
-    }
 }

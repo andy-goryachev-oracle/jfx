@@ -44,9 +44,6 @@ import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.VPos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.control.ScrollBar;
 import javafx.incubator.scene.control.rich.CaretInfo;
 import javafx.incubator.scene.control.rich.ConfigurationParameters;
 import javafx.incubator.scene.control.rich.RichTextArea;
@@ -58,6 +55,9 @@ import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -253,6 +253,11 @@ public class VFlow extends Pane implements StyleResolver {
         requestLayout();
         updateHorizontalScrollBar();
         updateVerticalScrollBar();
+    }
+
+    public void handleDefaultTextCellAttributes() {
+        cellCache.clear();
+        requestLayout();
     }
 
     public void handleContentPadding() {
@@ -736,18 +741,8 @@ public class VFlow extends Pane implements StyleResolver {
     }
 
     private TextCell createTextCell(int index, RichParagraph par) {
-        // merge paragraph attributes
-        StyleAttrs defaultAttrs = control.getDefaultParagraphAttributes();
-        StyleAttrs pa = par.getParagraphAttributes();
-        if ((defaultAttrs != null) && (!defaultAttrs.isEmpty())) {
-            if (pa == null) {
-                pa = defaultAttrs;
-            } else {
-                pa = defaultAttrs.builder().merge(pa).build();
-            }
-        }
-
         TextCell cell;
+        StyleAttrs pa = RichUtils.combine(control.getDefaultParagraphAttributes(), par.getParagraphAttributes());
         Supplier<Region> gen = par.getParagraphRegion();
         if (gen != null) {
             // it's a paragraph node
@@ -778,7 +773,7 @@ public class VFlow extends Pane implements StyleResolver {
             if ((segments == null) || segments.isEmpty()) {
                 // a bit of a hack: avoid TextCells with an empty TextFlow,
                 // as it makes the caret collapse to a single point
-                cell.add(new Text(""));
+                cell.add(createTextNode("", null));
             } else {
                 for (StyledSegment seg : segments) {
                     switch (seg.getType()) {
@@ -787,7 +782,9 @@ public class VFlow extends Pane implements StyleResolver {
                         cell.add(n);
                         break;
                     case TEXT:
-                        Text t = createTextNode(seg);
+                        String text = seg.getText();
+                        StyleAttrs a = seg.getStyleAttrs(this);
+                        Text t = createTextNode(text, a);
                         cell.add(t);
                         break;
                     }
@@ -818,10 +815,9 @@ public class VFlow extends Pane implements StyleResolver {
         return cell;
     }
 
-    private Text createTextNode(StyledSegment seg) {
-        String text = seg.getText();
+    private Text createTextNode(String text, StyleAttrs attrs) {
         Text t = new Text(text);
-        StyleAttrs a = seg.getStyleAttrs(this);
+        StyleAttrs a = RichUtils.combine(control.getDefaultTextCellAttributes(), attrs);
         if (a != null) {
             applyStyles(t, a, false);
         }
@@ -831,10 +827,7 @@ public class VFlow extends Pane implements StyleResolver {
     private void applyStyles(Node n, StyleAttrs a, boolean forParagraph) {
         boolean unwrapped = !control.isWrapText();
         CssStyles css = a.getCssStyles();
-        if (css == null) {
-            String style = StyleUtil.getStyleString(a, forParagraph, unwrapped);
-            n.setStyle(style);
-        } else {
+        if (css != null) {
             n.setStyle(css.style());
             String[] names = css.names();
             if (names != null) {
@@ -842,12 +835,13 @@ public class VFlow extends Pane implements StyleResolver {
             }
         }
 
-        // FIX perhaps it should always force orientation
+        String style = StyleUtil.getStyleString(a, forParagraph, unwrapped);
+        n.setStyle(style);
+
         if (forParagraph) {
             if (!unwrapped) {
-                if (a.getBoolean(StyleAttrs.RIGHT_TO_LEFT)) {
-                    n.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
-                }
+                boolean rtl = a.getBoolean(StyleAttrs.RIGHT_TO_LEFT);
+                n.setNodeOrientation(rtl ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
             }
         }
     }

@@ -25,13 +25,15 @@
 package com.oracle.tools.demo.codearea;
 
 import javafx.incubator.scene.control.rich.model.RichParagraph;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.scene.paint.Color;
 import com.oracle.controls.codearea.SyntaxDecorator;
 
 /**
  * Simple Syntax Highlighter which emphasizes digits.
  */
 public class DemoSyntaxDecorator implements SyntaxDecorator {
-    private static final String DIGITS = "-fx-fill:magenta;";
+    private static final StyleAttrs DIGITS = StyleAttrs.builder().setTextColor(Color.MAGENTA).build();
 
     public DemoSyntaxDecorator() {
     }
@@ -49,8 +51,8 @@ public class DemoSyntaxDecorator implements SyntaxDecorator {
                 if (num != Character.isDigit(c)) {
                     if (i > start) {
                         String s = text.substring(start, i);
-                        String style = num ? DIGITS : null;
-                        p.addSegment(s, style, null);
+                        StyleAttrs a = num ? DIGITS : null;
+                        p.addSegment(s, a);
                         start = i;
                     }
                     num = !num;
@@ -58,8 +60,8 @@ public class DemoSyntaxDecorator implements SyntaxDecorator {
             }
             if (start < sz) {
                 String s = text.substring(start);
-                String style = num ? DIGITS : null;
-                p.addSegment(s, style, null);
+                StyleAttrs a = num ? DIGITS : null;
+                p.addSegment(s, a);
             }
         }
         return p;

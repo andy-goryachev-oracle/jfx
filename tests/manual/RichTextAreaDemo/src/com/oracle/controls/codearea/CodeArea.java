@@ -36,6 +36,7 @@ import javafx.css.Styleable;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
@@ -52,7 +53,8 @@ public class CodeArea extends RichTextArea {
     public CodeArea(CodeModel m) {
         super(m);
         modelProperty().addListener((s, prev, newValue) -> {
-            // TODO perhaps even block any change of (already set CodeModel)
+            // TODO is there a better way?
+            // perhaps even block any change of (already set CodeModel)
             if (newValue != null) {
                 if (!(newValue instanceof CodeModel)) {
                     setModel(prev);
@@ -63,7 +65,6 @@ public class CodeArea extends RichTextArea {
         // set default font
         Font f = Font.getDefault();
         setFont(Font.font("monospace", f.getSize()));
-        // TODO handle font changes
     }
 
     public CodeArea() {
@@ -77,6 +78,16 @@ public class CodeArea extends RichTextArea {
 
     private CodeModel codeModel() {
         return (CodeModel)getModel();
+    }
+
+    private void updateFont(Font f) {
+        StyleAttrs old = getDefaultTextCellAttributes();
+        StyleAttrs a = StyleAttrs.builder().
+            merge(old).
+            set(StyleAttrs.FONT_FAMILY, f.getFamily()).
+            set(StyleAttrs.FONT_SIZE, f.getSize()).
+            build();
+        setDefaultTextCellAttributes(a);
     }
 
     // TODO another school of thought suggests to move the highlighter property here.
@@ -137,11 +148,13 @@ public class CodeArea extends RichTextArea {
      */
     public final ObjectProperty<Font> fontProperty() {
         if (font == null) {
-            font = new StyleableObjectProperty<Font>(Font.getDefault()) {
+            font = new StyleableObjectProperty<Font>(Font.getDefault())
+            {
                 private boolean fontSetByCss;
 
                 @Override
                 public void applyStyle(StyleOrigin newOrigin, Font value) {
+                    // TODO perhaps this is not needed
                     // RT-20727 JDK-8127428
                     // if CSS is setting the font, then make sure invalidate doesn't call NodeHelper.reapplyCSS
                     try {
@@ -167,6 +180,7 @@ public class CodeArea extends RichTextArea {
 
                 @Override
                 protected void invalidated() {
+                    updateFont(get());
                     /** FIX reapplyCSS should be public
                     // RT-20727 JDK-8127428
                     // if font is changed by calling setFont, then
@@ -209,8 +223,8 @@ public class CodeArea extends RichTextArea {
 
     private static class StyleableProperties {
         private static final FontCssMetaData<CodeArea> FONT =
-            new FontCssMetaData<>("-fx-font", Font.getDefault()) {
-
+            new FontCssMetaData<>("-fx-font", Font.getDefault())
+        {
             @Override
             public boolean isSettable(CodeArea n) {
                 return n.font == null || !n.font.isBound();

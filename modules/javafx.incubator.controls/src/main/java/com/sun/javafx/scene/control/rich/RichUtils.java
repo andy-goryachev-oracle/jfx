@@ -30,6 +30,7 @@ import java.text.DecimalFormat;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -328,5 +329,23 @@ public class RichUtils {
         default:
             throw new IOException("failed parsing alignment (" + (char)c + ")");
         }
+    }
+
+    /**
+     * Combines style attributes, returning combined object (or null).
+     *
+     * @param lowPri the low priority attributes
+     * @param hiPri the high priority attributes
+     * @return the combined attributes, or null
+     */
+    public static StyleAttrs combine(StyleAttrs lowPri, StyleAttrs hiPri) {
+        if ((lowPri != null) && (!lowPri.isEmpty())) {
+            if (hiPri == null) {
+                return lowPri;
+            } else {
+                return StyleAttrs.builder().merge(lowPri).merge(hiPri).build();
+            }
+        }
+        return hiPri;
     }
 }

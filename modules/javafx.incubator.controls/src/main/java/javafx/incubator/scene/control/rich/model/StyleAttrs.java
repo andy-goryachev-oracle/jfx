@@ -412,12 +412,12 @@ public class StyleAttrs {
     public StyleAttrs getParagraphAttrs() {
         return filterAttributes(true);
     }
-    
+
     private StyleAttrs filterAttributes(boolean isParagraph) {
         Builder b = null;
-        for(StyleAttribute<?> a: attributes.keySet()) {
-            if(a.isParagraphAttribute() == isParagraph) {
-                if(b == null) {
+        for (StyleAttribute<?> a : attributes.keySet()) {
+            if (a.isParagraphAttribute() == isParagraph) {
+                if (b == null) {
                     b = StyleAttrs.builder();
                 }
                 Object v = attributes.get(a);
@@ -426,7 +426,6 @@ public class StyleAttrs {
         }
         return (b == null) ? null : b.build();
     }
-
 
     /**
      * Creates an instance of StyleAttrs which contains character attributes found in the Text node.
@@ -532,13 +531,15 @@ public class StyleAttrs {
         /** 
          * Merges the specified attributes with the attributes in this instance.
          * The new values override any existing ones.
-         * @param attrs the attributes to merge
+         * @param attrs the attributes to merge, may be null
          * @return this Builder instance
          */
         public Builder merge(StyleAttrs attrs) {
-            for (StyleAttribute<?> a : attrs.attributes.keySet()) {
-                Object v = attrs.get(a);
-                setUnguarded(a, v);
+            if (attrs != null) {
+                for (StyleAttribute<?> a : attrs.attributes.keySet()) {
+                    Object v = attrs.get(a);
+                    setUnguarded(a, v);
+                }
             }
             return this;
         }

@@ -154,7 +154,8 @@ public class RichTextArea extends Control {
     private final ConfigurationParameters config;
     private final ObjectProperty<StyledTextModel> model = new SimpleObjectProperty<>(this, "model");
     private final SimpleBooleanProperty displayCaretProperty = new SimpleBooleanProperty(this, "displayCaret", true);
-    private ObjectProperty<StyleAttrs> defaultParagraphAttributes;
+    private final SimpleObjectProperty<StyleAttrs> defaultParagraphAttributes;
+    private final SimpleObjectProperty<StyleAttrs> defaultTextCellAttributes;
     private SimpleBooleanProperty editableProperty;
     private StyleableObjectProperty<Font> font;
     private final ReadOnlyObjectWrapper<Duration> caretBlinkPeriod;
@@ -192,6 +193,10 @@ public class RichTextArea extends Control {
         this.config = c;
         
         caretBlinkPeriod = new ReadOnlyObjectWrapper<>(this, "caretBlinkPeriod", Duration.millis(Params.DEFAULT_CARET_BLINK_PERIOD));
+
+        defaultTextCellAttributes = new SimpleObjectProperty<>(this, "defaultTextCellAttributes");
+
+        defaultParagraphAttributes = new SimpleObjectProperty<>(this, "defaultParagraphAttributes");
 
         setFocusTraversable(true);
         getStyleClass().add("rich-text-area");
@@ -1257,29 +1262,36 @@ public class RichTextArea extends Control {
     }
 
     /**
+     * Specifies the default attributes for cells that contain text (excluding embedded Nodes and Node paragraphs).
+     * The value can be null.
+     * @return the default text cell attributes property
+     */
+    public final ObjectProperty<StyleAttrs> defaultTextCellAttributesProperty() {
+        return defaultTextCellAttributes;
+    }
+
+    public final void setDefaultTextCellAttributes(StyleAttrs a) {
+        defaultTextCellAttributes.set(a);
+    }
+
+    public final StyleAttrs getDefaultTextCellAttributes() {
+        return defaultTextCellAttributes.get();
+    }
+
+    /**
      * Specifies the default paragraph attributes.
      * The value can be null.
      * @return the default paragraph attributes property
      */
     public final ObjectProperty<StyleAttrs> defaultParagraphAttributesProperty() {
-        if (defaultParagraphAttributes == null) {
-            defaultParagraphAttributes = new SimpleObjectProperty<>(
-                this,
-                "defaultParagraphAttributes",
-                Params.DEFAULT_PARAGRAPH_ATTRIBUTES
-            );
-        }
         return defaultParagraphAttributes;
     }
 
     public final void setDefaultParagraphAttributes(StyleAttrs a) {
-        defaultParagraphAttributesProperty().set(a);
+        defaultParagraphAttributes.set(a);
     }
 
     public final StyleAttrs getDefaultParagraphAttributes() {
-        if (defaultParagraphAttributes == null) {
-            return Params.DEFAULT_PARAGRAPH_ATTRIBUTES;
-        }
         return defaultParagraphAttributes.get();
     }
 
