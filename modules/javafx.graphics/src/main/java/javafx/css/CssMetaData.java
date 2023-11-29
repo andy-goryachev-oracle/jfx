@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@ package javafx.css;
 import java.util.Collections;
 import java.util.List;
 import javafx.scene.Node;
+import com.sun.javafx.UnmodifiableArrayList;
 
 /**
  * A CssMetaData instance provides information about the CSS style and
@@ -327,5 +328,36 @@ public abstract class CssMetaData<S extends Styleable, V> {
             .append("}").toString();
     }
 
-
+    /**
+     * Utility method which combines {@code CssMetaData} items in one immutable list.
+     * <p>
+     * The intended usage is to combine the parent and the child {@code CssMetaData} for
+     * the purposes of {@code getClassCssMetaData()} method, see for example {@link Node#getClassCssMetaData()}.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssMetaData.combine(
+     *      <Parent>.getClassCssMetaData(),
+     *      STYLEABLE1,
+     *      STYLEABLE2
+     *  );
+     * }</pre>
+     * This method returns an instance of a {@code List} that implements
+     * {@link java.util.RandomAccess} interface.
+     *
+     * @param inheritedFromParent the {@code CssMetaData} items inherited from parent, must not be null
+     * @param items the additional items
+     * @return the immutable list containing all of the items
+     *
+     * @since 22
+     */
+    public static List<CssMetaData<? extends Styleable, ?>> combine(
+        List<CssMetaData<? extends Styleable, ?>> inheritedFromParent,
+        CssMetaData<? extends Styleable, ?>... items)
+    {
+        CssMetaData[] combined = new CssMetaData[inheritedFromParent.size() + items.length];
+        inheritedFromParent.toArray(combined);
+        System.arraycopy(items, 0, combined, inheritedFromParent.size(), items.length);
+        return new UnmodifiableArrayList<>(combined, combined.length);
+    }
 }
