@@ -113,12 +113,13 @@ public class CodeAreaDemoPane extends BorderPane {
         FX.name(highlightCurrentLine, "highlightCurrentLine");
         highlightCurrentLine.selectedProperty().bindBidirectional(control.highlightCurrentParagraphProperty());
         
-//        ComboBox<Integer> tabSize = new ComboBox<>();
-//        FX.name(tabSize, "tabSize");
-//        tabSize.getItems().setAll(1, 2, 3, 4, 8, 16);
-//        tabSize.getSelectionModel().selectedItemProperty().addListener((s,p,v) -> {
-//            control.setTabSize(v);
-//        });
+        ComboBox<Integer> tabSize = new ComboBox<>();
+        FX.name(tabSize, "tabSize");
+        tabSize.getItems().setAll(1, 2, 3, 4, 8, 16);
+        tabSize.getSelectionModel().selectedItemProperty().addListener((s,p,v) -> {
+            // TODO
+            //control.setTabSize(v);
+        });
         
         CheckBox customPopup = new CheckBox("custom popup menu");
         FX.name(customPopup, "customPopup");
@@ -195,8 +196,8 @@ public class CodeAreaDemoPane extends BorderPane {
         op.option(fatCaret);
         op.option(highlightCurrentLine);
         op.option(lineNumbers);
-//        op.label("Tab Size:");
-//        op.option(tabSize);
+        op.label("Tab Size:");
+        op.option(tabSize);
         op.option(customPopup);
         op.label("Content Padding:");
         op.option(contentPadding);

@@ -37,7 +37,6 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
-import javafx.incubator.scene.control.util.Util;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
@@ -64,38 +63,11 @@ public class CodeArea extends RichTextArea {
         // set default font
         Font f = Font.getDefault();
         setFont(Font.font("monospace", f.getSize()));
+        // TODO handle font changes
     }
 
     public CodeArea() {
         this(new CodeModel());
-    }
-
-//    private static class StyleableProperties {
-//        private static final FontCssMetaData<CodeArea> FONT = new FontCssMetaData<>("-fx-font", Font.getDefault()) {
-//
-//            @Override
-//            public boolean isSettable(CodeArea n) {
-//                return n.font == null || !n.font.isBound();
-//            }
-//
-//            @Override
-//            public StyleableProperty<Font> getStyleableProperty(CodeArea n) {
-//                return (StyleableProperty<Font>)(WritableValue<Font>)n.fontProperty();
-//            }
-//        };
-//
-//        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES =
-//            Util.initStyleables(RichTextArea.getClassCssMetaData(), FONT);
-//    }
-
-    /**
-     * Gets the {@code CssMetaData} associated with this class, which may include the
-     * {@code CssMetaData} of its superclasses.
-     * @return the {@code CssMetaData}
-     */
-    public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
-        //return StyleableProperties.STYLEABLES;
-        return RichTextArea.getClassCssMetaData();
     }
 
     @Override
@@ -250,10 +222,18 @@ public class CodeArea extends RichTextArea {
             }
         };
 
-        // FIX replace with CssMetaData.combine
-        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = Util.initStyleables(
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssMetaData.combine(
             RichTextArea.getClassCssMetaData(),
             FONT
         );
+    }
+
+    /**
+     * Gets the {@code CssMetaData} associated with this class, which may include the
+     * {@code CssMetaData} of its superclasses.
+     * @return the {@code CssMetaData}
+     */
+    public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
+        return StyleableProperties.STYLEABLES;
     }
 }

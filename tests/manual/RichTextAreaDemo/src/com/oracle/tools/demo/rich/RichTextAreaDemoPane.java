@@ -62,7 +62,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -113,8 +112,6 @@ public class RichTextAreaDemoPane extends BorderPane {
         FX.name(modelField, "modelField");
         modelField.getItems().setAll(ModelChoice.values());
         
-        FontSelector fontSelector = new FontSelector("font", this::setFont);
-        
         CheckBox editable = new CheckBox("editable");
         FX.name(editable, "editable");
         editable.selectedProperty().bindBidirectional(control.editableProperty());
@@ -151,13 +148,6 @@ public class RichTextAreaDemoPane extends BorderPane {
         highlightCurrentLine.selectedProperty().addListener((s,p,on) -> {
             control.setHighlightCurrentParagraph(on);
         });
-        
-//        ComboBox<Integer> tabSize = new ComboBox<>();
-//        FX.name(tabSize, "tabSize");
-//        tabSize.getItems().setAll(1, 2, 3, 4, 8, 16);
-//        tabSize.getSelectionModel().selectedItemProperty().addListener((s,p,v) -> {
-//            control.setTabSize(v);
-//        });
         
         Button reloadModelButton = new Button("Reload Model");
         reloadModelButton.setOnAction((ev) -> reloadModel());
@@ -231,17 +221,11 @@ public class RichTextAreaDemoPane extends BorderPane {
         op.option(modelField);
         op.option(editable);
         op.option(reloadModelButton);
-        op.label("Font:");
-        op.option(fontSelector.fontNode());
-        op.label("Size:");
-        op.option(fontSelector.sizeNode());
         op.option(wrapText);
         op.option(displayCaret);
         op.option(fatCaret);
         op.option(fastBlink);
         op.option(highlightCurrentLine);
-//        op.label("Tab Size:");
-//        op.option(tabSize);
         op.option(customPopup);
         op.label("Content Padding:");
         op.option(contentPadding);
@@ -274,17 +258,6 @@ public class RichTextAreaDemoPane extends BorderPane {
                 updateModel();
             });
         });
-    }
-
-    protected void setFont(Font f) {
-        // TODO use default paragraph styles
-        StyleAttrs old = control.getDefaultParagraphAttributes();
-        StyleAttrs a = StyleAttrs.builder().
-            merge(old).
-            set(StyleAttrs.FONT_FAMILY, f.getFamily()).
-            set(StyleAttrs.FONT_SIZE, f.getSize()).
-            build();
-        control.setDefaultParagraphAttributes(a);
     }
 
     protected SideDecorator createDecorator(Decorator d) {

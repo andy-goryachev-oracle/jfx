@@ -179,7 +179,6 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
             }
         };
         getChildren().add(mainPane);
-        mainPane.setStyle("-fx-font-family: 'Iosevka Fixed SS16'; -fx-font-size: 9;");
 
         behavior = new RichTextAreaBehavior(control);
 

@@ -27,13 +27,8 @@ package javafx.incubator.scene.control.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import javax.imageio.ImageIO;
 import javafx.collections.ObservableList;
-import javafx.css.CssMetaData;
-import javafx.css.Styleable;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
@@ -46,27 +41,6 @@ import javafx.stage.Screen;
  */
 public class Util {
     private Util() {
-    }
-
-    /**
-     * Combines CssMetaData items in one unmodifiable list with the size equal to the number
-     * of items it holds (i.e. with no unnecessary overhead).
-     *
-     * @param list the css metadata items, usually from the parent
-     * @param items the additional items
-     * @return the unmodifiable list containing all of the items
-     */
-    public static List<CssMetaData<? extends Styleable, ?>> initStyleables(
-            List<CssMetaData<? extends Styleable, ?>> list,
-            CssMetaData<? extends Styleable, ?>... items) {
-
-        int sz = list.size() + items.length;
-        ArrayList<CssMetaData<? extends Styleable, ?>> rv = new ArrayList<>(sz);
-        rv.addAll(list);
-        for (CssMetaData<? extends Styleable, ?> p : items) {
-            rv.add(p);
-        }
-        return Collections.unmodifiableList(rv);
     }
 
     /**

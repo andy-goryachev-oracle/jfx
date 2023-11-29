@@ -30,19 +30,15 @@ package javafx.incubator.scene.control.rich;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
-import javafx.css.FontCssMetaData;
 import javafx.css.SimpleStyleableObjectProperty;
 import javafx.css.StyleConverter;
-import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableObjectProperty;
@@ -56,7 +52,6 @@ import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
-import javafx.incubator.scene.control.util.Util;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.Control;
@@ -386,8 +381,7 @@ public class RichTextArea extends Control {
                 }
             };
 
-        // FIX replace with CssMetaData.combine
-        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = Util.initStyleables(
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssMetaData.combine(
             Control.getClassCssMetaData(),
             CONTENT_PADDING,
             WRAP_TEXT
