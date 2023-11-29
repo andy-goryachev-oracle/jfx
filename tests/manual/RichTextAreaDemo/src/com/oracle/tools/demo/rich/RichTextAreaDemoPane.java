@@ -33,6 +33,14 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.SideDecorator;
+import javafx.incubator.scene.control.rich.TextPos;
+import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
+import javafx.incubator.scene.control.rich.model.StyleAttribute;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.incubator.scene.control.rich.model.StyledTextModel;
+import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -48,20 +56,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
-import javafx.incubator.scene.control.rich.RichTextArea;
-import javafx.incubator.scene.control.rich.SideDecorator;
-import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
-import javafx.incubator.scene.control.rich.model.StyleAttribute;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.model.StyledTextModel;
-import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -112,7 +113,7 @@ public class RichTextAreaDemoPane extends BorderPane {
         FX.name(modelField, "modelField");
         modelField.getItems().setAll(ModelChoice.values());
         
-        FontSelector fontSelector = new FontSelector("font", control::setFont);
+        FontSelector fontSelector = new FontSelector("font", this::setFont);
         
         CheckBox editable = new CheckBox("editable");
         FX.name(editable, "editable");
@@ -273,6 +274,17 @@ public class RichTextAreaDemoPane extends BorderPane {
                 updateModel();
             });
         });
+    }
+
+    protected void setFont(Font f) {
+        // TODO use default paragraph styles
+        StyleAttrs old = control.getDefaultParagraphAttributes();
+        StyleAttrs a = StyleAttrs.builder().
+            merge(old).
+            set(StyleAttrs.FONT_FAMILY, f.getFamily()).
+            set(StyleAttrs.FONT_SIZE, f.getSize()).
+            build();
+        control.setDefaultParagraphAttributes(a);
     }
 
     protected SideDecorator createDecorator(Decorator d) {

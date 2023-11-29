@@ -26,13 +26,20 @@ package com.oracle.controls.codearea;
 
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
+import javafx.css.FontCssMetaData;
+import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
-import javafx.scene.Node;
-import javafx.scene.control.Labeled;
+import javafx.css.StyleableObjectProperty;
+import javafx.css.StyleableProperty;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
+import javafx.incubator.scene.control.util.Util;
+import javafx.scene.Node;
+import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
 
 /**
@@ -40,6 +47,7 @@ import javafx.scene.text.Font;
  */
 public class CodeArea extends RichTextArea {
     private BooleanProperty lineNumbers;
+    private StyleableObjectProperty<Font> font;
     private String fontStyle;
 
     public CodeArea(CodeModel m) {
@@ -145,5 +153,107 @@ public class CodeArea extends RichTextArea {
 
     public void setLineNumbersEnabled(boolean on) {
         lineNumbersEnabledProperty().set(on);
+    }
+
+    /**
+     * The default font to use for text in the RichTextArea.
+     * If the RichTextArea's text is
+     * rich text then this font may or may not be used depending on the font
+     * information embedded in the rich text, but in any case where a default
+     * font is required, this font will be used.
+     * @return the font property
+     */
+    public final ObjectProperty<Font> fontProperty() {
+        if (font == null) {
+            font = new StyleableObjectProperty<Font>(Font.getDefault()) {
+                private boolean fontSetByCss;
+
+                @Override
+                public void applyStyle(StyleOrigin newOrigin, Font value) {
+                    // RT-20727 JDK-8127428
+                    // if CSS is setting the font, then make sure invalidate doesn't call NodeHelper.reapplyCSS
+                    try {
+                        // super.applyStyle calls set which might throw if value is bound.
+                        // Have to make sure fontSetByCss is reset.
+                        fontSetByCss = true;
+                        super.applyStyle(newOrigin, value);
+                    } catch (Exception e) {
+                        throw e;
+                    } finally {
+                        fontSetByCss = false;
+                    }
+                }
+
+                @Override
+                public void set(Font value) {
+                    Font old = get();
+                    if (value == null ? old == null : value.equals(old)) {
+                        return;
+                    }
+                    super.set(value);
+                }
+
+                @Override
+                protected void invalidated() {
+                    /** FIX reapplyCSS should be public
+                    // RT-20727 JDK-8127428
+                    // if font is changed by calling setFont, then
+                    // css might need to be reapplied since font size affects
+                    // calculated values for styles with relative values
+                    if (fontSetByCss == false) {
+                        NodeHelper.reapplyCSS(RichTextArea.this);
+                    }
+                    */
+                    // don't know whether this is ok
+                    requestLayout();
+                }
+
+                @Override
+                public CssMetaData<CodeArea, Font> getCssMetaData() {
+                    return StyleableProperties.FONT;
+                }
+
+                @Override
+                public Object getBean() {
+                    return CodeArea.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "font";
+                }
+            };
+        }
+        return font;
+    }
+
+    public final void setFont(Font value) {
+        fontProperty().setValue(value);
+    }
+
+    public final Font getFont() {
+        return font == null ? Font.getDefault() : font.getValue();
+    }
+
+    private static class StyleableProperties {
+        private static final FontCssMetaData<CodeArea> FONT =
+            new FontCssMetaData<>("-fx-font", Font.getDefault()) {
+
+            @Override
+            public boolean isSettable(CodeArea n) {
+                return n.font == null || !n.font.isBound();
+            }
+
+            @Override
+            public StyleableProperty<Font> getStyleableProperty(CodeArea n) {
+                return (StyleableProperty<Font>)(WritableValue<Font>)n.fontProperty();
+            }
+        };
+
+        // FIX replace with CssMetaData.combine
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = Util.initStyleables(
+            RichTextArea.getClassCssMetaData(),
+            FONT
+        );
     }
 }
