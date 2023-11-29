@@ -27,8 +27,11 @@ package com.sun.javafx.scene.control.rich;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.List;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
+import javafx.css.CssMetaData;
+import javafx.css.Styleable;
 import javafx.geometry.Point2D;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.Node;
@@ -40,6 +43,7 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import com.sun.javafx.UnmodifiableArrayList;
 
 /**
  * RichTextArea specific utility methods.
@@ -347,5 +351,37 @@ public class RichUtils {
             }
         }
         return hiPri;
+    }
+
+    /**
+     * Utility method which combines {@code CssMetaData} items in one immutable list.
+     * <p>
+     * The intended usage is to combine the parent and the child {@code CssMetaData} for
+     * the purposes of {@code getClassCssMetaData()} method, see for example {@link Node#getClassCssMetaData()}.
+     * <p>
+     * Example:
+     * <pre>{@code
+     * private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssMetaData.combine(
+     *      <Parent>.getClassCssMetaData(),
+     *      STYLEABLE1,
+     *      STYLEABLE2
+     *  );
+     * }</pre>
+     * This method returns an instance of a {@code List} that implements
+     * {@link java.util.RandomAccess} interface.
+     *
+     * @param inheritedFromParent the {@code CssMetaData} items inherited from parent, must not be null
+     * @param items the additional items
+     * @return the immutable list containing all of the items
+     */
+    // NOTE: this should be a public utility, see https://bugs.openjdk.org/browse/JDK-8320796
+    public static List<CssMetaData<? extends Styleable, ?>> combine(
+        List<CssMetaData<? extends Styleable, ?>> inheritedFromParent,
+        CssMetaData<? extends Styleable, ?>... items)
+    {
+        CssMetaData[] combined = new CssMetaData[inheritedFromParent.size() + items.length];
+        inheritedFromParent.toArray(combined);
+        System.arraycopy(items, 0, combined, inheritedFromParent.size(), items.length);
+        return new UnmodifiableArrayList<>(combined, combined.length);
     }
 }

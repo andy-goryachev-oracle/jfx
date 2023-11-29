@@ -60,6 +60,7 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import com.sun.javafx.scene.control.rich.Params;
 import com.sun.javafx.scene.control.rich.RichTextAreaSkinHelper;
+import com.sun.javafx.scene.control.rich.RichUtils;
 import com.sun.javafx.scene.control.rich.VFlow;
 
 /**
@@ -386,7 +387,7 @@ public class RichTextArea extends Control {
                 }
             };
 
-        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssMetaData.combine(
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = RichUtils.combine(
             Control.getClassCssMetaData(),
             CONTENT_PADDING,
             WRAP_TEXT

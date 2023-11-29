@@ -28,8 +28,6 @@ import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
@@ -46,8 +44,6 @@ import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 /**
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.
@@ -305,7 +301,7 @@ public class CodeArea extends RichTextArea {
             }
         };
 
-        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssMetaData.combine(
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssUtil.combine(
             RichTextArea.getClassCssMetaData(),
             FONT,
             TAB_SIZE
