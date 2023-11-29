@@ -26,27 +26,36 @@ package com.oracle.controls.codearea;
 
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
 import javafx.css.FontCssMetaData;
 import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
+import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.SizeConverter;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 /**
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.
  */
 public class CodeArea extends RichTextArea {
+    private static final int DEFAULT_TAB_SIZE = 8;
     private BooleanProperty lineNumbers;
+    private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
     private String fontStyle;
 
@@ -90,6 +99,10 @@ public class CodeArea extends RichTextArea {
         setDefaultTextCellAttributes(a);
     }
 
+    private void updateTabSize(int sz) {
+        // TODO needs TabStopPolicy https://bugs.openjdk.org/browse/JDK-8314482
+    }
+
     // TODO another school of thought suggests to move the highlighter property here.
     public void setSyntaxHighlighter(SyntaxDecorator d) {
         var m = codeModel();
@@ -103,7 +116,8 @@ public class CodeArea extends RichTextArea {
         return (m == null) ? null : m.getDecorator();
     }
 
-    public BooleanProperty lineNumbersEnabledProperty() {
+    // TODO is there a way to customize line number component?
+    public final BooleanProperty lineNumbersEnabledProperty() {
         if (lineNumbers == null) {
             lineNumbers = new SimpleBooleanProperty() {
                 @Override
@@ -130,12 +144,53 @@ public class CodeArea extends RichTextArea {
         return lineNumbers;
     }
 
-    public boolean isLineNumbersEnabled() {
+    public final boolean isLineNumbersEnabled() {
         return lineNumbers == null ? false : lineNumbers.get();
     }
 
-    public void setLineNumbersEnabled(boolean on) {
+    public final void setLineNumbersEnabled(boolean on) {
         lineNumbersEnabledProperty().set(on);
+    }
+
+    /**
+     * The size of a tab stop in spaces.
+     * Values less than 1 are treated as 1.
+     * @defaultValue 8
+     */
+    public final IntegerProperty tabSizeProperty() {
+        if (tabSize == null) {
+            tabSize = new StyleableIntegerProperty(DEFAULT_TAB_SIZE) {
+                @Override
+                public Object getBean() {
+                    return CodeArea.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "tabSize";
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TAB_SIZE;
+                }
+
+                @Override
+                protected void invalidated() {
+                    updateTabSize(get());
+                    requestLayout();
+                }
+            };
+        }
+        return tabSize;
+    }
+
+    public final int getTabSize() {
+        return tabSize == null ? DEFAULT_TAB_SIZE : tabSize.get();
+    }
+
+    public final void setTabSize(int spaces) {
+        tabSizeProperty().set(spaces);
     }
 
     /**
@@ -236,9 +291,24 @@ public class CodeArea extends RichTextArea {
             }
         };
 
+        private static final CssMetaData<CodeArea, Number> TAB_SIZE =
+            new CssMetaData<>("-fx-tab-size", SizeConverter.getInstance(), DEFAULT_TAB_SIZE)
+        {
+            @Override
+            public boolean isSettable(CodeArea n) {
+                return n.tabSize == null || !n.tabSize.isBound();
+            }
+
+            @Override
+            public StyleableProperty<Number> getStyleableProperty(CodeArea n) {
+                return (StyleableProperty<Number>)n.tabSizeProperty();
+            }
+        };
+
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssMetaData.combine(
             RichTextArea.getClassCssMetaData(),
-            FONT
+            FONT,
+            TAB_SIZE
         );
     }
 
