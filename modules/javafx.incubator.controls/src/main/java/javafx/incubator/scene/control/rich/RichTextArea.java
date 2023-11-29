@@ -230,86 +230,6 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * The default font to use for text in the RichTextArea.
-     * If the RichTextArea's text is
-     * rich text then this font may or may not be used depending on the font
-     * information embedded in the rich text, but in any case where a default
-     * font is required, this font will be used.
-     * @return the font property
-     */
-    public final ObjectProperty<Font> fontProperty() {
-        if (font == null) {
-            font = new StyleableObjectProperty<Font>(Font.getDefault()) {
-                private boolean fontSetByCss;
-
-                @Override
-                public void applyStyle(StyleOrigin newOrigin, Font value) {
-                    // RT-20727 JDK-8127428
-                    // if CSS is setting the font, then make sure invalidate doesn't call NodeHelper.reapplyCSS
-                    try {
-                        // super.applyStyle calls set which might throw if value is bound.
-                        // Have to make sure fontSetByCss is reset.
-                        fontSetByCss = true;
-                        super.applyStyle(newOrigin, value);
-                    } catch (Exception e) {
-                        throw e;
-                    } finally {
-                        fontSetByCss = false;
-                    }
-                }
-
-                @Override
-                public void set(Font value) {
-                    Font old = get();
-                    if (value == null ? old == null : value.equals(old)) {
-                        return;
-                    }
-                    super.set(value);
-                }
-
-                @Override
-                protected void invalidated() {
-                    /** FIX reapplyCSS should be public
-                    // RT-20727 JDK-8127428
-                    // if font is changed by calling setFont, then
-                    // css might need to be reapplied since font size affects
-                    // calculated values for styles with relative values
-                    if (fontSetByCss == false) {
-                        NodeHelper.reapplyCSS(RichTextArea.this);
-                    }
-                    */
-                    // don't know whether this is ok
-                    requestLayout();
-                }
-
-                @Override
-                public CssMetaData<RichTextArea, Font> getCssMetaData() {
-                    return StyleableProperties.FONT;
-                }
-
-                @Override
-                public Object getBean() {
-                    return RichTextArea.this;
-                }
-
-                @Override
-                public String getName() {
-                    return "font";
-                }
-            };
-        }
-        return font;
-    }
-
-    public final void setFont(Font value) {
-        fontProperty().setValue(value);
-    }
-
-    public final Font getFont() {
-        return font == null ? Font.getDefault() : font.getValue();
-    }
-
-    /**
      * Indicates whether text should be wrapped in this RichTextArea.
      * If a run of text exceeds the width of the {@code RichTextArea},
      * then this variable indicates whether the text should wrap onto
@@ -453,21 +373,6 @@ public class RichTextArea extends Control {
             }
         };
 
-        // TODO remove if switched to paragraph attributes
-        private static final FontCssMetaData<RichTextArea> FONT =
-            new FontCssMetaData<>("-fx-font", Font.getDefault()) {
-
-            @Override
-            public boolean isSettable(RichTextArea n) {
-                return n.font == null || !n.font.isBound();
-            }
-
-            @Override
-            public StyleableProperty<Font> getStyleableProperty(RichTextArea n) {
-                return (StyleableProperty<Font>)(WritableValue<Font>)n.fontProperty();
-            }
-        };
-
         private static final CssMetaData<RichTextArea,Boolean> WRAP_TEXT =
             new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), false) {
                 @Override
@@ -481,10 +386,10 @@ public class RichTextArea extends Control {
                 }
             };
 
+        // FIX replace with CssMetaData.combine
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = Util.initStyleables(
             Control.getClassCssMetaData(),
             CONTENT_PADDING,
-            FONT,
             WRAP_TEXT
         );
     }
