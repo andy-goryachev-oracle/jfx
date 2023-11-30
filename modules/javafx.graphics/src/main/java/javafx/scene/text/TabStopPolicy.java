@@ -31,12 +31,21 @@ import java.util.List;
  */
 public interface TabStopPolicy {
     /**
+     * Determines whether this policy specifies a fixed tab size in terms of the width or the digit 0
+     * (any positive value), or provides the tab stops relative to document leading edge.
+     *
+     * @return the tab size
+     */
+    public int tabSize();
+
+    /**
      * @return the non-null list of tab stops 
      */
     public List<TabStop> tabStops();
     
     /**
-     * First line indent, a positive value.
+     * First line indent, a positive value or 0.
+     * This value is ignored when {@link #tabSize()} returns a non-zero value.
      *
      * TODO
      * It is unclear whether the TextLayout should support negative values as it might impact the size and
@@ -47,7 +56,8 @@ public interface TabStopPolicy {
     public double firstLineIndent();
 
     /**
-     * Provides default tab stops (beyond any tab stops specified by {@code #tabStops()}.
+     * Provides default tab stops (beyond the last tab stop specified by {@code #tabStops()}.
+     * This value is ignored when {@link #tabSize()} returns a non-zero value.
      *
      * TODO
      * It is unclear how to specify NONE value (negative perhaps?).  MS Word does not allow for NONE.
