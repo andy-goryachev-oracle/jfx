@@ -34,7 +34,11 @@ import javafx.scene.Node;
 /**
  * Utility methods for dealing with CSS.
  */
-class CssUtil {
+final class CssUtil {
+
+    private CssUtil() {
+    }
+
     /**
      * Utility method which combines {@code CssMetaData} items in one immutable list.
      * <p>
@@ -64,14 +68,15 @@ class CssUtil {
         CssMetaData[] combined = new CssMetaData[inheritedFromParent.size() + items.length];
         inheritedFromParent.toArray(combined);
         System.arraycopy(items, 0, combined, inheritedFromParent.size(), items.length);
-        return new UnmodifiableArrayList<>(combined);
+        return new ImmutableArrayList<>(combined);
     }
 
-    static class UnmodifiableArrayList<T> extends AbstractList<T> implements RandomAccess {
+    /** immutable list with random access backed by an array */
+    private static class ImmutableArrayList<T> extends AbstractList<T> implements RandomAccess {
         private final T[] items;
 
-        public UnmodifiableArrayList(T[] elements) {
-            this.items = elements;
+        public ImmutableArrayList(T[] items) {
+            this.items = items;
         }
 
         @Override

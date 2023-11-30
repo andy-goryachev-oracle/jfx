@@ -27,7 +27,9 @@ package com.sun.javafx.scene.control.rich;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.AbstractList;
 import java.util.List;
+import java.util.RandomAccess;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.css.CssMetaData;
@@ -43,13 +45,16 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import com.sun.javafx.UnmodifiableArrayList;
 
 /**
  * RichTextArea specific utility methods.
  */
-public class RichUtils {
+public final class RichUtils {
+
     private static final DecimalFormat format = new DecimalFormat("#0.##");
+
+    private RichUtils() {
+    }
 
     /**
      * A safe substring method which is tolerant to null text, and offsets being outside of the text boundaries.
@@ -382,6 +387,25 @@ public class RichUtils {
         CssMetaData[] combined = new CssMetaData[inheritedFromParent.size() + items.length];
         inheritedFromParent.toArray(combined);
         System.arraycopy(items, 0, combined, inheritedFromParent.size(), items.length);
-        return new UnmodifiableArrayList<>(combined, combined.length);
+        return new ImmutableArrayList<>(combined);
+    }
+
+    /** immutable list with random access backed by an array */
+    private static class ImmutableArrayList<T> extends AbstractList<T> implements RandomAccess {
+        private final T[] items;
+
+        public ImmutableArrayList(T[] items) {
+            this.items = items;
+        }
+
+        @Override
+        public T get(int index) {
+            return items[index];
+        }
+
+        @Override
+        public int size() {
+            return items.length;
+        }
     }
 }
