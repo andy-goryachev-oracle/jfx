@@ -27,9 +27,7 @@ package com.sun.javafx.scene.control.rich;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.AbstractList;
 import java.util.List;
-import java.util.RandomAccess;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.css.CssMetaData;
@@ -387,25 +385,7 @@ public final class RichUtils {
         CssMetaData[] combined = new CssMetaData[inheritedFromParent.size() + items.length];
         inheritedFromParent.toArray(combined);
         System.arraycopy(items, 0, combined, inheritedFromParent.size(), items.length);
-        return new ImmutableArrayList<>(combined);
-    }
-
-    /** immutable list with random access backed by an array */
-    private static class ImmutableArrayList<T> extends AbstractList<T> implements RandomAccess {
-        private final T[] items;
-
-        public ImmutableArrayList(T[] items) {
-            this.items = items;
-        }
-
-        @Override
-        public T get(int index) {
-            return items[index];
-        }
-
-        @Override
-        public int size() {
-            return items.length;
-        }
+        // makes a copy, unfortunately
+        return List.of(combined);
     }
 }
