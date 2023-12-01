@@ -29,40 +29,30 @@ package javafx.scene.text;
  * A tab stop is at a specified distance from the
  * left margin, aligns text in a specified way, and has a specified leader.
  * TabStops are immutable, and usually contained in {@link TabStopPolicy}.
+ * 
+ * TODO
+ * @since 999
  */
-public class TabStop {
+public final class TabStop {
     public enum Alignment {
         CENTER,
         LEFT,
         RIGHT,
         DECIMAL
-        // TODO BAR?
-    }
-    
-    public enum Leader {
-        /** Lead none */
-        NONE,
-        /** Lead dots */
-        DOTS,
-        /** Lead hyphens */
-        HYPHENS,
-        /** Lead underline */
-        UNDERLINE,
-        /** Lead thickline */
-        THICK_LINE,
-        /** Lead equals */
-        EQUALS
     }
     
     private final double position;
     private final Alignment alignment;
-    private final Leader leader;
 
-    // TODO this might be a record
-    public TabStop(double position, Alignment alignment, Leader leader) {
+    /**
+     * Creates an immutable {@code TabStop} instance.
+     *
+     * @param position the tab stop position in points
+     * @param alignment the alignment
+     */
+    public TabStop(double position, Alignment alignment) {
         this.position = position;
         this.alignment = alignment;
-        this.leader = leader;
     }
     
     /**
@@ -80,14 +70,6 @@ public class TabStop {
     public Alignment getAlignment() {
         return alignment;
     }
-
-    /**
-     * Returns the leader of the tab.
-     * @return the leader of the tab
-     */
-    public Leader getLeader() {
-        return leader;
-    }
     
-    // TODO equals, toString
+    // TODO hashCode, equals, toString
 }

@@ -28,42 +28,62 @@ import java.util.List;
 
 /**
  * Tab Stop Policy.
+ *
+ * TODO
+ * @since 999
  */
-public interface TabStopPolicy {
-    /**
-     * Determines whether this policy specifies a fixed tab size in terms of the width or the digit 0
-     * (any positive value), or provides the tab stops relative to document leading edge.
-     *
-     * @return the tab size
-     */
-    public int tabSize();
+public final class TabStopPolicy {
+
+    private final List<TabStop> tabStops;
+    private final double firstLineIndent;
+    private final double defaultStops;
 
     /**
+     * Creates an immutable {@code TabStop} instance.
+     *
+     * @param tabStops the tab stops (a copy will be made)
+     * @param firstLineIndent the first line indent, in points
+     * @param defaultStops the default stops, in points
+     */
+    public TabStopPolicy(List<TabStop> tabStops, double firstLineIndent, double defaultStops) {
+        this.tabStops = List.copyOf(tabStops);
+        this.firstLineIndent = firstLineIndent;
+        this.defaultStops = defaultStops;
+    }
+
+    /**
+     * Specifies the list of tab stops.
+     *
      * @return the non-null list of tab stops 
      */
-    public List<TabStop> tabStops();
+    public List<TabStop> tabStops() {
+        return tabStops;
+    }
     
     /**
-     * First line indent, a positive value or 0.
-     * This value is ignored when {@link #tabSize()} returns a non-zero value.
+     * First line indent, in points, a positive value.  Negative or 0 values are treated as no first line indent.
      *
      * TODO
      * It is unclear whether the TextLayout should support negative values as it might impact the size and
      * the preferred size of the layout.
      *
-     * @return the first line indent
+     * @return the first line indent, in points
      */
-    public double firstLineIndent();
+    public double firstLineIndent() {
+        return firstLineIndent;
+    }
 
     /**
-     * Provides default tab stops (beyond the last tab stop specified by {@code #tabStops()}.
-     * This value is ignored when {@link #tabSize()} returns a non-zero value.
+     * Provides default tab stops (beyond the last tab stop specified by {@code #tabStops()}, as a distance
+     * in points from the last tab stop position.
      *
      * TODO
      * It is unclear how to specify NONE value (negative perhaps?).  MS Word does not allow for NONE.
      * @return the default tab stops, in points.
      */
-    public double defaultStops();
+    public double defaultStops() {
+        return defaultStops;
+    }
     
-    // TODO: factory method to create a simple fixed tab size policy
+    // TODO hashCode, equals, toString
 }
