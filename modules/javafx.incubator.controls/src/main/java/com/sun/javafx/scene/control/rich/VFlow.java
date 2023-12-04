@@ -52,6 +52,7 @@ import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.CssStyles;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
+import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
@@ -108,6 +109,7 @@ public class VFlow extends Pane implements StyleResolver {
     private double rightSide;
     private boolean inReflow;
     private static final Text measurer = makeMeasurer();
+    private static final VFlowCellContext context = new VFlowCellContext();
 
     public VFlow(RichTextAreaSkin skin, ConfigurationParameters c, ScrollBar vscroll, ScrollBar hscroll) {
         this.control = skin.getSkinnable();
@@ -253,11 +255,6 @@ public class VFlow extends Pane implements StyleResolver {
         requestLayout();
         updateHorizontalScrollBar();
         updateVerticalScrollBar();
-    }
-
-    public void handleDefaultTextCellAttributes() {
-        cellCache.clear();
-        requestLayout();
     }
 
     public void handleContentPadding() {
@@ -741,8 +738,10 @@ public class VFlow extends Pane implements StyleResolver {
     }
 
     private TextCell createTextCell(int index, RichParagraph par) {
+        // TODO use a static CellContext here
         TextCell cell;
-        StyleAttrs pa = RichUtils.combine(control.getDefaultParagraphAttributes(), par.getParagraphAttributes());
+        StyleAttrs da = control.getDefaultAttributes();
+        StyleAttrs pa = RichUtils.combine(da, par.getParagraphAttributes());
         Supplier<Region> gen = par.getParagraphRegion();
         if (gen != null) {
             // it's a paragraph node
@@ -752,7 +751,7 @@ public class VFlow extends Pane implements StyleResolver {
             // it's a regular text cell
             cell = new TextCell(index);
 
-            // first line indent
+            // first line indent operates on TextCell and not its content
             if (pa != null) {
                 Double firstLineIndent = pa.getFirstLineIndent();
                 if (firstLineIndent != null) {
@@ -772,8 +771,8 @@ public class VFlow extends Pane implements StyleResolver {
             List<StyledSegment> segments = RichParagraphHelper.getSegments(par);
             if ((segments == null) || segments.isEmpty()) {
                 // a bit of a hack: avoid TextCells with an empty TextFlow,
-                // as it makes the caret collapse to a single point
-                cell.add(createTextNode("", null));
+                // otherwise it makes the caret collapse to a single point
+                cell.add(createTextNode("", da));
             } else {
                 for (StyledSegment seg : segments) {
                     switch (seg.getType()) {
@@ -784,6 +783,7 @@ public class VFlow extends Pane implements StyleResolver {
                     case TEXT:
                         String text = seg.getText();
                         StyleAttrs a = seg.getStyleAttrs(this);
+                        a = RichUtils.combine(da, a);
                         Text t = createTextNode(text, a);
                         cell.add(t);
                         break;
@@ -793,55 +793,42 @@ public class VFlow extends Pane implements StyleResolver {
         }
 
         if (pa != null) {
-            // - need to resolve paragraph attributes only
-            // - Resolver needs to separate character/paragraph attributes
-            // - StyleAttrs.createStyleString() might need a boolean
+            context.reset(cell.getContent(), pa);
             applyStyles(cell.getContent(), pa, true);
+            context.apply();
         }
 
-        // finally adding paragraph attributes that affect TextCell
+        // these attributes operate on TextCell instead of its content
         if (pa != null) {
-            String bullet = pa.get(StyleAttrs.BULLET);
+            String bullet = pa.getBullet();
             if (bullet != null) {
                 cell.setBullet(bullet);
             }
+
+            if (control.isWrapText()) {
+                boolean rtl = pa.isRTL();
+                cell.setNodeOrientation(rtl ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
+            }
         }
 
-        // apply attributes to the TextCell (outer container)
-        if (pa != null) {
-            String style = StyleUtil.generateTextCellStyle(pa);
-            cell.setStyle(style);
-        }
         return cell;
     }
 
     private Text createTextNode(String text, StyleAttrs attrs) {
         Text t = new Text(text);
-        StyleAttrs a = RichUtils.combine(control.getDefaultTextCellAttributes(), attrs);
-        if (a != null) {
-            applyStyles(t, a, false);
-        }
+        context.reset(t, attrs);
+        applyStyles(t, attrs, false);
+        context.apply();
         return t;
     }
 
-    private void applyStyles(Node n, StyleAttrs a, boolean forParagraph) {
-        boolean unwrapped = !control.isWrapText();
-        CssStyles css = a.getCssStyles();
-        if (css != null) {
-            n.setStyle(css.style());
-            String[] names = css.names();
-            if (names != null) {
-                n.getStyleClass().addAll(names);
-            }
-        }
-
-        String style = StyleUtil.getStyleString(a, forParagraph, unwrapped);
-        n.setStyle(style);
-
-        if (forParagraph) {
-            if (!unwrapped) {
-                boolean rtl = a.getBoolean(StyleAttrs.RIGHT_TO_LEFT);
-                n.setNodeOrientation(rtl ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
+    private void applyStyles(Node n, StyleAttrs attrs, boolean forParagraph) {
+        if (attrs != null) {
+            for (StyleAttribute a : attrs.getAttributes()) {
+                Object v = attrs.get(a);
+                if (a != null) {
+                    control.processAttribute(forParagraph, context, a, v);
+                }
             }
         }
     }

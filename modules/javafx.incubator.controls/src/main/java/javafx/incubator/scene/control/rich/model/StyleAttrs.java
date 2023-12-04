@@ -55,7 +55,7 @@ public class StyleAttrs {
     /** Bold typeface attribute */
     public static final StyleAttribute<Boolean> BOLD = new StyleAttribute<>("BOLD", Boolean.class, false);
 
-    /** This special attribute contains CSS direct style and style names */
+    /** This special attribute contains CSS direct style and style names for text segments only */
     public static final StyleAttribute<CssStyles> CSS = new StyleAttribute<>("CSS", CssStyles.class, false);
 
     /** First line indent paragraph attribute, in points. */

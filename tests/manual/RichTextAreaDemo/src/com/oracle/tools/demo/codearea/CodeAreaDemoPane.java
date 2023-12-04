@@ -411,7 +411,7 @@ public class CodeAreaDemoPane extends BorderPane {
         paragraphAttributes = paragraphAttributes.toBuilder().
             setLineSpacing(x).
             build();
-        control.setDefaultParagraphAttributes(paragraphAttributes);
+        control.setDefaultAttributes(paragraphAttributes);
     }
 
     //

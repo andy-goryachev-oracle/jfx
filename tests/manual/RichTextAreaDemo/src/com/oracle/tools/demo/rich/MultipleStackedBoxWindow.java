@@ -56,7 +56,7 @@ public class MultipleStackedBoxWindow extends Stage {
         a1.setWrapText(true);
         a1.setLeftDecorator(new LineNumberDecorator());
         //a1.setFont(font);
-        a1.setDefaultParagraphAttributes(def);
+        a1.setDefaultAttributes(def);
         createPopupMenu(a1);
         
         TextArea t1 = new TextArea("This TextArea has wrap text property set to false.");
@@ -68,7 +68,7 @@ public class MultipleStackedBoxWindow extends Stage {
         a2.setWrapText(true);
         a2.setLeftDecorator(new LineNumberDecorator());
         //a2.setFont(font);
-        a2.setDefaultParagraphAttributes(def);
+        a2.setDefaultAttributes(def);
         createPopupMenu(a2);
 
         PrefSizeTester tester = new PrefSizeTester();
@@ -206,7 +206,7 @@ public class MultipleStackedBoxWindow extends Stage {
     }
 
     private StyleAttrs getStyleAttrs(RichTextArea t) {
-        StyleAttrs a = t.getDefaultParagraphAttributes();
+        StyleAttrs a = t.getDefaultAttributes();
         return (a == null) ? StyleAttrs.EMPTY : a;
     }
 
@@ -221,7 +221,7 @@ public class MultipleStackedBoxWindow extends Stage {
             toBuilder().
             setLineSpacing(x).
             build();
-        t.setDefaultParagraphAttributes(a);
+        t.setDefaultAttributes(a);
         System.out.println(a);
     }
 }

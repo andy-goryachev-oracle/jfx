@@ -39,7 +39,7 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.SizeConverter;
 import javafx.incubator.scene.control.rich.RichTextArea;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
@@ -49,11 +49,15 @@ import javafx.scene.text.Font;
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.
  */
 public class CodeArea extends RichTextArea {
+    static final StyleAttribute<Font> FONT = new StyleAttribute<>("CodeArea.FONT", Font.class, false);
+    static final StyleAttribute<Integer> TAB_SIZE = new StyleAttribute<>("CodeArea.TAB_SIZE", Integer.class, true);
     private static final int DEFAULT_TAB_SIZE = 8;
     private BooleanProperty lineNumbers;
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
     private String fontStyle;
+    
+    static { initStyleHandlers(); }
 
     public CodeArea(CodeModel m) {
         super(m);
@@ -86,17 +90,11 @@ public class CodeArea extends RichTextArea {
     }
 
     private void updateFont(Font f) {
-        StyleAttrs old = getDefaultTextCellAttributes();
-        StyleAttrs a = StyleAttrs.builder().
-            merge(old).
-            set(StyleAttrs.FONT_FAMILY, f.getFamily()).
-            set(StyleAttrs.FONT_SIZE, f.getSize()).
-            build();
-        setDefaultTextCellAttributes(a);
+        setDefaultAttribute(FONT, f);
     }
 
     private void updateTabSize(int sz) {
-        // TODO needs TabStopPolicy https://bugs.openjdk.org/browse/JDK-8314482
+        setDefaultAttribute(TAB_SIZE, sz);
     }
 
     // TODO another school of thought suggests to move the highlighter property here.
@@ -315,5 +313,21 @@ public class CodeArea extends RichTextArea {
      */
     public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
         return StyleableProperties.STYLEABLES;
+    }
+
+    private static void initStyleHandlers() {
+        // a paragraph-level attribute implemented on a per-segment basis
+        setSegHandler(CodeArea.FONT, (c, cx, v) -> {
+            String family = v.getFamily();
+            double size = v.getSize();
+            cx.addStyle("-fx-font-family:'" + family + "';");
+            cx.addStyle("-fx-font-size:" + size + "pt;");
+        });
+
+        setParHandler(CodeArea.TAB_SIZE, (c, cx, v) -> {
+            if (v > 0) {
+                cx.addStyle("-fx-tab-size:" + v + ";");
+            }
+        });
     }
 }

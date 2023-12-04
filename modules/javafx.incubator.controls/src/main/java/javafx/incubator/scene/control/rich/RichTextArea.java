@@ -27,6 +27,7 @@
 
 package javafx.incubator.scene.control.rich;
 
+import java.util.HashMap;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -45,10 +46,12 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.InsetsConverter;
 import javafx.geometry.Insets;
+import javafx.geometry.NodeOrientation;
 import javafx.geometry.Point2D;
 import javafx.incubator.scene.control.behavior.FunctionTag;
 import javafx.incubator.scene.control.behavior.InputMap;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
+import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
@@ -155,7 +158,7 @@ public class RichTextArea extends Control {
     private final ConfigurationParameters config;
     private final ObjectProperty<StyledTextModel> model = new SimpleObjectProperty<>(this, "model");
     private final SimpleBooleanProperty displayCaretProperty = new SimpleBooleanProperty(this, "displayCaret", true);
-    private final SimpleObjectProperty<StyleAttrs> defaultParagraphAttributes;
+    private final SimpleObjectProperty<StyleAttrs> defaultAttributes;
     private final SimpleObjectProperty<StyleAttrs> defaultTextCellAttributes;
     private SimpleBooleanProperty editableProperty;
     private StyleableObjectProperty<Font> font;
@@ -168,6 +171,9 @@ public class RichTextArea extends Control {
     private BooleanProperty highlightCurrentParagraph;
     private BooleanProperty useContentWidth;
     private BooleanProperty useContentHeight;
+    private static HashMap<StyleAttribute,StyleAttributeHandler> parStyleHandlerMap = new HashMap<>();
+    private static HashMap<StyleAttribute,StyleAttributeHandler> segStyleHandlerMap = new HashMap<>();
+    static { initStyleHandlers(); }
 
     /**
      * Creates an editable instance with default configuration parameters,
@@ -197,7 +203,7 @@ public class RichTextArea extends Control {
 
         defaultTextCellAttributes = new SimpleObjectProperty<>(this, "defaultTextCellAttributes");
 
-        defaultParagraphAttributes = new SimpleObjectProperty<>(this, "defaultParagraphAttributes");
+        defaultAttributes = new SimpleObjectProperty<>(this, "defaultParagraphAttributes");
 
         setFocusTraversable(true);
         getStyleClass().add("rich-text-area");
@@ -1130,7 +1136,7 @@ public class RichTextArea extends Control {
                 a = resolver.resolveStyles(a);
             }
         }
-        StyleAttrs pa = getDefaultParagraphAttributes();
+        StyleAttrs pa = getDefaultAttributes();
         if ((pa == null) || pa.isEmpty()) {
             return a;
         }
@@ -1231,52 +1237,176 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Specifies the default attributes for cells that contain text (excluding embedded Nodes and Node paragraphs).
+     * Specifies the default attributes.
      * The value can be null.
-     * @return the default text cell attributes property
+     * @return the default attributes property
      */
-    public final ObjectProperty<StyleAttrs> defaultTextCellAttributesProperty() {
-        return defaultTextCellAttributes;
+    public final ObjectProperty<StyleAttrs> defaultAttributesProperty() {
+        return defaultAttributes;
     }
 
-    public final void setDefaultTextCellAttributes(StyleAttrs a) {
-        defaultTextCellAttributes.set(a);
+    public final void setDefaultAttributes(StyleAttrs a) {
+        defaultAttributes.set(a);
     }
 
-    public final StyleAttrs getDefaultTextCellAttributes() {
-        return defaultTextCellAttributes.get();
+    public final StyleAttrs getDefaultAttributes() {
+        return defaultAttributes.get();
     }
 
     /**
-     * Specifies the default paragraph attributes.
-     * The value can be null.
-     * @return the default paragraph attributes property
+     * Sets a single default attribute by updating the {@code defaultAttributesProperty}.
+     * @param <T> the attribute type
+     * @param attr the attribute
+     * @param value the attribute value
      */
-    public final ObjectProperty<StyleAttrs> defaultParagraphAttributesProperty() {
-        return defaultParagraphAttributes;
+    public final <T> void setDefaultAttribute(StyleAttribute<T> attr, T value) {
+        StyleAttrs old = getDefaultAttributes();
+        StyleAttrs a = StyleAttrs.builder().
+            merge(old).
+            set(attr, value).
+            build();
+        setDefaultAttributes(a);
     }
 
-    public final void setDefaultParagraphAttributes(StyleAttrs a) {
-        defaultParagraphAttributes.set(a);
-    }
-
-    public final StyleAttrs getDefaultParagraphAttributes() {
-        return defaultParagraphAttributes.get();
-    }
-
-    // will be moved to Control JDK-8314968
+    // TODO to be moved to Control JDK-8314968
     private final InputMap<RichTextArea> inputMap = new InputMap<>(this);
 
-    // will be moved to Control JDK-8314968
+    // TODO to be moved to Control JDK-8314968
     public InputMap<RichTextArea> getInputMap() {
         return inputMap;
     }
 
-    // will be moved to Control JDK-8314968
+    // TODO to be moved to Control JDK-8314968
     protected final void execute(FunctionTag tag) {
         Runnable f = getInputMap().getFunction(tag);
         if (f != null) {
             f.run();
         }
+    }
+
+    /**
+     * Sets a paragraph style attribute handler.
+     * @param <C>
+     * @param <T>
+     * @param a
+     * @param p
+     */
+    protected static <C extends RichTextArea, T> void setParHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> p) {
+        parStyleHandlerMap.put(a, p);
+    }
+    
+    /**
+     * Sets a text segment style attribute handler.
+     * @param <C>
+     * @param <T>
+     * @param a
+     * @param p
+     */
+    protected static <C extends RichTextArea, T> void setSegHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> p) {
+        segStyleHandlerMap.put(a, p);
+    }
+
+    /**
+     * TODO hide behind an accessor 
+     * - what it does
+     * - how to override safely
+     * - FIX accessor? public for now
+     *
+     * @param <T>
+     * @param d
+     * @param a
+     * @param value
+     */
+    public <T> void processAttribute(boolean forParagraph, CellContext cx, StyleAttribute<T> a, T value) {
+        StyleAttributeHandler h = (forParagraph ? parStyleHandlerMap : segStyleHandlerMap).get(a);
+        if (h != null) {
+            h.apply(this, cx, value);
+        }
+    }
+
+    private static void initStyleHandlers() {
+        setParHandler(StyleAttrs.BACKGROUND, (c, cx, v) -> {
+            String color = RichUtils.toCssColor(v);
+            cx.addStyle("-fx-background-color:" + color + ";");
+        });
+
+        setSegHandler(StyleAttrs.BOLD, (c, cx, v) -> {
+            cx.addStyle(v ? "-fx-font-weight:bold;" : "-fx-font-weight:normal;");
+        });
+
+        setSegHandler(StyleAttrs.CSS, (c, cx, v) -> {
+            String st = v.style();
+            if (st != null) {
+                cx.addStyle(st);
+            }
+            String[] names = v.names();
+            if (names != null) {
+                cx.getNode().getStyleClass().addAll(names);
+            }
+        });
+
+        setSegHandler(StyleAttrs.FONT_FAMILY, (cc, c, v) -> {
+            c.addStyle("-fx-font-family:'" + v + "';");
+        });
+
+        setSegHandler(StyleAttrs.FONT_SIZE, (cc, c, v) -> {
+            c.addStyle("-fx-font-size:" + v + "pt;");
+        });
+
+        setSegHandler(StyleAttrs.ITALIC, (cc, c, v) -> {
+            if (v) {
+                c.addStyle("-fx-font-style:italic;");
+            }
+        });
+
+        setParHandler(StyleAttrs.LINE_SPACING, (cc, c, v) -> {
+            c.addStyle("-fx-line-spacing:" + v + ";");
+        });
+        
+        setParHandler(StyleAttrs.RIGHT_TO_LEFT, (cc, cx, v) -> {
+            if (cc.isWrapText()) {
+                // node orientation property is not styleable (yet?)
+                cx.getNode().setNodeOrientation(v ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
+            }
+        });
+
+        // this is a special case: 4 attributes merged into one -fx style
+        // unfortunately, this might create multiple copies of the same style string
+        StyleAttributeHandler<RichTextArea, Double> spaceHandler = (cc, c, v) -> {
+            StyleAttrs a = c.getAttributes();
+            double top = a.getDouble(StyleAttrs.SPACE_ABOVE, 0);
+            double right = a.getDouble(StyleAttrs.SPACE_RIGHT, 0);
+            double bottom = a.getDouble(StyleAttrs.SPACE_BELOW, 0);
+            double left = a.getDouble(StyleAttrs.SPACE_LEFT, 0);
+            c.addStyle("-fx-padding:" + top + ' ' + right + ' ' + bottom + ' ' + left + ";");
+        };
+        setParHandler(StyleAttrs.SPACE_ABOVE, spaceHandler);
+        setParHandler(StyleAttrs.SPACE_RIGHT, spaceHandler);
+        setParHandler(StyleAttrs.SPACE_BELOW, spaceHandler);
+        setParHandler(StyleAttrs.SPACE_LEFT, spaceHandler);
+
+        setSegHandler(StyleAttrs.STRIKE_THROUGH, (cc, c, v) -> {
+            if (v) {
+                c.addStyle("-fx-strikethrough:true;");
+            }
+        });
+
+        setParHandler(StyleAttrs.TEXT_ALIGNMENT, (c, cx, v) -> {
+            if (c.isWrapText()) {
+                String alignment = RichUtils.toCss(v);
+                cx.addStyle("-fx-text-alignment:" + alignment + ";");
+            }
+        });
+
+        setSegHandler(StyleAttrs.TEXT_COLOR, (c, cx, v) -> {
+            String color = RichUtils.toCssColor(v);
+            cx.addStyle("-fx-fill:" + color + ";");
+        });
+
+        setSegHandler(StyleAttrs.UNDERLINE, (cc, cx, v) -> {
+            if (v) {
+                cx.addStyle("-fx-underline:true;");
+            }
+        });
     }
 }
