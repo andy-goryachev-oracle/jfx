@@ -242,6 +242,7 @@ public class RtfStyledOutput implements StyledOutput {
         startOfLine = true;
     }
 
+    @SuppressWarnings("null") // see L280
     private void writeTextSegment(StyledSegment seg) throws IOException {
         checkCancelled();
 

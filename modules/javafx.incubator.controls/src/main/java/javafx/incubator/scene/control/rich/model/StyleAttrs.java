@@ -250,7 +250,7 @@ public class StyleAttrs {
      * @return the background color attribute value
      */
     public final Color getBackground() {
-        return (Color)get(BACKGROUND);
+        return get(BACKGROUND);
     }
 
     /**
@@ -258,7 +258,7 @@ public class StyleAttrs {
      * @return the bullet paragraph attribute value
      */
     public final String getBullet() {
-        return (String)get(BULLET);
+        return get(BULLET);
     }
 
     /**
@@ -266,7 +266,7 @@ public class StyleAttrs {
      * @return the css style attribute value
      */
     public final CssStyles getCssStyles() {
-        return (CssStyles)get(CSS);
+        return get(CSS);
     }
 
     /**
@@ -274,7 +274,7 @@ public class StyleAttrs {
      * @return the first line indent value in points
      */
     public final Double getFirstLineIndent() {
-        return (Double)get(FIRST_LINE_INDENT);
+        return get(FIRST_LINE_INDENT);
     }
 
     /**
@@ -282,7 +282,7 @@ public class StyleAttrs {
      * @return the font size
      */
     public final Double getFontSize() {
-        return (Double)get(FONT_SIZE);
+        return get(FONT_SIZE);
     }
 
     /**
@@ -291,7 +291,7 @@ public class StyleAttrs {
      * @return the font family name
      */
     public final String getFontFamily() {
-        return (String)get(FONT_FAMILY);
+        return get(FONT_FAMILY);
     }
 
     /**
@@ -299,7 +299,7 @@ public class StyleAttrs {
      * @return the line spacing value
      */
     public Double getLineSpacing() {
-        return (Double)get(LINE_SPACING);
+        return get(LINE_SPACING);
     }
     
     /**
@@ -307,7 +307,7 @@ public class StyleAttrs {
      * @return the space above paragraph attribute value
      */
     public Double getSpaceAbove() {
-        return (Double)get(SPACE_ABOVE);
+        return get(SPACE_ABOVE);
     }
 
     /**
@@ -315,7 +315,7 @@ public class StyleAttrs {
      * @return the space below paragraph attribute value
      */
     public Double getSpaceBelow() {
-        return (Double)get(SPACE_BELOW);
+        return get(SPACE_BELOW);
     }
 
     /**
@@ -323,7 +323,7 @@ public class StyleAttrs {
      * @return the space left paragraph attribute value
      */
     public Double getSpaceLeft() {
-        return (Double)get(SPACE_LEFT);
+        return get(SPACE_LEFT);
     }
 
     /**
@@ -331,7 +331,7 @@ public class StyleAttrs {
      * @return the space right paragraph attribute value
      */
     public Double getSpaceRight() {
-        return (Double)get(SPACE_RIGHT);
+        return get(SPACE_RIGHT);
     }
 
     /**
@@ -339,7 +339,7 @@ public class StyleAttrs {
      * @return the paragraph alignment attribute value
      */
     public final TextAlignment getTextAlignment() {
-        return (TextAlignment)get(TEXT_ALIGNMENT);
+        return get(TEXT_ALIGNMENT);
     }
 
     /**
@@ -347,7 +347,7 @@ public class StyleAttrs {
      * @return the text color attribute value
      */
     public final Color getTextColor() {
-        return (Color)get(TEXT_COLOR);
+        return get(TEXT_COLOR);
     }
 
     /**

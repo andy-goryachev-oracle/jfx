@@ -145,14 +145,15 @@ public class CellArrangement {
                     return new TextPos(cell.getIndex(), 0, 0, true);
                 }
             }
+
+            int cix = 0;
+            if (r instanceof TextFlow f) {
+                cix = RichUtils.getTextLength(f);
+            }
+            return new TextPos(cell.getIndex(), cix, cix, true);
         }
 
-        Region r = cell.getContent();
-        int cix = 0;
-        if (r instanceof TextFlow f) {
-            cix = RichUtils.getTextLength(f);
-        }
-        return new TextPos(cell.getIndex(), cix, cix, true);
+        return TextPos.ZERO;
     }
 
     /** returns the cell contained in this layout, or null */
