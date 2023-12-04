@@ -1307,13 +1307,11 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * TODO hide behind an accessor 
-     * - what it does
-     * - how to override safely
-     * - FIX accessor? public for now
+     * TODO hide behind an accessor
      *
      * @param <T>
-     * @param d
+     * @param forParagraph
+     * @param cx
      * @param a
      * @param value
      */
