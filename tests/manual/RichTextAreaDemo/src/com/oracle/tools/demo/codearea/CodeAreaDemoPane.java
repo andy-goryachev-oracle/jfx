@@ -117,8 +117,7 @@ public class CodeAreaDemoPane extends BorderPane {
         FX.name(tabSize, "tabSize");
         tabSize.getItems().setAll(1, 2, 3, 4, 8, 16);
         tabSize.getSelectionModel().selectedItemProperty().addListener((s,p,v) -> {
-            // TODO
-            //control.setTabSize(v);
+            control.setTabSize(v);
         });
         
         CheckBox customPopup = new CheckBox("custom popup menu");

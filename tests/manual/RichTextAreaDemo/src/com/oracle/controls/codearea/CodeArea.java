@@ -316,7 +316,7 @@ public class CodeArea extends RichTextArea {
     }
 
     private static void initStyleHandlers() {
-        // a paragraph-level attribute implemented on a per-segment basis
+        // this paragraph attribute affects each segment
         setSegHandler(CodeArea.FONT, (c, cx, v) -> {
             String family = v.getFamily();
             double size = v.getSize();
