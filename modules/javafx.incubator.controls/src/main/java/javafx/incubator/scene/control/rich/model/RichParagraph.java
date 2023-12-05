@@ -143,6 +143,18 @@ public class RichParagraph {
     }
 
     /**
+     * Adds a styled text segment.
+     * @param text the source non-null string
+     * @param start the start offset of the input string
+     * @param end the end offset of the input string
+     * @param attrs the styled attributes
+     */
+    public void addSegment(String text, int start, int end, StyleAttrs attrs) {
+        String s = text.substring(start, end);
+        addSegment(s, attrs);
+    }
+
+    /**
      * Adds a color background highlight.
      * Use translucent colors to enable multiple highlights in the same region of text.
      * @param start the start offset

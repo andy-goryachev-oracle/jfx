@@ -24,16 +24,21 @@
  */
 package com.oracle.tools.demo.codearea;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.paint.Color;
 import com.oracle.controls.codearea.SyntaxDecorator;
 
 /**
- * Simple Syntax Highlighter which emphasizes digits.
+ * Simple {@code SyntaxDecorator} which emphasizes digits and java keywords.
+ * This is just a demo.
  */
 public class DemoSyntaxDecorator implements SyntaxDecorator {
     private static final StyleAttrs DIGITS = StyleAttrs.builder().setTextColor(Color.MAGENTA).build();
+    private static final StyleAttrs KEYWORDS = StyleAttrs.builder().setTextColor(Color.GREEN).build();
+    private static Pattern PATTERN = initPattern();
 
     public DemoSyntaxDecorator() {
     }
@@ -43,27 +48,92 @@ public class DemoSyntaxDecorator implements SyntaxDecorator {
     public RichParagraph createRichParagraph(String text) {
         RichParagraph p = new RichParagraph();
         if (text != null) {
-            int start = 0;
-            int sz = text.length();
-            boolean num = false;
-            for (int i = 0; i < sz; i++) {
-                char c = text.charAt(i);
-                if (num != Character.isDigit(c)) {
-                    if (i > start) {
-                        String s = text.substring(start, i);
-                        StyleAttrs a = num ? DIGITS : null;
-                        p.addSegment(s, a);
-                        start = i;
+            int len = text.length();
+            if(len > 0) {
+                Matcher m = PATTERN.matcher(text);
+                int beg = 0;
+                while (m.find(beg)) {
+                    int start = m.start();
+                    if (start > beg) {
+                        p.addSegment(text, beg, start, null);
                     }
-                    num = !num;
+                    int end = m.end();
+                    boolean digit = (m.end(1) >= 0);
+                    p.addSegment(text, start, end, digit ? DIGITS : KEYWORDS);
+                    beg = end;
                 }
-            }
-            if (start < sz) {
-                String s = text.substring(start);
-                StyleAttrs a = num ? DIGITS : null;
-                p.addSegment(s, a);
+                if (beg < len) {
+                    p.addSegment(text, beg, len, null);
+                }
             }
         }
         return p;
+    }
+
+    private static Pattern initPattern() {
+        String[] keywords = {
+            "abstract",
+            "assert",
+            "boolean",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "class",
+            "const",
+            "continue",
+            "default",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "extends",
+            "final",
+            "finally",
+            "float",
+            "for",
+            "goto",
+            "if",
+            "implements",
+            "import",
+            "instanceof",
+            "int",
+            "interface",
+            "long",
+            "native",
+            "new",
+            "package",
+            "private",
+            "protected",
+            "public",
+            "return",
+            "short",
+            "static",
+            "strictfpv",
+            "super",
+            "switch",
+            "synchronized",
+            "this",
+            "throw",
+            "throws",
+            "transient",
+            "try",
+            "void",
+            "volatile",
+            "while"
+        };
+
+        StringBuilder sb = new StringBuilder();
+        // digits
+        sb.append("(\\b\\d+\\b)");
+
+        // keywords
+        for (String k : keywords) {
+            sb.append("|\\b(");
+            sb.append(k);
+            sb.append(")\\b");
+        }
+        return Pattern.compile(sb.toString());
     }
 }

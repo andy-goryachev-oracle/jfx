@@ -66,6 +66,7 @@ public class StyleAttribute<T> {
      * Returns true for a paragraph attribute, false for a character attribute.
      * @return true for a paragraph attribute, false for a character attribute
      */
+    @Deprecated // FIX remove
     public boolean isParagraphAttribute() {
         return isParagraph;
     }

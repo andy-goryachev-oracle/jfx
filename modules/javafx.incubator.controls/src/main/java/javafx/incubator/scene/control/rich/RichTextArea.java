@@ -1349,7 +1349,7 @@ public class RichTextArea extends Control {
         });
 
         setSegHandler(StyleAttrs.FONT_SIZE, (cc, c, v) -> {
-            c.addStyle("-fx-font-size:" + v + "pt;");
+            c.addStyle("-fx-font-size:" + v + ";");
         });
 
         setSegHandler(StyleAttrs.ITALIC, (cc, c, v) -> {

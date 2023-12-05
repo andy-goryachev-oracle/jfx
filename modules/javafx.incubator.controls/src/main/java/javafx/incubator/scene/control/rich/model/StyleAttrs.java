@@ -58,13 +58,13 @@ public class StyleAttrs {
     /** This special attribute contains CSS direct style and style names for text segments only */
     public static final StyleAttribute<CssStyles> CSS = new StyleAttribute<>("CSS", CssStyles.class, false);
 
-    /** First line indent paragraph attribute, in points. */
+    /** First line indent paragraph attribute, in pixels. */
     public static final StyleAttribute<Double> FIRST_LINE_INDENT = new StyleAttribute<>("FIRST_LINE_INDENT", Double.class, false);
 
     /** Font family attribute */
     public static final StyleAttribute<String> FONT_FAMILY = new StyleAttribute<>("FONT_FAMILY", String.class, false);
 
-    /** Font size attribute, in points. */
+    /** Font size attribute, in pixels. */
     public static final StyleAttribute<Double> FONT_SIZE = new StyleAttribute<>("FONT_SIZE", Double.class, false);
 
     /** Italic type face attribute */
@@ -413,6 +413,8 @@ public class StyleAttrs {
         return filterAttributes(true);
     }
 
+    // this is questionable.  perhaps it's better to treat the attributes equally,
+    // and have the paragraph/segment logic handled by VFlow.applyStyles()
     private StyleAttrs filterAttributes(boolean isParagraph) {
         Builder b = null;
         for (StyleAttribute<?> a : attributes.keySet()) {

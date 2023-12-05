@@ -64,7 +64,6 @@ import com.oracle.tools.demo.rich.ROptionPane;
 public class CodeAreaDemoPane extends BorderPane { 
     public final ROptionPane op;
     public final CodeArea control;
-    private StyleAttrs paragraphAttributes = StyleAttrs.EMPTY;
 
     public CodeAreaDemoPane(CodeModel m) {
         FX.name(this, "CodeAreaDemoPane");
@@ -407,10 +406,7 @@ public class CodeAreaDemoPane extends BorderPane {
     }
 
     protected void setLineSpacing(double x) {
-        paragraphAttributes = paragraphAttributes.toBuilder().
-            setLineSpacing(x).
-            build();
-        control.setDefaultAttributes(paragraphAttributes);
+        control.setDefaultAttribute(StyleAttrs.LINE_SPACING, x);
     }
 
     //

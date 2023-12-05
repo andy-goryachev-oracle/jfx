@@ -322,7 +322,7 @@ public class CodeArea extends RichTextArea {
             String family = v.getFamily();
             double size = v.getSize();
             cx.addStyle("-fx-font-family:'" + family + "';");
-            cx.addStyle("-fx-font-size:" + size + "pt;");
+            cx.addStyle("-fx-font-size:" + size + ";");
         });
 
         setParHandler(CodeArea.TAB_SIZE, (c, cx, v) -> {
