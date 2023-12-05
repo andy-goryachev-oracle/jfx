@@ -364,7 +364,8 @@ public class RichTextArea extends Control {
             return super.queryAccessibleAttribute(attribute, parameters);
         }
     }
-    
+
+    // TODO lazy initialization is not necessary
     private static class StyleableProperties {
         private static final CssMetaData<RichTextArea, Insets> CONTENT_PADDING =
             new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance()) {

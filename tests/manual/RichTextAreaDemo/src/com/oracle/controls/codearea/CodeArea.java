@@ -80,11 +80,6 @@ public class CodeArea extends RichTextArea {
         this(new CodeModel());
     }
 
-    @Override
-    public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
-        return getClassCssMetaData();
-    }
-
     private CodeModel codeModel() {
         return (CodeModel)getModel();
     }
@@ -110,7 +105,7 @@ public class CodeArea extends RichTextArea {
         return (m == null) ? null : m.getDecorator();
     }
 
-    // TODO is there a way to customize line number component?
+    // TODO is there a way to customize the line number component?
     public final BooleanProperty lineNumbersEnabledProperty() {
         if (lineNumbers == null) {
             lineNumbers = new SimpleBooleanProperty() {
@@ -270,6 +265,7 @@ public class CodeArea extends RichTextArea {
         return font == null ? Font.getDefault() : font.getValue();
     }
 
+    // TODO lazy initialization is not necessary
     private static class StyleableProperties {
         private static final FontCssMetaData<CodeArea> FONT =
             new FontCssMetaData<>("-fx-font", Font.getDefault())
@@ -312,6 +308,11 @@ public class CodeArea extends RichTextArea {
      * @return the {@code CssMetaData}
      */
     public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData() {
+        return StyleableProperties.STYLEABLES;
+    }
+
+    @Override
+    public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
         return StyleableProperties.STYLEABLES;
     }
 
