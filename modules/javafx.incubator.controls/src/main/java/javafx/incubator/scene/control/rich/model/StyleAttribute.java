@@ -28,7 +28,7 @@ package javafx.incubator.scene.control.rich.model;
 /**
  * Style Attribute provides a way to specify style in the RichTextArea.
  */
-public class StyleAttribute<T> {
+public final class StyleAttribute<T> {
     private final String name;
     private final Class<T> type;
     private final boolean isParagraph;
@@ -64,9 +64,11 @@ public class StyleAttribute<T> {
 
     /**
      * Returns true for a paragraph attribute, false for a character attribute.
+     * <p>
+     * Paragraph attributes are treated differently when copying/pasting.
+     *
      * @return true for a paragraph attribute, false for a character attribute
      */
-    @Deprecated // FIX remove
     public boolean isParagraphAttribute() {
         return isParagraph;
     }
@@ -76,21 +78,21 @@ public class StyleAttribute<T> {
         return name;
     }
 
-    @Override
-    public int hashCode() {
-        int h = StyleAttribute.class.hashCode();
-        h = 31 * h + name.hashCode();
-        h = 31 * h + type.hashCode();
-        return h;
-    }
-
-    @Override
-    public boolean equals(Object x) {
-        if (x == this) {
-            return true;
-        } else if (x instanceof StyleAttribute a) {
-            return (type == a.type) && (name.equals(a.name));
-        }
-        return false;
-    }
+//    @Override
+//    public int hashCode() {
+//        int h = StyleAttribute.class.hashCode();
+//        h = 31 * h + name.hashCode();
+//        h = 31 * h + type.hashCode();
+//        return h;
+//    }
+//
+//    @Override
+//    public boolean equals(Object x) {
+//        if (x == this) {
+//            return true;
+//        } else if (x instanceof StyleAttribute a) {
+//            return (type == a.type) && (name.equals(a.name));
+//        }
+//        return false;
+//    }
 }
