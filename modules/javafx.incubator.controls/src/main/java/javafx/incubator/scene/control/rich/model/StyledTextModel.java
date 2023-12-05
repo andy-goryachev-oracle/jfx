@@ -662,12 +662,15 @@ public abstract class StyledTextModel {
         }
     }
 
-    private void clearUndoRedo() {
+    /**
+     * Clears the undo-redo stack.
+     */
+    public void clearUndoRedo() {
         undo = head;
     }
 
     // we are going to try putting undo management in the model
-    private void add(UndoableChange ch, TextPos end) {
+    protected void add(UndoableChange ch, TextPos end) {
         if (ch == null) {
             // the undo-redo system is in inconsistent state, let's drop everything
             clearUndoRedo();

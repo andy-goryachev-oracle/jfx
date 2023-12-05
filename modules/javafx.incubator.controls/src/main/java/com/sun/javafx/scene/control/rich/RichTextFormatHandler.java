@@ -85,6 +85,7 @@ import javafx.scene.text.TextAlignment;
  *   `0 ... `2147483647
  * </pre>
  */
+// TODO should this be public and extensible (to support new attributes)?
 public class RichTextFormatHandler extends DataFormatHandler {
     private static final char TOKEN_BACKGROUND = 'b';
     private static final char TOKEN_BOLD = 'B';
