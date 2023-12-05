@@ -33,7 +33,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import com.oracle.controls.codearea.CodeModel;
+import com.oracle.controls.codearea.CodeTextModel;
 import com.oracle.tools.demo.rich.FX;
 import com.oracle.tools.demo.rich.RichTextAreaWindow;
 
@@ -41,12 +41,12 @@ import com.oracle.tools.demo.rich.RichTextAreaWindow;
  * CodeArea Demo window
  */
 public class CodeAreaWindow extends Stage {
-    private CodeModel model;
+    private CodeTextModel model;
     public final CodeAreaDemoPane demoPane;
     public final Label status;
     
-    public CodeAreaWindow(CodeModel m) {
-        model = (m == null ? new CodeModel() : m);
+    public CodeAreaWindow(CodeTextModel m) {
+        model = (m == null ? new CodeTextModel() : m);
         demoPane = new CodeAreaDemoPane(model);
         
         MenuBar mb = new MenuBar();

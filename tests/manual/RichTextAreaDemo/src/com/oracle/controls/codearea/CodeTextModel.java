@@ -34,10 +34,10 @@ import javafx.incubator.scene.control.rich.model.RichParagraph;
  * Editable plain text model with syntax highlighting for the CodeArea control.
  */
 // TODO need to filter out unsupported attributes!
-public class CodeModel extends BasePlainTextModel {
+public class CodeTextModel extends BasePlainTextModel {
     private final SimpleObjectProperty<SyntaxDecorator> decorator = new SimpleObjectProperty<>();
 
-    public CodeModel() {
+    public CodeTextModel() {
     }
 
     @Override

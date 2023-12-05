@@ -53,7 +53,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import com.oracle.controls.codearea.CodeArea;
-import com.oracle.controls.codearea.CodeModel;
+import com.oracle.controls.codearea.CodeTextModel;
 import com.oracle.tools.demo.rich.FX;
 import com.oracle.tools.demo.rich.FontSelector;
 import com.oracle.tools.demo.rich.ROptionPane;
@@ -65,7 +65,7 @@ public class CodeAreaDemoPane extends BorderPane {
     public final ROptionPane op;
     public final CodeArea control;
 
-    public CodeAreaDemoPane(CodeModel m) {
+    public CodeAreaDemoPane(CodeTextModel m) {
         FX.name(this, "CodeAreaDemoPane");
         control = new CodeArea(m);
 

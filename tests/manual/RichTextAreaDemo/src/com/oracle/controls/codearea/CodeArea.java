@@ -59,15 +59,15 @@ public class CodeArea extends RichTextArea {
     
     static { initStyleHandlers(); }
 
-    public CodeArea(CodeModel m) {
+    public CodeArea(CodeTextModel m) {
         super(m);
         modelProperty().addListener((s, prev, newValue) -> {
             // TODO is there a better way?
             // perhaps even block any change of (already set CodeModel)
             if (newValue != null) {
-                if (!(newValue instanceof CodeModel)) {
+                if (!(newValue instanceof CodeTextModel)) {
                     setModel(prev);
-                    throw new IllegalArgumentException("model must be of type " + CodeModel.class);
+                    throw new IllegalArgumentException("model must be of type " + CodeTextModel.class);
                 }
             }
         });
@@ -77,11 +77,11 @@ public class CodeArea extends RichTextArea {
     }
 
     public CodeArea() {
-        this(new CodeModel());
+        this(new CodeTextModel());
     }
 
-    private CodeModel codeModel() {
-        return (CodeModel)getModel();
+    private CodeTextModel codeModel() {
+        return (CodeTextModel)getModel();
     }
 
     private void updateFont(Font f) {
