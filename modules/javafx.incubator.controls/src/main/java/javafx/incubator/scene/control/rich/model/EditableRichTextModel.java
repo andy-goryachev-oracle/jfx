@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
@@ -87,21 +86,11 @@ public class EditableRichTextModel extends StyledTextModel {
     }
 
     @Override
-    protected int insertTextSegment(StyleResolver resolver, int index, int offset, StyledSegment segment) {
-        String text = segment.getText();
-        StyleAttrs a = getStyleAttrs(resolver, segment);
-
+    protected int insertTextSegment(int index, int offset, String text, StyleAttrs attrs) {
+        attrs = dedup(attrs);
         RParagraph par = paragraphs.get(index);
-        par.insertText(offset, text, a);
+        par.insertText(offset, text, attrs);
         return text.length();
-    }
-    
-    private StyleAttrs getStyleAttrs(StyleResolver resolver, StyledSegment segment) {
-        StyleAttrs a = segment.getStyleAttrs(resolver);
-        if(a == null) {
-            a = StyleAttrs.EMPTY;
-        }
-        return dedup(a);
     }
 
     @Override

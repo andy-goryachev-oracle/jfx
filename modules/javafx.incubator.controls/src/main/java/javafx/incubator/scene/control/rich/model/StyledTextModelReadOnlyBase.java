@@ -26,7 +26,6 @@
 package javafx.incubator.scene.control.rich.model;
 
 import java.util.function.Supplier;
-import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.layout.Region;
 
@@ -49,7 +48,7 @@ public abstract class StyledTextModelReadOnlyBase extends StyledTextModel {
     }
 
     @Override
-    protected int insertTextSegment(StyleResolver resolver, int index, int offset, StyledSegment text) {
+    protected int insertTextSegment(int index, int offset, String text, StyleAttrs attrs) {
         throw new UnsupportedOperationException();
     }
     

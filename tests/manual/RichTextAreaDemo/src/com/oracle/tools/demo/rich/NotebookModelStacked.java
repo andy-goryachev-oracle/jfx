@@ -27,15 +27,13 @@ package com.oracle.tools.demo.rich;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
-import javafx.scene.control.TextArea;
 import javafx.incubator.scene.control.rich.RichTextArea;
-import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.model.StyledSegment;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.Region;
 
 public class NotebookModelStacked extends StyledTextModel {
@@ -141,7 +139,7 @@ public class NotebookModelStacked extends StyledTextModel {
     }
 
     @Override
-    protected int insertTextSegment(StyleResolver resolver, int index, int offset, StyledSegment text) {
+    protected int insertTextSegment(int index, int offset, String text, StyleAttrs attrs) {
         return 0;
     }
 

@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.layout.Region;
 
@@ -91,10 +90,8 @@ public class BasePlainTextModel extends StyledTextModel {
     }
 
     @Override
-    protected int insertTextSegment(StyleResolver resolver, int index, int offset, StyledSegment segment) {
+    protected int insertTextSegment(int index, int offset, String text, StyleAttrs attrs) {
         String s = getPlainText(index);
-        String text = segment.getText();
-
         String s2 = insertText(s, offset, text);
         setText(index, s2);
         return text.length();

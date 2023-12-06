@@ -129,14 +129,13 @@ public abstract class StyledTextModel {
     /**
      * This method is called to insert a single text segment at the given position.
      *
-     * @param resolver style resolver to use
-     * @param index paragraph index
-     * @param offset insertion offset within the paragraph
-     * @param text segment to insert
+     * @param index the paragraph index
+     * @param offset the insertion offset within the paragraph
+     * @param text the text to insert
+     * @param attrs the style attributes
      * @return the number of characters inserted
      */
-    // FIX refactor: text + attrs
-    protected abstract int insertTextSegment(StyleResolver resolver, int index, int offset, StyledSegment text);
+    protected abstract int insertTextSegment(int index, int offset, String text, StyleAttrs attrs);
 
     /**
      * Inserts a line break.
@@ -181,7 +180,7 @@ public abstract class StyledTextModel {
      * @param pos text position
      * @return the style attributes, non-null
      */
-    // TODO move implementation here
+    // TODO move implementation here (can get RParagraph and extracty the info from there)
     public abstract StyleAttrs getStyleAttrs(TextPos pos);
 
     /**
@@ -510,7 +509,6 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean createUndo) {
-        // TODO check for nulls
         if (isEditable()) {
             StyleAttrs a = getStyleAttrs(start);
             StyledInput in = StyledInput.of(text, a);
@@ -536,7 +534,6 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean createUndo) {
-        // TODO check for nulls
         if (isEditable()) {
             int cmp = start.compareTo(end);
             if (cmp > 0) {
@@ -579,8 +576,14 @@ public abstract class StyledTextModel {
                     insertParagraph(index, gen);
                     break;
                 case TEXT:
-                    // FIX refactor! remove resolver
-                    int len = insertTextSegment(resolver, index, offset, seg);
+                    String text = seg.getText();
+                    StyleAttrs a = seg.getStyleAttrs(resolver);
+                    if (a == null) {
+                        a = StyleAttrs.EMPTY;
+                    } else {
+                        a = filterUnsupportedAttributes(a);
+                    }
+                    int len = insertTextSegment(index, offset, text, a);
                     if (index == start.index()) {
                         top += len;
                     }
