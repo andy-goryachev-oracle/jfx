@@ -36,7 +36,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import com.sun.javafx.scene.control.rich.RichUtils;
+import com.sun.javafx.incubator.scene.control.rich.RichUtils;
 
 /**
  * An immutable object containing style attributes.

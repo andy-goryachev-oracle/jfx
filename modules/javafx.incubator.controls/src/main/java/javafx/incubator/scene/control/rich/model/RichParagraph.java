@@ -33,8 +33,8 @@ import java.util.function.Supplier;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import com.sun.javafx.scene.control.rich.RichParagraphHelper;
-import com.sun.javafx.scene.control.rich.TextCell;
+import com.sun.javafx.incubator.scene.control.rich.RichParagraphHelper;
+import com.sun.javafx.incubator.scene.control.rich.TextCell;
 
 /**
  * Represents a paragraph with rich text inside the StyledModel.

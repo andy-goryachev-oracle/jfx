@@ -34,8 +34,8 @@ import java.nio.charset.Charset;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.input.DataFormat;
-import com.sun.javafx.scene.control.rich.RtfStyledOutput;
-import com.sun.javafx.scene.control.rich.rtf.RTFReader;
+import com.sun.javafx.incubator.scene.control.rich.RtfStyledOutput;
+import com.sun.javafx.incubator.scene.control.rich.rtf.RTFReader;
 
 /**
  * This {@link DataFormatHandler} provides export/import support for RTF format.

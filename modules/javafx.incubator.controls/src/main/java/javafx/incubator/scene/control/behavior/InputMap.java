@@ -37,7 +37,7 @@ import javafx.event.EventType;
 import javafx.scene.control.Control;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import com.sun.javafx.scene.control.input.HList;
+import com.sun.javafx.incubator.scene.control.input.HList;
 
 /**
  * InputMap is a class that is set on a given {@link Control}. When the Node receives

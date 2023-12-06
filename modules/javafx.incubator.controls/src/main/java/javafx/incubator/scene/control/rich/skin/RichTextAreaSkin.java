@@ -43,11 +43,11 @@ import javafx.scene.control.SkinBase;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
-import com.sun.javafx.scene.control.rich.Params;
-import com.sun.javafx.scene.control.rich.RichTextAreaBehavior;
-import com.sun.javafx.scene.control.rich.RichTextAreaSkinHelper;
-import com.sun.javafx.scene.control.rich.VFlow;
-import com.sun.javafx.scene.control.rich.util.ListenerHelper;
+import com.sun.javafx.incubator.scene.control.rich.Params;
+import com.sun.javafx.incubator.scene.control.rich.RichTextAreaBehavior;
+import com.sun.javafx.incubator.scene.control.rich.RichTextAreaSkinHelper;
+import com.sun.javafx.incubator.scene.control.rich.VFlow;
+import com.sun.javafx.incubator.scene.control.rich.util.ListenerHelper;
 
 /**
  * Provides visual representation for RichTextArea.

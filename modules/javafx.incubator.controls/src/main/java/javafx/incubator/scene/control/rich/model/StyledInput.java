@@ -27,7 +27,7 @@ package javafx.incubator.scene.control.rich.model;
 
 import java.io.Closeable;
 import java.io.IOException;
-import com.sun.javafx.scene.control.rich.StringStyledInput;
+import com.sun.javafx.incubator.scene.control.rich.StringStyledInput;
 
 /**
  * This interface represents a source of styled text segments for the purposes of

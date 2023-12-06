@@ -31,7 +31,7 @@ import java.nio.charset.Charset;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.input.DataFormat;
-import com.sun.javafx.scene.control.rich.StringBuilderStyledOutput;
+import com.sun.javafx.incubator.scene.control.rich.StringBuilderStyledOutput;
 
 /**
  * {@link DataFormatHandler} which operates with plain text. 

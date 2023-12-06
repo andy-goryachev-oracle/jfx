@@ -33,7 +33,7 @@ import javafx.incubator.scene.control.rich.model.StyledOutput;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.sun.javafx.scene.control.rich.RichTextFormatHandler;
+import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
 
 /**
  * Tests RichTextFormatHandler.

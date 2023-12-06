@@ -34,8 +34,8 @@ import java.nio.charset.Charset;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.input.DataFormat;
-import com.sun.javafx.scene.control.rich.HtmlStyledOutput;
-import com.sun.javafx.scene.control.rich.RtfStyledOutput;
+import com.sun.javafx.incubator.scene.control.rich.HtmlStyledOutput;
+import com.sun.javafx.incubator.scene.control.rich.RtfStyledOutput;
 
 /**
  * This partial {@link DataFormatHandler} supports export of styled text in a simple HTML format.

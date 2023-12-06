@@ -43,8 +43,8 @@ import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.Node;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
-import com.sun.javafx.scene.control.rich.Markers;
-import com.sun.javafx.scene.control.rich.UndoableChange;
+import com.sun.javafx.incubator.scene.control.rich.Markers;
+import com.sun.javafx.incubator.scene.control.rich.UndoableChange;
 
 /**
  * Base class for a styled text model for {@link RichTextArea}.

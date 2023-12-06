@@ -31,7 +31,7 @@ import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.sun.javafx.scene.control.rich.StringBuilderStyledOutput;
+import com.sun.javafx.incubator.scene.control.rich.StringBuilderStyledOutput;
 
 public class TestStyledRuns {
     private final StyleAttrs PLAIN = mk();

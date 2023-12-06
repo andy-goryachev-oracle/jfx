@@ -33,7 +33,7 @@ import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledOutput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.sun.javafx.scene.control.rich.RichTextFormatHandler;
+import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
 
 /**
  * Tests EditableRichTextModel handling of style attributes when editing.

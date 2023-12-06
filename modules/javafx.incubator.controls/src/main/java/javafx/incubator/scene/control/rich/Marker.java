@@ -30,7 +30,7 @@ package javafx.incubator.scene.control.rich;
 import java.util.Objects;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import com.sun.javafx.scene.control.rich.MarkerHelper;
+import com.sun.javafx.incubator.scene.control.rich.MarkerHelper;
 
 /**
  * Tracks the text position in a document in the presence of edits.
