@@ -25,8 +25,8 @@
 
 package javafx.incubator.scene.control.dummy;
 
-import com.sun.javafx.incubator.scene.control.MyImpl;
 import javafx.scene.control.Button;
+import com.sun.javafx.incubator.scene.control.dummy.MyImpl;
 
 /**
  * My experimental control.

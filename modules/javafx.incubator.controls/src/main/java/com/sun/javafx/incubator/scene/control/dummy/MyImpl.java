@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.sun.javafx.incubator.scene.control;
+package com.sun.javafx.incubator.scene.control.dummy;
 
 import javafx.incubator.scene.control.dummy.MyButton;
 import com.sun.javafx.PlatformUtil;
