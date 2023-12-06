@@ -25,11 +25,11 @@
 
 package test.javafx.incubator.scene.control.dummy;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import javafx.incubator.scene.control.dummy.MyButton;
 import javafx.incubator.scene.control.dummy.MyButtonShim;
 import org.junit.jupiter.api.Test;
 import com.sun.javafx.incubator.scene.control.dummy.MyImpl;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MyButtonTest {
     @Test
