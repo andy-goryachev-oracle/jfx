@@ -46,5 +46,7 @@
     RichTextArea t = new RichTextArea(m);
 </code>
 </pre>
-*/
+ * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
+ * Will be removed in a future release.</b>
+ */
 package javafx.incubator.scene.control.rich;
