@@ -79,6 +79,7 @@ public class UndoableChange {
         return new UndoableChange(null, null, null, null);
     }
 
+    @Override
     public String toString() {
         return
             "UndoableChange{" +

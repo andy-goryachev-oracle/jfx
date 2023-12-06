@@ -59,6 +59,7 @@ public class CodeTextModel extends BasePlainTextModel {
         );
     }
 
+    @Override
     protected Set<StyleAttribute<?>> getSupportedAttributes() {
         return SUPPORTED;
     }

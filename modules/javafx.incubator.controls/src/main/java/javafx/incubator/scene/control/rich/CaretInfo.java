@@ -178,6 +178,7 @@ public final class CaretInfo {
         return Math.round(coord + 0.5) - 0.5;
     }
 
+    @Override
     public String toString() {
         return "CaretInfo{xmin=" + xmin + ", xmax=" + xmax + ", ymin=" + ymin + ", ymax=" + ymax + "}";
     }

@@ -65,6 +65,7 @@ class RTFAttributes {
             rtfDefault = false;
         }
 
+        @Override
         public boolean set(AttrSet target) {
             /* TODO: There's some ambiguity about whether this should
                *set* or *toggle* the attribute. */
@@ -73,6 +74,7 @@ class RTFAttributes {
             return true; /* true indicates we were successful */
         }
 
+        @Override
         public boolean set(AttrSet target, int parameter) {
             /* See above note in the case that parameter==1 */
             Boolean value = Boolean.valueOf(parameter != 0);
@@ -80,6 +82,7 @@ class RTFAttributes {
             return true; /* true indicates we were successful */
         }
 
+        @Override
         public boolean setDefault(AttrSet target) {
             if (defaultValue != rtfDefault || (target.getAttribute(attribute) != null)) {
                 target.addAttribute(getStyleAttribute(), Boolean.valueOf(rtfDefault));
@@ -109,6 +112,7 @@ class RTFAttributes {
             value = Integer.valueOf(v);
         }
 
+        @Override
         public boolean set(AttrSet target) {
             if (value == null) {
                 target.removeAttribute(attribute);
@@ -118,10 +122,12 @@ class RTFAttributes {
             return true;
         }
 
+        @Override
         public boolean set(AttrSet target, int parameter) {
             return false;
         }
 
+        @Override
         public boolean setDefault(AttrSet target) {
             target.removeAttribute(attribute);
             return true;
@@ -154,10 +160,12 @@ class RTFAttributes {
             scale = sc;
         }
 
+        @Override
         public boolean set(AttrSet target) {
             return false;
         }
 
+        @Override
         public boolean set(AttrSet target, int parameter) {
             Number v;
             if (scale == 1f) {
@@ -169,6 +177,7 @@ class RTFAttributes {
             return true;
         }
 
+        @Override
         public boolean setDefault(AttrSet target) {
             Number old = (Number)target.getAttribute(attribute);
             if (old == null) {

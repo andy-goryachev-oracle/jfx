@@ -108,10 +108,12 @@ abstract class RTFParser extends AbstractFilter {
         specialsTable = rtfSpecialsTable;
     }
 
+    @Override
     public void writeSpecial(int b) throws IOException {
         write((char)b);
     }
 
+    @Override
     public void write(String s) throws IOException {
         if (state != S_text) {
             int index = 0;
@@ -135,6 +137,7 @@ abstract class RTFParser extends AbstractFilter {
         }
     }
 
+    @Override
     @SuppressWarnings("fallthrough")
     public void write(char ch) throws IOException {
         boolean ok;
@@ -309,6 +312,7 @@ abstract class RTFParser extends AbstractFilter {
      *  Subclasses which override this method should call this
      *  method <em>before</em> flushing
      *  any of their own buffers. */
+    @Override
     public void flush() throws IOException {
         super.flush();
 
@@ -320,6 +324,7 @@ abstract class RTFParser extends AbstractFilter {
 
     /** Closes the parser. Currently, this simply does a <code>flush()</code>,
      *  followed by some minimal consistency checks. */
+    @Override
     public void close() throws IOException {
         flush();
 

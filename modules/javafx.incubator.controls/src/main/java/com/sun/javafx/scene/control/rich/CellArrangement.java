@@ -77,6 +77,7 @@ public class CellArrangement {
             (RichUtils.equals(f.contentPadding(), contentPadding));
     }
 
+    @Override
     public String toString() {
         return
             "CellArrangement{" +

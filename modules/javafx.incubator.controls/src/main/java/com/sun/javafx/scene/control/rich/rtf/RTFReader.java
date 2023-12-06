@@ -200,6 +200,7 @@ public class RTFReader extends RTFParser {
     /**
      * Called when the RTFParser encounters a bin keyword in the RTF stream.
      */
+    @Override
     public void handleBinaryBlob(byte[] data) {
         if (skippingCharacters > 0) {
             // a blob only counts as one character for skipping purposes
@@ -213,6 +214,7 @@ public class RTFReader extends RTFParser {
     /**
      * Handles any pure text (containing no control characters) in the input
      * stream. Called by the superclass. */
+    @Override
     public void handleText(String text) {
         if (skippingCharacters > 0) {
             if (skippingCharacters >= text.length()) {
@@ -235,6 +237,7 @@ public class RTFReader extends RTFParser {
      *  the current destination a chance to save its own state.
      * @see RTFParser#begingroup
      */
+    @Override
     public void begingroup() {
         if (skippingCharacters > 0) {
             /* TODO this indicates an error in the RTF. Log it? */
@@ -265,6 +268,7 @@ public class RTFReader extends RTFParser {
      *  destination.
      * @see RTFParser#endgroup
      */
+    @Override
     public void endgroup() {
         if (skippingCharacters > 0) {
             /* NB this indicates an error in the RTF. Log it? */
@@ -304,6 +308,7 @@ public class RTFReader extends RTFParser {
      *
      * @see OutputStream#close
      */
+    @Override
     public void close() throws IOException {
         // FIX remove this
 //        Enumeration<Object> docProps = documentAttributes.getAttributeNames();
@@ -323,6 +328,7 @@ public class RTFReader extends RTFParser {
      *         false otherwise
      * @see RTFParser#handleKeyword
      */
+    @Override
     public boolean handleKeyword(String keyword) {
         String item;
         boolean ignoreGroupIfUnknownKeywordSave = ignoreGroupIfUnknownKeyword;
@@ -467,6 +473,7 @@ public class RTFReader extends RTFParser {
      *         false otherwise
      * @see RTFParser#handleKeyword
      */
+    @Override
     public boolean handleKeyword(String keyword, int parameter) {
         boolean ignoreGroupIfUnknownKeywordSave = ignoreGroupIfUnknownKeyword;
 

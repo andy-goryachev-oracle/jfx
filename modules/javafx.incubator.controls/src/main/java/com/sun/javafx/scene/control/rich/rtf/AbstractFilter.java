@@ -117,6 +117,7 @@ abstract class AbstractFilter extends OutputStream {
      * Implements the abstract method of OutputStream, of which this class
      * is a subclass.
      */
+    @Override
     public void write(int b) throws IOException {
         b &= 0xff;
         if (specialsTable[b])
@@ -137,6 +138,7 @@ abstract class AbstractFilter extends OutputStream {
      * call <code>write(byte[], int, int)</code> or is it the other way
      * around?
      */
+    @Override
     public void write(byte[] buf, int off, int len) throws IOException {
         StringBuilder accumulator = null;
         while (len > 0) {

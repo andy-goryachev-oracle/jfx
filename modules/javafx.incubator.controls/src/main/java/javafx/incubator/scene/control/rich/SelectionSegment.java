@@ -100,6 +100,7 @@ public class SelectionSegment {
         return max;
     }
 
+    @Override
     public String toString() {
         return "SelectionSegment{" + min + ", " + max + ", caretAtMin=" + caretAtMin + "}";
     }

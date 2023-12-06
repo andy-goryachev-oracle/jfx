@@ -144,6 +144,7 @@ public final class TextPos implements Comparable<TextPos> {
         return d;
     }
 
+    @Override
     public String toString() {
         return
             "TextPos{" +

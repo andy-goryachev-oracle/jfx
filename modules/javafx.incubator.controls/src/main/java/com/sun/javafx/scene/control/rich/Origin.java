@@ -36,6 +36,7 @@ public record Origin(int index, double offset) {
     /** beginning of the document */
     public static final Origin ZERO = new Origin(0, 0.0);
 
+    @Override
     public String toString() {
         return "Origin{index=" + index + ", offset=" + offset + "}";
     }
