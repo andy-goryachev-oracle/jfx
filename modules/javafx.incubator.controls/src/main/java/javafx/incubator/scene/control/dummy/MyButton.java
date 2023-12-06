@@ -23,7 +23,7 @@
  * questions.
  */
 
-package javafx.incubator.scene.control;
+package javafx.incubator.scene.control.dummy;
 
 import com.sun.javafx.incubator.scene.control.MyImpl;
 import javafx.scene.control.Button;

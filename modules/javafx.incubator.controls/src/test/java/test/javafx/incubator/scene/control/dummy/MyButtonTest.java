@@ -23,10 +23,22 @@
  * questions.
  */
 
-package javafx.incubator.scene.control;
+package test.javafx.incubator.scene.control.dummy;
 
-public class MyButtonShim {
-    public static int getMyField(MyButton myButton) {
-        return myButton.getMyField();
+import com.sun.javafx.incubator.scene.control.MyImpl;
+import javafx.incubator.scene.control.dummy.MyButton;
+import javafx.incubator.scene.control.dummy.MyButtonShim;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class MyButtonTest {
+    @Test
+    public void myTest() {
+        MyButton myButton = new MyButton(17, "Hello");
+        MyImpl.print(myButton);
+
+        assertEquals("Hello", myButton.getText());
+        assertEquals(17, MyButtonShim.getMyField(myButton));
     }
 }

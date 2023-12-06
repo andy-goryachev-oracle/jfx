@@ -25,7 +25,7 @@
 
 package com.sun.javafx.incubator.scene.control;
 
-import javafx.incubator.scene.control.MyButton;
+import javafx.incubator.scene.control.dummy.MyButton;
 import com.sun.javafx.PlatformUtil;
 
 /**
