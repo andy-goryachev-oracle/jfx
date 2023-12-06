@@ -40,6 +40,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
@@ -271,7 +272,7 @@ public class CodeAreaDemoPane extends BorderPane {
     protected void populatePopupMenu(ObservableList<MenuItem> items) {
         boolean sel = control.hasNonEmptySelection();
         boolean paste = true; // would be easier with Actions (findFormatForPaste() != null);
-        boolean styled = (control.getModel() instanceof EditableRichTextModel);
+        boolean styled = true; //(control.getModel() instanceof EditableRichTextModel);
 
         items.add(new MenuItem("★ Custom Context Menu"));
 
@@ -327,6 +328,7 @@ public class CodeAreaDemoPane extends BorderPane {
             m.setDisable(!sel);
 
             Menu m2;
+            CheckMenuItem cm;
             items.add(m2 = new Menu("Text Color"));
             colorMenu(m2, sel, Color.GREEN);
             colorMenu(m2, sel, Color.RED);
@@ -355,6 +357,10 @@ public class CodeAreaDemoPane extends BorderPane {
             fontMenu(m2, sel, "Courier New");
             fontMenu(m2, sel, "Times New Roman");
             fontMenu(m2, sel, "null");
+            
+            items.add(cm = new CheckMenuItem("Toggle Unsupported Attribute"));
+            cm.setSelected(a.getBoolean(StyleAttrs.RIGHT_TO_LEFT));
+            cm.setOnAction((ev) -> applyStyle(StyleAttrs.RIGHT_TO_LEFT, !a.getBoolean(StyleAttrs.RIGHT_TO_LEFT)));
         }
 
         items.add(new SeparatorMenuItem());
@@ -407,6 +413,13 @@ public class CodeAreaDemoPane extends BorderPane {
 
     protected void setLineSpacing(double x) {
         control.setDefaultAttribute(StyleAttrs.LINE_SPACING, x);
+    }
+
+    private <T> void applyStyle(StyleAttribute<T> a, T val) {
+        TextPos ca = control.getCaretPosition();
+        TextPos an = control.getAnchorPosition();
+        StyleAttrs m = StyleAttrs.of(a, val);
+        control.applyStyle(ca, an, m);
     }
 
     //

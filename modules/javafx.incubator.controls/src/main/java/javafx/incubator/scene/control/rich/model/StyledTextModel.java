@@ -31,14 +31,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
-import javafx.scene.Node;
 import javafx.incubator.scene.control.rich.Marker;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
+import javafx.scene.Node;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
 import com.sun.javafx.scene.control.rich.Markers;
@@ -133,6 +135,7 @@ public abstract class StyledTextModel {
      * @param text segment to insert
      * @return the number of characters inserted
      */
+    // FIX refactor: text + attrs
     protected abstract int insertTextSegment(StyleResolver resolver, int index, int offset, StyledSegment text);
 
     /**
@@ -180,6 +183,13 @@ public abstract class StyledTextModel {
      */
     // TODO move implementation here
     public abstract StyleAttrs getStyleAttrs(TextPos pos);
+
+    /**
+     * Returns a set of supported attributes (to affect filtering in {@link #applyStyle(TextPos, TextPos, StyleAttrs)})
+     * or null to disable filtering.
+     * @return the supported attributes, or null
+     */
+    protected Set<StyleAttribute<?>> getSupportedAttributes() { return null; }
     
     /** stores the handler and its priority */
     private static record FHPriority(DataFormatHandler handler, int priority) implements Comparable<FHPriority>{
@@ -569,6 +579,7 @@ public abstract class StyledTextModel {
                     insertParagraph(index, gen);
                     break;
                 case TEXT:
+                    // FIX refactor! remove resolver
                     int len = insertTextSegment(resolver, index, offset, seg);
                     if (index == start.index()) {
                         top += len;
@@ -612,6 +623,8 @@ public abstract class StyledTextModel {
                 start = end;
                 end = p;
             }
+
+            attrs = filterUnsupportedAttributes(attrs);
 
             TextPos evStart;
             TextPos evEnd;
@@ -660,6 +673,26 @@ public abstract class StyledTextModel {
                 add(ch, end);
             }
         }
+    }
+
+    /**
+     * Removes unsupported attributes per {@link #getSupportedAttributes()}.
+     * @param attrs the input attributes
+     * @return the attributes that exclude unsupported ones
+     */
+    private StyleAttrs filterUnsupportedAttributes(StyleAttrs attrs) {
+        Set<StyleAttribute<?>> supported = getSupportedAttributes();
+        if (supported == null) {
+            return attrs;
+        }
+
+        StyleAttrs.Builder b = StyleAttrs.builder();
+        for (StyleAttribute a : attrs.getAttributes()) {
+            if (supported.contains(a)) {
+                b.set(a, attrs.get(a));
+            }
+        }
+        return b.build();
     }
 
     /**

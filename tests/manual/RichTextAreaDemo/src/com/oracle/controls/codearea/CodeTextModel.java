@@ -25,10 +25,13 @@
 
 package com.oracle.controls.codearea;
 
+import java.util.Set;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
+import javafx.incubator.scene.control.rich.model.StyleAttribute;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
 
 /**
  * Editable plain text model with syntax highlighting for the CodeArea control.
@@ -36,8 +39,28 @@ import javafx.incubator.scene.control.rich.model.RichParagraph;
 // TODO need to filter out unsupported attributes!
 public class CodeTextModel extends BasePlainTextModel {
     private final SimpleObjectProperty<SyntaxDecorator> decorator = new SimpleObjectProperty<>();
+    private static final Set<StyleAttribute<?>> SUPPORTED = initSupportedAttributes();
 
     public CodeTextModel() {
+    }
+
+    private static Set<StyleAttribute<?>> initSupportedAttributes() {
+        return Set.of(
+            CodeArea.FONT,
+            CodeArea.TAB_SIZE,
+            StyleAttrs.BOLD,
+            StyleAttrs.FONT_FAMILY,
+            StyleAttrs.FONT_SIZE,
+            StyleAttrs.ITALIC,
+            StyleAttrs.LINE_SPACING,
+            StyleAttrs.STRIKE_THROUGH,
+            StyleAttrs.TEXT_COLOR,
+            StyleAttrs.UNDERLINE
+        );
+    }
+
+    protected Set<StyleAttribute<?>> getSupportedAttributes() {
+        return SUPPORTED;
     }
 
     @Override
