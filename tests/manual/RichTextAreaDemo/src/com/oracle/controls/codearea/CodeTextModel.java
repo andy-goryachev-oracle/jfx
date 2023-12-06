@@ -36,9 +36,8 @@ import javafx.incubator.scene.control.rich.model.StyleAttrs;
 /**
  * Editable plain text model with syntax highlighting for the CodeArea control.
  */
-// TODO need to filter out unsupported attributes!
 public class CodeTextModel extends BasePlainTextModel {
-    private final SimpleObjectProperty<SyntaxDecorator> decorator = new SimpleObjectProperty<>();
+    private SimpleObjectProperty<SyntaxDecorator> decorator;
     private static final Set<StyleAttribute<?>> SUPPORTED = initSupportedAttributes();
 
     public CodeTextModel() {
@@ -74,16 +73,24 @@ public class CodeTextModel extends BasePlainTextModel {
             return d.createRichParagraph(text);
         }
     }
-    
+
     public final SyntaxDecorator getDecorator() {
-        return decorator.get();
+        return decorator == null ? null : decorator.get();
     }
 
     public final void setDecorator(SyntaxDecorator d) {
-        decorator.set(d);
+        decoratorProperty().set(d);
     }
 
     public final ObjectProperty<SyntaxDecorator> decoratorProperty() {
+        if (decorator == null) {
+            decorator = new SimpleObjectProperty<>() {
+                @Override
+                protected void invalidated() {
+                    fireStylingUpdate();
+                }
+            };
+        }
         return decorator;
     }
 }
