@@ -86,6 +86,7 @@ import javafx.scene.text.TextAlignment;
  * </pre>
  */
 // TODO should this be public and extensible (to support new attributes)?
+// {attr1 field1=value,field2=value}{attr2}text\n{0}%2f\n
 public class RichTextFormatHandler extends DataFormatHandler {
     private static final char TOKEN_BACKGROUND = 'b';
     private static final char TOKEN_BOLD = 'B';

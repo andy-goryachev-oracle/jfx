@@ -82,10 +82,10 @@ public class StyleAttrs {
     /** Space below the paragraph (bottom padding) attribute */
     public static final StyleAttribute<Double> SPACE_BELOW = new StyleAttribute<>("SPACE_BELOW", Double.class, true);
 
-    /** Space to the left of the paragraph (bottom padding) attribute */
+    /** Space to the left of the paragraph (left padding) attribute */
     public static final StyleAttribute<Double> SPACE_LEFT = new StyleAttribute<>("SPACE_LEFT", Double.class, true);
 
-    /** Space to the right of the paragraph (bottom padding) attribute */
+    /** Space to the right of the paragraph (right padding) attribute */
     public static final StyleAttribute<Double> SPACE_RIGHT = new StyleAttribute<>("SPACE_RIGHT", Double.class, true);
 
     /** Strike-through style attribute */
