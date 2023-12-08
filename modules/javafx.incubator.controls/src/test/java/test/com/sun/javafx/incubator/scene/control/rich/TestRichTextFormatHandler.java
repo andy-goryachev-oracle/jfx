@@ -23,7 +23,7 @@
  * questions.
  */
 
-package test.com.sun.javafx.scene.control.rich;
+package test.com.sun.javafx.incubator.scene.control.rich;
 
 import java.io.IOException;
 import java.io.StringWriter;
