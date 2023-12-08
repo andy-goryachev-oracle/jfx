@@ -33,6 +33,7 @@ import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
 import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
+import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler2;
 
 /**
  * Editable, in-memory {@link StyledTextModel} based on a collection of styled segments.
@@ -51,7 +52,8 @@ public class EditableRichTextModel extends StyledTextModel {
      * Creates an empty model.
      */
     public EditableRichTextModel() {
-        registerDataFormatHandler(new RichTextFormatHandler(), Integer.MAX_VALUE);
+        registerDataFormatHandler(new RichTextFormatHandler2(DATA_FORMAT), Integer.MAX_VALUE);
+//        registerDataFormatHandler(new RichTextFormatHandler(), Integer.MAX_VALUE);
         registerDataFormatHandler(new RtfFormatHandler(), 1000);
         registerDataFormatHandler(new HtmlExportFormatHandler(), true, 100);
         registerDataFormatHandler(new PlainTextFormatHandler(), 0);

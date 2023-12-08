@@ -309,6 +309,7 @@ public final class RichUtils {
         return format.format(value);
     }
 
+    @Deprecated // FIX remove
     public static char encodeAlignment(TextAlignment a) {
         switch (a) {
         case CENTER:
@@ -323,6 +324,7 @@ public final class RichUtils {
         }
     }
 
+    @Deprecated // FIX remove
     public static TextAlignment decodeAlignment(int c) throws IOException {
         switch (c) {
         case 'C':
