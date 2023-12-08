@@ -626,35 +626,6 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             }
         }
 
-        // FIX remove
-        @Deprecated
-        private double decodeDouble() throws IOException {
-            String payload = decodePayload();
-            try {
-                return Double.parseDouble(payload);
-            } catch(NumberFormatException e) {
-                throw new IOException("expecting double: " + payload, e);
-            }
-        }
-
-        // FIX remove
-        @Deprecated
-        private String decodePayload() throws IOException {
-            int start = index;
-            int i = 0;
-            for(;;) {
-                int c = charAt(i);
-                switch(c) {
-                case -1:
-                    throw new IOException("unexpected end of token");
-                case '`':
-                    index = start + i;
-                    return text.substring(start, index);
-                }
-                i++;
-            }
-        }
-
         @Override
         public void close() throws IOException {
         }
