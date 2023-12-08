@@ -70,7 +70,7 @@ import com.sun.javafx.incubator.scene.control.rich.VFlow;
  * Text input component that allows a user to enter multiple lines of rich text.
  */
 public class RichTextArea extends Control {
-    /** Deletes previous symbol */
+    /** Deletes the previous symbol */
     public static final FunctionTag BACKSPACE = new FunctionTag();
     /** Copies selected text to the clipboard */
     public static final FunctionTag COPY = new FunctionTag();
