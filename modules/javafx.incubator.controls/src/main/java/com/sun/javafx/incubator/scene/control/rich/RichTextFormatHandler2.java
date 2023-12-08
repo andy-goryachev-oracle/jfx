@@ -202,7 +202,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         m.exportText(start, end, so);
     }
 
-    private StyledOutput createStyledOutput(StyleResolver r, Writer wr) {
+    public StyledOutput createStyledOutput(StyleResolver r, Writer wr) {
         Charset cs = Charset.forName("utf-8");
         boolean buffered = isBuffered(wr);
         if (buffered) {
