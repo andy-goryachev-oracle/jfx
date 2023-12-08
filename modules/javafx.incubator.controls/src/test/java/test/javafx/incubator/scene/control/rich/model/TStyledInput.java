@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package test.javafx.scene.control.rich.model;
+package test.javafx.incubator.scene.control.rich.model;
 
 import java.io.IOException;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
