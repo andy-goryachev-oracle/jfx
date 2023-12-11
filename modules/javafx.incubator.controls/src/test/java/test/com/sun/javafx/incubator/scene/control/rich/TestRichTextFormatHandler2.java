@@ -49,10 +49,9 @@ public class TestRichTextFormatHandler2 {
     public void testRoundTrip() throws IOException {
         Object[] ss = {
             List.of(
-                s("bold", StyleAttrs.BOLD),
-                nl(),
-                s("italic/color/underline", StyleAttrs.ITALIC, a(StyleAttrs.TEXT_COLOR, Color.RED), StyleAttrs.UNDERLINE),
-                nl()
+                s("background", a(StyleAttrs.BACKGROUND, Color.RED)), nl(),
+                s("bold", StyleAttrs.BOLD), nl(),
+                s("italic/color/underline", StyleAttrs.ITALIC, a(StyleAttrs.TEXT_COLOR, Color.RED), StyleAttrs.UNDERLINE), nl()
             )
         };
 
@@ -88,15 +87,20 @@ public class TestRichTextFormatHandler2 {
 
     private void testRoundTrip(RichTextFormatHandler2 handler, List<StyledSegment> input) throws IOException {
         // export to string
+        int ct = 0;
         StringWriter wr = new StringWriter();
         StyledOutput out = handler.createStyledOutput(null, wr);
         for (StyledSegment s : input) {
+            if (DEBUG) {
+                System.out.println(s);
+            }
             out.append(s);
+            ct++;
         }
         out.flush();
         String exported = wr.toString();
         if (DEBUG) {
-            System.out.println("exported=" + exported);
+            System.out.println("exported " + ct + " segments=" + exported);
         }
 
         // import from string
@@ -104,10 +108,10 @@ public class TestRichTextFormatHandler2 {
         StyledInput in = handler.createStyledInput(exported);
         StyledSegment seg;
         while ((seg = in.nextSegment()) != null) {
-            segments.add(seg);
             if (DEBUG) {
                 System.out.println(seg);
             }
+            segments.add(seg);
         }
 
         // check segments for equality
@@ -131,9 +135,9 @@ public class TestRichTextFormatHandler2 {
         if (DEBUG) {
             System.out.println("result=" + result);
         }
-        
-        // won't work: the order of attributes might be different
-        //Assertions.assertEquals(exported, result);
+
+        // relying on stable order of attributes
+        Assertions.assertEquals(exported, result);
     }
 
     private void testRoundTrip_DELETE(RichTextFormatHandler2 handler, String text) throws IOException {

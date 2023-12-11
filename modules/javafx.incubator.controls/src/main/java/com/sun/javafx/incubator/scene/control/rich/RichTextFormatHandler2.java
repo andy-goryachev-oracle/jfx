@@ -33,7 +33,10 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Function;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
@@ -130,7 +133,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             StyleAttrs.FONT_SIZE,
             "fs",
             (v) -> new String[] { String.valueOf(v) },
-            (s) -> Double.parseDouble(s[0]));
+            (s) -> Double.parseDouble(s.get(0)));
         addHandlerBoolean(
             StyleAttrs.ITALIC,
             "i");
@@ -138,7 +141,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             StyleAttrs.LINE_SPACING,
             "lineSpacing",
             (v) -> new String[] { String.valueOf(v) },
-            (s) -> Double.parseDouble(s[0]));
+            (s) -> Double.parseDouble(s.get(0)));
         addHandlerBoolean(
             StyleAttrs.RIGHT_TO_LEFT,
             "rtl");
@@ -146,22 +149,22 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             StyleAttrs.SPACE_ABOVE,
             "spaceAbove",
             (v) -> new String[] { String.valueOf(v) },
-            (s) -> Double.parseDouble(s[0]));
+            (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.SPACE_BELOW,
             "spaceBelow",
             (v) -> new String[] { String.valueOf(v) },
-            (s) -> Double.parseDouble(s[0]));
+            (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.SPACE_LEFT,
             "spaceLeft",
             (v) -> new String[] { String.valueOf(v) },
-            (s) -> Double.parseDouble(s[0]));
+            (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.SPACE_RIGHT,
             "spaceRight",
             (v) -> new String[] { String.valueOf(v) },
-            (s) -> Double.parseDouble(s[0]));
+            (s) -> Double.parseDouble(s.get(0)));
         addHandlerBoolean(
             StyleAttrs.STRIKE_THROUGH,
             "ss");
@@ -169,7 +172,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             StyleAttrs.TEXT_ALIGNMENT,
             "alignment",
             (v) -> new String[] { encodeAlignment(v) },
-            (s) -> decodeAlignment(s[0]));
+            (s) -> decodeAlignment(s.get(0)));
         addHandler(
             StyleAttrs.TEXT_COLOR,
             "tc",
@@ -219,8 +222,8 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             (x instanceof StringWriter);
     }
 
-    protected static Color parseHexColor(String[] ss) {
-        String s = ss[0];
+    protected static Color parseHexColor(List<String> ss) {
+        String s = ss.get(0);
         switch(s.length()) {
         case 6:
             // rrggbb
@@ -256,16 +259,23 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         
         public abstract String getId();
         
+        public abstract StyleAttribute<T> getStyleAttribute();
+        
         public abstract String[] write(T value);
         
-        public abstract T read(String[] ss);
+        public abstract T read(List<String> ss);
     }
 
-    protected <T> void addHandler(StyleAttribute<T> a, String id, Function<T,String[]> wr, Function<String[],T> rd) {
+    protected <T> void addHandler(StyleAttribute<T> a, String id, Function<T,String[]> wr, Function<List<String>,T> rd) {
         Handler<T> h = new Handler<>() {
             @Override
             public String getId() {
                 return id;
+            }
+
+            @Override
+            public StyleAttribute<T> getStyleAttribute() {
+                return a;
             }
 
             @Override
@@ -274,7 +284,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             }
 
             @Override
-            public T read(String[] ss) {
+            public T read(List<String> ss) {
                 return rd.apply(ss);
             }
         };
@@ -288,7 +298,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             a, 
             id,
             (v) -> v ? null : new String[] { "F" },
-            null // TODO
+            (s) -> s.size() == 0 ? Boolean.TRUE : (s.get(0).equals("F") ? Boolean.FALSE : Boolean.TRUE)
         );
     }
     
@@ -299,7 +309,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             a, 
             id,
             (v) -> new String[] { v },
-            (s) -> s[0]
+            (s) -> s.get(0)
         );
     }
     
@@ -391,7 +401,19 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                     int sz = styles.size();
                     styles.put(attrs, Integer.valueOf(sz));
 
-                    for (StyleAttribute<?> a : attrs.getAttributes()) {
+                    ArrayList<StyleAttribute<?>> as = new ArrayList<>(attrs.getAttributes());
+                    // sort by name to make serialized output stable
+                    // the overhead is very low since this is done once per style
+                    Collections.sort(as, new Comparator<StyleAttribute<?>>() {
+                        @Override
+                        public int compare(StyleAttribute<?> a, StyleAttribute<?> b) {
+                            String sa = a.getName();
+                            String sb = b.getName();
+                            return sa.compareTo(sb);
+                        }
+                    });
+
+                    for (StyleAttribute<?> a : as) {
                         Handler h = handlers.get(a);
                         try {
                             if (h != null) {
@@ -489,11 +511,12 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
     }
 
     /** importer */
-    private static class RichStyledInput implements StyledInput {
+    private class RichStyledInput implements StyledInput {
         private final String text;
         private int index;
         private StringBuilder sb;
         private final ArrayList<StyleAttrs> attrs = new ArrayList<>();
+        private final ArrayList<String> parts = new ArrayList<>(4);
 
         public RichStyledInput(String text) {
             // TODO buffered input and line-by-line
@@ -529,9 +552,51 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             }
         }
 
-        private StyleAttrs parseAttributes(boolean forParagraph) {
-            // TODO
-            return null;
+        private StyleAttrs parseAttributes(boolean forParagraph) throws IOException {
+            StyleAttrs.Builder b = null;
+            for (;;) {
+                int c = charAt(0);
+                if ((c == '!') != forParagraph) {
+                    break;
+                }
+                
+                int ix = text.indexOf('}', index);
+                if(ix < 0) {
+                    // TODO report line number and offset, once switched to line reader
+                    throw new IOException("malformed input, missing }");
+                }
+                String s = text.substring(index, ix);
+                RichUtils.split(parts, s, '|');
+                if (parts.size() == 0) {
+                    // TODO report line number and offset, once switched to line reader
+                    throw new IOException("malformed input, missing attribute name");
+                }
+                // parse the attribute
+                String name = parts.remove(0);
+                Handler h = handlers.get(name);
+                if(h == null) {
+                    // silently ignore the attribute
+                    log("ignoring attribute: " + name);
+                } else {
+                    Object v = h.read(parts);
+                    StyleAttribute a = h.getStyleAttribute();
+                    if(b == null) {
+                        b = StyleAttrs.builder();
+                    }
+                    b.set(a, v);
+                }
+                // on to next
+                index = ix + 1;
+                c = charAt(0);
+                if(c != '{') {
+                    break;
+                }
+                index++;
+            }
+            if (b == null) {
+                return null;
+            }
+            return b.build();
         }
 
         private int charAt(int delta) {

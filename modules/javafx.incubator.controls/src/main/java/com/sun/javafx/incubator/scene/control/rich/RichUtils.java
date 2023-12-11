@@ -27,6 +27,7 @@ package com.sun.javafx.incubator.scene.control.rich;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -389,5 +390,31 @@ public final class RichUtils {
         System.arraycopy(items, 0, combined, inheritedFromParent.size(), items.length);
         // makes a copy, unfortunately
         return List.of(combined);
+    }
+
+    /**
+     * Splits the input text string using the specified delimiter.
+     * The resulting parts are placed into the provided {@code parts} list, clearing it beforehand.
+     * @param parts the list which accumulates the split parts
+     * @param text the input string
+     * @param delimiter the delimiter character
+     */
+    public static void split(List<String> parts, String text, char delimiter) {
+        parts.clear();
+        int start = 0;
+        for (;;) {
+            int ix = text.indexOf(delimiter, start);
+            if (ix < 0) {
+                if (start < text.length()) {
+                    String s = text.substring(start);
+                    parts.add(s);
+                }
+                return;
+            } else {
+                String s = text.substring(start, ix);
+                parts.add(s);
+                start = ix + 1;
+            }
+        }
     }
 }
