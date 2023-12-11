@@ -49,8 +49,13 @@ public class TestRichTextFormatHandler2 {
     public void testRoundTrip() throws IOException {
         Object[] ss = {
             List.of(
-                s("background", a(StyleAttrs.BACKGROUND, Color.RED)), nl(),
-                s("bold", StyleAttrs.BOLD), nl(),
+                p(
+                    a(StyleAttrs.BACKGROUND, Color.RED),
+                    a(StyleAttrs.BULLET, "⌘")
+                ),
+                s("bold", StyleAttrs.BOLD),
+                nl(),
+
                 s("italic/color/underline", StyleAttrs.ITALIC, a(StyleAttrs.TEXT_COLOR, Color.RED), StyleAttrs.UNDERLINE), nl()
             )
         };
@@ -61,7 +66,25 @@ public class TestRichTextFormatHandler2 {
             testRoundTrip(handler, (List<StyledSegment>)x);
         }
     }
+    
+    // creates a segment with paragraph attributes
+    private static StyledSegment p(Object... items) {
+        StyleAttrs.Builder b = StyleAttrs.builder();
+        for (Object x : items) {
+            if (x instanceof StyleAttribute a) {
+                b.set(a, Boolean.TRUE);
+            } else if (x instanceof StyleAttrs a) {
+                b.merge(a);
+            } else {
+                throw new Error("?" + x);
+            }
+        }
+        StyleAttrs attrs = b.build();
+        checkParagraphType(attrs, true);
+        return StyledSegment.ofParagraphAttributes(attrs);
+    }
 
+    // creates a text segment
     private static StyledSegment s(String text, Object... items) {
         StyleAttrs.Builder b = StyleAttrs.builder();
         for (Object x : items) {
@@ -73,8 +96,15 @@ public class TestRichTextFormatHandler2 {
                 throw new Error("?" + x);
             }
         }
-        StyleAttrs a = b.build();
-        return StyledSegment.of(text, a);
+        StyleAttrs attrs = b.build();
+        checkParagraphType(attrs, false);
+        return StyledSegment.of(text, attrs);
+    }
+
+    private static void checkParagraphType(StyleAttrs attrs, boolean forParagraph) {
+        for (StyleAttribute a : attrs.getAttributes()) {
+            Assertions.assertEquals(forParagraph, a.isParagraphAttribute());
+        }
     }
 
     private static <T> StyleAttrs a(StyleAttribute<T> a, T value) {

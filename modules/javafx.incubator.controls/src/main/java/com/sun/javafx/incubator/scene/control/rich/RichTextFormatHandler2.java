@@ -534,7 +534,6 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                     index++;
                     return StyledSegment.LINE_BREAK;
                 case '{':
-                    index++;
                     StyleAttrs a = parseAttributes(true);
                     if (a != null) {
                         return StyledSegment.ofParagraphAttributes(a);
@@ -556,9 +555,23 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             StyleAttrs.Builder b = null;
             for (;;) {
                 int c = charAt(0);
-                if ((c == '!') != forParagraph) {
+                if (c != '{') {
                     break;
                 }
+                c = charAt(1);
+                if (forParagraph) {
+                    if (c == '!') {
+                        index++;
+                    } else {
+                        break;
+                    }
+                } else {
+                    if (c == '!') {
+                        // TODO report line number and offset, once switched to line reader
+                        throw new IOException("malformed input, unexpected paragraph attribute");
+                    }
+                }
+                index++;
                 
                 int ix = text.indexOf('}', index);
                 if(ix < 0) {
@@ -580,6 +593,10 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                 } else {
                     Object v = h.read(parts);
                     StyleAttribute a = h.getStyleAttribute();
+                    if (a.isParagraphAttribute() != forParagraph) {
+                        // TODO report line number and offset, once switched to line reader
+                        throw new IOException("malformed input, paragraph type mismatch");
+                    }
                     if(b == null) {
                         b = StyleAttrs.builder();
                     }
@@ -587,11 +604,6 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                 }
                 // on to next
                 index = ix + 1;
-                c = charAt(0);
-                if(c != '{') {
-                    break;
-                }
-                index++;
             }
             if (b == null) {
                 return null;
