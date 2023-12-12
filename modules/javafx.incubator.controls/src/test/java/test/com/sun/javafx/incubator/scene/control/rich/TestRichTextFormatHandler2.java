@@ -35,6 +35,7 @@ import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledOutput;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
 import javafx.scene.paint.Color;
+import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler2;
@@ -51,12 +52,31 @@ public class TestRichTextFormatHandler2 {
             List.of(
                 p(
                     a(StyleAttrs.BACKGROUND, Color.RED),
-                    a(StyleAttrs.BULLET, "⌘")
+                    a(StyleAttrs.BULLET, "⌘"),
+                    a(StyleAttrs.FIRST_LINE_INDENT, 10.0),
+                    a(StyleAttrs.LINE_SPACING, 11.0),
+                    StyleAttrs.RIGHT_TO_LEFT
                 ),
                 s("bold", StyleAttrs.BOLD),
+                s("font family", a(StyleAttrs.FONT_FAMILY, "Arial")),
+                s("font size", a(StyleAttrs.FONT_SIZE, 12.0)),
+                s("italic", StyleAttrs.ITALIC),
                 nl(),
 
-                s("italic/color/underline", StyleAttrs.ITALIC, a(StyleAttrs.TEXT_COLOR, Color.RED), StyleAttrs.UNDERLINE), nl()
+                p(
+                    a(StyleAttrs.SPACE_ABOVE, 13.0),
+                    a(StyleAttrs.SPACE_BELOW, 14.0),
+                    a(StyleAttrs.SPACE_LEFT, 15.0),
+                    a(StyleAttrs.SPACE_RIGHT, 16.0),
+                    a(StyleAttrs.TEXT_ALIGNMENT, TextAlignment.CENTER)
+                ),
+                s("strike through", StyleAttrs.STRIKE_THROUGH),
+                s("text color", a(StyleAttrs.TEXT_COLOR, Color.GREEN)),
+                s("underline", StyleAttrs.UNDERLINE),
+                nl(),
+
+                s("combined", StyleAttrs.ITALIC, a(StyleAttrs.TEXT_COLOR, Color.RED), StyleAttrs.UNDERLINE),
+                nl()
             )
         };
 
@@ -103,7 +123,7 @@ public class TestRichTextFormatHandler2 {
 
     private static void checkParagraphType(StyleAttrs attrs, boolean forParagraph) {
         for (StyleAttribute a : attrs.getAttributes()) {
-            Assertions.assertEquals(forParagraph, a.isParagraphAttribute());
+            Assertions.assertEquals(forParagraph, a.isParagraphAttribute(), "wrong isParagraph: " + a);
         }
     }
 

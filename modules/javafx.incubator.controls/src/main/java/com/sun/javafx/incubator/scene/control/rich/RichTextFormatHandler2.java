@@ -102,7 +102,6 @@ import javafx.scene.text.TextAlignment;
  * {!0}{1}line 2\n
  * </pre>
  */
-// TODO problem: no paragraph attr - {} is required.  or {!} {!0}
 public class RichTextFormatHandler2 extends DataFormatHandler {
     // String -> Handler
     // StyleAttribute -> Handler
@@ -129,6 +128,11 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         addHandlerString(
             StyleAttrs.FONT_FAMILY,
             "ff");
+        addHandler(
+            StyleAttrs.FIRST_LINE_INDENT,
+            "firstIndent",
+            (v) -> new String[] { String.valueOf(v) },
+            (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.FONT_SIZE,
             "fs",
@@ -223,18 +227,55 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
     }
 
     protected static Color parseHexColor(List<String> ss) {
-        String s = ss.get(0);
-        switch(s.length()) {
-        case 6:
-            // rrggbb
-        case 8:
-            // rrggbbaa
-        default:
-            // TODO exception
+        try {
+            String s = ss.get(0);
+            double alpha;
+            switch(s.length()) {
+            case 8:
+                // rrggbbaa
+                alpha = parseByte(s, 6) / 255.0;
+                break;
+            case 6:
+                // rrggbb
+                alpha = 1.0;
+                break;
+            default:
+                throw new IOException("unable to parse color: " + s);
+            }
+                
+            int r = parseByte(s, 0);
+            int g = parseByte(s, 2);
+            int b = parseByte(s, 4);
+            return Color.rgb(r, g, b, alpha);
+        } catch(Exception e) {
+            // FIX remove try-catch once exception handling is done
+            log(e);
             return Color.RED;
         }
     }
-    
+
+    protected static int parseByte(String text, int start) throws IOException {
+        int v = parseHexChar(text.charAt(start)) << 4;
+        v += parseHexChar(text.charAt(start + 1));
+        return v;
+    }
+
+    private static int parseHexChar(int ch) throws IOException {
+        int c = ch - '0'; // 0...9
+        if ((c >= 0) && (c <= 9)) {
+            return c;
+        }
+        c = ch - 55; // handle A...F
+        if ((c >= 10) && (c <= 15)) {
+            return c;
+        }
+        c = ch - 97; // handle a...f
+        if ((c >= 10) && (c <= 15)) {
+            return c;
+        }
+        throw new IOException("not a hex char:" + ch);
+    }
+
     protected static String[] toHexColor(Color c) {
         return new String[] {
             toHex8(c.getRed()) +
@@ -437,7 +478,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                             log(e);
                         }
                         // ignoring this attribute
-                        log("failed to write " + a);
+                        log("failed to emit " + a + ", skipping");
                     }
                 } else {
                     // cached style, emit the id
