@@ -396,12 +396,14 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         private HashMap<StyleAttrs, Integer> styles = new HashMap<>();
 
         public RichStyledOutput(StyleResolver resolver, Writer wr) {
+            // TODO use caching resolver?
             this.resolver = resolver;
             this.wr = wr;
         }
 
         @Override
         public void append(StyledSegment seg) throws IOException {
+            System.out.println(seg); // FIX
             switch (seg.getType()) {
             case INLINE_NODE:
                 // TODO
@@ -412,7 +414,6 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                 break;
             case PARAGRAPH_ATTRIBUTES:
                 {
-                    // TODO use caching resolver?
                     StyleAttrs attrs = seg.getStyleAttrs(resolver);
                     emitAttributes(attrs, true);
                 }
@@ -422,7 +423,6 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                 break;
             case TEXT:
                 {
-                    // TODO use caching resolver?
                     StyleAttrs attrs = seg.getStyleAttrs(resolver);
                     emitAttributes(attrs, false);
      
@@ -556,7 +556,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         private final String text;
         private int index;
         private StringBuilder sb;
-        private final ArrayList<StyleAttrs> attrs = new ArrayList<>();
+        private final ArrayList<StyleAttrs> styles = new ArrayList<>();
         private final ArrayList<String> parts = new ArrayList<>(4);
 
         public RichStyledInput(String text) {
@@ -592,6 +592,10 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             }
         }
 
+        @Override
+        public void close() throws IOException {
+        }
+
         private StyleAttrs parseAttributes(boolean forParagraph) throws IOException {
             StyleAttrs.Builder b = null;
             for (;;) {
@@ -608,48 +612,55 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                     }
                 } else {
                     if (c == '!') {
-                        // TODO report line number and offset, once switched to line reader
-                        throw new IOException("malformed input, unexpected paragraph attribute");
+                        throw err("unexpected paragraph attribute");
                     }
                 }
                 index++;
                 
                 int ix = text.indexOf('}', index);
                 if(ix < 0) {
-                    // TODO report line number and offset, once switched to line reader
-                    throw new IOException("malformed input, missing }");
+                    throw err("missing }");
                 }
                 String s = text.substring(index, ix);
-                RichUtils.split(parts, s, '|');
-                if (parts.size() == 0) {
-                    // TODO report line number and offset, once switched to line reader
-                    throw new IOException("malformed input, missing attribute name");
+                if(s.length() == 0) {
+                    throw err("empty attribute name");
                 }
-                // parse the attribute
-                String name = parts.remove(0);
-                Handler h = handlers.get(name);
-                if(h == null) {
-                    // silently ignore the attribute
-                    log("ignoring attribute: " + name);
+                int n = parseStyleNumber(s);
+                if(n < 0) {
+                    RichUtils.split(parts, s, '|');
+                    if (parts.size() == 0) {
+                        throw err("missing attribute name");
+                    }
+                    // parse the attribute
+                    String name = parts.remove(0);
+                    Handler h = handlers.get(name);
+                    if(h == null) {
+                        // silently ignore the attribute
+                        log("ignoring attribute: " + name);
+                    } else {
+                        Object v = h.read(parts);
+                        StyleAttribute a = h.getStyleAttribute();
+                        if (a.isParagraphAttribute() != forParagraph) {
+                            throw err("paragraph type mismatch");
+                        }
+                        if(b == null) {
+                            b = StyleAttrs.builder();
+                        }
+                        b.set(a, v);
+                    }
+                    index = ix + 1;
                 } else {
-                    Object v = h.read(parts);
-                    StyleAttribute a = h.getStyleAttribute();
-                    if (a.isParagraphAttribute() != forParagraph) {
-                        // TODO report line number and offset, once switched to line reader
-                        throw new IOException("malformed input, paragraph type mismatch");
-                    }
-                    if(b == null) {
-                        b = StyleAttrs.builder();
-                    }
-                    b.set(a, v);
+                    index = ix + 1;
+                    // get style from cache
+                    return styles.get(n);
                 }
-                // on to next
-                index = ix + 1;
             }
             if (b == null) {
                 return null;
             }
-            return b.build();
+            StyleAttrs attrs = b.build();
+            styles.add(attrs);
+            return attrs;
         }
 
         private int charAt(int delta) {
@@ -725,27 +736,21 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             throw new IOException("not a hex char:" + ch);
         }
 
-        private int decodeInt() throws IOException {
-            int v = 0;
-            int ct = 0;
-            for(;;) {
-                int c = charAt(0);
-                int d = Character.digit(c, 10);
-                if(d < 0) {
-                    if(ct == 0) {
-                        throw new IOException("missing number index=" + index);
-                    }
-                    return v;
-                } else {
-                    v = v * 10 + d;
-                    ct++;
+        private int parseStyleNumber(String s) throws IOException {
+            if (Character.isDigit(s.charAt(0))) {
+                int n;
+                try {
+                    return Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    throw err("invalid style number " + s);
                 }
-                index++;
             }
+            return -1;
         }
 
-        @Override
-        public void close() throws IOException {
+        private IOException err(String text) {
+            // TODO specify line number once converted to stream
+            return new IOException("malformed input: " + text); 
         }
     }
 }

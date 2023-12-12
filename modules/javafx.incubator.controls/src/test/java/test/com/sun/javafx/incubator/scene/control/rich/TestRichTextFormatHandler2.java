@@ -77,6 +77,9 @@ public class TestRichTextFormatHandler2 {
 
                 s("combined", StyleAttrs.ITALIC, a(StyleAttrs.TEXT_COLOR, Color.RED), StyleAttrs.UNDERLINE),
                 nl()
+                
+                // TODO test dedup
+                // TODO test escapes in text, attribute names, attribute values
             )
         };
 

@@ -236,8 +236,10 @@ public class RichParagraph {
                 if (start <= (off + len)) {
                     int ix0 = Math.max(0, start - off);
                     int ix1 = Math.min(len, end - off);
-                    StyledSegment ss = seg.subSegment(ix0, ix1);
-                    out.append(ss);
+                    if (ix1 > ix0) {
+                        StyledSegment ss = seg.subSegment(ix0, ix1);
+                        out.append(ss);
+                    }
                 }
                 off += len;
                 if (off >= end) {

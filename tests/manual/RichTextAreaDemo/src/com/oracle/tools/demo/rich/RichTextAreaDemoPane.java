@@ -216,6 +216,14 @@ public class RichTextAreaDemoPane extends BorderPane {
         FX.name(trackHeight, "trackHeight");
         trackHeight.selectedProperty().bindBidirectional(control.useContentHeightProperty());
         
+        Button test = new Button("Test");
+        test.setOnAction((ev) -> {
+            StyleAttrs heading = StyleAttrs.builder().setBold(true).setFontSize(24).build();
+            StyleAttrs plain = StyleAttrs.builder().setFontFamily("Monospaced").build();
+            control.appendText("Heading\n", heading);
+            control.appendText("Plain monospaced text.\n", plain);
+        });
+        
         op = new ROptionPane();
         op.label("Model:");
         op.option(modelField);
@@ -234,6 +242,7 @@ public class RichTextAreaDemoPane extends BorderPane {
         op.option(rightDecorator);
         op.option(trackWidth);
         op.option(trackHeight);
+        op.option(test);
 
         setCenter(vsplit);
 

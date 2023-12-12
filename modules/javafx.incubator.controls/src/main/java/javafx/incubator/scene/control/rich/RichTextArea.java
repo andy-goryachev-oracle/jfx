@@ -53,6 +53,7 @@ import javafx.incubator.scene.control.behavior.InputMap;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
 import javafx.scene.AccessibleAttribute;
@@ -623,22 +624,6 @@ public class RichTextArea extends Control {
 
     public final void setUseContentHeight(boolean on) {
         useContentHeightProperty().set(true);
-    }
-
-    /**
-     * Replaces the specified range with the new text.
-     * @param start start text position
-     * @param end end text position
-     * @param text text string to insert
-     * @param createUndo when true, creates an undo-redo entry
-     * @return new caret position at the end of inserted text, or null if the change cannot be made
-     */
-    public TextPos replaceText(TextPos start, TextPos end, String text, boolean createUndo) {
-        if (canEdit()) {
-            StyledTextModel m = getModel();
-            return m.replace(vflow(), start, end, text, createUndo);
-        }
-        return null;
     }
 
     /**
@@ -1407,5 +1392,82 @@ public class RichTextArea extends Control {
                 cx.addStyle("-fx-underline:true;");
             }
         });
+    }
+
+    /**
+     * TODO
+     * @param text
+     * @param attrs
+     * @return
+     */
+    public TextPos appendText(String text, StyleAttrs attrs) {
+        TextPos p = getEndTextPos();
+        return insertText(p, text, attrs);
+    }
+
+    /**
+     * TODO
+     * @param in
+     * @return
+     */
+    public TextPos appendText(StyledInput in) {
+        TextPos p = getEndTextPos();
+        return insertText(p, in);
+    }
+
+    /**
+     * TODO
+     * @param pos
+     * @param text
+     * @param attrs
+     * @return
+     */
+    public TextPos insertText(TextPos pos, String text, StyleAttrs attrs) {
+        StyledInput in = StyledInput.of(text, attrs);
+        return insertText(pos, in);
+    }
+    
+    /**
+     * TODO
+     * @param pos
+     * @param in
+     * @return
+     */
+    public TextPos insertText(TextPos pos, StyledInput in) {
+        if (canEdit()) {
+            StyledTextModel m = getModel();
+            m.clearUndoRedo();
+            return m.replace(vflow(), pos, pos, in, false);
+        }
+        return null;
+    }
+
+    /**
+     * Replaces the specified range with the new text.
+     * @param start start text position
+     * @param end end text position
+     * @param text text string to insert
+     * @param createUndo when true, creates an undo-redo entry
+     * @return new caret position at the end of inserted text, or null if the change cannot be made
+     */
+    // TODO styled segment?  StyledInput?
+    // TODO is create undo needed?
+    public TextPos replaceText(TextPos start, TextPos end, StyledInput in, boolean createUndo) {
+        if (canEdit()) {
+            StyledTextModel m = getModel();
+            return m.replace(vflow(), start, end, in, createUndo);
+        }
+        return null;
+    }
+    
+    /**
+     * Clears the undo-redo stack of the underlying model.
+     * This method does nothing if the model is null.
+     */
+    public void clearUndoRedo() {
+        StyledTextModel m = getModel();
+        if (m != null) {
+            m.clearUndoRedo();
+        }
     }
 }

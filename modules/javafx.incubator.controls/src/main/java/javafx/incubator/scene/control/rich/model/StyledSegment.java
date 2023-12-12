@@ -156,7 +156,7 @@ public abstract class StyledSegment {
 
             @Override
             public StyleAttrs getStyleAttrs(StyleResolver resolver) {
-                if (resolver != null) {
+                if ((resolver != null) && (attrs != null)) {
                     return resolver.resolveStyles(attrs);
                 }
                 return attrs;
