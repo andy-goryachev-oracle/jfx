@@ -504,6 +504,9 @@ public class RichTextAreaDemoPane extends BorderPane {
             cm.setOnAction((ev) -> applyStyle(StyleAttrs.RIGHT_TO_LEFT, !a.getBoolean(StyleAttrs.RIGHT_TO_LEFT)));
 
             items.add(m2 = new Menu("Background Color"));
+            backgroundMenu(m2, "Red", Color.RED, 0.2);
+            backgroundMenu(m2, "Green", Color.GREEN, 0.2);
+            backgroundMenu(m2, "Blue", Color.BLUE, 0.2);
             backgroundMenu(m2, "Gray", Color.GRAY, 1.0);
             backgroundMenu(m2, "Gray 10%", Color.GRAY, 0.1);
             backgroundMenu(m2, "Gray 20%", Color.GRAY, 0.2);

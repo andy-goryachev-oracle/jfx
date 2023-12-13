@@ -52,7 +52,7 @@ public class EditableRichTextModel extends StyledTextModel {
      * Creates an empty model.
      */
     public EditableRichTextModel() {
-        registerDataFormatHandler(new RichTextFormatHandler2(DATA_FORMAT), Integer.MAX_VALUE);
+        registerDataFormatHandler(new RichTextFormatHandler2(DATA_FORMAT), 2000);
 //        registerDataFormatHandler(new RichTextFormatHandler(), Integer.MAX_VALUE);
         registerDataFormatHandler(new RtfFormatHandler(), 1000);
         registerDataFormatHandler(new HtmlExportFormatHandler(), true, 100);

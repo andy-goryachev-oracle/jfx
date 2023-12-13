@@ -131,12 +131,12 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         addHandler(
             StyleAttrs.FIRST_LINE_INDENT,
             "firstIndent",
-            (v) -> new String[] { String.valueOf(v) },
+            (v) -> String.valueOf(v),
             (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.FONT_SIZE,
             "fs",
-            (v) -> new String[] { String.valueOf(v) },
+            (v) -> String.valueOf(v),
             (s) -> Double.parseDouble(s.get(0)));
         addHandlerBoolean(
             StyleAttrs.ITALIC,
@@ -144,7 +144,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         addHandler(
             StyleAttrs.LINE_SPACING,
             "lineSpacing",
-            (v) -> new String[] { String.valueOf(v) },
+            (v) -> String.valueOf(v),
             (s) -> Double.parseDouble(s.get(0)));
         addHandlerBoolean(
             StyleAttrs.RIGHT_TO_LEFT,
@@ -152,22 +152,22 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         addHandler(
             StyleAttrs.SPACE_ABOVE,
             "spaceAbove",
-            (v) -> new String[] { String.valueOf(v) },
+            (v) -> String.valueOf(v),
             (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.SPACE_BELOW,
             "spaceBelow",
-            (v) -> new String[] { String.valueOf(v) },
+            (v) -> String.valueOf(v),
             (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.SPACE_LEFT,
             "spaceLeft",
-            (v) -> new String[] { String.valueOf(v) },
+            (v) -> String.valueOf(v),
             (s) -> Double.parseDouble(s.get(0)));
         addHandler(
             StyleAttrs.SPACE_RIGHT,
             "spaceRight",
-            (v) -> new String[] { String.valueOf(v) },
+            (v) -> String.valueOf(v),
             (s) -> Double.parseDouble(s.get(0)));
         addHandlerBoolean(
             StyleAttrs.STRIKE_THROUGH,
@@ -175,7 +175,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         addHandler(
             StyleAttrs.TEXT_ALIGNMENT,
             "alignment",
-            (v) -> new String[] { encodeAlignment(v) },
+            (v) -> encodeAlignment(v),
             (s) -> decodeAlignment(s.get(0)));
         addHandler(
             StyleAttrs.TEXT_COLOR,
@@ -276,13 +276,12 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         throw new IOException("not a hex char:" + ch);
     }
 
-    protected static String[] toHexColor(Color c) {
-        return new String[] {
+    protected static String toHexColor(Color c) {
+        return
             toHex8(c.getRed()) +
             toHex8(c.getGreen()) +
             toHex8(c.getBlue()) +
-            ((c.getOpacity() == 1.0) ? "" : toHex8(c.getOpacity()))
-        };
+            ((c.getOpacity() == 1.0) ? "" : toHex8(c.getOpacity()));
     }
 
     private static String toHex8(double x) {
@@ -302,12 +301,12 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         
         public abstract StyleAttribute<T> getStyleAttribute();
         
-        public abstract String[] write(T value);
+        public abstract String write(T value);
         
         public abstract T read(List<String> ss);
     }
 
-    protected <T> void addHandler(StyleAttribute<T> a, String id, Function<T,String[]> wr, Function<List<String>,T> rd) {
+    protected <T> void addHandler(StyleAttribute<T> a, String id, Function<T,String> wr, Function<List<String>,T> rd) {
         Handler<T> h = new Handler<>() {
             @Override
             public String getId() {
@@ -320,7 +319,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             }
 
             @Override
-            public String[] write(T value) {
+            public String write(T value) {
                 return wr.apply(value);
             }
 
@@ -338,7 +337,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         (
             a, 
             id,
-            (v) -> v ? null : new String[] { "F" },
+            (v) -> v ? null : "F", // TODO should not serialize FALSE
             (s) -> s.size() == 0 ? Boolean.TRUE : (s.get(0).equals("F") ? Boolean.FALSE : Boolean.TRUE)
         );
     }
@@ -349,7 +348,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         (
             a, 
             id,
-            (v) -> new String[] { v },
+            (v) -> v,
             (s) -> s.get(0)
         );
     }
@@ -464,12 +463,10 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                                     wr.write('!');
                                 }
                                 wr.write(h.getId());
-                                String[] ss = h.write(v);
+                                String ss = h.write(v);
                                 if (ss != null) {
-                                    for (String s : ss) {
-                                        wr.write('|');
-                                        wr.write(encode(s));
-                                    }
+                                    wr.write('|');
+                                    wr.write(encode(ss));
                                 }
                                 wr.write('}');
                                 continue;
