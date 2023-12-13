@@ -422,7 +422,7 @@ public abstract class StyledTextModel {
         RichParagraph par = getParagraph(index);
         par.export(start, end, out);
         if (withParAttrs) {
-            // or get and add conditionally
+            // sent last after the paragraph has been created
             StyleAttrs pa = par.getParagraphAttributes();
             if ((pa != null) && !pa.isEmpty()) {
                 out.append(StyledSegment.ofParagraphAttributes(pa));

@@ -1444,11 +1444,11 @@ public class RichTextArea extends Control {
 
     /**
      * Replaces the specified range with the new text.
-     * @param start start text position
-     * @param end end text position
-     * @param text text string to insert
+     * @param start the start text position
+     * @param end the end text position
+     * @param in the input stream
      * @param createUndo when true, creates an undo-redo entry
-     * @return new caret position at the end of inserted text, or null if the change cannot be made
+     * @return the new caret position at the end of inserted text, or null if the change cannot be made
      */
     // TODO styled segment?  StyledInput?
     // TODO is create undo needed?
