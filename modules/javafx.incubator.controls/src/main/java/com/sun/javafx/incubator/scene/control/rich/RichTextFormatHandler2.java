@@ -98,16 +98,16 @@ import javafx.util.converter.DoubleStringConverter;
  * <p>
  * Example:
  * <pre>
- * {!rtl}{c|ff00ff}text{b}bold\n
- * {!0}{1}line 2\n
+ * {c|ff00ff}text{b}bold{!rtl}\n
+ * {1}line 2{!0}\n
  * </pre>
  */
 public class RichTextFormatHandler2 extends DataFormatHandler {
-    public static final StringConverter<Boolean> BOOLEAN_CONVERTER = Converters.booleanConverter();
-    public static final StringConverter<Color> COLOR_CONVERTER = Converters.colorConverter();
-    public static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
-    public static final StringConverter<String> STRING_CONVERTER = Converters.stringConverter();
-    public static final StringConverter<TextAlignment> TEXT_ALIGNMENT_CONVERTER = Converters.textAlignmentConverter();
+    protected static final StringConverter<Boolean> BOOLEAN_CONVERTER = Converters.booleanConverter();
+    protected static final StringConverter<Color> COLOR_CONVERTER = Converters.colorConverter();
+    protected static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
+    protected static final StringConverter<String> STRING_CONVERTER = Converters.stringConverter();
+    protected static final StringConverter<TextAlignment> TEXT_ALIGNMENT_CONVERTER = Converters.textAlignmentConverter();
     // String -> Handler
     // StyleAttribute -> Handler
     private final HashMap<Object,Handler> handlers = new HashMap<>(64);
@@ -176,7 +176,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             (x instanceof StringWriter);
     }
 
-    /** attribute handler TODO own class? */
+    /** attribute handler */
     static class Handler<T> {
         private final String id;
         private final StyleAttribute<T> attribute;
@@ -241,15 +241,14 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         private final Writer wr;
         private HashMap<StyleAttrs, Integer> styles = new HashMap<>();
 
-        public RichStyledOutput(StyleResolver resolver, Writer wr) {
-            // TODO use caching resolver?
-            this.resolver = resolver;
+        public RichStyledOutput(StyleResolver r, Writer wr) {
+            this.resolver = r;
             this.wr = wr;
         }
 
         @Override
         public void append(StyledSegment seg) throws IOException {
-            System.out.println(seg); // FIX
+            //System.out.println(seg); // FIX
             switch (seg.getType()) {
             case INLINE_NODE:
                 // TODO
@@ -381,6 +380,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             case '{':
             case '}':
             case '%':
+            case '|':
                 return true;
             }
             return false;
@@ -403,6 +403,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         private int index;
         private StringBuilder sb;
         private final ArrayList<StyleAttrs> styles = new ArrayList<>();
+        private int line = 1;
 
         public RichStyledInput(String text) {
             // TODO buffered input and line-by-line
@@ -418,6 +419,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                     return null;
                 case '\n':
                     index++;
+                    line++;
                     return StyledSegment.LINE_BREAK;
                 case '{':
                     StyleAttrs a = parseAttributes(true);
@@ -432,7 +434,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                 String text = decodeText();
                 return StyledSegment.of(text);
             } catch (IOException e) {
-                log(e);
+                err(e);
                 return null;
             }
         }
@@ -599,9 +601,8 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             return -1;
         }
 
-        private IOException err(String text) {
-            // TODO specify line number once converted to stream
-            return new IOException("malformed input: " + text); 
+        private IOException err(Object text) {
+            return new IOException("malformed input: " + text + ", line " + line); 
         }
     }
 }

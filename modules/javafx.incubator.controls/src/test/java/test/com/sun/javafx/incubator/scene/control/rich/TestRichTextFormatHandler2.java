@@ -78,7 +78,6 @@ public class TestRichTextFormatHandler2 {
                 s("combined", StyleAttrs.ITALIC, a(StyleAttrs.TEXT_COLOR, Color.RED), StyleAttrs.UNDERLINE),
                 nl()
                 
-                // TODO test dedup
                 // TODO test escapes in text, attribute names, attribute values
             )
         };
@@ -88,6 +87,37 @@ public class TestRichTextFormatHandler2 {
         for (Object x : ss) {
             testRoundTrip(handler, (List<StyledSegment>)x);
         }
+    }
+    
+    @Test
+    public void testStyleDeduplication() throws IOException {
+        StyledSegment[] input = {
+            s("0", StyleAttrs.BOLD),
+            s("1", StyleAttrs.ITALIC),
+            s("2", StyleAttrs.BOLD),
+            s("3", StyleAttrs.ITALIC)
+        };
+
+        StringWriter wr = new StringWriter();
+        StyledOutput out = new RichTextFormatHandler2(null).createStyledOutput(null, wr);
+        for (StyledSegment s : input) {
+            out.append(s);
+        }
+        out.flush();
+        String s = wr.toString();
+        Assertions.assertTrue(s.indexOf("{0}") > 0);
+        Assertions.assertTrue(s.indexOf("{1}") > 0);
+    }
+    
+    @Test
+    public void testEscapes() throws IOException {
+        StringWriter wr = new StringWriter();
+        StyledOutput out = new RichTextFormatHandler2(null).createStyledOutput(null, wr);
+        out.append(StyledSegment.of("{|%}"));
+        out.flush();
+        String s = wr.toString();
+        String expected = "%7B%7C%25%7D";
+        Assertions.assertEquals(expected, s);
     }
     
     // creates a segment with paragraph attributes
