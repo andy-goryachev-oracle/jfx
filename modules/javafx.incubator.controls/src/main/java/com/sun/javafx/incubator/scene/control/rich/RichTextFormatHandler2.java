@@ -36,8 +36,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
-import java.util.function.Function;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.DataFormatHandler;
@@ -50,6 +48,9 @@ import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.scene.input.DataFormat;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
+import javafx.util.StringConverter;
+import javafx.util.converter.BooleanStringConverter;
+import javafx.util.converter.DoubleStringConverter;
 
 /**
  * DataFormatHandler for use with attribute-based rich text models.
@@ -103,6 +104,11 @@ import javafx.scene.text.TextAlignment;
  * </pre>
  */
 public class RichTextFormatHandler2 extends DataFormatHandler {
+    public static final StringConverter<Boolean> BOOLEAN_CONVERTER = Converters.booleanConverter();
+    public static final StringConverter<Color> COLOR_CONVERTER = Converters.colorConverter();
+    public static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
+    public static final StringConverter<String> STRING_CONVERTER = Converters.stringConverter();
+    public static final StringConverter<TextAlignment> TEXT_ALIGNMENT_CONVERTER = Converters.textAlignmentConverter();
     // String -> Handler
     // StyleAttribute -> Handler
     private final HashMap<Object,Handler> handlers = new HashMap<>(64);
@@ -114,77 +120,23 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
     public RichTextFormatHandler2(DataFormat format) {
         super(format);
         
-        addHandlerBoolean(
-            StyleAttrs.BOLD,
-            "b");
-        addHandler(
-            StyleAttrs.BACKGROUND,
-            "bg",
-            (v) -> toHexColor(v),
-            (s) -> parseHexColor(s));
-        addHandlerString(
-            StyleAttrs.BULLET,
-            "bullet");
-        addHandlerString(
-            StyleAttrs.FONT_FAMILY,
-            "ff");
-        addHandler(
-            StyleAttrs.FIRST_LINE_INDENT,
-            "firstIndent",
-            (v) -> String.valueOf(v),
-            (s) -> Double.parseDouble(s.get(0)));
-        addHandler(
-            StyleAttrs.FONT_SIZE,
-            "fs",
-            (v) -> String.valueOf(v),
-            (s) -> Double.parseDouble(s.get(0)));
-        addHandlerBoolean(
-            StyleAttrs.ITALIC,
-            "i");
-        addHandler(
-            StyleAttrs.LINE_SPACING,
-            "lineSpacing",
-            (v) -> String.valueOf(v),
-            (s) -> Double.parseDouble(s.get(0)));
-        addHandlerBoolean(
-            StyleAttrs.RIGHT_TO_LEFT,
-            "rtl");
-        addHandler(
-            StyleAttrs.SPACE_ABOVE,
-            "spaceAbove",
-            (v) -> String.valueOf(v),
-            (s) -> Double.parseDouble(s.get(0)));
-        addHandler(
-            StyleAttrs.SPACE_BELOW,
-            "spaceBelow",
-            (v) -> String.valueOf(v),
-            (s) -> Double.parseDouble(s.get(0)));
-        addHandler(
-            StyleAttrs.SPACE_LEFT,
-            "spaceLeft",
-            (v) -> String.valueOf(v),
-            (s) -> Double.parseDouble(s.get(0)));
-        addHandler(
-            StyleAttrs.SPACE_RIGHT,
-            "spaceRight",
-            (v) -> String.valueOf(v),
-            (s) -> Double.parseDouble(s.get(0)));
-        addHandlerBoolean(
-            StyleAttrs.STRIKE_THROUGH,
-            "ss");
-        addHandler(
-            StyleAttrs.TEXT_ALIGNMENT,
-            "alignment",
-            (v) -> encodeAlignment(v),
-            (s) -> decodeAlignment(s.get(0)));
-        addHandler(
-            StyleAttrs.TEXT_COLOR,
-            "tc",
-            (v) -> toHexColor(v),
-            (s) -> parseHexColor(s));
-        addHandlerBoolean(
-            StyleAttrs.UNDERLINE,
-            "u");
+        addHandlerBoolean(StyleAttrs.BOLD, "b");
+        addHandler(StyleAttrs.BACKGROUND, "bg", COLOR_CONVERTER);
+        addHandlerString(StyleAttrs.BULLET, "bullet");
+        addHandlerString(StyleAttrs.FONT_FAMILY, "ff");
+        addHandler(StyleAttrs.FIRST_LINE_INDENT, "firstIndent", DOUBLE_CONVERTER);
+        addHandler(StyleAttrs.FONT_SIZE, "fs", DOUBLE_CONVERTER);
+        addHandlerBoolean(StyleAttrs.ITALIC, "i");
+        addHandler(StyleAttrs.LINE_SPACING, "lineSpacing", DOUBLE_CONVERTER);
+        addHandlerBoolean(StyleAttrs.RIGHT_TO_LEFT, "rtl");
+        addHandler(StyleAttrs.SPACE_ABOVE, "spaceAbove", DOUBLE_CONVERTER);
+        addHandler(StyleAttrs.SPACE_BELOW, "spaceBelow", DOUBLE_CONVERTER);
+        addHandler(StyleAttrs.SPACE_LEFT, "spaceLeft", DOUBLE_CONVERTER);
+        addHandler(StyleAttrs.SPACE_RIGHT, "spaceRight", DOUBLE_CONVERTER);
+        addHandlerBoolean(StyleAttrs.STRIKE_THROUGH, "ss");
+        addHandler(StyleAttrs.TEXT_ALIGNMENT, "alignment", TEXT_ALIGNMENT_CONVERTER);
+        addHandler(StyleAttrs.TEXT_COLOR, "tc", COLOR_CONVERTER);
+        addHandlerBoolean(StyleAttrs.UNDERLINE, "u");
     }
 
     @Override
@@ -226,168 +178,65 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
             (x instanceof StringWriter);
     }
 
-    protected static Color parseHexColor(List<String> ss) {
-        try {
-            String s = ss.get(0);
-            double alpha;
-            switch(s.length()) {
-            case 8:
-                // rrggbbaa
-                alpha = parseByte(s, 6) / 255.0;
-                break;
-            case 6:
-                // rrggbb
-                alpha = 1.0;
-                break;
-            default:
-                throw new IOException("unable to parse color: " + s);
-            }
-                
-            int r = parseByte(s, 0);
-            int g = parseByte(s, 2);
-            int b = parseByte(s, 4);
-            return Color.rgb(r, g, b, alpha);
-        } catch(Exception e) {
-            // FIX remove try-catch once exception handling is done
-            log(e);
-            return Color.RED;
-        }
-    }
-
-    protected static int parseByte(String text, int start) throws IOException {
-        int v = parseHexChar(text.charAt(start)) << 4;
-        v += parseHexChar(text.charAt(start + 1));
-        return v;
-    }
-
-    private static int parseHexChar(int ch) throws IOException {
-        int c = ch - '0'; // 0...9
-        if ((c >= 0) && (c <= 9)) {
-            return c;
-        }
-        c = ch - 55; // handle A...F
-        if ((c >= 10) && (c <= 15)) {
-            return c;
-        }
-        c = ch - 97; // handle a...f
-        if ((c >= 10) && (c <= 15)) {
-            return c;
-        }
-        throw new IOException("not a hex char:" + ch);
-    }
-
-    protected static String toHexColor(Color c) {
-        return
-            toHex8(c.getRed()) +
-            toHex8(c.getGreen()) +
-            toHex8(c.getBlue()) +
-            ((c.getOpacity() == 1.0) ? "" : toHex8(c.getOpacity()));
-    }
-
-    private static String toHex8(double x) {
-        int v = (int)Math.round(255.0 * x);
-        if (v < 0) {
-            v = 0;
-        } else if (v > 255) {
-            v = 255;
-        }
-        return String.format("%02X", v);
-    }
-
     /** attribute handler TODO own class? */
-    static abstract class Handler<T> {
-        
-        public abstract String getId();
-        
-        public abstract StyleAttribute<T> getStyleAttribute();
-        
-        public abstract String write(T value);
-        
-        public abstract T read(List<String> ss);
+    static class Handler<T> {
+        private final String id;
+        private final StyleAttribute<T> attribute;
+        private final StringConverter<T> converter;
+
+        public Handler(StyleAttribute<T> attribute, String id, StringConverter<T> converter) {
+            this.id = id;
+            this.attribute = attribute;
+            this.converter = converter;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public StyleAttribute<T> getStyleAttribute() {
+            return attribute;
+        }
+
+        public boolean isAllowed(T value) {
+            return true;
+        }
+
+        public String write(T value) {
+            return converter.toString(value);
+        }
+
+        public T read(String s) {
+            return converter.fromString(s);
+        }
     }
 
-    protected <T> void addHandler(StyleAttribute<T> a, String id, Function<T,String> wr, Function<List<String>,T> rd) {
-        Handler<T> h = new Handler<>() {
-            @Override
-            public String getId() {
-                return id;
-            }
-
-            @Override
-            public StyleAttribute<T> getStyleAttribute() {
-                return a;
-            }
-
-            @Override
-            public String write(T value) {
-                return wr.apply(value);
-            }
-
-            @Override
-            public T read(List<String> ss) {
-                return rd.apply(ss);
-            }
-        };
-        handlers.put(a, h);
-        handlers.put(id, h);
+    protected <T> void addHandler(StyleAttribute<T> a, String id, StringConverter<T> converter) {
+        addHandler(new Handler<T>(a, id, converter));
+    }
+    
+    protected <T> void addHandler(Handler<T> h) {
+        handlers.put(h.getStyleAttribute(), h);
+        handlers.put(h.getId(), h);
     }
     
     protected void addHandlerBoolean(StyleAttribute<Boolean> a, String id) {
-        addHandler
-        (
-            a, 
-            id,
-            (v) -> v ? null : "F", // TODO should not serialize FALSE
-            (s) -> s.size() == 0 ? Boolean.TRUE : (s.get(0).equals("F") ? Boolean.FALSE : Boolean.TRUE)
-        );
+        addHandler(new Handler<Boolean>(a, id, BOOLEAN_CONVERTER) {
+            @Override
+            public boolean isAllowed(Boolean value) {
+                return Boolean.TRUE.equals(value);
+            }
+        });
     }
     
     protected void addHandlerString(StyleAttribute<String> a, String id) {
-        // TODO handler variant that accepts a single argument
-        addHandler
-        (
-            a, 
-            id,
-            (v) -> v,
-            (s) -> s.get(0)
-        );
+        addHandler(new Handler<String>(a, id, STRING_CONVERTER));
     }
     
     private static void log(Object x) {
-        System.err.println(x); // TODO platform logger or disable
+        System.err.println(x); // TODO use platform logger or remove
     }
     
-    private String encodeAlignment(TextAlignment a) {
-        switch (a) {
-        case CENTER:
-            return "C";
-        case JUSTIFY:
-            return "J";
-        case RIGHT:
-            return "R";
-        case LEFT:
-        default:
-            return "L";
-        }
-    }
-
-    private TextAlignment decodeAlignment(String s) {
-        switch (s) {
-        case "C":
-            return TextAlignment.CENTER;
-        case "J":
-            return TextAlignment.JUSTIFY;
-        default:
-            // lambda does not support exceptions, FIX when public AttributeHandler is created
-            // throw new IOException("failed parsing alignment (" + s + ")");
-            // fall-through
-        case "L":
-            return TextAlignment.LEFT;
-        case "R":
-            return TextAlignment.RIGHT;
-        }
-    }
-
     /** exporter */
     private class RichStyledOutput implements StyledOutput {
         private final StyleResolver resolver;
@@ -458,17 +307,19 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                         try {
                             if (h != null) {
                                 Object v = attrs.get(a);
-                                wr.write('{');
-                                if (forParagraph) {
-                                    wr.write('!');
+                                if (h.isAllowed(v)) {
+                                    wr.write('{');
+                                    if (forParagraph) {
+                                        wr.write('!');
+                                    }
+                                    wr.write(h.getId());
+                                    String ss = h.write(v);
+                                    if (ss != null) {
+                                        wr.write('|');
+                                        wr.write(encode(ss));
+                                    }
+                                    wr.write('}');
                                 }
-                                wr.write(h.getId());
-                                String ss = h.write(v);
-                                if (ss != null) {
-                                    wr.write('|');
-                                    wr.write(encode(ss));
-                                }
-                                wr.write('}');
                                 continue;
                             }
                         } catch (Exception e) {
@@ -554,7 +405,6 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
         private int index;
         private StringBuilder sb;
         private final ArrayList<StyleAttrs> styles = new ArrayList<>();
-        private final ArrayList<String> parts = new ArrayList<>(4);
 
         public RichStyledInput(String text) {
             // TODO buffered input and line-by-line
@@ -623,19 +473,25 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
                     throw err("empty attribute name");
                 }
                 int n = parseStyleNumber(s);
-                if(n < 0) {
-                    RichUtils.split(parts, s, '|');
-                    if (parts.size() == 0) {
-                        throw err("missing attribute name");
-                    }
+                if (n < 0) {
                     // parse the attribute
-                    String name = parts.remove(0);
+                    String name;
+                    String args;
+                    int j = s.indexOf('|');
+                    if (j < 0) {
+                        name = s;
+                        args = null;
+                    } else {
+                        name = s.substring(0, j);
+                        args = s.substring(j + 1);
+                    }
+
                     Handler h = handlers.get(name);
-                    if(h == null) {
+                    if (h == null) {
                         // silently ignore the attribute
                         log("ignoring attribute: " + name);
                     } else {
-                        Object v = h.read(parts);
+                        Object v = h.read(args);
                         StyleAttribute a = h.getStyleAttribute();
                         if (a.isParagraphAttribute() != forParagraph) {
                             throw err("paragraph type mismatch");
