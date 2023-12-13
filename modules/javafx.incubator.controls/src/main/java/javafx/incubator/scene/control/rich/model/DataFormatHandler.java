@@ -36,14 +36,13 @@ import javafx.scene.input.DataFormat;
  */
 public abstract class DataFormatHandler {
     /**
-     * Creates a StyledInput for the given source object obtained from the system Clipboard.
-     * This method returns null if a StyledInput cannot be created, or an I/O error occurs.
+     * Creates a StyledInput for the given input string.
      *
-     * @param src input object obtained from the Clipboard
-     * @return StyledInput generated according to this data format, or null
+     * @param src the input string
+     * @return the StyledInput
      * @throws IOException when operation is not supported or an I/O error occurs
      */
-    public abstract StyledInput createStyledInput(Object src) throws IOException;
+    public abstract StyledInput createStyledInput(String input) throws IOException;
 
     /**
      * Creates an object to be put into the Clipboard for the given text range.

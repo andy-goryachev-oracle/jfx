@@ -35,7 +35,6 @@ import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.input.DataFormat;
 import com.sun.javafx.incubator.scene.control.rich.HtmlStyledOutput;
-import com.sun.javafx.incubator.scene.control.rich.RtfStyledOutput;
 
 /**
  * This partial {@link DataFormatHandler} supports export of styled text in a simple HTML format.
@@ -50,7 +49,7 @@ public class HtmlExportFormatHandler extends DataFormatHandler {
     }
 
     @Override
-    public StyledInput createStyledInput(Object src) {
+    public StyledInput createStyledInput(String input) {
         throw new UnsupportedOperationException("import from HTML is not supported by this DataFormatHandler");
     }
 

@@ -110,8 +110,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
     }
 
     @Override
-    public StyledInput createStyledInput(Object src) {
-        String input = (String)src;
+    public StyledInput createStyledInput(String input) {
         return new RichStyledInput(input);
     }
 

@@ -295,6 +295,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             return;
         }
 
+        // TODO use previous paragraph attributes?
         TextPos pos = m.replace(vflow, start, end, StyledInput.of("\n"), true);
         control.moveCaret(pos, false);
         clearPhantomX();
@@ -894,25 +895,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         if (canEdit()) {
             DataFormat f = findFormatForPaste();
             if (f != null) {
-                SelInfo sel = sel();
-                if (sel == null) {
-                    return;
-                }
-
-                TextPos start = sel.getMin();
-                TextPos end = sel.getMax();
-
-                StyledTextModel m = control.getModel();
-                DataFormatHandler h = m.getDataFormatHandler(f, false);
-                Object src = Clipboard.getSystemClipboard().getContent(f);
-                try (StyledInput in = h.createStyledInput(src)) {
-                    if (in != null) {
-                        TextPos p = m.replace(vflow, start, end, in, true);
-                        control.moveCaret(p, false);
-                    }
-                } catch (IOException e) {
-                    Util.provideErrorFeedback(control, e);
-                }
+                pasteLocal(f);
             }
         }
     }
@@ -921,25 +904,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         if (canEdit()) {
             Clipboard c = Clipboard.getSystemClipboard();
             if (c.hasContent(f)) {
-                SelInfo sel = sel();
-                if (sel == null) {
-                    return;
-                }
-
-                TextPos start = sel.getMin();
-                TextPos end = sel.getMax();
-
-                StyledTextModel m = control.getModel();
-                DataFormatHandler h = m.getDataFormatHandler(f, false);
-                Object src = c.getContent(f);
-                try (StyledInput in = h.createStyledInput(src)) {
-                    if (in != null) {
-                        TextPos p = m.replace(vflow, start, end, in, true);
-                        control.moveCaret(p, false);
-                    }
-                } catch (IOException e) {
-                    Util.provideErrorFeedback(control, e);
-                }
+                pasteLocal(f);
             }
         }
     }
@@ -964,6 +929,31 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             }
         }
         return null;
+    }
+
+    private void pasteLocal(DataFormat f) {
+        SelInfo sel = sel();
+        if (sel != null) {
+            TextPos start = sel.getMin();
+            TextPos end = sel.getMax();
+
+            StyledTextModel m = control.getModel();
+            DataFormatHandler h = m.getDataFormatHandler(f, false);
+            Object x = Clipboard.getSystemClipboard().getContent(f);
+            String text;
+            if (x instanceof String s) {
+                text = s;
+            } else {
+                return;
+            }
+
+            try (StyledInput in = h.createStyledInput(text)) {
+                TextPos p = m.replace(vflow, start, end, in, true);
+                control.moveCaret(p, false);
+            } catch (IOException e) {
+                Util.provideErrorFeedback(control, e);
+            }
+        }
     }
 
     protected void copy(boolean cut) {

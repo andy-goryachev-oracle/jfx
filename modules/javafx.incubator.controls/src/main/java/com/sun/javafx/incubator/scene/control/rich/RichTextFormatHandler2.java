@@ -49,7 +49,6 @@ import javafx.scene.input.DataFormat;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
-import javafx.util.converter.BooleanStringConverter;
 import javafx.util.converter.DoubleStringConverter;
 
 /**
@@ -140,8 +139,7 @@ public class RichTextFormatHandler2 extends DataFormatHandler {
     }
 
     @Override
-    public StyledInput createStyledInput(Object src) {
-        String input = (String)src;
+    public StyledInput createStyledInput(String input) {
         return new RichStyledInput(input);
     }
 
