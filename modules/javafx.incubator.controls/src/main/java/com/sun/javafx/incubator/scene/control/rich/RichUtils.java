@@ -25,7 +25,11 @@
 
 package com.sun.javafx.incubator.scene.control.rich;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.List;
 import javafx.application.ConditionalFeature;
@@ -389,5 +393,23 @@ public final class RichUtils {
         System.arraycopy(items, 0, combined, inheritedFromParent.size(), items.length);
         // makes a copy, unfortunately
         return List.of(combined);
+    }
+
+    /**
+     * Reads a UTF8 string from the input stream.
+     * This method does not close the input stream.
+     * @param in the input stream
+     * @return the string
+     * @throws IOException if an I/O error occurs
+     */
+    public static String readString(InputStream in) throws IOException {
+        BufferedInputStream b = new BufferedInputStream(in);
+        InputStreamReader rd = new InputStreamReader(in, StandardCharsets.UTF_8);
+        StringBuilder sb = new StringBuilder(65536);
+        int c;
+        while ((c = in.read()) >= 0) {
+            sb.append((char)c);
+        }
+        return sb.toString();
     }
 }

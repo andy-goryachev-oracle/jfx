@@ -27,6 +27,9 @@
 
 package javafx.incubator.scene.control.rich;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
@@ -582,6 +585,14 @@ public class RichTextArea extends Control {
         return (RichTextAreaSkin)getSkin();
     }
 
+    private StyleResolver resolver() {
+        RichTextAreaSkin skin = richTextAreaSkin();
+        if (skin != null) {
+            return skin.getStyleResolver();
+        }
+        return null;
+    }
+
     /**
      * Determines whether the preferred width is the same as the content width.
      * When set to true, the horizontal scroll bar is disabled.
@@ -1115,13 +1126,11 @@ public class RichTextArea extends Control {
     // FIX: problem - char attrs may need to be resolved; paragraph - don't 
     public StyleAttrs getActiveStyleAttrs() {
         StyleAttrs a = getModelStyleAttrs();
-        RichTextAreaSkin skin = richTextAreaSkin();
-        if (skin != null) {
-            StyleResolver resolver = skin.getStyleResolver();
-            if (resolver != null) {
-                a = resolver.resolveStyles(a);
-            }
+        StyleResolver resolver = resolver();
+        if (resolver != null) {
+            a = resolver.resolveStyles(a);
         }
+
         StyleAttrs pa = getDefaultAttributes();
         if ((pa == null) || pa.isEmpty()) {
             return a;
@@ -1469,5 +1478,72 @@ public class RichTextArea extends Control {
         if (m != null) {
             m.clearUndoRedo();
         }
+    }
+
+    /**
+     * Writes the content the output stream using the model's highest priority {@code DataFormat}.
+     * This method does not close the output stream.
+     * @param out the output stream
+     * @throws IOException if an I/O error occurs
+     */
+    public void save(OutputStream out) throws IOException {
+        DataFormat f = bestDataFormat(true);
+        if (f != null) {
+            save(f, out);
+        }
+    }
+
+    /**
+     * Writes the content the output stream using the specified {@code DataFormat}.
+     * This method does not close the output stream.
+     * @param f the data format
+     * @param out the output stream
+     * @throws IOException if an I/O error occurs
+     */
+    public void save(DataFormat f, OutputStream out) throws IOException {
+        StyledTextModel m = getModel();
+        if (m != null) {
+            StyleResolver r = resolver();
+            m.save(r, f, out);
+        }
+    }
+
+    /**
+     * Loads the content using the model's highest priority {@code DataFormat}.
+     * This method does not close the input stream.
+     * @param in the input stream
+     * @throws IOException if an I/O error occurs
+     */
+    public void load(InputStream in) throws IOException {
+        DataFormat f = bestDataFormat(false);
+        if (f != null) {
+            load(f, in);
+        }
+    }
+
+    /**
+     * Loads the content using the specified {@code DataFormat}.
+     * This method does not close the input stream.
+     * @param f the data format
+     * @param in the input stream
+     * @throws IOException if an I/O error occurs
+     */
+    public void load(DataFormat f, InputStream in) throws IOException {
+        StyledTextModel m = getModel();
+        if (m != null) {
+            StyleResolver r = resolver();
+            m.load(r, f, in);
+        }
+    }
+
+    private DataFormat bestDataFormat(boolean forExport) {
+        StyledTextModel m = getModel();
+        if (m != null) {
+            DataFormat[] fs = m.getSupportedDataFormats(forExport);
+            if (fs.length > 0) {
+                return fs[0];
+            }
+        }
+        return null;
     }
 }

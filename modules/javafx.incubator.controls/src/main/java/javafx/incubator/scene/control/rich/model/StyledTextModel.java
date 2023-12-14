@@ -28,10 +28,11 @@
 package javafx.incubator.scene.control.rich.model;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,6 +45,7 @@ import javafx.scene.Node;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
 import com.sun.javafx.incubator.scene.control.rich.Markers;
+import com.sun.javafx.incubator.scene.control.rich.RichUtils;
 import com.sun.javafx.incubator.scene.control.rich.UndoableChange;
 
 /**
@@ -800,5 +802,20 @@ public abstract class StyledTextModel {
             e.printStackTrace();
         }
         return sb.toString();
+    }
+
+    public final void load(StyleResolver r, DataFormat f, InputStream input) throws IOException {
+        clearUndoRedo();
+        TextPos end = getDocumentEnd();
+        DataFormatHandler h = getDataFormatHandler(f, false);
+        String text = RichUtils.readString(input);
+        StyledInput in = h.createStyledInput(text);
+        replace(r, TextPos.ZERO, end, in, false);
+    }
+
+    public final void save(StyleResolver r, DataFormat f, OutputStream out) throws IOException {
+        TextPos end = getDocumentEnd();
+        DataFormatHandler h = getDataFormatHandler(f, true);
+        h.save(this, r, TextPos.ZERO, end, out);
     }
 }
