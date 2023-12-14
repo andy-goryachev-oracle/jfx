@@ -32,8 +32,6 @@ import java.util.function.Supplier;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
-import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
-import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
 
 /**
  * Editable, in-memory {@link StyledTextModel} based on a collection of styled segments.
@@ -43,8 +41,6 @@ import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
  */
 public class EditableRichTextModel extends StyledTextModel {
     /** Internal data format */
-    // TODO add version?  "application/x-com-oracle-editable-rich-text-model-v1"
-    public static final DataFormat DATA_FORMAT = new DataFormat("application/x-com-oracle-editable-rich-text-model");
     private final ArrayList<RParagraph> paragraphs = new ArrayList<>();
     private final HashMap<StyleAttrs,StyleAttrs> styleCache = new HashMap<>();
 
@@ -52,7 +48,7 @@ public class EditableRichTextModel extends StyledTextModel {
      * Creates an empty model.
      */
     public EditableRichTextModel() {
-        registerDataFormatHandler(new RichTextFormatHandler(DATA_FORMAT), 2000);
+        registerDataFormatHandler(new RichTextFormatHandler(), 2000);
         registerDataFormatHandler(new RtfFormatHandler(), 1000);
         registerDataFormatHandler(new HtmlExportFormatHandler(), true, 100);
         registerDataFormatHandler(new PlainTextFormatHandler(), 0);

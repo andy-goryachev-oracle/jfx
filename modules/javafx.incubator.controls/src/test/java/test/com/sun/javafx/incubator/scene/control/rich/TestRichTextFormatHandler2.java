@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledInput;
@@ -38,7 +39,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
 
 /**
  * Tests RichTextFormatHandler2.

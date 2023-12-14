@@ -30,6 +30,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Region;
@@ -155,6 +156,8 @@ public class DemoModel extends SimpleReadOnlyStyledModel {
         nl();
         addSegment("\t\t終 The End.", "-fx-font-size:200%;", null);
         nl();
+
+        registerDataFormatHandler(new RichTextFormatHandler(), true, 2000);
     }
 
     private Region createRect() {

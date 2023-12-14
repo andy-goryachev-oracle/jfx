@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.sun.javafx.incubator.scene.control.rich;
+package javafx.incubator.scene.control.rich.model;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -38,21 +38,15 @@ import java.util.Comparator;
 import java.util.HashMap;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.rich.model.DataFormatHandler;
-import javafx.incubator.scene.control.rich.model.StyleAttribute;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.model.StyledInput;
-import javafx.incubator.scene.control.rich.model.StyledOutput;
-import javafx.incubator.scene.control.rich.model.StyledSegment;
-import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.scene.input.DataFormat;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
+import com.sun.javafx.incubator.scene.control.rich.Converters;
 
 /**
- * DataFormatHandler for use with attribute-based rich text models.
+ * A DataFormatHandler for use with attribute-based rich text models.
  * <p>
  * The handler uses a simple text-based format:<p>
  * (*) denotes an optional element.
@@ -103,6 +97,9 @@ import javafx.util.converter.DoubleStringConverter;
  * </pre>
  */
 public class RichTextFormatHandler extends DataFormatHandler {
+    // TODO add version?  "application/x-com-oracle-editable-rich-text-model-v1"
+    public static final DataFormat DATA_FORMAT = new DataFormat("application/x-com-oracle-editable-rich-text");
+
     protected static final StringConverter<Boolean> BOOLEAN_CONVERTER = Converters.booleanConverter();
     protected static final StringConverter<Color> COLOR_CONVERTER = Converters.colorConverter();
     protected static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
@@ -111,6 +108,13 @@ public class RichTextFormatHandler extends DataFormatHandler {
     // String -> Handler
     // StyleAttribute -> Handler
     private final HashMap<Object,Handler> handlers = new HashMap<>(64);
+
+    /**
+     * Constructs a new instance.
+     */
+    public RichTextFormatHandler() {
+        this(DATA_FORMAT);
+    }
 
     /**
      * Constructs a new instance.

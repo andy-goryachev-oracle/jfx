@@ -28,12 +28,12 @@ package test.com.sun.javafx.incubator.scene.control.rich;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
 import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledOutput;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
 
 /**
  * Tests RichTextFormatHandler.

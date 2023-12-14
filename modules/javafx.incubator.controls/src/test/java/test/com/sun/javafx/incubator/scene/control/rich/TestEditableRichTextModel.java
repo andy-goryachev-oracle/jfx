@@ -29,11 +29,11 @@ import java.io.StringWriter;
 import java.util.function.Consumer;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
+import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
 import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledOutput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
 
 /**
  * Tests EditableRichTextModel handling of style attributes when editing.
