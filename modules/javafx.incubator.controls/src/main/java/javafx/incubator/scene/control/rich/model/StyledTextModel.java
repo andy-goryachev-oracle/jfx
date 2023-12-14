@@ -270,6 +270,16 @@ public abstract class StyledTextModel {
     }
 
     /**
+     * Removes the data format handler for the given {@code DataFormat} and {@code forExport}, if any.
+     * @param f the data format
+     * @param forExport whether to remove an export handler (true), or an import one (false)
+     */
+    protected void removeDataFormatHandler(DataFormat f, boolean forExport) {
+        FHKey k = new FHKey(f, forExport);
+        handlers.remove(k);
+    }
+
+    /**
      * Returns an array of supported data formats for either export or import operations,
      * in the order of priority - from high to low.
      * @param forExport determines whether the operation is export (true) or import (false)
