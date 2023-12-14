@@ -22,39 +22,10 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package test.javafx.incubator.scene.control.rich.model;
 
-import java.io.IOException;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.model.StyledInput;
-import javafx.incubator.scene.control.rich.model.StyledSegment;
+package test.com.sun.javafx.incubator.scene.control.rich;
 
-/**
- * Test Styled Input gets its data from string-style pairs.
- */
-public class TStyledInput implements StyledInput {
-    private final Object[] items;
-    private int index;
-    
-    public TStyledInput(Object[] items) {
-        this.items = items;
-    }
+// TODO to be replaced with some other test.
+public class DummyTest {
 
-    @Override
-    public StyledSegment nextSegment() {
-        if(index < items.length) {
-            String text = (String)items[index++];
-            if("\n".equals(text)) {
-                return StyledSegment.LINE_BREAK;
-            }
-
-            StyleAttrs a = (StyleAttrs)items[index++];
-            return StyledSegment.of(text, a);
-        }
-        return null;
-    }
-    
-    @Override
-    public void close() throws IOException {
-    }
 }

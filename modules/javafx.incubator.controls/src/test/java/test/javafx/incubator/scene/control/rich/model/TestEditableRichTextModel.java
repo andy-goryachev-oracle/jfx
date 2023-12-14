@@ -23,7 +23,7 @@
  * questions.
  */
 
-package test.com.sun.javafx.incubator.scene.control.rich;
+package test.javafx.incubator.scene.control.rich.model;
 
 import java.io.StringWriter;
 import java.util.function.Consumer;
@@ -49,7 +49,7 @@ public class TestEditableRichTextModel {
             (m) -> {
                 m.replace(null, TextPos.ZERO, TextPos.ZERO, "\n", false);
             },
-            "\n" 
+            "{!}\n{!}" 
         );
 
         // two newlines
@@ -58,34 +58,34 @@ public class TestEditableRichTextModel {
             (m) -> {
                 m.replace(null, TextPos.ZERO, TextPos.ZERO, "\n\n", false);
             },
-            "\n\n"
+            "{!}\n{!}\n{!}"
         );
 
         // in front of 1st segment
         t(
-            "{b}{i}0123",
+            "{b}{i}0123{!}",
             (m) -> {
                 m.replace(null, TextPos.ZERO, TextPos.ZERO, "\n", false);
             },
-            "\n{b}{i}0123"
+            "{!}\n{b}{i}0123{!}"
         );
 
         // in the middle of segment: both parts retain styles
         t(
-            "{b}{i}0123",
+            "{b}{i}0123{!}",
             (m) -> {
                 m.replace(null, new TextPos(0, 2), new TextPos(0, 2), "\n", false);
             },
-            "{b}{i}01\n{0}23"
+            "{b}{i}01{!}\n{0}23{!}"
         );
 
         // at the end of segment
         t(
-            "{b}{i}0123",
+            "{b}{i}0123{!}",
             (m) -> {
                 m.replace(null, new TextPos(0, 4), new TextPos(0, 4), "\n", false);
             },
-            "{b}{i}0123\n"
+            "{b}{i}0123{!}\n{!}"
         );
     }
 
