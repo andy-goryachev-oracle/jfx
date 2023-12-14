@@ -517,6 +517,12 @@ public class RichTextAreaDemoPane extends BorderPane {
             bulletMenu(m2, a, "●", "●");
             bulletMenu(m2, a, "○", "○");
             bulletMenu(m2, a, "♣", "♣");
+
+            items.add(m2 = new Menu("First Line Indent"));
+            firstLineIndentMenu(m2, a, 0);
+            firstLineIndentMenu(m2, a, 10);
+            firstLineIndentMenu(m2, a, 50);
+            firstLineIndentMenu(m2, a, 100);
         }
 
         items.add(new SeparatorMenuItem());
@@ -531,6 +537,18 @@ public class RichTextAreaDemoPane extends BorderPane {
         m.setSelected(Objects.equals(bullet, a.getBullet()));
         m.setOnAction((ev) -> {
             applyStyle(StyleAttrs.BULLET, bullet);
+        });
+    }
+
+    private void firstLineIndentMenu(Menu menu, StyleAttrs a, int value) {
+        CheckMenuItem m = new CheckMenuItem(String.valueOf(value));
+        menu.getItems().add(m);
+        Double v = a.getFirstLineIndent();
+        if (v != null) {
+            m.setSelected(Objects.equals(value, v.intValue()));
+        }
+        m.setOnAction((ev) -> {
+            applyStyle(StyleAttrs.FIRST_LINE_INDENT, (double)value);
         });
     }
 
