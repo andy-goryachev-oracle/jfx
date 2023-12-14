@@ -826,7 +826,7 @@ public class VFlow extends Pane implements StyleResolver {
         if (attrs != null) {
             for (StyleAttribute a : attrs.getAttributes()) {
                 Object v = attrs.get(a);
-                if (a != null) {
+                if (v != null) {
                     control.processAttribute(forParagraph, context, a, v);
                 }
             }
