@@ -91,7 +91,7 @@ public class TestEditableRichTextModel {
 
     private void t(String initial, Consumer<EditableRichTextModel> op, String expected) throws Exception {
         EditableRichTextModel m = new EditableRichTextModel();
-        RichTextFormatHandler h = new RichTextFormatHandler();
+        RichTextFormatHandler h = new RichTextFormatHandler(null);
 
         // set initial text
         if (initial != null) {

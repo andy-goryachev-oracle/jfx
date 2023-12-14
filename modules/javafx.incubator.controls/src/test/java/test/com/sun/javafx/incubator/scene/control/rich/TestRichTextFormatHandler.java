@@ -49,7 +49,7 @@ public class TestRichTextFormatHandler {
             "%60%25",
         };
 
-        RichTextFormatHandler handler = new RichTextFormatHandler();
+        RichTextFormatHandler handler = new RichTextFormatHandler(null);
 
         for (String text : ss) {
             testRoundTrip(handler, text);

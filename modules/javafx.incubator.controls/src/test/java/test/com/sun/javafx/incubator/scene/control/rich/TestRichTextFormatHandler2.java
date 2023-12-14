@@ -38,7 +38,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler2;
+import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandler;
 
 /**
  * Tests RichTextFormatHandler2.
@@ -82,7 +82,7 @@ public class TestRichTextFormatHandler2 {
             )
         };
 
-        RichTextFormatHandler2 handler = new RichTextFormatHandler2(null);
+        RichTextFormatHandler handler = new RichTextFormatHandler(null);
 
         for (Object x : ss) {
             testRoundTrip(handler, (List<StyledSegment>)x);
@@ -99,7 +99,7 @@ public class TestRichTextFormatHandler2 {
         };
 
         StringWriter wr = new StringWriter();
-        StyledOutput out = new RichTextFormatHandler2(null).createStyledOutput(null, wr);
+        StyledOutput out = new RichTextFormatHandler(null).createStyledOutput(null, wr);
         for (StyledSegment s : input) {
             out.append(s);
         }
@@ -112,7 +112,7 @@ public class TestRichTextFormatHandler2 {
     @Test
     public void testEscapes() throws IOException {
         StringWriter wr = new StringWriter();
-        StyledOutput out = new RichTextFormatHandler2(null).createStyledOutput(null, wr);
+        StyledOutput out = new RichTextFormatHandler(null).createStyledOutput(null, wr);
         out.append(StyledSegment.of("{|%}"));
         out.flush();
         String s = wr.toString();
@@ -168,7 +168,7 @@ public class TestRichTextFormatHandler2 {
         return StyledSegment.LINE_BREAK;
     }
 
-    private void testRoundTrip(RichTextFormatHandler2 handler, List<StyledSegment> input) throws IOException {
+    private void testRoundTrip(RichTextFormatHandler handler, List<StyledSegment> input) throws IOException {
         // export to string
         int ct = 0;
         StringWriter wr = new StringWriter();
@@ -223,7 +223,7 @@ public class TestRichTextFormatHandler2 {
         Assertions.assertEquals(exported, result);
     }
 
-    private void testRoundTrip_DELETE(RichTextFormatHandler2 handler, String text) throws IOException {
+    private void testRoundTrip_DELETE(RichTextFormatHandler handler, String text) throws IOException {
         ArrayList<StyledSegment> segments = new ArrayList<>();
 
         StyledInput in = handler.createStyledInput(text);

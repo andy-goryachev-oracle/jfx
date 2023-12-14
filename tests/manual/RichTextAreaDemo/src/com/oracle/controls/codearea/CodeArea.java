@@ -39,7 +39,9 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.SizeConverter;
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
+import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
@@ -48,6 +50,7 @@ import javafx.scene.text.Font;
 /**
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.
  */
+// TODO lineSpacing property
 public class CodeArea extends RichTextArea {
     static final StyleAttribute<Font> FONT = new StyleAttribute<>("CodeArea.FONT", Font.class, false);
     static final StyleAttribute<Integer> TAB_SIZE = new StyleAttribute<>("CodeArea.TAB_SIZE", Integer.class, true);
@@ -330,5 +333,31 @@ public class CodeArea extends RichTextArea {
                 cx.addStyle("-fx-tab-size:" + v + ";");
             }
         });
+    }
+
+    /**
+     * Returns plain text.
+     * @return plain text
+     */
+    public String getText() {
+        // TODO or use save(DataFormat, Writer) ?
+        StyledTextModel m = getModel();
+        StringBuilder sb = new StringBuilder(4096);
+        int sz = m.size();
+        for(int i=0; i<sz; i++) {
+            String s = m.getPlainText(i);
+            sb.append(s);
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Replaces text in this CodeArea.  The caret gets reset to the start of the document.
+     * @param text the text string
+     */
+    public void setText(String text) {
+        TextPos end = getEndTextPos();
+        getModel().replace(null, TextPos.ZERO, end, text, true);
     }
 }
