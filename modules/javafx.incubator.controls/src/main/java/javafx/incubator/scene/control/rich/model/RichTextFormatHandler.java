@@ -61,14 +61,14 @@ import com.sun.javafx.incubator.scene.control.rich.Converters;
  * 
  * PARAGRAPH_ATTRIBUTE: {
  *     "{!"
- *     <name>
+ *     (name)
  *     ATTRIBUTE_VALUE[]*
  *     "}"
  * }
  *  
  * ATTRIBUTE: {
  *     "{"
- *     <name>
+ *     (name)
  *     ATTRIBUTE_VALUE[]*
  *     "}"
  * }
