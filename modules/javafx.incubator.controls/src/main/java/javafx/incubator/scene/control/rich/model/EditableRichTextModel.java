@@ -144,8 +144,8 @@ public class EditableRichTextModel extends StyledTextModel {
     }
 
     @Override
-    protected void applyStyle(int ix, StyleAttrs attrs) {
-        paragraphs.get(ix).applyParagraphStyle(attrs);
+    protected void setParagraphStyle(int ix, StyleAttrs attrs) {
+        paragraphs.get(ix).setParagraphAttributes(attrs);
     }
 
     @Override
@@ -693,12 +693,13 @@ public class EditableRichTextModel extends StyledTextModel {
             return par;
         }
 
-        public void applyParagraphStyle(StyleAttrs attrs) {
-            if (paragraphAttrs == null) {
-                paragraphAttrs = attrs;
-            } else {
-                paragraphAttrs = paragraphAttrs.combine(attrs);
-            }
-        }
+        // FIX
+//        public void applyParagraphStyle(StyleAttrs attrs) {
+//            if (paragraphAttrs == null) {
+//                paragraphAttrs = attrs;
+//            } else {
+//                paragraphAttrs = paragraphAttrs.combine(attrs);
+//            }
+//        }
     }
 }

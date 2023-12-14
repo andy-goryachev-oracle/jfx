@@ -157,7 +157,7 @@ public class NotebookModelStacked extends StyledTextModel {
     }
 
     @Override
-    protected void applyStyle(int ix, StyleAttrs paragraphAttrs) {
+    protected void setParagraphStyle(int ix, StyleAttrs paragraphAttrs) {
     }
 
     @Override

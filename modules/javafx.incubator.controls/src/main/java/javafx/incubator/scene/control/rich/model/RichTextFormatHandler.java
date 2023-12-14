@@ -338,6 +338,9 @@ public class RichTextFormatHandler extends DataFormatHandler {
                     wr.write(String.valueOf(num));
                     wr.write('}');
                 }
+            } else if (forParagraph) {
+                // this special token clears the paragraph attributes
+                wr.write("{!}");
             }
         }
 
@@ -428,6 +431,9 @@ public class RichTextFormatHandler extends DataFormatHandler {
                 case '{':
                     StyleAttrs a = parseAttributes(true);
                     if (a != null) {
+                        if (a.isEmpty()) {
+                            a = null;
+                        }
                         return StyledSegment.ofParagraphAttributes(a);
                     } else {
                         a = parseAttributes(false);
@@ -473,8 +479,14 @@ public class RichTextFormatHandler extends DataFormatHandler {
                     throw err("missing }");
                 }
                 String s = text.substring(index, ix);
-                if(s.length() == 0) {
-                    throw err("empty attribute name");
+                if (s.length() == 0) {
+                    if (forParagraph) {
+                        index = ix + 1;
+                        // special token clears paragraph attributes
+                        return StyleAttrs.EMPTY;
+                    } else {
+                        throw err("empty attribute name");
+                    }
                 }
                 int n = parseStyleNumber(s);
                 if (n < 0) {

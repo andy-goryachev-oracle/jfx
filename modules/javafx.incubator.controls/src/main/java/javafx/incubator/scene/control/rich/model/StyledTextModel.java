@@ -152,13 +152,12 @@ public abstract class StyledTextModel {
     protected abstract void insertParagraph(int index, Supplier<Region> generator);
     
     /**
-     * Applies the paragraph styles to the specified paragraph.
-     * The new attributes override any existing attributes.
+     * Replaces the paragraph styles in the specified paragraph.
      *
      * @param ix the paragraph index
      * @param paragraphAttrs the paragraph attributes
      */
-    protected abstract void applyStyle(int ix, StyleAttrs paragraphAttrs);
+    protected abstract void setParagraphStyle(int ix, StyleAttrs paragraphAttrs);
 
     /**
      * Applies style to the specified text range within a single paragraph.
@@ -424,9 +423,7 @@ public abstract class StyledTextModel {
         if (withParAttrs) {
             // sent last after the paragraph has been created
             StyleAttrs pa = par.getParagraphAttributes();
-            if ((pa != null) && !pa.isEmpty()) {
-                out.append(StyledSegment.ofParagraphAttributes(pa));
-            }
+            out.append(StyledSegment.ofParagraphAttributes(pa));
         }
     }
 
@@ -564,9 +561,7 @@ public abstract class StyledTextModel {
                     break;
                 case PARAGRAPH_ATTRIBUTES:
                     StyleAttrs pa = seg.getStyleAttrs(resolver);
-                    if (pa != null) {
-                        applyStyle(index, pa);
-                    }
+                    setParagraphStyle(index, pa);
                     break;
                 case REGION:
                     offset = 0;
@@ -647,9 +642,9 @@ public abstract class StyledTextModel {
             UndoableChange ch = UndoableChange.create(this, evStart, evEnd);
 
             if (pa != null) {
-                // apply paragraph attributes
+                // set paragraph attributes
                 for (int ix = start.index(); ix <= end.index(); ix++) {
-                    applyStyle(ix, pa);
+                    setParagraphStyle(ix, pa);
                 }
             }
 

@@ -63,7 +63,7 @@ public abstract class StyledTextModelReadOnlyBase extends StyledTextModel {
     }
 
     @Override
-    protected final void applyStyle(int ix, StyleAttrs a) {
+    protected final void setParagraphStyle(int ix, StyleAttrs a) {
         throw new UnsupportedOperationException();
     }
 
