@@ -63,35 +63,35 @@ public class TestEditableRichTextModel {
 
         // in front of 1st segment
         t(
-            "`B`I``0123",
+            "{b}{i}0123",
             (m) -> {
                 m.replace(null, TextPos.ZERO, TextPos.ZERO, "\n", false);
             },
-            "`B`I``\n`0``0123"
+            "\n{b}{i}0123"
         );
 
         // in the middle of segment: both parts retain styles
         t(
-            "`B`I``0123",
+            "{b}{i}0123",
             (m) -> {
                 m.replace(null, new TextPos(0, 2), new TextPos(0, 2), "\n", false);
             },
-            "`B`I``01\n`0``23"
+            "{b}{i}01\n{0}23"
         );
 
         // at the end of segment
         t(
-            "`B`I``0123",
+            "{b}{i}0123",
             (m) -> {
                 m.replace(null, new TextPos(0, 4), new TextPos(0, 4), "\n", false);
             },
-            "`B`I``0123\n`0``"
+            "{b}{i}0123\n"
         );
     }
 
     private void t(String initial, Consumer<EditableRichTextModel> op, String expected) throws Exception {
         EditableRichTextModel m = new EditableRichTextModel();
-        RichTextFormatHandler h = new RichTextFormatHandler(null);
+        RichTextFormatHandler h = new RichTextFormatHandler();
 
         // set initial text
         if (initial != null) {

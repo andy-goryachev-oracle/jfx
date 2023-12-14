@@ -38,7 +38,7 @@ public abstract class DataFormatHandler {
     /**
      * Creates a StyledInput for the given input string.
      *
-     * @param src the input string
+     * @param input the input string
      * @return the StyledInput
      * @throws IOException when operation is not supported or an I/O error occurs
      */
