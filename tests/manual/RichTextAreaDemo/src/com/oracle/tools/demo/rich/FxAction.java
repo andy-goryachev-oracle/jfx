@@ -24,7 +24,7 @@
  */
 // This code borrows heavily from the following project, with permission from the author:
 // https://github.com/andy-goryachev/AppFramework
-package com.oracle.tools.demo.editor;
+package com.oracle.tools.demo.rich;
 
 import java.util.function.Consumer;
 import javafx.beans.property.BooleanProperty;

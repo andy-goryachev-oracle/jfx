@@ -41,18 +41,34 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import com.oracle.tools.demo.rich.FX;
+import com.oracle.tools.demo.rich.FxAction;
 
 /**
  * Main Panel contains CodeArea, split panes for quick size adjustment, and an option pane.
  */
-public class RichEditorDemoPane extends BorderPane { 
+public class RichEditorDemoPane extends BorderPane {
     public final RichTextArea control;
+    public final FxAction undoAction;
+    public final FxAction redoAction;
+    public final FxAction cutAction;
+    public final FxAction copyAction;
+    public final FxAction pasteAction;
+    public final FxAction pasteUnformattedAction;
 
     public RichEditorDemoPane() {
         FX.name(this, "RichEditorDemoPane");
 
         control = new RichTextArea();
         control.setContentPadding(new Insets(10));
+        
+        // the actions should be managed by the control (may be coupled with the corresponding function tag)
+        // this way control can enable/disable them properly
+        undoAction = new FxAction(control::undo);
+        redoAction = new FxAction(control::redo);
+        cutAction = new FxAction(control::cut);
+        copyAction = new FxAction(control::copy);
+        pasteAction = new FxAction(control::paste);
+        pasteUnformattedAction = new FxAction(control::pastePlainText);
 
         setTop(createToolBar());
         setCenter(control);
@@ -102,7 +118,8 @@ public class RichEditorDemoPane extends BorderPane {
         m.setOnAction((ev) -> control.paste());
         m.setDisable(!paste);
 
-        items.add(m = new MenuItem("Paste and Match Style"));
+        // FIX use actions
+        items.add(m = new MenuItem("Paste and Retain Style"));
         m.setOnAction((ev) -> control.pastePlainText());
         m.setDisable(!paste);
 

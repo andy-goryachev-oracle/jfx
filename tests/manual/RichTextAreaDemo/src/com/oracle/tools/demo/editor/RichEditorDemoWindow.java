@@ -40,33 +40,39 @@ import com.oracle.tools.demo.rich.RichTextAreaWindow;
  * Rich Editor Demo window
  */
 public class RichEditorDemoWindow extends Stage {
-    public final RichEditorDemoPane demoPane;
+    public final RichEditorDemoPane pane;
     public final Label status;
     
     public RichEditorDemoWindow() {
-        demoPane = new RichEditorDemoPane();
+        pane = new RichEditorDemoPane();
         
-        MenuBar mb = new MenuBar();
+        MenuBar b = new MenuBar();
         // file
-        FX.menu(mb, "File");
+        FX.menu(b, "File");
         //FX.separator(mb);
-        FX.item(mb, "Quit", () -> Platform.exit());
+        FX.item(b, "Quit", () -> Platform.exit());
         // edit
-        FX.menu(mb, "Edit");
-        // TODO undo/redo
+        FX.menu(b, "Edit");
+        FX.item(b, "Undo", pane.undoAction);
+        FX.item(b, "Redo", pane.redoAction);
+        FX.separator(b);
+        FX.item(b, "Cut", pane.cutAction);
+        FX.item(b, "Copy", pane.copyAction);
+        FX.item(b, "Paste", pane.pasteAction);
+        FX.item(b, "Paste and Retain Style", pane.pasteUnformattedAction);
         // TODO bold/etc or Format?
         // view
-        FX.menu(mb, "View");
+        FX.menu(b, "View");
         // line spacing
         // help
-        FX.menu(mb, "Help");
+        FX.menu(b, "Help");
         
         status = new Label();
         status.setPadding(new Insets(2, 10, 2, 10));
         
         BorderPane bp = new BorderPane();
-        bp.setTop(mb);
-        bp.setCenter(demoPane);
+        bp.setTop(b);
+        bp.setCenter(pane);
         bp.setBottom(status);
         
         Scene scene = new Scene(bp);
@@ -79,11 +85,11 @@ public class RichEditorDemoWindow extends Stage {
         setWidth(1200);
         setHeight(600);
 
-        demoPane.control.caretPositionProperty().addListener((x) -> updateStatus());
+        pane.control.caretPositionProperty().addListener((x) -> updateStatus());
     }
 
     protected void updateStatus() {
-        RichTextArea t = demoPane.control;
+        RichTextArea t = pane.control;
         TextPos p = t.getCaretPosition();
 
         StringBuilder sb = new StringBuilder();

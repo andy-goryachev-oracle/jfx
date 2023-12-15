@@ -87,6 +87,14 @@ public class FX {
         return mi;
     }
 
+    public static MenuItem item(MenuBar b, String text, FxAction a) {
+        MenuItem mi = new MenuItem(text);
+        applyMnemonic(mi);
+        lastMenu(b).getItems().add(mi);
+        a.attach(mi);
+        return mi;
+    }
+
     private static void applyMnemonic(MenuItem m) {
         String text = m.getText();
         if (text != null) {
