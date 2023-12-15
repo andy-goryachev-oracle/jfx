@@ -65,6 +65,7 @@ import javafx.scene.control.Control;
 import javafx.scene.input.DataFormat;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
+import com.sun.javafx.incubator.scene.control.rich.CssStyles;
 import com.sun.javafx.incubator.scene.control.rich.Params;
 import com.sun.javafx.incubator.scene.control.rich.RichTextAreaSkinHelper;
 import com.sun.javafx.incubator.scene.control.rich.RichUtils;
@@ -1327,7 +1328,7 @@ public class RichTextArea extends Control {
             cx.addStyle(v ? "-fx-font-weight:bold;" : "-fx-font-weight:normal;");
         });
 
-        setSegHandler(StyleAttrs.CSS, (c, cx, v) -> {
+        setSegHandler(CssStyles.CSS, (c, cx, v) -> {
             String st = v.style();
             if (st != null) {
                 cx.addStyle(st);

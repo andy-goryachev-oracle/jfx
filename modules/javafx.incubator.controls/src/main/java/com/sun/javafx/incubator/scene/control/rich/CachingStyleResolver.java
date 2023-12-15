@@ -26,10 +26,9 @@
 package com.sun.javafx.incubator.scene.control.rich;
 
 import java.util.HashMap;
-import javafx.scene.Node;
 import javafx.incubator.scene.control.rich.StyleResolver;
-import javafx.incubator.scene.control.rich.model.CssStyles;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.scene.Node;
 import javafx.scene.image.WritableImage;
 
 /**
@@ -45,7 +44,7 @@ public class CachingStyleResolver implements StyleResolver {
 
     @Override
     public StyleAttrs resolveStyles(StyleAttrs attrs) {
-        CssStyles css = attrs.getCssStyles();
+        CssStyles css = attrs.get(CssStyles.CSS);
         if (css != null) {
             // no conversion is needed
             return attrs;

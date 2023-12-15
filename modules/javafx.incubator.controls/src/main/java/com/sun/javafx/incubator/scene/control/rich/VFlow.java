@@ -50,7 +50,6 @@ import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.SideDecorator;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.rich.model.CssStyles;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
@@ -1337,7 +1336,7 @@ public class VFlow extends Pane implements StyleResolver {
         if (attrs == null) {
             return attrs;
         }
-        CssStyles css = attrs.getCssStyles();
+        CssStyles css = attrs.get(CssStyles.CSS);
         if (css == null) {
             // no conversion is needed
             return attrs;

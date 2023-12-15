@@ -36,15 +36,13 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import com.sun.javafx.incubator.scene.control.rich.CssStyles;
 import com.sun.javafx.incubator.scene.control.rich.RichUtils;
 
 /**
  * An immutable object containing style attributes.
  */
 public class StyleAttrs {
-
-    /** an instance with no attributes set */
-    public static final StyleAttrs EMPTY = new StyleAttrs(Collections.emptyMap());
 
     /** Paragraph background attribute */
     public static final StyleAttribute<Color> BACKGROUND = new StyleAttribute<>("BACKGROUND", Color.class, true);
@@ -54,9 +52,6 @@ public class StyleAttrs {
 
     /** Bold typeface attribute */
     public static final StyleAttribute<Boolean> BOLD = new StyleAttribute<>("BOLD", Boolean.class, false);
-
-    /** This special attribute contains CSS direct style and style names for text segments only */
-    public static final StyleAttribute<CssStyles> CSS = new StyleAttribute<>("CSS", CssStyles.class, false);
 
     /** First line indent paragraph attribute, in pixels. */
     public static final StyleAttribute<Double> FIRST_LINE_INDENT = new StyleAttribute<>("FIRST_LINE_INDENT", Double.class, true);
@@ -99,7 +94,10 @@ public class StyleAttrs {
 
     /** Underline style attribute */
     public static final StyleAttribute<Boolean> UNDERLINE = new StyleAttribute<>("UNDERLINE", Boolean.class, false);
-    
+
+    /** an instance with no attributes set */
+    public static final StyleAttrs EMPTY = new StyleAttrs(Collections.emptyMap());
+
     private final HashMap<StyleAttribute<?>,Object> attributes;
     private transient String style;
     
@@ -130,7 +128,7 @@ public class StyleAttrs {
         } else if (names == null) {
             names = new String[0];
         }
-        return new Builder().set(CSS, new CssStyles(style, names)).build();
+        return new Builder().set(CssStyles.CSS, new CssStyles(style, names)).build();
     }
 
     @Override
@@ -259,14 +257,6 @@ public class StyleAttrs {
      */
     public final String getBullet() {
         return get(BULLET);
-    }
-
-    /**
-     * This convenience method returns the value of {@link #CSS} attribute, or null.
-     * @return the css style attribute value
-     */
-    public final CssStyles getCssStyles() {
-        return get(CSS);
     }
 
     /**
