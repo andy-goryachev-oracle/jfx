@@ -22,23 +22,26 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+package com.oracle.tools.demo.editor;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import com.oracle.tools.demo.rich.settings.FxSettings;
 
 /**
- * RichTextArea control demo.
- *
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
- *
- * @moduleGraph
+ * Rich Text Editor Demo Application.
  */
+public class RichEditorDemoApp extends Application {
+    public static void main(String[] args) {
+        Application.launch(RichEditorDemoApp.class, args);
+    }
+    
+    @Override
+    public void init() {
+        FxSettings.useDirectory(".RichEditorDemoApp");
+    }
 
-module RichTextAreaDemo {
-    exports com.oracle.tools.demo.codearea;
-    exports com.oracle.tools.demo.editor;
-    exports com.oracle.tools.demo.rich;
-
-    requires javafx.base;
-    requires javafx.controls;
-    requires javafx.graphics;
-    requires javafx.incubator.controls;
+    @Override
+    public void start(Stage stage) throws Exception {
+        new RichEditorDemoWindow().show();
+    }
 }
