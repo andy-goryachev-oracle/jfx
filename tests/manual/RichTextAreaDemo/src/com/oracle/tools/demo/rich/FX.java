@@ -39,7 +39,9 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
@@ -95,6 +97,14 @@ public class FX {
         return mi;
     }
 
+    public static MenuItem item(ContextMenu cm, String text, FxAction a) {
+        MenuItem mi = new MenuItem(text);
+        applyMnemonic(mi);
+        cm.getItems().add(mi);
+        a.attach(mi);
+        return mi;
+    }
+
     private static void applyMnemonic(MenuItem m) {
         String text = m.getText();
         if (text != null) {
@@ -112,6 +122,12 @@ public class FX {
     public static SeparatorMenuItem separator(MenuBar b) {
         SeparatorMenuItem s = new SeparatorMenuItem();
         lastMenu(b).getItems().add(s);
+        return s;
+    }
+
+    public static SeparatorMenuItem separator(ContextMenu m) {
+        SeparatorMenuItem s = new SeparatorMenuItem();
+        m.getItems().add(s);
         return s;
     }
 
@@ -143,6 +159,13 @@ public class FX {
         });
         c.getItems().add(m);
         return m;
+    }
+    
+    public static ToggleButton button(ToolBar t, String text, FxAction a) {
+        ToggleButton b = new ToggleButton(text);
+        a.attach(b);
+        t.getItems().add(b);
+        return b;
     }
 
     public static void add(GridPane p, Node n, int col, int row) {

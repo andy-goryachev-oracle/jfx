@@ -45,6 +45,7 @@ public class RichEditorDemoWindow extends Stage {
     
     public RichEditorDemoWindow() {
         pane = new RichEditorDemoPane();
+        Actions actions = pane.actions;
         
         MenuBar b = new MenuBar();
         // file
@@ -53,13 +54,13 @@ public class RichEditorDemoWindow extends Stage {
         FX.item(b, "Quit", () -> Platform.exit());
         // edit
         FX.menu(b, "Edit");
-        FX.item(b, "Undo", pane.undoAction);
-        FX.item(b, "Redo", pane.redoAction);
+        FX.item(b, "Undo", actions.undo);
+        FX.item(b, "Redo", actions.redo);
         FX.separator(b);
-        FX.item(b, "Cut", pane.cutAction);
-        FX.item(b, "Copy", pane.copyAction);
-        FX.item(b, "Paste", pane.pasteAction);
-        FX.item(b, "Paste and Retain Style", pane.pasteUnformattedAction);
+        FX.item(b, "Cut", actions.cut);
+        FX.item(b, "Copy", actions.copy);
+        FX.item(b, "Paste", actions.paste);
+        FX.item(b, "Paste and Retain Style", actions.pasteUnformatted);
         // TODO bold/etc or Format?
         // view
         FX.menu(b, "View");
@@ -77,11 +78,12 @@ public class RichEditorDemoWindow extends Stage {
         
         Scene scene = new Scene(bp);
         scene.getStylesheets().addAll(
+            // will become a part of modena.css
             RichTextAreaWindow.class.getResource("RichTextArea-Modena.css").toExternalForm()
         );
 
         setScene(scene);
-        setTitle("Rich Text Editor Demo  JFX:" + System.getProperty("javafx.runtime.version") + "  JDK:" + System.getProperty("java.version"));
+        setTitle("Rich Text Editor Demo");
         setWidth(1200);
         setHeight(600);
 
