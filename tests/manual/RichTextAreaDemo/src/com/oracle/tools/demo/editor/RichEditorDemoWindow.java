@@ -45,34 +45,12 @@ public class RichEditorDemoWindow extends Stage {
     
     public RichEditorDemoWindow() {
         pane = new RichEditorDemoPane();
-        Actions actions = pane.actions;
-        
-        MenuBar b = new MenuBar();
-        // file
-        FX.menu(b, "File");
-        //FX.separator(mb);
-        FX.item(b, "Quit", () -> Platform.exit());
-        // edit
-        FX.menu(b, "Edit");
-        FX.item(b, "Undo", actions.undo);
-        FX.item(b, "Redo", actions.redo);
-        FX.separator(b);
-        FX.item(b, "Cut", actions.cut);
-        FX.item(b, "Copy", actions.copy);
-        FX.item(b, "Paste", actions.paste);
-        FX.item(b, "Paste and Retain Style", actions.pasteUnformatted);
-        // TODO bold/etc or Format?
-        // view
-        FX.menu(b, "View");
-        // line spacing
-        // help
-        FX.menu(b, "Help");
         
         status = new Label();
         status.setPadding(new Insets(2, 10, 2, 10));
         
         BorderPane bp = new BorderPane();
-        bp.setTop(b);
+        bp.setTop(createMenu());
         bp.setCenter(pane);
         bp.setBottom(status);
         
@@ -87,10 +65,42 @@ public class RichEditorDemoWindow extends Stage {
         setWidth(1200);
         setHeight(600);
 
-        pane.control.caretPositionProperty().addListener((x) -> updateStatus());
+        pane.control.caretPositionProperty().addListener((x) -> {
+            updateStatus();
+        });
     }
 
-    protected void updateStatus() {
+    private MenuBar createMenu() {
+        Actions actions = pane.actions;
+        MenuBar m = new MenuBar();
+        // file
+        FX.menu(m, "File");
+        //FX.separator(mb);
+        FX.item(m, "Quit", () -> Platform.exit());
+        // edit
+        FX.menu(m, "Edit");
+        FX.item(m, "Undo", actions.undo);
+        FX.item(m, "Redo", actions.redo);
+        FX.separator(m);
+        FX.item(m, "Cut", actions.cut);
+        FX.item(m, "Copy", actions.copy);
+        FX.item(m, "Paste", actions.paste);
+        FX.item(m, "Paste and Retain Style", actions.pasteUnformatted);
+        // format
+        FX.menu(m, "Format");
+        FX.item(m, "Bold", actions.bold);
+        FX.item(m, "Italic", actions.italic);
+        FX.item(m, "Strike Through", actions.strikeThrough);
+        FX.item(m, "Underline", actions.underline);
+        // view
+        FX.menu(m, "View");
+        // line spacing
+        // help
+        FX.menu(m, "Help");
+        return m;
+    }
+
+    private void updateStatus() {
         RichTextArea t = pane.control;
         TextPos p = t.getCaretPosition();
 

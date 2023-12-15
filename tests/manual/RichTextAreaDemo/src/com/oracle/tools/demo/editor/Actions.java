@@ -101,19 +101,27 @@ public class Actions {
         cut.setEnabled(sel);
         copy.setEnabled(sel);
 
-        bold.setSelected(a.getBoolean(StyleAttrs.BOLD));
-        italic.setSelected(a.getBoolean(StyleAttrs.ITALIC));
-        underline.setSelected(a.getBoolean(StyleAttrs.UNDERLINE));
-        strikeThrough.setSelected(a.getBoolean(StyleAttrs.STRIKE_THROUGH));
+        bold.setSelected(a.getBoolean(StyleAttrs.BOLD), false);
+        italic.setSelected(a.getBoolean(StyleAttrs.ITALIC), false);
+        underline.setSelected(a.getBoolean(StyleAttrs.UNDERLINE), false);
+        strikeThrough.setSelected(a.getBoolean(StyleAttrs.STRIKE_THROUGH), false);
     }
 
     private void toggle(StyleAttribute<Boolean> attr) {
+        TextPos start = control.getAnchorPosition();
+        TextPos end = control.getCaretPosition();
+        if(start == null) {
+            return;
+        } else if(start.equals(end)) {
+            // apply to the whole paragraph
+            int ix = start.index();
+            start = new TextPos(ix, 0);
+            end = control.getEndOfParagraph(ix);
+        }
+
         StyleAttrs a = control.getActiveStyleAttrs();
         boolean on = !a.getBoolean(attr);
         a = StyleAttrs.builder().set(attr, on).build();
-        TextPos start = control.getAnchorPosition();
-        TextPos end = control.getCaretPosition();
-        // TODO if start==end: apply to paragraph
         control.applyStyle(start, end, a);
     }
 }

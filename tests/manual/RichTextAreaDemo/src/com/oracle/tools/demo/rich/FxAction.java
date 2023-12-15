@@ -121,10 +121,12 @@ public class FxAction implements EventHandler<ActionEvent> {
         return selectedProperty.get();
     }
 
-    public final void setSelected(boolean on) {
+    public final void setSelected(boolean on, boolean fire) {
         if (selectedProperty.get() != on) {
             selectedProperty.set(on);
-            fire();
+            if (fire) {
+                fire();
+            }
         }
     }
 
