@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,23 +22,40 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+package com.oracle.demo.rich.rta;
+
+import javafx.geometry.Insets;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 /**
- * RichTextArea control demo.
  *
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
- *
- * @moduleGraph
  */
+public class ROptionPane extends GridPane {
+    private int row;
+    private int column;
+    private static final Insets MARGIN = new Insets(2, 4, 2, 4);
+    
+    public ROptionPane() {
+        // no such thing
+        // https://stackoverflow.com/questions/20454021/how-to-set-padding-between-columns-of-a-javafx-gridpane
+        // setVGap(2);
+    }
+    
+    public void label(String text) {
+        add(new Label(text));
+    }
+    
+    public void option(Node n) {
+        add(n);
+    }
 
-module RichTextAreaDemo {
-    exports com.oracle.demo.rich.codearea;
-    exports com.oracle.demo.rich.editor;
-    exports com.oracle.demo.rich.rta;
-
-    requires javafx.base;
-    requires javafx.controls;
-    requires javafx.graphics;
-    requires javafx.incubator.controls;
+    public void add(Node n) {
+        add(n, column, row++);
+        setMargin(n, MARGIN);
+        setFillHeight(n, Boolean.TRUE);
+        setFillWidth(n, Boolean.TRUE);
+    }
 }

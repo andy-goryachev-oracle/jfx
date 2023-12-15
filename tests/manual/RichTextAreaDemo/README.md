@@ -6,19 +6,19 @@ for the purposes of demonstration of capabilities as well as testing.
 
 ## Rich Editor Application
 
-[RichEditorDemoApp.java](src/com/oracle/tools/demo/editor/RichEditorDemoApp.java)
+[RichEditorDemoApp.java](src/com/oracle/tools/demo/rich/editor/RichEditorDemoApp.java)
 is an example of a simple standalone rich text editor that uses the new RichTextArea control.
 
 
 
 ## RichTextArea Tester
 
-[RichTextAreaDemoApp.java](src/com/oracle/tools/demo/rich/RichTextAreaDemoApp.java)
+[RichTextAreaDemoApp.java](src/com/oracle/tools/demo/rich/rta/RichTextAreaDemoApp.java)
 provides a demo application primarily for testing of the RichTextArea behavior.
 
 
 
 ## CodeArea Tester
 
-[CodeAreaDemoApp.java](src/com/oracle/tools/demo/codearea/CodeAreaDemoApp.java)
+[CodeAreaDemoApp.java](src/com/oracle/tools/demo/rich/codearea/CodeAreaDemoApp.java)
 provides a demo application primarily for testing of the CodeArea behavior.

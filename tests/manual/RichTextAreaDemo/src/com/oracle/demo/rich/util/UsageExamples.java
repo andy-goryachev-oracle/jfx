@@ -23,22 +23,23 @@
  * questions.
  */
 
+package com.oracle.demo.rich.util;
+
+import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
+
 /**
- * RichTextArea control demo.
- *
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
- *
- * @moduleGraph
+ * The usage examples used in the documentation.
  */
+class UsageExamples {
+    void appendStyledText() {
+        // create styles
+        StyleAttrs heading = StyleAttrs.builder().setBold(true).setFontSize(24).build();
+        StyleAttrs plain = StyleAttrs.builder().setFontFamily("Monospaced").build();
 
-module RichTextAreaDemo {
-    exports com.oracle.demo.rich.codearea;
-    exports com.oracle.demo.rich.editor;
-    exports com.oracle.demo.rich.rta;
-
-    requires javafx.base;
-    requires javafx.controls;
-    requires javafx.graphics;
-    requires javafx.incubator.controls;
+        RichTextArea rta = new RichTextArea();
+        // build the content
+        rta.appendText("Heading\n", heading);
+        rta.appendText("Plain monospaced text.\n", plain);
+    }
 }

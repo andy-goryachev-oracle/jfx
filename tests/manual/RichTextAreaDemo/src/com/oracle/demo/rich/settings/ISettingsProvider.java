@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,23 +22,45 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+// This code borrows heavily from the following project, with permission from the author:
+// https://github.com/andy-goryachev/FxDock
+package com.oracle.demo.rich.settings;
+
+import java.io.IOException;
 
 /**
- * RichTextArea control demo.
- *
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
- *
- * @moduleGraph
+ * Defines the interface for storing and loading of settings.
  */
+public interface ISettingsProvider {
+    /**
+     * Loads settings from persistent storage, if needed.
+     * @throws IOException 
+     */
+    public void load() throws IOException;
+    
+    /**
+     * Saves the settings to persistent media, if needed.
+     * @throws IOException 
+     */
+    public void save() throws IOException;
+    
+    /**
+     * Sets a key-value pair.
+     */
+    public void set(String key, String value);
+    
+    /**
+     * Sets a key-value pair where value is a SStream.
+     */
+    public void set(String key, SStream s);
 
-module RichTextAreaDemo {
-    exports com.oracle.demo.rich.codearea;
-    exports com.oracle.demo.rich.editor;
-    exports com.oracle.demo.rich.rta;
-
-    requires javafx.base;
-    requires javafx.controls;
-    requires javafx.graphics;
-    requires javafx.incubator.controls;
+    /**
+     * Retrieves a String value for the specific key
+     */
+    public String get(String key);
+    
+    /**
+     * Retrieves a SStream value for the specific key
+     */
+    public SStream getSStream(String key);
 }

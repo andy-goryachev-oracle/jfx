@@ -22,23 +22,38 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+package com.oracle.demo.rich.rta;
 
-/**
- * RichTextArea control demo.
- *
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
- *
- * @moduleGraph
- */
+import java.util.Random;
 
-module RichTextAreaDemo {
-    exports com.oracle.demo.rich.codearea;
-    exports com.oracle.demo.rich.editor;
-    exports com.oracle.demo.rich.rta;
+public class LargeTextModel extends SimpleReadOnlyStyledModel {
+    private final String STYLE = "-fx-font-size:500%";
+    private final Random random = new Random();
 
-    requires javafx.base;
-    requires javafx.controls;
-    requires javafx.graphics;
-    requires javafx.incubator.controls;
+    public LargeTextModel(int lineCount) {
+        for(int i=0; i<lineCount; i++) {
+            addLine(i);
+        }
+    }
+    
+    private void addLine(int n) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("L").append(n).append(' ');
+        int ct;
+        if(random.nextFloat() < 0.01f) {
+            ct = 200;
+        } else {
+            ct = random.nextInt(10);
+        }
+        
+        for(int i=0; i<ct; i++) {
+            sb.append(" ").append(i);
+            int len = random.nextInt(10) + 1;
+            for(int j=0; j<len; j++) {
+                sb.append('*');
+            }
+        }
+        addSegment(sb.toString(), STYLE);
+        nl();
+    }
 }
