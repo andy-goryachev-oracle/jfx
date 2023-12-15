@@ -53,10 +53,12 @@ public class RichEditorDemoPane extends BorderPane {
     
     private ToolBar createToolBar() {
         ToolBar b = new ToolBar();
-        FX.button(b, "B", actions.bold);
-        FX.button(b, "I", actions.italic);
-        FX.button(b, "S", actions.strikeThrough);
-        FX.button(b, "U", actions.underline);
+        FX.button(b, "B", "Bold Text", actions.bold);
+        FX.button(b, "I", "Italicize Text", actions.italic);
+        FX.button(b, "S", "Strike Through Text", actions.strikeThrough);
+        FX.button(b, "U", "Underline Text", actions.underline);
+        FX.space(b);
+        FX.button(b, "W", "Wrap Text", actions.wrapText);
         return b;
     }
 

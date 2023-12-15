@@ -42,9 +42,11 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -91,6 +93,14 @@ public class FX {
 
     public static MenuItem item(MenuBar b, String text, FxAction a) {
         MenuItem mi = new MenuItem(text);
+        applyMnemonic(mi);
+        lastMenu(b).getItems().add(mi);
+        a.attach(mi);
+        return mi;
+    }
+
+    public static CheckMenuItem checkItem(MenuBar b, String text, FxAction a) {
+        CheckMenuItem mi = new CheckMenuItem(text);
         applyMnemonic(mi);
         lastMenu(b).getItems().add(mi);
         a.attach(mi);
@@ -166,6 +176,20 @@ public class FX {
         a.attach(b);
         t.getItems().add(b);
         return b;
+    }
+
+    public static ToggleButton button(ToolBar t, String text, String tooltip, FxAction a) {
+        ToggleButton b = new ToggleButton(text);
+        b.setTooltip(new Tooltip(tooltip));
+        a.attach(b);
+        t.getItems().add(b);
+        return b;
+    }
+    
+    public static void space(ToolBar t) {
+        Pane p = new Pane();
+        p.setPrefSize(10, 10);
+        t.getItems().add(p);
     }
 
     public static void add(GridPane p, Node n, int col, int row) {

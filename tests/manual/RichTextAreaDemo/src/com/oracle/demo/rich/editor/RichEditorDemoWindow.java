@@ -77,6 +77,7 @@ public class RichEditorDemoWindow extends Stage {
         FX.menu(m, "File");
         //FX.separator(mb);
         FX.item(m, "Quit", () -> Platform.exit());
+
         // edit
         FX.menu(m, "Edit");
         FX.item(m, "Undo", actions.undo);
@@ -86,17 +87,23 @@ public class RichEditorDemoWindow extends Stage {
         FX.item(m, "Copy", actions.copy);
         FX.item(m, "Paste", actions.paste);
         FX.item(m, "Paste and Retain Style", actions.pasteUnformatted);
+
         // format
         FX.menu(m, "Format");
         FX.item(m, "Bold", actions.bold);
         FX.item(m, "Italic", actions.italic);
         FX.item(m, "Strike Through", actions.strikeThrough);
         FX.item(m, "Underline", actions.underline);
+
         // view
         FX.menu(m, "View");
-        // line spacing
+        FX.checkItem(m, "Wrap Text", actions.wrapText);
+        // TODO line numbers
+        // TODO line spacing
+
         // help
         FX.menu(m, "Help");
+        // TODO about
         return m;
     }
 

@@ -53,6 +53,7 @@ public class Actions {
     public final FxAction italic;
     public final FxAction underline;
     public final FxAction strikeThrough;
+    public final FxAction wrapText;
     private final RichTextArea control;
 
     public Actions(RichTextArea control) {
@@ -70,6 +71,9 @@ public class Actions {
         underline = new FxAction(() -> toggle(StyleAttrs.UNDERLINE));
         strikeThrough = new FxAction(() -> toggle(StyleAttrs.STRIKE_THROUGH));
 
+        wrapText = new FxAction();
+        wrapText.selectedProperty().bindBidirectional(control.wrapTextProperty());
+        
         control.getModel().addChangeListener(new StyledTextModel.ChangeListener() {
             @Override
             public void eventTextUpdated(TextPos start, TextPos end, int top, int added, int bottom) {
