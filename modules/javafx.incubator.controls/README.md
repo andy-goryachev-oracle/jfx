@@ -9,4 +9,4 @@ controls.
 
 ## Demo Projects
 
-Please refer to this [README](tests/manual/RichTextAreaDemo/README.md).
+Please refer to this [README](/tests/manual/RichTextAreaDemo/README.md).
