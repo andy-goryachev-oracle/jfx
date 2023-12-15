@@ -40,6 +40,7 @@ module javafx.incubator.controls {
 
     exports javafx.incubator.scene.control.dummy;
     exports javafx.incubator.scene.control.rich;
+    exports javafx.incubator.scene.control.rich.code;
     exports javafx.incubator.scene.control.rich.skin;
     exports javafx.incubator.scene.control.rich.model;
     exports javafx.incubator.scene.control.util;

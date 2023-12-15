@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package com.oracle.controls.codearea;
+package javafx.incubator.scene.control.rich.code;
 
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
@@ -46,6 +46,7 @@ import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
+import com.sun.javafx.incubator.scene.control.rich.RichUtils;
 
 /**
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.
@@ -298,7 +299,7 @@ public class CodeArea extends RichTextArea {
             }
         };
 
-        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = CssUtil.combine(
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = RichUtils.combine(
             RichTextArea.getClassCssMetaData(),
             FONT,
             TAB_SIZE

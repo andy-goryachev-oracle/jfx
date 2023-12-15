@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.oracle.controls.codearea;
+package javafx.incubator.scene.control.rich.code;
 
 import java.util.Set;
 import javafx.beans.property.ObjectProperty;

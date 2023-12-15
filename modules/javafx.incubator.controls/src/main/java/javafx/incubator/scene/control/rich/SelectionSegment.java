@@ -38,16 +38,6 @@ public class SelectionSegment {
     private final Marker max;
     private final boolean caretAtMin;
 
-//    public SelectionSegment(Marker min, Marker max, boolean caretAtMin) {
-//        Objects.requireNonNull(min, "min cannot be null");
-//        Objects.requireNonNull(max, "max cannot be null");
-//        isLessThanOrEqual(min, max, "min", "max");
-//
-//        this.min = min;
-//        this.max = max;
-//        this.caretAtMin = caretAtMin;
-//    }
-
     /**
      * Creates a new selection segment.
      * @param anchor anchor marker

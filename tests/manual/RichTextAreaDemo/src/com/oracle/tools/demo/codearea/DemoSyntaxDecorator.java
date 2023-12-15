@@ -26,10 +26,10 @@ package com.oracle.tools.demo.codearea;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.incubator.scene.control.rich.code.SyntaxDecorator;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.paint.Color;
-import com.oracle.controls.codearea.SyntaxDecorator;
 
 /**
  * Simple {@code SyntaxDecorator} which emphasizes digits and java keywords.

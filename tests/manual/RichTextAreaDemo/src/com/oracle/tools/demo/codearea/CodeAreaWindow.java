@@ -28,12 +28,12 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.TextPos;
+import javafx.incubator.scene.control.rich.code.CodeTextModel;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import com.oracle.controls.codearea.CodeTextModel;
 import com.oracle.tools.demo.rich.FX;
 import com.oracle.tools.demo.rich.RichTextAreaWindow;
 

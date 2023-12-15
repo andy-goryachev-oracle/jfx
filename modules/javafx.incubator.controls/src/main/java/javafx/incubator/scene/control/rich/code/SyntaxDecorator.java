@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.oracle.controls.codearea;
+package javafx.incubator.scene.control.rich.code;
 
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 
