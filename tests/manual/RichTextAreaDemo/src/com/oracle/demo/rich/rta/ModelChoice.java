@@ -38,7 +38,7 @@ public enum ModelChoice {
     PARAGRAPH("Paragraph Attributes"),
     WRITING_SYSTEMS_EDITABLE("Writing Systems (Editable)"),
     EDITABLE_STYLED("❤ Editable Rich Text Model"),
-    BILLION_LINES("1,000,000,000 Lines"),
+    BILLION_LINES("2,000,000,000 Lines"),
     NOTEBOOK_STACK("Notebook: Embedded Rich Text Areas"),
     NOTEBOOK("Notebook: Embedded Chart"),
     NOTEBOOK2("Notebook: SQL Queries"),
@@ -79,7 +79,7 @@ public enum ModelChoice {
         
         switch(ch) {
         case BILLION_LINES:
-            return new DemoStyledTextModel(1_000_000_000, false);
+            return new DemoStyledTextModel(2_000_000_000, false);
         case DEMO:
             return new DemoModel();
         case INLINE:

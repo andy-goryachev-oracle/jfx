@@ -32,7 +32,7 @@ import javafx.scene.layout.BorderPane;
 import com.oracle.demo.rich.util.FX;
 
 /**
- * Main Panel contains CodeArea, split panes for quick size adjustment, and an option pane.
+ * Main Panel.
  */
 public class RichEditorDemoPane extends BorderPane {
     public final RichTextArea control;
@@ -53,6 +53,16 @@ public class RichEditorDemoPane extends BorderPane {
     
     private ToolBar createToolBar() {
         ToolBar b = new ToolBar();
+        // TODO styles
+        // TODO font
+        // TODO font weight
+        // TODO font size
+        // TODO text color
+        // TODO background
+        // TODO alignment
+        // TODO line spacing
+        // TODO bullet
+        // TODO space left
         FX.button(b, "B", "Bold Text", actions.bold);
         FX.button(b, "I", "Italicize Text", actions.italic);
         FX.button(b, "S", "Strike Through Text", actions.strikeThrough);

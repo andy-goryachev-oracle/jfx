@@ -75,7 +75,12 @@ public class RichEditorDemoWindow extends Stage {
         MenuBar m = new MenuBar();
         // file
         FX.menu(m, "File");
+        // TODO new
+        // TODO open
         //FX.separator(mb);
+        // TODO close
+        // TODO save...
+        // TODO print?
         FX.item(m, "Quit", () -> Platform.exit());
 
         // edit
@@ -114,8 +119,8 @@ public class RichEditorDemoWindow extends Stage {
         StringBuilder sb = new StringBuilder();
 
         if (p != null) {
-            sb.append(" L: ").append(p.index() + 1);
-            sb.append(" C: ").append(p.offset() + 1);
+            sb.append(" Line: ").append(p.index() + 1);
+            sb.append("  Column: ").append(p.offset() + 1);
         }
 
         status.setText(sb.toString());
