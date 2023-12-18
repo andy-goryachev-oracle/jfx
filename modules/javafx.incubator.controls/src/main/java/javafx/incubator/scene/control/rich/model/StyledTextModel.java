@@ -171,8 +171,9 @@ public abstract class StyledTextModel {
      * @param start the start offset
      * @param end the end offset
      * @param a the character attributes
+     * @param merge determines whether to merge with or overwrite the existing attributes 
      */
-    protected abstract void applyStyle(int ix, int start, int end, StyleAttrs a);
+    protected abstract void applyStyle(int ix, int start, int end, StyleAttrs a, boolean merge);
 
     /**
      * Returns the {@link StyleAttrs} of the first character at the specified position.
@@ -617,16 +618,33 @@ public abstract class StyledTextModel {
     }
 
     /**
-     * Applies the specified style to the specified range.
-     * The specified attributes will override any existing attributes.
-     * When applying paragraph attributes, the affected range
-     * might be wider than specified.
-     * 
+     * Applies the specified style to the selected range.  The specified attributes will be merged, overriding
+     * the existing ones.
+     * When applying the paragraph attributes, the affected range might go beyond the range specified by
+     * {@code start} and {@code end}.
+     *
      * @param start the start of text range
      * @param end the end of text range
      * @param attrs the style attributes to apply
      */
     public final void applyStyle(TextPos start, TextPos end, StyleAttrs attrs) {
+        setStyle(start, end, attrs, true);
+    }
+
+    /**
+     * Sets the specified style to the selected range.
+     * All the existing attributes in the selected range will be cleared.
+     * When setting the paragraph attributes, the affected range
+     * might be wider than one specified.
+     * @param start the start of text range
+     * @param end the end of text range
+     * @param attrs the style attributes to set
+     */
+    public final void setStyle(TextPos start, TextPos end, StyleAttrs attrs) {
+        setStyle(start, end, attrs, false);
+    }
+    
+    private void setStyle(TextPos start, TextPos end, StyleAttrs attrs, boolean merge) {
         if (isEditable()) {
             if (start.compareTo(end) > 0) {
                 TextPos p = start;
@@ -665,15 +683,15 @@ public abstract class StyledTextModel {
             if(ca != null) {
                 int ix = start.index();
                 if (ix == end.index()) {
-                    applyStyle(ix, start.offset(), end.offset(), attrs);
+                    applyStyle(ix, start.offset(), end.offset(), attrs, merge);
                 } else {
-                    applyStyle(ix, start.offset(), Integer.MAX_VALUE, attrs);
+                    applyStyle(ix, start.offset(), Integer.MAX_VALUE, attrs, merge);
                     ix++;
                     while (ix < end.index()) {
-                        applyStyle(ix, 0, Integer.MAX_VALUE, attrs);
+                        applyStyle(ix, 0, Integer.MAX_VALUE, attrs, merge);
                         ix++;
                     }
-                    applyStyle(ix, 0, end.offset(), attrs);
+                    applyStyle(ix, 0, end.offset(), attrs, merge);
                 }
                 changed = true;
             }

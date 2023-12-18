@@ -26,6 +26,7 @@
 package com.oracle.demo.rich.util;
 
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 
 /**
@@ -41,5 +42,18 @@ class UsageExamples {
         // build the content
         rta.appendText("Heading\n", heading);
         rta.appendText("Plain monospaced text.\n", plain);
+    }
+
+    void customNavigation() {
+        RichTextArea richTextArea = new RichTextArea();
+        richTextArea.getInputMap().registerFunction(RichTextArea.MOVE_WORD_NEXT, () -> {
+            // refers to custom logic
+            TextPos p = getCustomNextWordPosition(richTextArea);
+            richTextArea.setCaret(p);
+        });
+    }
+
+    private TextPos getCustomNextWordPosition(RichTextArea richTextArea) {
+        return null;
     }
 }

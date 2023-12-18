@@ -149,8 +149,8 @@ public class EditableRichTextModel extends StyledTextModel {
     }
 
     @Override
-    protected void applyStyle(int ix, int start, int end, StyleAttrs attrs) {
-        paragraphs.get(ix).applyStyle(start, end, attrs, this::dedup);
+    protected void applyStyle(int ix, int start, int end, StyleAttrs attrs, boolean merge) {
+        paragraphs.get(ix).applyStyle(start, end, attrs, merge, this::dedup);
     }
 
     @Override
@@ -501,7 +501,7 @@ public class EditableRichTextModel extends StyledTextModel {
             }
         }
 
-        public void applyStyle(int start, int end, StyleAttrs attrs, Function<StyleAttrs,StyleAttrs> dedup) {
+        public void applyStyle(int start, int end, StyleAttrs attrs, boolean merge, Function<StyleAttrs,StyleAttrs> dedup) {
             int off = 0;
             int i = 0;
             for ( ; i < size(); i++) {
@@ -513,20 +513,20 @@ public class EditableRichTextModel extends StyledTextModel {
                     break;
                 case 1:
                 case 2:
-                    if (applyStyle(i, seg, attrs, dedup)) {
+                    if (applyStyle(i, seg, attrs, merge, dedup)) {
                         i--;
                     }
                     break;
                 case 3:
                 case 9:
-                    applyStyle(i, seg, attrs, dedup);
+                    applyStyle(i, seg, attrs, merge, dedup);
                     return;
                 case 4:
                 case 8:
                     // split
                     {
                         StyleAttrs a = seg.attrs();
-                        StyleAttrs newAttrs = dedup.apply(a.combine(attrs));
+                        StyleAttrs newAttrs = dedup.apply(merge ? a.combine(attrs) : attrs);
                         int ix = end - off;
                         String s1 = seg.text().substring(0, ix);
                         String s2 = seg.text().substring(ix);
@@ -544,7 +544,7 @@ public class EditableRichTextModel extends StyledTextModel {
                     // split
                     {
                         StyleAttrs a = seg.attrs();
-                        StyleAttrs newAttrs = dedup.apply(a.combine(attrs));
+                        StyleAttrs newAttrs = dedup.apply(merge ? a.combine(attrs) : attrs);
                         int ix = start - off;
                         String s1 = seg.text().substring(0, ix);
                         String s2 = seg.text().substring(ix);
@@ -563,7 +563,7 @@ public class EditableRichTextModel extends StyledTextModel {
                 case 7:
                     {
                         StyleAttrs a = seg.attrs();
-                        StyleAttrs newAttrs = dedup.apply(a.combine(attrs));
+                        StyleAttrs newAttrs = dedup.apply(merge ? a.combine(attrs) : attrs);
                         String text = seg.text();
                         int ix0 = start - off;
                         int ix1 = end - off;
@@ -596,8 +596,8 @@ public class EditableRichTextModel extends StyledTextModel {
          * it simply merges the two segments.
          * @return true if this segment has been merged with the previous segment
          */
-        public boolean applyStyle(int ix, RSegment seg, StyleAttrs a, Function<StyleAttrs,StyleAttrs> dedup) {
-            StyleAttrs newAttrs = dedup.apply(seg.attrs().combine(a));
+        public boolean applyStyle(int ix, RSegment seg, StyleAttrs a, boolean merge, Function<StyleAttrs,StyleAttrs> dedup) {
+            StyleAttrs newAttrs = dedup.apply(merge ? seg.attrs().combine(a) : a);
             if (ix > 0) {
                 RSegment prev = get(ix - 1);
                 if (prev.attrs().equals(newAttrs)) {

@@ -1058,9 +1058,10 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Applies the specified style to the selected range.  The specified attributes
-     * will override any existing attributes.  When applying paragraph attributes, the affected range
-     * might be wider than specified.
+     * Applies the specified style to the selected range.  The specified attributes will be merged, overriding
+     * the existing ones.
+     * When applying the paragraph attributes, the affected range might go beyond the range specified by
+     * {@code start} and {@code end}.
      * @param start the start of text range
      * @param end the end of text range
      * @param attrs the style attributes to apply
@@ -1069,6 +1070,22 @@ public class RichTextArea extends Control {
         if (canEdit()) {
             StyledTextModel m = getModel();
             m.applyStyle(start, end, attrs);
+        }
+    }
+
+    /**
+     * Sets the specified style to the selected range.
+     * All the existing attributes in the selected range will be cleared.
+     * When setting the paragraph attributes, the affected range
+     * might be wider than one specified.
+     * @param start the start of text range
+     * @param end the end of text range
+     * @param attrs the style attributes to set
+     */
+    public void setStyle(TextPos start, TextPos end, StyleAttrs attrs) {
+        if (canEdit()) {
+            StyledTextModel m = getModel();
+            m.setStyle(start, end, attrs);
         }
     }
 
