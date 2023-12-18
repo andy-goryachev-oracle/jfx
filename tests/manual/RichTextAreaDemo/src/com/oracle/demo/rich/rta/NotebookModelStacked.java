@@ -28,6 +28,7 @@ package com.oracle.demo.rich.rta;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
@@ -152,7 +153,7 @@ public class NotebookModelStacked extends StyledTextModel {
     }
 
     @Override
-    public StyleAttrs getStyleAttrs(TextPos pos) {
+    public StyleAttrs getStyleAttrs(StyleResolver r, TextPos pos) {
         return StyleAttrs.EMPTY;
     }
 

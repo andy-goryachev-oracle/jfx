@@ -24,6 +24,8 @@
  */
 package com.oracle.demo.rich.rta;
 
+import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
+
 public class NoLastNewlineModel extends SimpleReadOnlyStyledModel {
     public NoLastNewlineModel(int lineCount) {
         for(int i=0; i<lineCount; i++) {

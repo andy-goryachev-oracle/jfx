@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.oracle.demo.rich.rta;
+package javafx.incubator.scene.control.rich.model;
 
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -33,7 +33,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
 /**
- * Content pane for TextCell that shows a single image.
+ * Content pane for RichParagraph that shows a single image.
  * The image gets resized if it cannot fit into available width.
  */
 public class ImageCellPane extends Pane {

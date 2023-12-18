@@ -25,7 +25,7 @@
 // This code borrows heavily from the following project, with permission from the author:
 // https://github.com/andy-goryachev/FxEditor
 
-package com.oracle.demo.rich.rta;
+package javafx.incubator.scene.control.rich.model;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,11 +34,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Supplier;
-import javafx.scene.Node;
+import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.rich.model.RichParagraph;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.model.StyledTextModelReadOnlyBase;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -46,6 +44,7 @@ import javafx.scene.paint.Color;
 /**
  * A simple, read-only, in-memory, styled text model.
  */
+// TODO should it be moved to the core?
 public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     private final ArrayList<RichParagraph> paragraphs = new ArrayList<>();
 
@@ -164,8 +163,19 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     }
 
     @Override
-    public StyleAttrs getStyleAttrs(TextPos pos) {
-        // TODO use segments
+    public StyleAttrs getStyleAttrs(StyleResolver r, TextPos pos) {
+        int index = pos.index();
+        if(index < paragraphs.size()) {
+            int off = pos.offset();
+            RichParagraph par = paragraphs.get(index);
+            StyleAttrs pa = par.getParagraphAttributes();
+            StyleAttrs a = par.getStyleAttrs(r,off);
+            if (pa == null) {
+                return a;
+            } else {
+                return pa.combine(a);
+            }
+        }
         return StyleAttrs.EMPTY;
     }
 

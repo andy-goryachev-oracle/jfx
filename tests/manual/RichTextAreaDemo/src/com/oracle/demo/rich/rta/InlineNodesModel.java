@@ -24,6 +24,7 @@
  */
 package com.oracle.demo.rich.rta;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.layout.Region;
 
@@ -161,7 +162,7 @@ public class BasePlainTextModel extends StyledTextModel {
     }
 
     @Override
-    public StyleAttrs getStyleAttrs(TextPos pos) {
+    public StyleAttrs getStyleAttrs(StyleResolver resolver, TextPos pos) {
         return StyleAttrs.EMPTY;
     }
 

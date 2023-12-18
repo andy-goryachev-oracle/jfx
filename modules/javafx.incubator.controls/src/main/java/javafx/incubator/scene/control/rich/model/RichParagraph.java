@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.scene.Node;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -263,5 +264,20 @@ public class RichParagraph {
      */
     public StyleAttrs getParagraphAttributes() {
         return paragraphAttributes;
+    }
+
+    // for use by SimpleReadOnlyStyledModel
+    StyleAttrs getStyleAttrs(StyleResolver resolver, int offset) {
+        int off = 0;
+        int ct = size();
+        for (int i = 0; i < ct; i++) {
+            StyledSegment seg = segments.get(i);
+            int len = seg.getTextLength();
+            if (offset < (off + len) || (i == ct - 1)) {
+                return seg.getStyleAttrs(resolver);
+            }
+            off += len;
+        }
+        return StyleAttrs.EMPTY;
     }
 }

@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
 
 /**
@@ -154,7 +154,7 @@ public class EditableRichTextModel extends StyledTextModel {
     }
 
     @Override
-    public StyleAttrs getStyleAttrs(TextPos pos) {
+    public StyleAttrs getStyleAttrs(StyleResolver resolver, TextPos pos) {
         int index = pos.index();
         if(index < paragraphs.size()) {
             int off = pos.offset();

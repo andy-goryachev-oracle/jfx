@@ -28,6 +28,7 @@ import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
+import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;

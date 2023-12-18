@@ -1087,7 +1087,7 @@ public class RichTextArea extends Control {
         return false;
     }
 
-    private StyleAttrs getModelStyleAttrs() {
+    private StyleAttrs getModelStyleAttrs(StyleResolver r) {
         StyledTextModel m = getModel();
         if (m != null) {
             TextPos pos = getCaretPosition();
@@ -1105,7 +1105,7 @@ public class RichTextArea extends Control {
                     }
                     pos = new TextPos(pos.index(), ix);
                 }
-                return m.getStyleAttrs(pos);
+                return m.getStyleAttrs(r, pos);
             }
         }
         return StyleAttrs.EMPTY;
@@ -1124,13 +1124,9 @@ public class RichTextArea extends Control {
      * @return the non-null {@code StyleAttrs} instance
      */
     // FIX add paragraph attributes
-    // FIX: problem - char attrs may need to be resolved; paragraph - don't 
     public StyleAttrs getActiveStyleAttrs() {
-        StyleAttrs a = getModelStyleAttrs();
-        StyleResolver resolver = resolver();
-        if (resolver != null) {
-            a = resolver.resolveStyles(a);
-        }
+        StyleResolver r = resolver();
+        StyleAttrs a = getModelStyleAttrs(r);
 
         StyleAttrs pa = getDefaultAttributes();
         if ((pa == null) || pa.isEmpty()) {
@@ -1237,6 +1233,8 @@ public class RichTextArea extends Control {
      * The value can be null.
      * @return the default attributes property
      */
+    // TODO this might be a mistake.  Instead, the default attrbiutes should be in the model?
+    // the use case is the default font.
     public final ObjectProperty<StyleAttrs> defaultAttributesProperty() {
         return defaultAttributes;
     }

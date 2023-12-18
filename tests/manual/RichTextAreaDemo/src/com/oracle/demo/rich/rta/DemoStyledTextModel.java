@@ -25,11 +25,12 @@
 package com.oracle.demo.rich.rta;
 
 import java.text.DecimalFormat;
-import javafx.scene.Node;
+import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModelReadOnlyBase;
+import javafx.scene.Node;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -53,7 +54,7 @@ public class DemoStyledTextModel extends StyledTextModelReadOnlyBase {
     }
 
     @Override
-    public StyleAttrs getStyleAttrs(TextPos pos) {
+    public StyleAttrs getStyleAttrs(StyleResolver resolver, TextPos pos) {
         return StyleAttrs.EMPTY;
     }
 

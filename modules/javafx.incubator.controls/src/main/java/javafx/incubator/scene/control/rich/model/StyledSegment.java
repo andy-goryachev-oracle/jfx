@@ -62,11 +62,17 @@ public abstract class StyledSegment {
 
     /**
      * Returns the text associated with this segment.
-     * Must be one character for inline nodes, must be null for node paragraphs.
-     * TODO can it be null for text segments?
+     * Must be one character for inline nodes, must be null for node paragraphs or line breaks.
      * @return the segment plain text
      */
     public String getText() { return null; }
+
+    /**
+     * Returns the length of text in the segment, or 0 for segments that contain no text or where
+     * {@link #getText()} returns null.
+     * @return the length in characters
+     */
+    public int getTextLength() { return 0; }
 
     /**
      * This method must return a non-null value for a segment of {@code INLINE_NODE} type, 
@@ -142,6 +148,7 @@ public abstract class StyledSegment {
      * @return the StyledSegment instance
      */
     // TODO guarded of() ?
+    // TODO check for null text?
     public static StyledSegment of(String text, StyleAttrs attrs) {
         return new StyledSegment() {
             @Override
@@ -152,6 +159,11 @@ public abstract class StyledSegment {
             @Override
             public String getText() {
                 return text;
+            }
+
+            @Override
+            public int getTextLength() {
+                return text.length();
             }
 
             @Override
@@ -192,6 +204,11 @@ public abstract class StyledSegment {
             @Override
             public String getText() {
                 return " ";
+            }
+
+            @Override
+            public int getTextLength() {
+                return 1;
             }
 
             @Override

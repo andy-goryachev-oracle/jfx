@@ -178,11 +178,11 @@ public abstract class StyledTextModel {
      * Returns the {@link StyleAttrs} of the first character at the specified position.
      * When at the end of the document, returns the attributes of the last character.
      *
-     * @param pos text position
+     * @param resolver the style resolver
+     * @param pos the text position
      * @return the style attributes, non-null
      */
-    // TODO move implementation here (can get RParagraph and extracty the info from there)
-    public abstract StyleAttrs getStyleAttrs(TextPos pos);
+    public abstract StyleAttrs getStyleAttrs(StyleResolver resolver, TextPos pos);
 
     /**
      * Returns a set of supported attributes (to affect filtering in {@link #applyStyle(TextPos, TextPos, StyleAttrs)})
@@ -519,7 +519,7 @@ public abstract class StyledTextModel {
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean createUndo) {
         if (isEditable()) {
-            StyleAttrs a = getStyleAttrs(start);
+            StyleAttrs a = getStyleAttrs(resolver, start);
             StyledInput in = StyledInput.of(text, a);
             return replace(resolver, start, end, in, createUndo);
         }

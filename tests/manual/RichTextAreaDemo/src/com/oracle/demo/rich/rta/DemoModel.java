@@ -31,6 +31,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
+import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Region;
