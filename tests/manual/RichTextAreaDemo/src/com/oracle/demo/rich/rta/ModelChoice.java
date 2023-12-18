@@ -24,6 +24,7 @@
  */
 package com.oracle.demo.rich.rta;
 
+import java.io.IOException;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
@@ -156,7 +157,7 @@ public enum ModelChoice {
         case UNEVEN_LARGE:
             return new UnevenStyledTextModel(2000);
         case WRITING_SYSTEMS:
-            return SimpleReadOnlyStyledModel.from(WritingSystemsDemo.getText());
+            return writingSystemsPlain();
         case WRITING_SYSTEMS_EDITABLE:
             return writingSystems();
         case ZERO_LINES:
@@ -166,8 +167,22 @@ public enum ModelChoice {
         }
     }
 
+    private static StyledTextModel writingSystemsPlain() {
+        try {
+            return SimpleReadOnlyStyledModel.from(WritingSystemsDemo.getText());
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     private static StyledTextModel tabs() {
-        return SimpleReadOnlyStyledModel.from("0123456789012345678901234567890\n0\n\t1\n\t\t2\n\t\t\t3\n\t\t\t\t4\n0\n");
+        try {
+            return SimpleReadOnlyStyledModel.from("0123456789012345678901234567890\n0\n\t1\n\t\t2\n\t\t\t3\n\t\t\t\t4\n0\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private static StyledTextModel writingSystems() {

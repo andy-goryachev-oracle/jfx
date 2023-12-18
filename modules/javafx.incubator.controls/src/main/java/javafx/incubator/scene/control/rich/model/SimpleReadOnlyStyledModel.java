@@ -44,29 +44,24 @@ import javafx.scene.paint.Color;
 /**
  * A simple, read-only, in-memory, styled text model.
  */
-// TODO should it be moved to the core?
 public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     private final ArrayList<RichParagraph> paragraphs = new ArrayList<>();
 
     public SimpleReadOnlyStyledModel() {
     }
 
-    public static SimpleReadOnlyStyledModel from(String text) {
+    /**
+     * Creates the model from the supplied text string by breaking it down into individual text segments.
+     * @param text the input multi-line text
+     * @return the new instance
+     */
+    public static SimpleReadOnlyStyledModel from(String text) throws IOException {
         SimpleReadOnlyStyledModel m = new SimpleReadOnlyStyledModel();
         BufferedReader rd = new BufferedReader(new StringReader(text));
-        try {
-            String s;
-            while ((s = rd.readLine()) != null) {
-                m.addSegment(s);
-                m.nl();
-            }
-        } catch (Exception ignore) {
-        } finally {
-            try {
-                rd.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        String s;
+        while ((s = rd.readLine()) != null) {
+            m.addSegment(s);
+            m.nl();
         }
         return m;
     }
