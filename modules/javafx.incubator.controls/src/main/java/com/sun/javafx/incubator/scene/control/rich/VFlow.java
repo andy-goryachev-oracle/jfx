@@ -258,13 +258,11 @@ public class VFlow extends Pane implements StyleResolver {
 
     public void handleContentPadding() {
         updateContentPadding();
-        
+
         setOffsetX(-leftPadding);
 
         if (getOrigin().index() == 0) {
-            if (getOrigin().offset() < -topPadding) {
-                setOrigin(new Origin(0, -topPadding));
-            }
+            setOrigin(new Origin(0, -topPadding));
         }
 
         requestLayout();

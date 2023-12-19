@@ -25,7 +25,7 @@
 
 package com.sun.javafx.incubator.scene.control.rich;
 
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.geometry.Insets;
 
 /**
  * Various constants.
@@ -45,6 +45,9 @@ public class Params {
 
     /** cell cache size. */
     public static final int CELL_CACHE_SIZE = 512;
+
+    /** default content padding. */
+    public static final Insets CONTENT_PADDING = new Insets(4, 8, 4, 8);
 
     /** default caret blink period, in milliseconds. */
     public static final int DEFAULT_CARET_BLINK_PERIOD = 500;

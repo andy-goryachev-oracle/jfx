@@ -25,7 +25,6 @@
 package com.oracle.demo.rich.editor;
 
 import java.util.List;
-import javafx.geometry.Insets;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
@@ -49,7 +48,6 @@ public class RichEditorDemoPane extends BorderPane {
         FX.name(this, "RichEditorDemoPane");
 
         control = new RichTextArea();
-        control.setContentPadding(new Insets(10));
 
         actions = new Actions(control);
         control.setContextMenu(createContextMenu());

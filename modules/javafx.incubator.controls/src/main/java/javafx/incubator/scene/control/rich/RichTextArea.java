@@ -373,8 +373,8 @@ public class RichTextArea extends Control {
     // TODO lazy initialization is not necessary
     private static class StyleableProperties {
         private static final CssMetaData<RichTextArea, Insets> CONTENT_PADDING =
-            new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance()) {
-
+            new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance(), Params.CONTENT_PADDING)
+        {
             @Override
             public boolean isSettable(RichTextArea t) {
                 return t.contentPadding == null || !t.contentPadding.isBound();
@@ -387,7 +387,8 @@ public class RichTextArea extends Control {
         };
 
         private static final CssMetaData<RichTextArea,Boolean> WRAP_TEXT =
-            new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), false) {
+            new CssMetaData<>("-fx-wrap-text", StyleConverter.getBooleanConverter(), false)
+        {
                 @Override
                 public boolean isSettable(RichTextArea t) {
                     return !t.wrapText.isBound();
@@ -1229,7 +1230,9 @@ public class RichTextArea extends Control {
             contentPadding = new SimpleStyleableObjectProperty<Insets>(
                 StyleableProperties.CONTENT_PADDING,
                 this,
-                "contentPadding");
+                "contentPadding",
+                Params.CONTENT_PADDING
+            );
         }
         return contentPadding;
     }
@@ -1240,7 +1243,7 @@ public class RichTextArea extends Control {
 
     public final Insets getContentPadding() {
         if(contentPadding == null) {
-            return null;
+            return Params.CONTENT_PADDING;
         }
         return contentPadding.get();
     }
