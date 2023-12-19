@@ -24,7 +24,6 @@
  */
 package com.oracle.demo.rich.editor;
 
-import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Insets;
 import javafx.incubator.scene.control.rich.RichTextArea;
@@ -51,10 +50,10 @@ public class RichEditorDemoPane extends BorderPane {
 
         control = new RichTextArea();
         control.setContentPadding(new Insets(10));
-        
+
         actions = new Actions(control);
         control.setContextMenu(createContextMenu());
-        
+
         fontName = new ComboBox<>();
         fontName.getItems().setAll(collectFonts());
         fontName.setOnAction((ev) -> {
@@ -87,7 +86,7 @@ public class RichEditorDemoPane extends BorderPane {
         fontSize.setOnAction((ev) -> {
             actions.setFontSize(fontSize.getSelectionModel().getSelectedItem());
         });
-        
+
         textColor = new ColorPicker();
         // TODO save/restore custom colors
         FX.tooltip(textColor, "Text Color");
@@ -97,11 +96,11 @@ public class RichEditorDemoPane extends BorderPane {
         textColor.setOnAction((ev) -> {
             actions.setTextColor(textColor.getValue());
         });
-        
+
         setTop(createToolBar());
         setCenter(control);
     }
-    
+
     private ToolBar createToolBar() {
         ToolBar t = new ToolBar();
         FX.add(t, fontName);
@@ -141,28 +140,8 @@ public class RichEditorDemoPane extends BorderPane {
         FX.item(m, "Underline", actions.underline);
         return m;
     }
-//    
-//    protected void colorMenu(Menu menu, boolean selected, Color color) {
-//        int w = 16;
-//        int h = 16;
-//        Canvas c = new Canvas(w, h);
-//        GraphicsContext g = c.getGraphicsContext2D();
-//        if(color != null) {
-//            g.setFill(color);
-//            g.fillRect(0, 0, w, h);
-//        }
-//        g.setStroke(Color.DARKGRAY);
-//        g.strokeRect(0, 0, w, h);
-//        
-//        MenuItem m = new MenuItem(null, c);
-//        m.setDisable(!selected);
-//        m.setOnAction((ev) -> apply(StyleAttrs.TEXT_COLOR, color));
-//        menu.getItems().add(m);
-//    }
-    
+
     private static List<String> collectFonts() {
-        ArrayList<String> rv = new ArrayList<>(Font.getFontNames());
-        //rv.add(0, null);
-        return rv;
+        return Font.getFamilies();
     }
 }
