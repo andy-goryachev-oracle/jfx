@@ -34,6 +34,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Control;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -195,6 +196,10 @@ public class FX {
         Pane p = new Pane();
         p.setPrefSize(10, 10);
         t.getItems().add(p);
+    }
+
+    public static void tooltip(Control c, String text) {
+        c.setTooltip(new Tooltip(text));
     }
 
     public static void add(GridPane p, Node n, int col, int row) {

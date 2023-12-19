@@ -30,6 +30,7 @@ import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
+import javafx.scene.paint.Color;
 import com.oracle.demo.rich.util.FxAction;
 
 /**
@@ -154,5 +155,9 @@ public class Actions {
     // TODO need to bind selected item in the combo
     public void setFontName(String name) {
         apply(StyleAttrs.FONT_FAMILY, name);
+    }
+
+    public void setTextColor(Color color) {
+        apply(StyleAttrs.TEXT_COLOR, color);
     }
 }

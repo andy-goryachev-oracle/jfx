@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javafx.geometry.Insets;
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ToolBar;
@@ -43,6 +44,7 @@ public class RichEditorDemoPane extends BorderPane {
     public final Actions actions;
     private final ComboBox<String> fontName;
     private final ComboBox<Integer> fontSize;
+    private final ColorPicker textColor;
 
     public RichEditorDemoPane() {
         FX.name(this, "RichEditorDemoPane");
@@ -86,28 +88,38 @@ public class RichEditorDemoPane extends BorderPane {
             actions.setFontSize(fontSize.getSelectionModel().getSelectedItem());
         });
         
+        textColor = new ColorPicker();
+        // TODO save/restore custom colors
+        FX.tooltip(textColor, "Text Color");
+        // FIX there is no API for this!  why is this a property of a skin, not the control??
+        // https://stackoverflow.com/questions/21246137/remove-text-from-colour-picker
+        textColor.setStyle("-fx-color-label-visible: false ;");
+        textColor.setOnAction((ev) -> {
+            actions.setTextColor(textColor.getValue());
+        });
+        
         setTop(createToolBar());
         setCenter(control);
     }
     
     private ToolBar createToolBar() {
-        ToolBar b = new ToolBar();
-        FX.add(b, fontName);
-        FX.add(b, fontSize);
-        FX.space(b);
-        // TODO text color
+        ToolBar t = new ToolBar();
+        FX.add(t, fontName);
+        FX.add(t, fontSize);
+        FX.add(t, textColor);
+        FX.space(t);
         // TODO background
         // TODO alignment
         // TODO line spacing
         // TODO bullet
         // TODO space left
-        FX.button(b, "B", "Bold Text", actions.bold);
-        FX.button(b, "I", "Italicize Text", actions.italic);
-        FX.button(b, "S", "Strike Through Text", actions.strikeThrough);
-        FX.button(b, "U", "Underline Text", actions.underline);
-        FX.space(b);
-        FX.button(b, "W", "Wrap Text", actions.wrapText);
-        return b;
+        FX.button(t, "B", "Bold Text", actions.bold);
+        FX.button(t, "I", "Italicize Text", actions.italic);
+        FX.button(t, "S", "Strike Through Text", actions.strikeThrough);
+        FX.button(t, "U", "Underline Text", actions.underline);
+        FX.space(t);
+        FX.button(t, "W", "Wrap Text", actions.wrapText);
+        return t;
     }
 
     private ContextMenu createContextMenu() {
