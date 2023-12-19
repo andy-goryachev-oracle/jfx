@@ -431,6 +431,7 @@ public class RichTextArea extends Control {
      * @param screenY screen y coordinate
      * @return the TextPosition
      */
+    // TODO or should it be local to control?
     public TextPos getTextPosition(double screenX, double screenY) {
         Point2D local = vflow().getContentPane().screenToLocal(screenX, screenY);
         return vflow().getTextPosLocal(local.getX(), local.getY());

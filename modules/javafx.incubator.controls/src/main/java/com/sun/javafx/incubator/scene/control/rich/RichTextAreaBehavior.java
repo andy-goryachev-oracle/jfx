@@ -152,6 +152,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         registerKey(KeyCode.PAGE_DOWN, RichTextArea.PAGE_DOWN);
         registerKey(KeyCode.PAGE_UP, RichTextArea.PAGE_UP);
         registerKey(KeyBinding.shortcut(KeyCode.V), RichTextArea.PASTE);
+        registerKey(KeyBinding.with(KeyCode.V).shortcut().shift().build(), RichTextArea.PASTE_PLAIN_TEXT);
         registerKey(KeyBinding.shortcut(KeyCode.A), RichTextArea.SELECT_ALL);
         registerKey(KeyBinding.shift(KeyCode.LEFT), RichTextArea.SELECT_LEFT);
         registerKey(KeyBinding.shift(KeyCode.RIGHT), RichTextArea.SELECT_RIGHT);
