@@ -1243,7 +1243,12 @@ public class VFlow extends Pane implements StyleResolver {
             if (p != null) {
                 int ix = p.index();
                 Origin or = new Origin(ix, 0.0);
+                boolean moveDown = (ix > getOrigin().index());
                 setOrigin(or);
+                c = getCaretInfo();
+                if (moveDown) {
+                    blockScroll(c.getMaxY() - c.getMinY() - getViewHeight());
+                }
                 checkForExcessiveWhitespaceAtTheEnd();
             }
         } else {
