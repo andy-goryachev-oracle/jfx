@@ -24,11 +24,15 @@
  */
 package com.oracle.demo.rich.editor;
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.geometry.Insets;
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.text.Font;
 import com.oracle.demo.rich.util.FX;
 
 /**
@@ -37,6 +41,8 @@ import com.oracle.demo.rich.util.FX;
 public class RichEditorDemoPane extends BorderPane {
     public final RichTextArea control;
     public final Actions actions;
+    private final ComboBox<String> fontName;
+    private final ComboBox<Integer> fontSize;
 
     public RichEditorDemoPane() {
         FX.name(this, "RichEditorDemoPane");
@@ -47,16 +53,48 @@ public class RichEditorDemoPane extends BorderPane {
         actions = new Actions(control);
         control.setContextMenu(createContextMenu());
         
+        fontName = new ComboBox<>();
+        fontName.getItems().setAll(collectFonts());
+        fontName.setOnAction((ev) -> {
+            actions.setFontName(fontName.getSelectionModel().getSelectedItem());
+        });
+
+        fontSize = new ComboBox<>();
+        fontSize.getItems().setAll(
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            16,
+            18,
+            20,
+            22,
+            24,
+            28,
+            32,
+            36,
+            48,
+            72,
+            96,
+            128
+        );
+        fontSize.setOnAction((ev) -> {
+            actions.setFontSize(fontSize.getSelectionModel().getSelectedItem());
+        });
+        
         setTop(createToolBar());
         setCenter(control);
     }
     
     private ToolBar createToolBar() {
         ToolBar b = new ToolBar();
-        // TODO styles
-        // TODO font
-        // TODO font weight
-        // TODO font size
+        FX.add(b, fontName);
+        FX.add(b, fontSize);
+        FX.space(b);
         // TODO text color
         // TODO background
         // TODO alignment
@@ -84,27 +122,13 @@ public class RichEditorDemoPane extends BorderPane {
         FX.separator(m);
         FX.item(m, "Select All", actions.selectAll);
         FX.separator(m);
-        // TODO under "Style" submenu
+        // TODO under "Style" submenu?
         FX.item(m, "Bold", actions.bold);
         FX.item(m, "Italic", actions.italic);
         FX.item(m, "Strike Through", actions.strikeThrough);
         FX.item(m, "Underline", actions.underline);
         return m;
     }
-
-//    protected void fontMenu(Menu menu, boolean selected, String family) {
-//        MenuItem m = new MenuItem(family);
-//        m.setDisable(!selected);
-//        m.setOnAction((ev) -> apply(StyleAttrs.FONT_FAMILY, family));
-//        menu.getItems().add(m);
-//    }
-//
-//    protected void sizeMenu(Menu menu, boolean selected, double size) {
-//        MenuItem m = new MenuItem(String.valueOf(size));
-//        m.setDisable(!selected);
-//        m.setOnAction((ev) -> apply(StyleAttrs.FONT_SIZE, size));
-//        menu.getItems().add(m);
-//    }
 //    
 //    protected void colorMenu(Menu menu, boolean selected, Color color) {
 //        int w = 16;
@@ -123,21 +147,10 @@ public class RichEditorDemoPane extends BorderPane {
 //        m.setOnAction((ev) -> apply(StyleAttrs.TEXT_COLOR, color));
 //        menu.getItems().add(m);
 //    }
-//
-//    protected <X> void apply(StyleAttribute<X> attr, X val) {
-//        TextPos ca = control.getCaretPosition();
-//        TextPos an = control.getAnchorPosition();
-//        StyleAttrs a = StyleAttrs.
-//            builder().
-//            set(attr, val).
-//            build();
-//        control.applyStyle(ca, an, a);
-//    }
-//
-//    private <T> void applyStyle(StyleAttribute<T> a, T val) {
-//        TextPos ca = control.getCaretPosition();
-//        TextPos an = control.getAnchorPosition();
-//        StyleAttrs m = StyleAttrs.of(a, val);
-//        control.applyStyle(ca, an, m);
-//    }
+    
+    private static List<String> collectFonts() {
+        ArrayList<String> rv = new ArrayList<>(Font.getFontNames());
+        //rv.add(0, null);
+        return rv;
+    }
 }

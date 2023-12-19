@@ -128,4 +128,31 @@ public class Actions {
         a = StyleAttrs.builder().set(attr, on).build();
         control.applyStyle(start, end, a);
     }
+    
+    private <T> void apply(StyleAttribute<T> attr, T value) {
+        TextPos start = control.getAnchorPosition();
+        TextPos end = control.getCaretPosition();
+        if(start == null) {
+            return;
+        } else if(start.equals(end)) {
+            // apply to the whole paragraph
+            int ix = start.index();
+            start = new TextPos(ix, 0);
+            end = control.getEndOfParagraph(ix);
+        }
+
+        StyleAttrs a = control.getActiveStyleAttrs();
+        a = StyleAttrs.builder().set(attr, value).build();
+        control.applyStyle(start, end, a);
+    }
+
+    // TODO need to bind selected item in the combo
+    public void setFontSize(Integer size) {
+        apply(StyleAttrs.FONT_SIZE, size.doubleValue());
+    }
+    
+    // TODO need to bind selected item in the combo
+    public void setFontName(String name) {
+        apply(StyleAttrs.FONT_FAMILY, name);
+    }
 }

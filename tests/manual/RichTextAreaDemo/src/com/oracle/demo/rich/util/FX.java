@@ -185,7 +185,12 @@ public class FX {
         t.getItems().add(b);
         return b;
     }
-    
+
+    public static <N extends Node> N add(ToolBar t, N child) {
+        t.getItems().add(child);
+        return child;
+    }
+
     public static void space(ToolBar t) {
         Pane p = new Pane();
         p.setPrefSize(10, 10);
