@@ -24,6 +24,7 @@
  */
 package com.oracle.demo.rich.editor;
 
+import java.io.File;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.incubator.scene.control.rich.RichTextArea;
@@ -60,14 +61,23 @@ public class RichEditorDemoWindow extends Stage {
             RichTextAreaWindow.class.getResource("RichTextArea-Modena.css").toExternalForm()
         );
 
+        // TODO input map for the window: add shortcut-S for saving
+
         setScene(scene);
-        setTitle("Rich Text Editor Demo");
         setWidth(1200);
         setHeight(600);
 
         pane.control.caretPositionProperty().addListener((x) -> {
             updateStatus();
         });
+        pane.actions.modifiedProperty().addListener((x) -> {
+            updateTitle();
+        });
+        pane.actions.fileNameProperty().addListener((x) -> {
+            updateTitle();
+        });
+        updateStatus();
+        updateTitle();
     }
 
     private MenuBar createMenu() {
@@ -75,11 +85,10 @@ public class RichEditorDemoWindow extends Stage {
         MenuBar m = new MenuBar();
         // file
         FX.menu(m, "File");
-        // TODO new
-        // TODO open
-        //FX.separator(mb);
-        // TODO close
-        // TODO save...
+        FX.item(m, "New", actions.newDocument);
+        FX.item(m, "Open...", actions.open);
+        FX.separator(m);
+        FX.item(m, "Save...", actions.save);
         // TODO print?
         FX.item(m, "Quit", () -> Platform.exit());
 
@@ -124,5 +133,21 @@ public class RichEditorDemoWindow extends Stage {
         }
 
         status.setText(sb.toString());
+    }
+
+    private void updateTitle() {
+        File f = pane.actions.getFile();
+        boolean modified = pane.actions.isModified();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Rich Text Editor Demo");
+        if (f != null) {
+            sb.append(" - ");
+            sb.append(f.getName());
+        }
+        if (modified) {
+            sb.append(" *");
+        }
+        setTitle(sb.toString());
     }
 }

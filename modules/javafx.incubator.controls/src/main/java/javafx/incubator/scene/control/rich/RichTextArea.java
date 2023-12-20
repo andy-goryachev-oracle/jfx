@@ -1553,6 +1553,7 @@ public class RichTextArea extends Control {
         if (m != null) {
             StyleResolver r = resolver();
             m.load(r, f, in);
+            select(TextPos.ZERO, TextPos.ZERO);
         }
     }
 

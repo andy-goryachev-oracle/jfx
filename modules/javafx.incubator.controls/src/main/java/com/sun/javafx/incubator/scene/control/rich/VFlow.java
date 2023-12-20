@@ -303,7 +303,7 @@ public class VFlow extends Pane implements StyleResolver {
             throw new NullPointerException();
         }
         // prevent scrolling
-        if (control.isUseContentHeight()) {
+        if (control.isUseContentHeight() || ((p.index() == 0) && (p.offset() == 0))) {
             p = new Origin(0, -topPadding);
         }
         origin.set(p);

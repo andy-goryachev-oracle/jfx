@@ -25,12 +25,30 @@
 
 package com.oracle.demo.rich.editor;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Optional;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.TextPos;
+import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
+import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.input.DataFormat;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import com.oracle.demo.rich.util.FX;
 import com.oracle.demo.rich.util.FxAction;
 
 /**
@@ -43,23 +61,32 @@ import com.oracle.demo.rich.util.FxAction;
  * (The model does not change in this application).
  */
 public class Actions {
-    public final FxAction undo;
-    public final FxAction redo;
-    public final FxAction cut;
+    public final FxAction bold;
     public final FxAction copy;
+    public final FxAction cut;
+    public final FxAction italic;
+    public final FxAction newDocument;
+    public final FxAction open;
     public final FxAction paste;
     public final FxAction pasteUnformatted;
+    public final FxAction redo;
+    public final FxAction save;
     public final FxAction selectAll;
-    public final FxAction bold;
-    public final FxAction italic;
-    public final FxAction underline;
     public final FxAction strikeThrough;
+    public final FxAction underline;
+    public final FxAction undo;
     public final FxAction wrapText;
+
     private final RichTextArea control;
+    private final ReadOnlyBooleanWrapper modified = new ReadOnlyBooleanWrapper();
+    private final ReadOnlyObjectWrapper<File> file = new ReadOnlyObjectWrapper<>();
 
     public Actions(RichTextArea control) {
         this.control = control;
 
+        newDocument = new FxAction(this::newDocument);
+        open = new FxAction(this::open);
+        save = new FxAction(this::save);
         undo = new FxAction(control::undo);
         redo = new FxAction(control::redo);
         cut = new FxAction(control::cut);
@@ -92,11 +119,29 @@ public class Actions {
 
         handleEdit();
         handleCaret();
+        modified.set(false);
+    }
+
+    public final ReadOnlyBooleanProperty modifiedProperty() {
+        return modified.getReadOnlyProperty();
+    }
+
+    public final boolean isModified() {
+        return modified.get();
+    }
+    
+    public final ReadOnlyObjectProperty<File> fileNameProperty() {
+        return file.getReadOnlyProperty();
+    }
+    
+    public final File getFile() {
+        return file.get();
     }
 
     private void handleEdit() {
         undo.setEnabled(control.isUndoable());
         redo.setEnabled(control.isRedoable());
+        modified.set(true);
     }
 
     private void handleCaret() {
@@ -159,5 +204,117 @@ public class Actions {
 
     public void setTextColor(Color color) {
         apply(StyleAttrs.TEXT_COLOR, color);
+    }
+
+    private void newDocument() {
+        if(askToSave()) {
+            return;
+        }
+        control.setModel(new EditableRichTextModel());
+        modified.set(false);
+    }
+
+    private void open() {
+        if(askToSave()) {
+            return;
+        }
+        
+        FileChooser ch = new FileChooser();
+        ch.setTitle("Open File");
+        // TODO add extensions
+        Window w = FX.getParentWindow(control);
+        File f = ch.showOpenDialog(w);
+        if (f != null) {
+            try {
+                loadFile(f, RichTextFormatHandler.DATA_FORMAT);
+            } catch (Exception e) {
+                new ExceptionDialog(control, e).open();
+            }
+        }
+    }
+
+    // FIX this is too simplistic, need save() and save as...
+    private void save() {
+        File f = getFile();
+        if (f == null) {
+            FileChooser ch = new FileChooser();
+            ch.setTitle("Save File");
+            // TODO add extensions
+            Window w = FX.getParentWindow(control);
+            f = ch.showSaveDialog(w);
+            if (f == null) {
+                return;
+            }
+        }
+        try {
+            saveFile(f, RichTextFormatHandler.DATA_FORMAT);
+        } catch (Exception e) {
+            new ExceptionDialog(control, e).open();
+        }
+    }
+
+    // returns true if the user chose to Cancel
+    private boolean askToSave() {
+        if(isModified()) {
+            // alert: has been modified. do you want to save?
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.initOwner(FX.getParentWindow(control));
+            alert.setTitle("Document is Modified");
+            alert.setHeaderText("Do you want to save this document?");
+            ButtonType delete = new ButtonType("Delete");
+            ButtonType cancel = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+            ButtonType save = new ButtonType("Save", ButtonData.APPLY);
+            alert.getButtonTypes().setAll(
+                delete,
+                cancel,
+                save
+            );
+
+            File f = getFile();
+            SavePane sp = new SavePane();
+            sp.setFile(f);
+            alert.getDialogPane().setContent(sp);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent()) {
+                ButtonType t = result.get();
+                if (t == delete) {
+                    return false;
+                } else if (t == cancel) {
+                    return true;
+                } else {
+                    // save using info in the panel
+                    f = sp.getFile();
+                    DataFormat fmt = sp.getFileFormat();
+                    // FIX
+                    fmt = RichTextFormatHandler.DATA_FORMAT;
+
+                    try {
+                        saveFile(f, fmt);
+                    } catch (Exception e) {
+                        new ExceptionDialog(control, e).open();
+                        return true;
+                    }
+                }
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void loadFile(File f, DataFormat fmt) throws Exception {
+        try (FileInputStream in = new FileInputStream(f)) {
+            control.load(fmt, in);
+            file.set(f);
+            modified.set(false);
+        }
+    }
+    
+    private void saveFile(File f, DataFormat fmt) throws Exception {
+        try (FileOutputStream out = new FileOutputStream(f)) {
+            control.save(fmt, out);
+            file.set(f);
+            modified.set(false);
+        }
     }
 }
