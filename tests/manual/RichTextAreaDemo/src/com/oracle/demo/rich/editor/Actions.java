@@ -110,6 +110,7 @@ public class Actions {
 
             @Override
             public void eventStyleUpdated(TextPos start, TextPos end) {
+                handleEdit();
             }
         });
 
