@@ -113,7 +113,7 @@ public abstract class StyledTextModel {
 
     /**
      * Returns a {@link RichParagraph} at the given model index.
-     *
+     * This method makes no guarantees that the same paragraph instance will be returned for the same model index.
      * @param index paragraph index in the range (0...{@link #size()})
      * @return a new instance of TextCell created
      */

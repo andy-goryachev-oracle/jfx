@@ -68,9 +68,9 @@ public class NotebookModelStacked extends StyledTextModel {
                 @Override
                 public RichParagraph getParagraph(int index) {
                     String text = getPlainText(index);
-                    RichParagraph p = new RichParagraph();
-                    p.addSegment(text, "-fx-text-fill:darkgreen; -fx-font-family:Monospace;", null);
-                    return p;
+                    RichParagraph.Builder b = RichParagraph.builder();
+                    b.addSegment(text, "-fx-text-fill:darkgreen; -fx-font-family:Monospace;", null);
+                    return b.build();
                 }
             };
             break;
@@ -79,9 +79,9 @@ public class NotebookModelStacked extends StyledTextModel {
                 @Override
                 public RichParagraph getParagraph(int index) {
                     String text = getPlainText(index);
-                    RichParagraph p = new RichParagraph();
-                    p.addSegment(text, "-fx-text-fill:gray;", null);
-                    return p;
+                    RichParagraph.Builder b = RichParagraph.builder();
+                    b.addSegment(text, "-fx-text-fill:gray;", null);
+                    return b.build();
                 }
             };
             break;

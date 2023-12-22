@@ -683,14 +683,14 @@ public class EditableRichTextModel extends StyledTextModel {
         }
 
         public RichParagraph createRichParagraph() {
-            RichParagraph par = new RichParagraph();
+            RichParagraph.Builder b = RichParagraph.builder();
             for (RSegment seg : this) {
                 String text = seg.text();
                 StyleAttrs a = seg.attrs();
-                par.addSegment(text, a);
+                b.addSegment(text, a);
             }
-            par.setParagraphAttributes(paragraphAttrs);
-            return par;
+            b.setParagraphAttributes(paragraphAttrs);
+            return b.build();
         }
 
         // FIX

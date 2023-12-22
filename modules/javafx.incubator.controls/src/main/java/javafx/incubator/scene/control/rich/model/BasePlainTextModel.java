@@ -68,9 +68,9 @@ public class BasePlainTextModel extends StyledTextModel {
     @Override
     public RichParagraph getParagraph(int index) {
         String text = getPlainText(index);
-        RichParagraph p = new RichParagraph();
-        p.addSegment(text);
-        return p;
+        return RichParagraph.builder().
+            addSegment(text).
+            build();
     }
 
     @Override

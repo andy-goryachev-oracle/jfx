@@ -76,23 +76,23 @@ public class DemoStyledTextModel extends StyledTextModelReadOnlyBase {
 
     @Override
     public RichParagraph getParagraph(int ix) {
-        RichParagraph p = new RichParagraph();
+        RichParagraph.Builder b = RichParagraph.builder();
         String s = format.format(ix + 1);
         String sz = format.format(size);
         String[] css = monospaced ? new String[] { "monospaced" } : null;
 
-        p.addSegment(s, "-fx-fill:darkgreen;", css);
-        p.addSegment(" / ", null, css);
-        p.addSegment(sz, "-fx-fill:black;", css);
+        b.addSegment(s, "-fx-fill:darkgreen;", css);
+        b.addSegment(" / ", null, css);
+        b.addSegment(sz, "-fx-fill:black;", css);
         if (monospaced) {
-            p.addSegment(" (monospaced)", null, css);
+            b.addSegment(" (monospaced)", null, css);
         }
 
         if ((ix % 10) == 9) {
             String words = generateWords(ix);
-            p.addSegment(words, null, css);
+            b.addSegment(words, null, css);
         }
-        return p;
+        return b.build();
     }
 
     private String generateWords(int ix) {

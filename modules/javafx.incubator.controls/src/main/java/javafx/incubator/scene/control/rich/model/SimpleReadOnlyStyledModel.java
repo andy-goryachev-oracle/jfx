@@ -32,7 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
@@ -40,12 +42,13 @@ import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import com.sun.javafx.incubator.scene.control.rich.TextCell;
 
 /**
  * A simple, read-only, in-memory, styled text model.
  */
 public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
-    private final ArrayList<RichParagraph> paragraphs = new ArrayList<>();
+    private final ArrayList<Paragraph> paragraphs = new ArrayList<>();
 
     public SimpleReadOnlyStyledModel() {
     }
@@ -78,7 +81,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
 
     @Override
     public RichParagraph getParagraph(int index) {
-        return paragraphs.get(index);
+        return paragraphs.get(index).toRichParagraph();
     }
 
     public SimpleReadOnlyStyledModel addSegment(String text) {
@@ -86,34 +89,34 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     }
 
     public SimpleReadOnlyStyledModel addSegment(String text, String style, String... css) {
-        RichParagraph p = lastParagraph();
+        Paragraph p = lastParagraph();
         p.addSegment(text, style, css);
         return this;
     }
 
     public SimpleReadOnlyStyledModel addSegment(String text, StyleAttrs a) {
         Objects.requireNonNull(a);
-        RichParagraph p = lastParagraph();
+        Paragraph p = lastParagraph();
         p.addSegment(text, a);
         return this;
     }
 
     public SimpleReadOnlyStyledModel highlight(int start, int length, Color c) {
-        RichParagraph p = lastParagraph();
+        Paragraph p = lastParagraph();
         p.addHighlight(start, length, c);
         return this;
     }
 
     public SimpleReadOnlyStyledModel squiggly(int start, int length, Color c) {
-        RichParagraph p = lastParagraph();
+        Paragraph p = lastParagraph();
         p.addSquiggly(start, length, c);
         return this;
     }
 
-    protected RichParagraph lastParagraph() {
+    protected Paragraph lastParagraph() {
         int sz = paragraphs.size();
         if (sz == 0) {
-            RichParagraph p = new RichParagraph();
+            Paragraph p = new Paragraph();
             paragraphs.add(p);
             return p;
         }
@@ -123,7 +126,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     /** adds a paragraph containing an image */
     public SimpleReadOnlyStyledModel addImage(InputStream in) {
         Image im = new Image(in);
-        RichParagraph p = RichParagraph.of(() -> {
+        Paragraph p = Paragraph.of(() -> {
             return new ImageCellPane(im);
         });
         paragraphs.add(p);
@@ -131,7 +134,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     }
 
     public SimpleReadOnlyStyledModel addParagraph(Supplier<Region> generator) {
-        RichParagraph p = RichParagraph.of(() -> {
+        Paragraph p = Paragraph.of(() -> {
             return generator.get();
         });
         paragraphs.add(p);
@@ -140,7 +143,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
 
     /** adds inline node segment */
     public SimpleReadOnlyStyledModel addNodeSegment(Supplier<Node> generator) {
-        RichParagraph p = lastParagraph();
+        Paragraph p = lastParagraph();
         p.addInlineNode(generator);
         return this;
     }
@@ -152,7 +155,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     public SimpleReadOnlyStyledModel nl(int count) {
         for (int i = 0; i < count; i++) {
             int ix = paragraphs.size();
-            paragraphs.add(new RichParagraph());
+            paragraphs.add(new Paragraph());
         }
         return this;
     }
@@ -162,7 +165,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
         int index = pos.index();
         if(index < paragraphs.size()) {
             int off = pos.offset();
-            RichParagraph par = paragraphs.get(index);
+            Paragraph par = paragraphs.get(index);
             StyleAttrs pa = par.getParagraphAttributes();
             StyleAttrs a = par.getStyleAttrs(r,off);
             if (pa == null) {
@@ -175,7 +178,247 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     }
 
     public void setParagraphAttributes(StyleAttrs a) {
-        RichParagraph p = lastParagraph();
+        Paragraph p = lastParagraph();
         p.setParagraphAttributes(a);
+    }
+    
+    public static class Paragraph {
+        private ArrayList<StyledSegment> segments;
+        private ArrayList<Consumer<TextCell>> highlights;
+        private StyleAttrs paragraphAttributes;
+
+        public Paragraph() {
+        }
+
+        public static Paragraph of(Supplier<Region> paragraphGenerator) {
+            return new Paragraph() {
+                @Override
+                public final Supplier<Region> getParagraphRegion() {
+                    return paragraphGenerator;
+                }
+
+                @Override
+                public final String getPlainText() {
+                    return "";
+                }
+
+                @Override
+                public void export(int start, int end, StyledOutput out) throws IOException {
+                    StyledSegment seg = StyledSegment.ofRegion(paragraphGenerator);
+                    out.append(seg);
+                }
+            };
+        }
+
+        public Supplier<Region> getParagraphRegion() {
+            return null;
+        }
+
+        String getPlainText() {
+            if (segments == null) {
+                return "";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            for (StyledSegment seg : segments) {
+                sb.append(seg.getText());
+            }
+            return sb.toString();
+        }
+
+        /**
+         * Adds a text segment with no styling (i.e. using default style).
+         *
+         * @param text segment text
+         */
+        void addSegment(String text) {
+            StyledSegment seg = StyledSegment.of(text);
+            segments().add(seg);
+        }
+
+        /**
+         * Adds a styled text segment.
+         *
+         * @param text non-null text string
+         * @param style direct style (such as {@code -fx-fill:red;}), or null
+         * @param css array of style names, or null
+         */
+        void addSegment(String text, String style, String[] css) {
+            StyleAttrs a = StyleAttrs.fromCss(style, css);
+            addSegment(text, a);
+        }
+
+        /**
+         * Adds a styled text segment.
+         * @param text the non-null text string
+         * @param attrs the styled attributes
+         */
+        void addSegment(String text, StyleAttrs attrs) {
+            StyledSegment seg = StyledSegment.of(text, attrs);
+            segments().add(seg);
+        }
+
+        /**
+         * Adds a styled text segment.
+         * @param text the source non-null string
+         * @param start the start offset of the input string
+         * @param end the end offset of the input string
+         * @param attrs the styled attributes
+         */
+        void addSegment(String text, int start, int end, StyleAttrs attrs) {
+            String s = text.substring(start, end);
+            addSegment(s, attrs);
+        }
+
+        /**
+         * Adds a color background highlight.
+         * Use translucent colors to enable multiple highlights in the same region of text.
+         * @param start the start offset
+         * @param length the end offset
+         * @param color the background color
+         */
+        void addHighlight(int start, int length, Color color) {
+            int end = start + length;
+            highlights().add((cell) -> {
+                cell.addHighlight(start, end, color);
+            });
+        }
+
+        /**
+         * Adds a squiggly line (as seen in a spell checker) with the given color.
+         * @param start the start offset
+         * @param length the end offset
+         * @param color the background color
+         */
+        void addSquiggly(int start, int length, Color color) {
+            int end = start + length;
+            highlights().add((cell) -> {
+                cell.addSquiggly(start, end, color);
+            });
+        }
+
+        private List<Consumer<TextCell>> highlights() {
+            if (highlights == null) {
+                highlights = new ArrayList<>(4);
+            }
+            return highlights;
+        }
+
+        /**
+         * Adds an inline node.
+         * <p>
+         * The supplied generator must not cache or keep reference to the created Node,
+         * but the created Node can keep a reference to the model or some property therein.
+         * <p>
+         * For example, a bidirectional binding between an inline control and some property in the model
+         * would synchronize the model with all the views that use it. 
+         * @param generator the generator that provides the actual {@code Node}
+         */
+        void addInlineNode(Supplier<Node> generator) {
+            StyledSegment seg = StyledSegment.ofInlineNode(generator);
+            segments().add(seg);
+        }
+
+        private List<StyledSegment> segments() {
+            if (segments == null) {
+                segments = new ArrayList<>(8);
+            }
+            return segments;
+        }
+
+        private List<StyledSegment> getSegments() {
+            return segments;
+        }
+        
+        private int size() {
+            return segments == null ? 0 : segments.size();
+        }
+
+        // for use by StyledTextModel
+        void export(int start, int end, StyledOutput out) throws IOException {
+            if (segments == null) {
+                out.append(StyledSegment.of(""));
+            } else {
+                int off = 0;
+                int sz = size();
+                for (int i = 0; i < sz; i++) {
+                    StyledSegment seg = segments.get(i);
+                    String text = seg.getText();
+                    int len = (text == null ? 0 : text.length());
+                    if (start <= (off + len)) {
+                        int ix0 = Math.max(0, start - off);
+                        int ix1 = Math.min(len, end - off);
+                        if (ix1 > ix0) {
+                            StyledSegment ss = seg.subSegment(ix0, ix1);
+                            out.append(ss);
+                        }
+                    }
+                    off += len;
+                    if (off >= end) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Sets the paragraph attributes.
+         * @param a the paragraph attributes
+         */
+        void setParagraphAttributes(StyleAttrs a) {
+            paragraphAttributes = a;
+        }
+
+        /**
+         * Returns the paragraph attributes.
+         * @return the paragraph attributes, can be null
+         */
+        StyleAttrs getParagraphAttributes() {
+            return paragraphAttributes;
+        }
+
+        // for use by SimpleReadOnlyStyledModel
+        StyleAttrs getStyleAttrs(StyleResolver resolver, int offset) {
+            int off = 0;
+            int ct = size();
+            for (int i = 0; i < ct; i++) {
+                StyledSegment seg = segments.get(i);
+                int len = seg.getTextLength();
+                if (offset < (off + len) || (i == ct - 1)) {
+                    return seg.getStyleAttrs(resolver);
+                }
+                off += len;
+            }
+            return StyleAttrs.EMPTY;
+        }
+        
+        public RichParagraph toRichParagraph() {
+            return new RichParagraph() {
+                @Override
+                public final String getPlainText() {
+                    return Paragraph.this.getPlainText();
+                }
+
+                @Override
+                public final StyleAttrs getParagraphAttributes() {
+                    return paragraphAttributes;
+                }
+
+                @Override
+                final List<StyledSegment> getSegments() {
+                    return Paragraph.this.getSegments();
+                }
+
+                @Override
+                public final Supplier<Region> getParagraphRegion() {
+                    return Paragraph.this.getParagraphRegion();
+                }
+
+                @Override
+                final List<Consumer<TextCell>> getHighlights() {
+                    return highlights;
+                }
+            };
+        }
     }
 }

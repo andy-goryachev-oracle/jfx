@@ -94,7 +94,7 @@ public enum ModelChoice {
                     @Override
                     public RichParagraph getParagraph(int index) {
                         String text = getPlainText(index);
-                        RichParagraph p = new RichParagraph();
+                        RichParagraph.Builder b = RichParagraph.builder();
                         int start = 0;
                         int sz = text.length();
                         boolean num = false;
@@ -104,7 +104,7 @@ public enum ModelChoice {
                                 if (i > start) {
                                     String s = text.substring(start, i);
                                     String style = num ? DIGITS : null;
-                                    p.addSegment(s, style, null);
+                                    b.addSegment(s, style, null);
                                     start = i;
                                 }
                                 num = !num;
@@ -113,9 +113,9 @@ public enum ModelChoice {
                         if (start < sz) {
                             String s = text.substring(start);
                             String style = num ? DIGITS : null;
-                            p.addSegment(s, style, null);
+                            b.addSegment(s, style, null);
                         }
-                        return p;
+                        return b.build();
                     }
                 };
                 return m;

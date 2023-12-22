@@ -46,7 +46,7 @@ public class DemoSyntaxDecorator implements SyntaxDecorator {
 
     @Override
     public RichParagraph createRichParagraph(String text) {
-        RichParagraph p = new RichParagraph();
+        RichParagraph.Builder b = RichParagraph.builder();
         if (text != null) {
             int len = text.length();
             if(len > 0) {
@@ -55,19 +55,19 @@ public class DemoSyntaxDecorator implements SyntaxDecorator {
                 while (m.find(beg)) {
                     int start = m.start();
                     if (start > beg) {
-                        p.addSegment(text, beg, start, null);
+                        b.addSegment(text, beg, start, null);
                     }
                     int end = m.end();
                     boolean digit = (m.end(1) >= 0);
-                    p.addSegment(text, start, end, digit ? DIGITS : KEYWORDS);
+                    b.addSegment(text, start, end, digit ? DIGITS : KEYWORDS);
                     beg = end;
                 }
                 if (beg < len) {
-                    p.addSegment(text, beg, len, null);
+                    b.addSegment(text, beg, len, null);
                 }
             }
         }
-        return p;
+        return b.build();
     }
 
     private static Pattern initPattern() {

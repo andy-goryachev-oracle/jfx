@@ -38,26 +38,15 @@ import com.sun.javafx.incubator.scene.control.rich.RichParagraphHelper;
 import com.sun.javafx.incubator.scene.control.rich.TextCell;
 
 /**
- * Represents a paragraph with rich text inside the StyledModel.
+ * Represents a single immutable paragraph within the {@code StyledModel}.
+ * A single paragraph may contain either:
+ * <ul>
+ * <li>A number of {@code StyledSegments} such as styled text or {@code Supplier}s of embedded {@code Node}s
+ * <li>A supplier of a single {@code Region} which fills the entire paragraph
+ * </ul>
  */
-public class RichParagraph {
-    private ArrayList<StyledSegment> segments;
-    private ArrayList<Consumer<TextCell>> highlights;
-    private StyleAttrs paragraphAttributes;
-
-    static {
-        RichParagraphHelper.setAccessor(new RichParagraphHelper.Accessor() {
-            @Override
-            public List<StyledSegment> getSegments(RichParagraph p) {
-                return p.getSegments();
-            }
-
-            @Override
-            public List<Consumer<TextCell>> getHighlights(RichParagraph p) {
-                return p.getHighlights();
-            }
-        });
-    }
+public abstract class RichParagraph {
+    static { initAccessor(); }
 
     public RichParagraph() {
     }
@@ -92,6 +81,11 @@ public class RichParagraph {
                 StyledSegment seg = StyledSegment.ofRegion(paragraphGenerator);
                 out.append(seg);
             }
+
+            @Override
+            List<StyledSegment> getSegments() {
+                return null;
+            }
         };
     }
 
@@ -99,137 +93,35 @@ public class RichParagraph {
         return null;
     }
 
-    public String getPlainText() {
-        if (segments == null) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-        for (StyledSegment seg : segments) {
-            sb.append(seg.getText());
-        }
-        return sb.toString();
-    }
-
     /**
-     * Adds a text segment with no styling (i.e. using default style).
-     *
-     * @param text segment text
+     * Returns the plain text of this paragraph, or null.
+     * @return the plain text
      */
-    public void addSegment(String text) {
-        StyledSegment seg = StyledSegment.of(text);
-        segments().add(seg);
+    public abstract String getPlainText();
+
+    List<Consumer<TextCell>> getHighlights() {
+        return null;
     }
 
-    /**
-     * Adds a styled text segment.
-     *
-     * @param text non-null text string
-     * @param style direct style (such as {@code -fx-fill:red;}), or null
-     * @param css array of style names, or null
-     */
-    public void addSegment(String text, String style, String[] css) {
-        StyleAttrs a = StyleAttrs.fromCss(style, css);
-        addSegment(text, a);
-    }
-
-    /**
-     * Adds a styled text segment.
-     * @param text the non-null text string
-     * @param attrs the styled attributes
-     */
-    public void addSegment(String text, StyleAttrs attrs) {
-        StyledSegment seg = StyledSegment.of(text, attrs);
-        segments().add(seg);
-    }
-
-    /**
-     * Adds a styled text segment.
-     * @param text the source non-null string
-     * @param start the start offset of the input string
-     * @param end the end offset of the input string
-     * @param attrs the styled attributes
-     */
-    public void addSegment(String text, int start, int end, StyleAttrs attrs) {
-        String s = text.substring(start, end);
-        addSegment(s, attrs);
-    }
-
-    /**
-     * Adds a color background highlight.
-     * Use translucent colors to enable multiple highlights in the same region of text.
-     * @param start the start offset
-     * @param length the end offset
-     * @param color the background color
-     */
-    public void addHighlight(int start, int length, Color color) {
-        int end = start + length;
-        highlights().add((cell) -> {
-            cell.addHighlight(start, end, color);
-        });
-    }
-
-    /**
-     * Adds a squiggly line (as seen in a spell checker) with the given color.
-     * @param start the start offset
-     * @param length the end offset
-     * @param color the background color
-     */
-    public void addSquiggly(int start, int length, Color color) {
-        int end = start + length;
-        highlights().add((cell) -> {
-            cell.addSquiggly(start, end, color);
-        });
-    }
-
-    private List<Consumer<TextCell>> highlights() {
-        if (highlights == null) {
-            highlights = new ArrayList<>(4);
-        }
-        return highlights;
-    }
-
-    /**
-     * Adds an inline node.
-     * <p>
-     * The supplied generator must not cache or keep reference to the created Node,
-     * but the created Node can keep a reference to the model or some property therein.
-     * <p>
-     * For example, a bidirectional binding between an inline control and some property in the model
-     * would synchronize the model with all the views that use it. 
-     * @param generator the generator that provides the actual {@code Node}
-     */
-    public void addInlineNode(Supplier<Node> generator) {
-        StyledSegment seg = StyledSegment.ofInlineNode(generator);
-        segments().add(seg);
-    }
-
-    private List<StyledSegment> segments() {
-        if (segments == null) {
-            segments = new ArrayList<>(8);
-        }
-        return segments;
-    }
-
-    private List<Consumer<TextCell>> getHighlights() {
-        return highlights;
-    }
-
-    private List<StyledSegment> getSegments() {
-        return segments;
-    }
+    // this method could be made public, as long as the returned list is made immutable
+    abstract List<StyledSegment> getSegments();
     
-    private int size() {
-        return segments == null ? 0 : segments.size();
+    /**
+     * Returns the paragraph attributes.
+     * @return the paragraph attributes, can be null
+     */
+    public StyleAttrs getParagraphAttributes() {
+        return null;
     }
 
     // for use by StyledTextModel
     void export(int start, int end, StyledOutput out) throws IOException {
+        List<StyledSegment> segments = getSegments();
         if (segments == null) {
             out.append(StyledSegment.of(""));
         } else {
             int off = 0;
-            int sz = size();
+            int sz = segments.size();
             for (int i = 0; i < sz; i++) {
                 StyledSegment seg = segments.get(i);
                 String text = seg.getText();
@@ -250,34 +142,202 @@ public class RichParagraph {
         }
     }
 
-    /**
-     * Sets the paragraph attributes.
-     * @param a the paragraph attributes
-     */
-    public void setParagraphAttributes(StyleAttrs a) {
-        paragraphAttributes = a;
-    }
-
-    /**
-     * Returns the paragraph attributes.
-     * @return the paragraph attributes, can be null
-     */
-    public StyleAttrs getParagraphAttributes() {
-        return paragraphAttributes;
-    }
-
     // for use by SimpleReadOnlyStyledModel
     StyleAttrs getStyleAttrs(StyleResolver resolver, int offset) {
         int off = 0;
-        int ct = size();
-        for (int i = 0; i < ct; i++) {
-            StyledSegment seg = segments.get(i);
-            int len = seg.getTextLength();
-            if (offset < (off + len) || (i == ct - 1)) {
-                return seg.getStyleAttrs(resolver);
+        List<StyledSegment> segments = getSegments();
+        if (segments != null) {
+            int sz = segments.size();
+            for (int i = 0; i < sz; i++) {
+                StyledSegment seg = segments.get(i);
+                int len = seg.getTextLength();
+                if (offset < (off + len) || (i == sz - 1)) {
+                    return seg.getStyleAttrs(resolver);
+                }
+                off += len;
             }
-            off += len;
         }
         return StyleAttrs.EMPTY;
+    }
+    
+    private static void initAccessor() {
+        RichParagraphHelper.setAccessor(new RichParagraphHelper.Accessor() {
+            @Override
+            public List<StyledSegment> getSegments(RichParagraph p) {
+                return p.getSegments();
+            }
+
+            @Override
+            public List<Consumer<TextCell>> getHighlights(RichParagraph p) {
+                return p.getHighlights();
+            }
+        });
+    }
+
+    /**
+     * Creates an instance of the {@code Builder} class.
+     * @return the new Builder instance
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Utility class for building immutable {@code RichParagraph}s.
+     */
+    public static class Builder {
+        private ArrayList<StyledSegment> segments;
+        private ArrayList<Consumer<TextCell>> highlights;
+        private StyleAttrs paragraphAttributes;
+
+        /**
+         * Adds a squiggly line (as seen in a spell checker) with the given color.
+         * @param start the start offset
+         * @param length the end offset
+         * @param color the background color
+         */
+        public void addSquiggly(int start, int length, Color color) {
+            int end = start + length;
+            highlights().add((cell) -> {
+                cell.addSquiggly(start, end, color);
+            });
+        }
+
+        private List<Consumer<TextCell>> highlights() {
+            if (highlights == null) {
+                highlights = new ArrayList<>(4);
+            }
+            return highlights;
+        }
+        
+        /**
+         * Adds a text segment with no styling (i.e. using default style).
+         *
+         * @param text segment text
+         * @return this Builder instance
+         */
+        public Builder addSegment(String text) {
+            StyledSegment seg = StyledSegment.of(text);
+            segments().add(seg);
+            return this;
+        }
+
+        /**
+         * Adds a styled text segment.
+         *
+         * @param text non-null text string
+         * @param style direct style (such as {@code -fx-fill:red;}), or null
+         * @param css array of style names, or null
+         * @return this Builder instance
+         */
+        public Builder addSegment(String text, String style, String[] css) {
+            StyleAttrs a = StyleAttrs.fromCss(style, css);
+            addSegment(text, a);
+            return this;
+        }
+
+        /**
+         * Adds a styled text segment.
+         * @param text the non-null text string
+         * @param attrs the styled attributes
+         */
+        public void addSegment(String text, StyleAttrs attrs) {
+            StyledSegment seg = StyledSegment.of(text, attrs);
+            segments().add(seg);
+        }
+
+        /**
+         * Adds a styled text segment.
+         * @param text the source non-null string
+         * @param start the start offset of the input string
+         * @param end the end offset of the input string
+         * @param attrs the styled attributes
+         */
+        public void addSegment(String text, int start, int end, StyleAttrs attrs) {
+            String s = text.substring(start, end);
+            addSegment(s, attrs);
+        }
+
+        /**
+         * Adds a color background highlight.
+         * Use translucent colors to enable multiple highlights in the same region of text.
+         * @param start the start offset
+         * @param length the end offset
+         * @param color the background color
+         */
+        public void addHighlight(int start, int length, Color color) {
+            int end = start + length;
+            highlights().add((cell) -> {
+                cell.addHighlight(start, end, color);
+            });
+        }
+
+        /**
+         * Adds an inline node.
+         * <p>
+         * The supplied generator must not cache or keep reference to the created Node,
+         * but the created Node can keep a reference to the model or some property therein.
+         * <p>
+         * For example, a bidirectional binding between an inline control and some property in the model
+         * would synchronize the model with all the views that use it. 
+         * @param generator the generator that provides the actual {@code Node}
+         */
+        public void addInlineNode(Supplier<Node> generator) {
+            StyledSegment seg = StyledSegment.ofInlineNode(generator);
+            segments().add(seg);
+        }
+
+        private List<StyledSegment> segments() {
+            if (segments == null) {
+                segments = new ArrayList<>(8);
+            }
+            return segments;
+        }
+
+        /**
+         * Sets the paragraph attributes.
+         * @param a the paragraph attributes
+         */
+        public void setParagraphAttributes(StyleAttrs a) {
+            paragraphAttributes = a;
+        }
+
+        /**
+         * Creates an instance of immutable {@code RichParagraph} from information
+         * in this {@code Builder}.
+         * @return the new paragraph instance
+         */
+        public RichParagraph build() {
+            return new RichParagraph() {
+                @Override
+                public StyleAttrs getParagraphAttributes() {
+                    return paragraphAttributes;
+                }
+
+                @Override
+                List<StyledSegment> getSegments() {
+                    // TODO immutable list?
+                    return segments;
+                }
+
+                @Override
+                public String getPlainText() {
+                    if (segments == null) {
+                        return "";
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+                    for (StyledSegment seg : segments) {
+                        sb.append(seg.getText());
+                    }
+                    return sb.toString();
+                }
+
+                @Override
+                List<Consumer<TextCell>> getHighlights() {
+                    return highlights;
+                }
+            };
+        }
     }
 }
