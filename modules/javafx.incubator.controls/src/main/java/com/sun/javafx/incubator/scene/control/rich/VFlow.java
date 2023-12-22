@@ -691,7 +691,7 @@ public class VFlow extends Pane implements StyleResolver {
 
         double max = getContentWidth() + leftPadding + rightPadding;
         double w = flow.getWidth();
-        double off = getOffsetX();
+        double off = getOffsetX() + leftPadding;
         double vis = w / max;
         double val = toScrollBarValue(off, w, max);
 
@@ -706,7 +706,7 @@ public class VFlow extends Pane implements StyleResolver {
         handleScrollEvents = true;
     }
 
-    /** handles user moving the scroll bar */
+    /** handles user moving the horizontal scroll bar */
     public void handleHorizontalScroll() {
         if (handleScrollEvents) {
             if (arrangement == null) {
