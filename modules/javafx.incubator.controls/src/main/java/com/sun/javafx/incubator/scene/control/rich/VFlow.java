@@ -40,6 +40,7 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventType;
+import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
@@ -67,6 +68,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
@@ -148,6 +150,11 @@ public class VFlow extends Pane implements StyleResolver {
         selectionHighlight.getStyleClass().add("selection-highlight");
         selectionHighlight.setManaged(false);
 
+        // make sure these are clipped by flow clip rectangle
+        bindClipRectangle(caretLineHighlight, flow);
+        bindClipRectangle(selectionHighlight, flow);
+        bindClipRectangle(caretPath, flow);
+
         // layout
         content.getChildren().addAll(caretLineHighlight, selectionHighlight, flow, caretPath);
         getChildren().addAll(content, leftGutter, rightGutter);
@@ -199,6 +206,19 @@ public class VFlow extends Pane implements StyleResolver {
         Text t = new Text("8");
         t.setManaged(false);
         return t;
+    }
+
+    private void bindClipRectangle(Node target, Node source) {
+        Rectangle r = new Rectangle();
+        target.setClip(r);
+        source.boundsInParentProperty().addListener((s,p,sb) -> {
+            Bounds b = target.parentToLocal(sb);
+            r.setX(b.getMinX());
+            r.setY(b.getMinY());
+            r.setWidth(b.getWidth());
+            r.setHeight(b.getHeight());
+        });
+        Rectangle sr = (Rectangle)source.getClip();
     }
 
     public void handleModelChange() {
