@@ -28,9 +28,9 @@ package javafx.incubator.scene.control.behavior;
 import java.util.EnumSet;
 import java.util.Objects;
 import javafx.event.EventType;
-import javafx.incubator.scene.control.util.Util;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import com.sun.javafx.PlatformUtil;
 
 /**
  * Key binding provides a way to map key event to a hash table key for easy matching.
@@ -188,7 +188,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return true if {@code shortcut} key is down in this key binding
      */
     public boolean isShortcut() {
-        if (Util.isMac()) {
+        if (PlatformUtil.isMac()) {
             return modifiers.contains(KCondition.COMMAND);
         }
         return modifiers.contains(KCondition.CTRL);
@@ -340,8 +340,8 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
         boolean option = false;
         boolean command = false;
 
-        boolean mac = Util.isMac();
-        boolean win = Util.isWindows();
+        boolean mac = PlatformUtil.isMac();
+        boolean win = PlatformUtil.isWindows();
 
         // drop multiple modifiers, translating when necessary
 
@@ -673,9 +673,9 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
          * @return a new key binding instance.
          */
         public KeyBinding build() {
-            boolean mac = Util.isMac();
-            boolean win = Util.isWindows();
-            boolean linux = Util.isLinux();
+            boolean mac = PlatformUtil.isMac();
+            boolean win = PlatformUtil.isWindows();
+            boolean linux = PlatformUtil.isLinux();
 
             if (mac) {
                 replace(KCondition.ALT, KCondition.OPTION);

@@ -35,9 +35,6 @@ import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Rectangle2D;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.incubator.scene.control.behavior.BehaviorBase;
 import javafx.incubator.scene.control.behavior.InputMap;
 import javafx.incubator.scene.control.behavior.KeyBinding;
@@ -47,7 +44,9 @@ import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.DataFormatHandler;
 import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
-import javafx.incubator.scene.control.util.Util;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.ContextMenuEvent;
@@ -60,6 +59,8 @@ import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.util.Duration;
+import com.sun.javafx.PlatformUtil;
+import com.sun.javafx.util.Utils;
 
 /**
  * RichTextArea Behavior.
@@ -249,8 +250,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             if (ch.length() > 0) {
                 // see TextInputControlBehavior:395
                 // Filter out control keys except control+Alt on PC or Alt on Mac
-                if (ev.isControlDown() || ev.isAltDown() || (Util.isMac() && ev.isMetaDown())) {
-                    if (!((ev.isControlDown() || Util.isMac()) && ev.isAltDown())) {
+                if (ev.isControlDown() || ev.isAltDown() || (PlatformUtil.isMac() && ev.isMetaDown())) {
+                    if (!((ev.isControlDown() || PlatformUtil.isMac()) && ev.isAltDown())) {
                         return null;
                     }
                 }
@@ -820,7 +821,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
             double menuWidth = contextMenu.prefWidth(-1);
             double menuX = screenX - (RichUtils.isTouchSupported() ? (menuWidth / 2) : 0);
-            Screen currentScreen = Util.getScreenForPoint(screenX, 0);
+            Screen currentScreen = Utils.getScreenForPoint(screenX, 0);
             Rectangle2D bounds = currentScreen.getBounds();
 
             // what is this??
@@ -948,7 +949,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
                 TextPos p = m.replace(vflow, start, end, in, true);
                 control.moveCaret(p, false);
             } catch (IOException e) {
-                Util.provideErrorFeedback(control, e);
+                RichUtils.provideErrorFeedback(control, e);
             }
         }
     }
@@ -981,7 +982,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
                         deleteSelection();
                     }
                 } catch(Exception | OutOfMemoryError e) {
-                    Util.provideErrorFeedback(control, e);
+                    RichUtils.provideErrorFeedback(control, e);
                 }
             }
         }
@@ -1008,7 +1009,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
                 }
             }
         } catch(Exception | OutOfMemoryError e) {
-            Util.provideErrorFeedback(control, e);
+            RichUtils.provideErrorFeedback(control, e);
         }
     }
 
@@ -1162,11 +1163,11 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
         int len = text.length();
         int offset = caret.offset();
-        int off = br.preceding(Util.clamp(0, offset, len));
+        int off = br.preceding(Utils.clamp(0, offset, len));
 
         // Skip the non-word region, then move/select to the beginning of the word.
-        while (off != BreakIterator.DONE && !Character.isLetterOrDigit(text.charAt(Util.clamp(0, off, len - 1)))) {
-            off = br.preceding(Util.clamp(0, off, len));
+        while (off != BreakIterator.DONE && !Character.isLetterOrDigit(text.charAt(Utils.clamp(0, off, len - 1)))) {
+            off = br.preceding(Utils.clamp(0, off, len));
         }
 
         return new TextPos(index, off);
@@ -1185,14 +1186,14 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         int len = text.length();
         int offset = caret.offset();
 
-        int last = br.following(Util.clamp(0, offset, len - 1));
+        int last = br.following(Utils.clamp(0, offset, len - 1));
         int current = br.next();
 
         // Skip whitespace characters to the beginning of next word, but
         // stop at newline. Then move the caret or select a range.
         while (current != BreakIterator.DONE) {
             for (int off = last; off <= current; off++) {
-                char ch = text.charAt(Util.clamp(0, off, len - 1));
+                char ch = text.charAt(Utils.clamp(0, off, len - 1));
                 // Avoid using Character.isSpaceChar() and Character.isWhitespace(),
                 // because they include LINE_SEPARATOR, PARAGRAPH_SEPARATOR, etc.
                 if (ch != ' ' && ch != '\t') {
@@ -1218,13 +1219,13 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
         int textLength = text.length();
         int offset = caret.offset();
-        int last = br.following(Util.clamp(0, offset, textLength));
+        int last = br.following(Utils.clamp(0, offset, textLength));
         int current = br.next();
 
         // skip the non-word region, then move/select to the end of the word.
         while (current != BreakIterator.DONE) {
             for (int p = last; p <= current; p++) {
-                if (!Character.isLetterOrDigit(text.charAt(Util.clamp(0, p, textLength - 1)))) {
+                if (!Character.isLetterOrDigit(text.charAt(Utils.clamp(0, p, textLength - 1)))) {
                     return new TextPos(index, p);
                 }
             }

@@ -29,13 +29,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Base64;
 import java.util.HashMap;
-import javafx.scene.Node;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledOutput;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
-import javafx.incubator.scene.control.util.Util;
+import javafx.scene.Node;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -137,10 +136,9 @@ public class HtmlStyledOutput implements StyledOutput {
 
     private void writeParagraph(Region n) throws IOException {
         WritableImage im = resolver.snapshot(n);
-        byte[] bytes = Util.writePNG(im);
         int w = (int)im.getWidth();
         int h = (int)im.getHeight();
-        byte[] b = Util.writePNG(im);
+        byte[] b = RichUtils.writePNG(im);
         String base64 = Base64.getEncoder().encodeToString(b);
         wr.write("<p><img src=\"data:image/png;base64,");
         wr.write(base64);
@@ -153,10 +151,9 @@ public class HtmlStyledOutput implements StyledOutput {
     
     private void writeInlineNode(Node n) throws IOException {
         WritableImage im = resolver.snapshot(n);
-        byte[] bytes = Util.writePNG(im);
         int w = (int)im.getWidth();
         int h = (int)im.getHeight();
-        byte[] b = Util.writePNG(im);
+        byte[] b = RichUtils.writePNG(im);
         String base64 = Base64.getEncoder().encodeToString(b);
         wr.write("<img src=\"data:image/png;base64,");
         wr.write(base64);

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
-import javafx.incubator.scene.control.util.Util;
+import com.sun.javafx.util.Utils;
 
 /**
  * Provides access to internal methods in RichParagraph.
@@ -42,7 +42,7 @@ public class RichParagraphHelper {
     }
 
     static {
-        Util.forceInit(RichParagraph.class);
+        Utils.forceInit(RichParagraph.class);
     }
 
     private static Accessor accessor;

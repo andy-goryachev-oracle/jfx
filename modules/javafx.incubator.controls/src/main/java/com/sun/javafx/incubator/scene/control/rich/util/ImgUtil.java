@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package javafx.incubator.scene.control.util;
+package com.sun.javafx.incubator.scene.control.rich.util;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
@@ -43,7 +43,7 @@ import javafx.scene.paint.Color;
  * Image Utilities copied from javafx.embed.swing.SwingFXUtils.
  * Avoids creating dependency on javafx.swing to javafx.controls.
  */
-class ImgUtil {
+public class ImgUtil {
     private ImgUtil() { } // no instances
 
     /**

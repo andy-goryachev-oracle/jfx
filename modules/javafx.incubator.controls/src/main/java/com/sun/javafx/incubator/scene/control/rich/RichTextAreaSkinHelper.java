@@ -27,8 +27,8 @@ package com.sun.javafx.incubator.scene.control.rich;
 
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
-import javafx.incubator.scene.control.util.Util;
 import javafx.scene.control.Skin;
+import com.sun.javafx.util.Utils;
 
 /**
  * Manages RichTextAreaSkin Accessor.
@@ -39,7 +39,7 @@ public class RichTextAreaSkinHelper {
     }
 
     static {
-        Util.forceInit(RichTextAreaSkin.class);
+        Utils.forceInit(RichTextAreaSkin.class);
     }
 
     private static Accessor accessor;

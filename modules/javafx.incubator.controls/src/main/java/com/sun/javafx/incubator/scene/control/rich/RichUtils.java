@@ -26,12 +26,14 @@
 package com.sun.javafx.incubator.scene.control.rich;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.List;
+import javax.imageio.ImageIO;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.css.CssMetaData;
@@ -39,6 +41,7 @@ import javafx.css.Styleable;
 import javafx.geometry.Point2D;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
@@ -47,6 +50,7 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
+import com.sun.javafx.incubator.scene.control.rich.util.ImgUtil;
 
 /**
  * RichTextArea specific utility methods.
@@ -411,5 +415,43 @@ public final class RichUtils {
             sb.append((char)c);
         }
         return sb.toString();
+    }
+
+    /**
+     * Invoked when the user attempts an invalid operation,
+     * such as pasting into an uneditable <code>TextInputControl</code>
+     * that has focus. The default implementation beeps.
+     *
+     * @param originator the <code>Node</code> the error occurred in, may be <code>null</code>
+     *                   indicating the error condition is not directly associated with a <code>Node</code>
+     * @param error the exception thrown (can be null)
+     */
+    // TODO this probably should be in Platform
+    public static void provideErrorFeedback(Node originator, Throwable error) {
+        beep();
+        if (error != null) {
+            // TODO should be using logging
+            error.printStackTrace();
+        }
+    }
+
+    /** Emits a short audible alert, if supported by the platform. */
+    public static void beep() {
+        // TODO not supported in FX
+    }
+
+    /**
+     * Writes an Image to a byte array in PNG format.
+     *
+     * @param im source image
+     * @return byte array containing PNG image
+     * @throws IOException if an I/O error occurs
+     */
+    public static byte[] writePNG(Image im) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(65536);
+        // this might conflict with user-set value
+        ImageIO.setUseCache(false);
+        ImageIO.write(ImgUtil.fromFXImage(im, null), "PNG", out);
+        return out.toByteArray();
     }
 }

@@ -27,7 +27,7 @@ package com.sun.javafx.incubator.scene.control.rich;
 
 import javafx.incubator.scene.control.rich.Marker;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.util.Util;
+import com.sun.javafx.util.Utils;
 
 /**
  * Manages Marker Accessor.
@@ -39,7 +39,7 @@ public class MarkerHelper {
     }
 
     static {
-        Util.forceInit(Marker.class);
+        Utils.forceInit(Marker.class);
     }
 
     private static MarkerHelper.Accessor accessor;
