@@ -24,16 +24,15 @@
  */
 package com.oracle.demo.rich.rta;
 import java.util.Arrays;
-import java.util.Random;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
+import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.incubator.scene.control.rich.model.RichTextFormatHandler;
-import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 
@@ -58,6 +57,14 @@ public class DemoModel extends SimpleReadOnlyStyledModel {
 
         addSegment("RichTextArea Control", "-fx-font-size:200%;", UNDERLINE);
         nl(2);
+        
+//        addParagraph(() -> {
+//            Region r = new Region();
+//            r.getchi
+//            r.setw 300, 50);
+//            r.setFill(Color.RED);
+//            return r;
+//        });
 
         addSegment("/**", null, RED, CODE);
         nl();
@@ -120,7 +127,15 @@ public class DemoModel extends SimpleReadOnlyStyledModel {
         highlight(46, 11, Color.rgb(255, 255, 128, 0.7));
         highlight(50, 20, Color.rgb(0, 0, 128, 0.1));
         nl(2);
-        
+
+        // FIX adding a control messes up the view with text wrap off
+//        addParagraph(() -> {
+//            TextField t = new TextField("yo");
+//            t.setMaxWidth(100);
+//            return t;
+//        });
+//        nl(2);
+
         addParagraph(this::createRect);
         nl(2);
 
@@ -162,8 +177,13 @@ public class DemoModel extends SimpleReadOnlyStyledModel {
     }
 
     private Region createRect() {
-        Label t = new Label();
+        Label t = new Label() {
+            protected double computePrefHeight(double w) {
+                return 400;
+            }
+        };
         t.setPrefSize(400, 200);
+        t.setMaxWidth(400);
         t.textProperty().bind(Bindings.createObjectBinding(
             () -> {
                 return String.format("%.1f x %.1f", t.getWidth(), t.getHeight());
@@ -172,8 +192,10 @@ public class DemoModel extends SimpleReadOnlyStyledModel {
             t.heightProperty()
         ));
         t.setBackground(Background.fill(Color.LIGHTGRAY));
-        t.maxWidthProperty().bind(t.prefWidthProperty());
-        return t;
+
+        BorderPane p = new BorderPane();
+        p.setLeft(t);
+        return p;
     }
 
     private String word(char c, int len) {
