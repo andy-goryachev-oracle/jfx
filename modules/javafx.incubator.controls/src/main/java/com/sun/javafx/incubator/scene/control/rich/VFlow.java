@@ -70,6 +70,7 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * Virtual text flow deals with TextCells, scroll bars, and conversion

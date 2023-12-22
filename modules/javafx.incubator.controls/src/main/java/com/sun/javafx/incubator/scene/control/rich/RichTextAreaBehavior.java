@@ -60,6 +60,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.util.Duration;
 import com.sun.javafx.PlatformUtil;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 import com.sun.javafx.util.Utils;
 
 /**

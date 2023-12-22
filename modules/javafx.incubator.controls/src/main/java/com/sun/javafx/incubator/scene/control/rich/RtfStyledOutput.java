@@ -40,6 +40,7 @@ import javafx.incubator.scene.control.rich.model.StyledSegment;
 import javafx.scene.Node;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * StyledOutput which generates RTF.

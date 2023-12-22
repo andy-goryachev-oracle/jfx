@@ -38,6 +38,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.TextFlow;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * Provides a visual representation of a paragraph.

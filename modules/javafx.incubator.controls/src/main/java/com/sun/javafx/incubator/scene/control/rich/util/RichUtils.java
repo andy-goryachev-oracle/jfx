@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.sun.javafx.incubator.scene.control.rich;
+package com.sun.javafx.incubator.scene.control.rich.util;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -50,7 +50,6 @@ import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
-import com.sun.javafx.incubator.scene.control.rich.util.ImgUtil;
 
 /**
  * RichTextArea specific utility methods.

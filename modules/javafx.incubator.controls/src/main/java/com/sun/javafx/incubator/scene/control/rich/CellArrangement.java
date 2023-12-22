@@ -39,6 +39,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * Manages TextCells in a sliding window, comprised of the visible area and some number of screenfuls

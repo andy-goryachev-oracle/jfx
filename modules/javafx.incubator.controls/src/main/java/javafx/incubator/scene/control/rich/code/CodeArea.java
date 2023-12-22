@@ -46,7 +46,7 @@ import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
-import com.sun.javafx.incubator.scene.control.rich.RichUtils;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.

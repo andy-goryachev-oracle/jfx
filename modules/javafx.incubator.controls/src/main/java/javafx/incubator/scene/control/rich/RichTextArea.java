@@ -68,8 +68,8 @@ import javafx.util.Duration;
 import com.sun.javafx.incubator.scene.control.rich.CssStyles;
 import com.sun.javafx.incubator.scene.control.rich.Params;
 import com.sun.javafx.incubator.scene.control.rich.RichTextAreaSkinHelper;
-import com.sun.javafx.incubator.scene.control.rich.RichUtils;
 import com.sun.javafx.incubator.scene.control.rich.VFlow;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * Text input component that allows a user to enter multiple lines of rich text.

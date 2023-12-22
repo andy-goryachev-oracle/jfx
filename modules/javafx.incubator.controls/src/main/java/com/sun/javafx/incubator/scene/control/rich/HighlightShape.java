@@ -36,6 +36,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * This component gets added to TextFlow to provide various types of highlight:
