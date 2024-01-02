@@ -832,18 +832,41 @@ public abstract class StyledTextModel {
         return sb.toString();
     }
 
-    public final void load(StyleResolver r, DataFormat f, InputStream input) throws IOException {
+    /**
+     * Replaces the content of the model with the data read from the input stream,
+     * using the specified {@code DataFormat}.
+     * @param r the style resolver
+     * @param f the data format
+     * @param input the input stream
+     * @throws IOException in case of an I/O error
+     * @throws UnsupportedOperationException when the data format is not supported by the model
+     */
+    public final void read(StyleResolver r, DataFormat f, InputStream input) throws IOException {
         clearUndoRedo();
         TextPos end = getDocumentEnd();
         DataFormatHandler h = getDataFormatHandler(f, false);
+        if (h == null) {
+            throw new UnsupportedOperationException("format not supported: " + f);
+        }
         String text = RichUtils.readString(input);
         StyledInput in = h.createStyledInput(text);
         replace(r, TextPos.ZERO, end, in, false);
     }
 
-    public final void save(StyleResolver r, DataFormat f, OutputStream out) throws IOException {
+    /**
+     * Writes the model content to the output stream using the specified {@code DataFormat}.
+     * @param r the style resolver
+     * @param f the data format
+     * @param out the output stream
+     * @throws IOException in case of an I/O error
+     * @throws UnsupportedOperationException when the data format is not supported by the model
+     */
+    public final void write(StyleResolver r, DataFormat f, OutputStream out) throws IOException {
         TextPos end = getDocumentEnd();
         DataFormatHandler h = getDataFormatHandler(f, true);
+        if (h == null) {
+            throw new UnsupportedOperationException("format not supported: " + f);
+        }
         h.save(this, r, TextPos.ZERO, end, out);
     }
 }

@@ -227,7 +227,7 @@ public class Actions {
         File f = ch.showOpenDialog(w);
         if (f != null) {
             try {
-                loadFile(f, RichTextFormatHandler.DATA_FORMAT);
+                readFile(f, RichTextFormatHandler.DATA_FORMAT);
             } catch (Exception e) {
                 new ExceptionDialog(control, e).open();
             }
@@ -248,7 +248,7 @@ public class Actions {
             }
         }
         try {
-            saveFile(f, RichTextFormatHandler.DATA_FORMAT);
+            writeFile(f, RichTextFormatHandler.DATA_FORMAT);
         } catch (Exception e) {
             new ExceptionDialog(control, e).open();
         }
@@ -290,7 +290,7 @@ public class Actions {
                     fmt = RichTextFormatHandler.DATA_FORMAT;
 
                     try {
-                        saveFile(f, fmt);
+                        writeFile(f, fmt);
                     } catch (Exception e) {
                         new ExceptionDialog(control, e).open();
                         return true;
@@ -303,17 +303,17 @@ public class Actions {
         return false;
     }
 
-    private void loadFile(File f, DataFormat fmt) throws Exception {
+    private void readFile(File f, DataFormat fmt) throws Exception {
         try (FileInputStream in = new FileInputStream(f)) {
-            control.load(fmt, in);
+            control.read(fmt, in);
             file.set(f);
             modified.set(false);
         }
     }
     
-    private void saveFile(File f, DataFormat fmt) throws Exception {
+    private void writeFile(File f, DataFormat fmt) throws Exception {
         try (FileOutputStream out = new FileOutputStream(f)) {
-            control.save(fmt, out);
+            control.write(fmt, out);
             file.set(f);
             modified.set(false);
         }

@@ -525,7 +525,7 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Moves the caret to the specified position, clearing the selection.
+     * Moves the caret (and the anchor) to the specified position, clearing any existing selection.
      * @param pos the text position
      */
     public void setCaret(TextPos pos) {
@@ -551,7 +551,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Extends selection from the existing anchor to the new position.
+     * Extends selection from the existing anchor to the specified position.
      * @param pos the text position
      */
     public void extendSelection(TextPos pos) {
@@ -877,7 +877,8 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Selects all the text in the document.
+     * Selects all the text in the document: the anchor is set at the document start, while the caret is positioned
+     * at the end of the document.
      * <p>This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
     public void selectAll() {
@@ -1505,12 +1506,14 @@ public class RichTextArea extends Control {
      * This method does not close the output stream.
      * @param out the output stream
      * @throws IOException if an I/O error occurs
+     * @throws UnsupportedOperationException when no suitable data format can be found
      */
-    public void save(OutputStream out) throws IOException {
+    public void write(OutputStream out) throws IOException {
         DataFormat f = bestDataFormat(true);
-        if (f != null) {
-            save(f, out);
+        if (f == null) {
+            throw new UnsupportedOperationException("no suitable format can be found");
         }
+        write(f, out);
     }
 
     /**
@@ -1519,40 +1522,45 @@ public class RichTextArea extends Control {
      * @param f the data format
      * @param out the output stream
      * @throws IOException if an I/O error occurs
+     * @throws UnsupportedOperationException when the data format is not supported by the model
      */
-    public void save(DataFormat f, OutputStream out) throws IOException {
+    public void write(DataFormat f, OutputStream out) throws IOException {
         StyledTextModel m = getModel();
         if (m != null) {
             StyleResolver r = resolver();
-            m.save(r, f, out);
+            m.write(r, f, out);
         }
     }
 
     /**
-     * Loads the content using the model's highest priority {@code DataFormat}.
+     * Reads the content using the model's highest priority {@code DataFormat}.
+     * Any existing content is discarded and undo/redo buffer is cleared.
      * This method does not close the input stream.
      * @param in the input stream
      * @throws IOException if an I/O error occurs
+     * @throws UnsupportedOperationException when the data format is not supported by the model
      */
-    public void load(InputStream in) throws IOException {
+    public void read(InputStream in) throws IOException {
         DataFormat f = bestDataFormat(false);
         if (f != null) {
-            load(f, in);
+            read(f, in);
         }
     }
 
     /**
-     * Loads the content using the specified {@code DataFormat}.
+     * Reads the content using the specified {@code DataFormat}.
+     * Any existing content is discarded and undo/redo buffer is cleared.
      * This method does not close the input stream.
      * @param f the data format
      * @param in the input stream
      * @throws IOException if an I/O error occurs
+     * @throws UnsupportedOperationException when the data format is not supported by the model
      */
-    public void load(DataFormat f, InputStream in) throws IOException {
+    public void read(DataFormat f, InputStream in) throws IOException {
         StyledTextModel m = getModel();
         if (m != null) {
             StyleResolver r = resolver();
-            m.load(r, f, in);
+            m.read(r, f, in);
             select(TextPos.ZERO, TextPos.ZERO);
         }
     }
@@ -1566,5 +1574,13 @@ public class RichTextArea extends Control {
             }
         }
         return null;
+    }
+
+    /**
+     * Clears the text.
+     */
+    public void clear() {
+        TextPos end = getEndTextPos();
+        replaceText(TextPos.ZERO, end, StyledInput.of(""), true);
     }
 }
