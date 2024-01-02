@@ -85,6 +85,7 @@ public class CodeTextModel extends BasePlainTextModel {
     public final ObjectProperty<SyntaxDecorator> decoratorProperty() {
         if (decorator == null) {
             decorator = new SimpleObjectProperty<>() {
+                @SuppressWarnings("synthetic-access")
                 @Override
                 protected void invalidated() {
                     fireStylingUpdate();
