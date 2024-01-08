@@ -96,32 +96,48 @@ public class CodeArea extends RichTextArea {
         setDefaultAttribute(TAB_SIZE, sz);
     }
 
-    // TODO another school of thought suggests to move the highlighter property here.
-    public void setSyntaxHighlighter(SyntaxDecorator d) {
-        var m = codeModel();
+    /**
+     * This convenience method sets the decorator property in the model.
+     *
+     * @param d the syntax decorator
+     * @see CodeTextModel#setDecorator(SyntaxDecorator)
+     */
+    public void setSyntaxDecorator(SyntaxDecorator d) {
+        CodeTextModel m = codeModel();
         if (m != null) {
             m.setDecorator(d);
         }
     }
 
+    /**
+     * This convenience method returns the syntax decorator value in the model,
+     * or null if the said model is null.
+     * @return the syntax devocrator value, or null
+     */
     public SyntaxDecorator getSyntaxDecorator() {
-        var m = codeModel();
+        CodeTextModel m = codeModel();
         return (m == null) ? null : m.getDecorator();
     }
 
-    // TODO is there a way to customize the line number component?
+    /**
+     * Determines whether to show line numbers.
+     * @return the line numbers enabled property
+     */
+    // TODO should there be a way to customize the line number component? createLineNumberDecorator() ?
+    // TODO should this be a styleable property?
     public final BooleanProperty lineNumbersEnabledProperty() {
         if (lineNumbers == null) {
             lineNumbers = new SimpleBooleanProperty() {
                 @Override
                 protected void invalidated() {
                     LineNumberDecorator d;
-                    if(get()) {
+                    if (get()) {
+                        // TODO create line number decorator method?
                         d = new LineNumberDecorator() {
                             @Override
                             public Node getNode(int ix, boolean forMeasurement) {
                                 Node n = super.getNode(ix, forMeasurement);
-                                if(n instanceof Labeled t) {
+                                if (n instanceof Labeled t) {
                                     t.fontProperty().bind(fontProperty());
                                 }
                                 return n;
@@ -187,12 +203,9 @@ public class CodeArea extends RichTextArea {
     }
 
     /**
-     * The default font to use for text in the RichTextArea.
-     * If the RichTextArea's text is
-     * rich text then this font may or may not be used depending on the font
-     * information embedded in the rich text, but in any case where a default
-     * font is required, this font will be used.
+     * The default font to use for text in the {@code CodeArea}.
      * @return the font property
+     * @defaultValue the value supplied by {@link Font#getDefault()}
      */
     public final ObjectProperty<Font> fontProperty() {
         if (font == null) {

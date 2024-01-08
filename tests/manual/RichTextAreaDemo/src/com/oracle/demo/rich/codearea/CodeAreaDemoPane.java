@@ -180,7 +180,7 @@ public class CodeAreaDemoPane extends BorderPane {
         FX.name(syntax, "syntax");
         syntax.selectedProperty().addListener((x) -> {
             boolean on = syntax.isSelected();
-            control.setSyntaxHighlighter(on ? new DemoSyntaxDecorator() : null);
+            control.setSyntaxDecorator(on ? new DemoSyntaxDecorator() : null);
         });
         
         op = new ROptionPane();

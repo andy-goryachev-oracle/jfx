@@ -37,5 +37,9 @@ public interface SyntaxDecorator {
      * @param text text to decorate, can be {@code null}
      * @return the decorated {@link RichParagraph} instance
      */
+    // TODO perhaps the API should be different, for example:
+    // public RichParagraph createRichParagraph(CodeTextModel m, int modelIndex, String text);
+    // to handle cases where the decorator needs to process the whole model before it can generate a styling
+    // information (think a file with comments)
     public RichParagraph createRichParagraph(String text);
 }

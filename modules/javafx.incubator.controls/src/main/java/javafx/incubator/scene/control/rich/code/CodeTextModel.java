@@ -34,7 +34,7 @@ import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 
 /**
- * Editable plain text model with syntax highlighting for the CodeArea control.
+ * Editable plain text model with syntax highlighting for the {@link CodeArea} control.
  */
 public class CodeTextModel extends BasePlainTextModel {
     private SimpleObjectProperty<SyntaxDecorator> decorator;
@@ -74,14 +74,10 @@ public class CodeTextModel extends BasePlainTextModel {
         }
     }
 
-    public final SyntaxDecorator getDecorator() {
-        return decorator == null ? null : decorator.get();
-    }
-
-    public final void setDecorator(SyntaxDecorator d) {
-        decoratorProperty().set(d);
-    }
-
+    /**
+     * Syntax decorator applies styling to the plain text stored in the model.
+     * @return the syntax decorator value (may be null)
+     */
     public final ObjectProperty<SyntaxDecorator> decoratorProperty() {
         if (decorator == null) {
             decorator = new SimpleObjectProperty<>() {
@@ -93,5 +89,13 @@ public class CodeTextModel extends BasePlainTextModel {
             };
         }
         return decorator;
+    }
+
+    public final SyntaxDecorator getDecorator() {
+        return decorator == null ? null : decorator.get();
+    }
+
+    public final void setDecorator(SyntaxDecorator d) {
+        decoratorProperty().set(d);
     }
 }
