@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -84,29 +84,69 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
         return paragraphs.get(index).toRichParagraph();
     }
 
+    /**
+     * Appends a text segment to the last paragraph.
+     * The {@code text} cannot contain newline (\n) symbols.
+     *
+     * @param text the text to append, must not contain \n
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel addSegment(String text) {
         return addSegment(text, StyleAttrs.EMPTY);
     }
 
+    /**
+     * Appends a text segment styled with either inline style or external style names (or both).
+     * The {@code text} cannot contain newline (\n) symbols.
+     *
+     * @param text the text to append, must not contain \n
+     * @param style the inline style (example {@code "-fx-fill:red;"}), or null
+     * @param css external style names
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel addSegment(String text, String style, String... css) {
         Paragraph p = lastParagraph();
         p.addSegment(text, style, css);
         return this;
     }
 
+    /**
+     * Appends a text segment styled with the specified style attributes.
+     * @param text the text to append, must not contain \n
+     *
+     * @param a the style attributes
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel addSegment(String text, StyleAttrs a) {
+        // TODO split into paragraphs if \n is found, or check for \n ?
         Objects.requireNonNull(a);
         Paragraph p = lastParagraph();
         p.addSegment(text, a);
         return this;
     }
 
+    /**
+     * Adds a highlight of the given color to the specified range within the last paragraph.
+     * 
+     * @param start the start offset
+     * @param length the length of the highlight
+     * @param c the highlight color
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel highlight(int start, int length, Color c) {
         Paragraph p = lastParagraph();
         p.addHighlight(start, length, c);
         return this;
     }
 
+    /**
+     * Adds a squiggly line (typically used as a spell checker indicator) to the specified range within the last paragraph.
+     *
+     * @param start the start offset
+     * @param length the length of the highlight
+     * @param c the highlight color
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel squiggly(int start, int length, Color c) {
         Paragraph p = lastParagraph();
         p.addSquiggly(start, length, c);
@@ -123,7 +163,14 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
         return paragraphs.get(sz - 1);
     }
 
-    /** adds a paragraph containing an image */
+    /**
+     * Adds a paragraph containing an image.  The image will be reduced in size as necessary to fit into the available
+     * area if {@code wrapText} property is set.
+     * This method does not close the input stream.
+     *
+     * @param in the input stream providing the image.
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel addImage(InputStream in) {
         Image im = new Image(in);
         Paragraph p = Paragraph.of(() -> {
@@ -133,6 +180,14 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
         return this;
     }
 
+    /**
+     * Adds a paragraph containing a {@code Region}.  The model might request the Region multiple times,
+     * it is a responsibility of the generator to either cache the instance, or serve a new instance each time,
+     * making sure to bind all the relevant properties if serving a {@code Control}.
+     *
+     * @param generator the supplier of the paragraph content
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel addParagraph(Supplier<Region> generator) {
         Paragraph p = Paragraph.of(() -> {
             return generator.get();
@@ -141,17 +196,31 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
         return this;
     }
 
-    /** adds inline node segment */
+    /**
+     * Adds an inline Node to the laste paragraph.
+     * @param generator the supplier of the embedded Node
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel addNodeSegment(Supplier<Node> generator) {
         Paragraph p = lastParagraph();
         p.addInlineNode(generator);
         return this;
     }
 
+    /**
+     * Adds a new paragraph (as if inserting a newline symbol into the text).
+     * This convenience method invokes {@link #nl(int)} with a value of 1.
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel nl() {
         return nl(1);
     }
 
+    /**
+     * Adds {@code n} new paragraphs (as if inserting a newline symbol into the text {@code n} times).
+     * @param count the number of paragraphs to append
+     * @return this model instance
+     */
     public SimpleReadOnlyStyledModel nl(int count) {
         for (int i = 0; i < count; i++) {
             int ix = paragraphs.size();
@@ -177,12 +246,18 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
         return StyleAttrs.EMPTY;
     }
 
-    public void setParagraphAttributes(StyleAttrs a) {
+    /**
+     * Sets the last paragraph attributes.
+     * @param a the paragraph attributes
+     * @return this model instance
+     */
+    public SimpleReadOnlyStyledModel setParagraphAttributes(StyleAttrs a) {
         Paragraph p = lastParagraph();
         p.setParagraphAttributes(a);
+        return this;
     }
     
-    public static class Paragraph {
+    static class Paragraph {
         private ArrayList<StyledSegment> segments;
         private ArrayList<Consumer<TextCell>> highlights;
         private StyleAttrs paragraphAttributes;
