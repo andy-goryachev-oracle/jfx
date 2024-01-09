@@ -114,6 +114,7 @@ public abstract class StyledTextModel {
     /**
      * Returns a {@link RichParagraph} at the given model index.
      * This method makes no guarantees that the same paragraph instance will be returned for the same model index.
+     *
      * @param index paragraph index in the range (0...{@link #size()})
      * @return a new instance of TextCell created
      */
@@ -122,9 +123,9 @@ public abstract class StyledTextModel {
     /**
      * This method gets called only if the model is editable.
      * The caller guarantees that {@code start} precedes {@code end}.
-     * 
-     * @param start start of the region to be removed
-     * @param end end of the region to be removed, guaranteed to be > start.
+     *
+     * @param start the start of the region to be removed
+     * @param end the end of the region to be removed, expected to be greater than the start position
      */
     protected abstract void removeRegion(TextPos start, TextPos end);
 
@@ -141,6 +142,7 @@ public abstract class StyledTextModel {
 
     /**
      * Inserts a line break.
+     *
      * @param index the model index
      * @param offset the text offset
      */
@@ -537,14 +539,15 @@ public abstract class StyledTextModel {
      * After the model applies the requested changes, an event is sent to all the registered ChangeListeners.
      * </p>
      * @param resolver the StyleResolver to use, can be null
-     * @param start start text position
-     * @param end end text position
-     * @param input StyledInput
+     * @param start the start text position
+     * @param end the end text position
+     * @param input the input content stream
      * @param createUndo when true, creates an undo-redo entry
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean createUndo) {
         if (isEditable()) {
+            // TODO clamp to document boundaries
             int cmp = start.compareTo(end);
             if (cmp > 0) {
                 TextPos p = start;
@@ -618,33 +621,17 @@ public abstract class StyledTextModel {
     }
 
     /**
-     * Applies the specified style to the selected range.  The specified attributes will be merged, overriding
-     * the existing ones.
-     * When applying the paragraph attributes, the affected range might go beyond the range specified by
-     * {@code start} and {@code end}.
+     * Applies the style attributes to the specified range in the document.<p>
+     * Depending on {@code mergeAttributes} parameter, the attributes will either be merged with (true) or completely
+     * replace the existing attributes within the range.  The affected range might be wider than the range specified
+     * when applying the paragraph attributes.
      *
      * @param start the start of text range
      * @param end the end of text range
-     * @param attrs the style attributes to apply
-     */
-    public final void applyStyle(TextPos start, TextPos end, StyleAttrs attrs) {
-        setStyle(start, end, attrs, true);
-    }
-
-    /**
-     * Sets the specified style to the selected range.
-     * All the existing attributes in the selected range will be cleared.
-     * When setting the paragraph attributes, the affected range
-     * might be wider than one specified.
-     * @param start the start of text range
-     * @param end the end of text range
      * @param attrs the style attributes to set
+     * @param mergeAttributes whether to merge or replace the attributes
      */
-    public final void setStyle(TextPos start, TextPos end, StyleAttrs attrs) {
-        setStyle(start, end, attrs, false);
-    }
-    
-    private void setStyle(TextPos start, TextPos end, StyleAttrs attrs, boolean merge) {
+    public final void applyStyle(TextPos start, TextPos end, StyleAttrs attrs, boolean mergeAttributes) {
         if (isEditable()) {
             if (start.compareTo(end) > 0) {
                 TextPos p = start;
@@ -683,15 +670,15 @@ public abstract class StyledTextModel {
             if(ca != null) {
                 int ix = start.index();
                 if (ix == end.index()) {
-                    applyStyle(ix, start.offset(), end.offset(), attrs, merge);
+                    applyStyle(ix, start.offset(), end.offset(), attrs, mergeAttributes);
                 } else {
-                    applyStyle(ix, start.offset(), Integer.MAX_VALUE, attrs, merge);
+                    applyStyle(ix, start.offset(), Integer.MAX_VALUE, attrs, mergeAttributes);
                     ix++;
                     while (ix < end.index()) {
-                        applyStyle(ix, 0, Integer.MAX_VALUE, attrs, merge);
+                        applyStyle(ix, 0, Integer.MAX_VALUE, attrs, mergeAttributes);
                         ix++;
                     }
-                    applyStyle(ix, 0, end.offset(), attrs, merge);
+                    applyStyle(ix, 0, end.offset(), attrs, mergeAttributes);
                 }
                 changed = true;
             }

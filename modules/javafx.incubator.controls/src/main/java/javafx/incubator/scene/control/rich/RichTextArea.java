@@ -280,9 +280,10 @@ public class RichTextArea extends Control {
 
     /**
      * This property controls whether caret will be displayed or not.
-     * TODO StyleableProperty ?
+     *
      * @return the display caret property
      */
+    // TODO StyleableProperty ?
     public final BooleanProperty displayCaretProperty() {
         return displayCaretProperty;
     }
@@ -344,6 +345,7 @@ public class RichTextArea extends Control {
     public Object queryAccessibleAttribute(AccessibleAttribute attribute, Object... parameters) {
         switch (attribute) {
         // TODO possibly large text - could we send just what is displayed?
+        // or the current paragraph text (text on line xx, blah blah) 
 //        case TEXT: {
 //            String accText = getAccessibleText();
 //            if (accText != null && !accText.isEmpty())
@@ -1072,7 +1074,7 @@ public class RichTextArea extends Control {
     public void applyStyle(TextPos start, TextPos end, StyleAttrs attrs) {
         if (canEdit()) {
             StyledTextModel m = getModel();
-            m.applyStyle(start, end, attrs);
+            m.applyStyle(start, end, attrs, true);
         }
     }
 
@@ -1088,7 +1090,7 @@ public class RichTextArea extends Control {
     public void setStyle(TextPos start, TextPos end, StyleAttrs attrs) {
         if (canEdit()) {
             StyledTextModel m = getModel();
-            m.setStyle(start, end, attrs);
+            m.applyStyle(start, end, attrs, false);
         }
     }
 
@@ -1256,7 +1258,6 @@ public class RichTextArea extends Control {
      * @return the default attributes property
      */
     // TODO this might be a mistake.  Instead, the default attrbiutes should be in the model?
-    // the use case is the default font.
     public final ObjectProperty<StyleAttrs> defaultAttributesProperty() {
         return defaultAttributes;
     }
@@ -1271,6 +1272,7 @@ public class RichTextArea extends Control {
 
     /**
      * Sets a single default attribute by updating the {@code defaultAttributesProperty}.
+     *
      * @param <T> the attribute type
      * @param attr the attribute
      * @param value the attribute value
@@ -1307,19 +1309,22 @@ public class RichTextArea extends Control {
      * @param a
      * @param p
      */
+    // TODO registry
     protected static <C extends RichTextArea, T> void setParHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> p) {
         parStyleHandlerMap.put(a, p);
     }
     
     /**
      * Sets a text segment style attribute handler.
-     * @param <C>
-     * @param <T>
-     * @param a
-     * @param p
+     * @param <C> the control type
+     * @param <T> the attribute value type
+     * @param a the attribute
+     * @param h the handler
      */
-    protected static <C extends RichTextArea, T> void setSegHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> p) {
-        segStyleHandlerMap.put(a, p);
+    // FIX this won't work: imagine two siblings that register different handlers for the same attribute!
+    // need to specify the control class in the key, also create a static registry in the com.* hierarchy
+    protected static <C extends RichTextArea, T> void setSegHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> h) {
+        segStyleHandlerMap.put(a, h);
     }
 
     /**
@@ -1331,6 +1336,7 @@ public class RichTextArea extends Control {
      * @param a
      * @param value
      */
+    // TODO move to the registry
     public <T> void processAttribute(boolean forParagraph, CellContext cx, StyleAttribute<T> a, T value) {
         StyleAttributeHandler h = (forParagraph ? parStyleHandlerMap : segStyleHandlerMap).get(a);
         if (h != null) {
@@ -1425,10 +1431,12 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * TODO
-     * @param text
-     * @param attrs
-     * @return
+     * Appends the styled text to the end of the document.
+     * This method is no-op if either the control or the model is not editable.
+     *
+     * @param text the text to append
+     * @param attrs the style attributes
+     * @return the text position at the end of the appended text, or null if editing is disabled
      */
     public TextPos appendText(String text, StyleAttrs attrs) {
         TextPos p = getEndTextPos();
@@ -1436,9 +1444,11 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * TODO
-     * @param in
-     * @return
+     * Appends the styled content to the end of the document.
+     * This method is no-op if either the control or the model is not editable.
+     *
+     * @param in the input stream
+     * @return the text position at the end of the appended text, or null if editing is disabled
      */
     public TextPos appendText(StyledInput in) {
         TextPos p = getEndTextPos();
@@ -1446,30 +1456,29 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * TODO
-     * @param pos
-     * @param text
-     * @param attrs
-     * @return
+     * Inserts the styled text at the specified position.
+     * This method is no-op if either the control or the model is not editable.
+     *
+     * @param pos the insert position
+     * @param text the text to inser
+     * @param attrs the style attributes
+     * @return the text position at the end of the appended text, or null if editing is disabled
      */
     public TextPos insertText(TextPos pos, String text, StyleAttrs attrs) {
         StyledInput in = StyledInput.of(text, attrs);
-        return insertText(pos, in);
+        return replaceText(pos, pos, in, true);
     }
     
     /**
-     * TODO
-     * @param pos
-     * @param in
-     * @return
+     * Inserts the content at the specified position.
+     * This method is no-op if either the control or the model is not editable.
+     *
+     * @param pos the insert position
+     * @param in the input stream
+     * @return the text position at the end of the appended text, or null if editing is disabled
      */
     public TextPos insertText(TextPos pos, StyledInput in) {
-        if (canEdit()) {
-            StyledTextModel m = getModel();
-            m.clearUndoRedo();
-            return m.replace(vflow(), pos, pos, in, false);
-        }
-        return null;
+        return replaceText(pos, pos, in, true);
     }
 
     /**
@@ -1480,8 +1489,6 @@ public class RichTextArea extends Control {
      * @param createUndo when true, creates an undo-redo entry
      * @return the new caret position at the end of inserted text, or null if the change cannot be made
      */
-    // TODO styled segment?  StyledInput?
-    // TODO is create undo needed?
     public TextPos replaceText(TextPos start, TextPos end, StyledInput in, boolean createUndo) {
         if (canEdit()) {
             StyledTextModel m = getModel();
@@ -1578,9 +1585,12 @@ public class RichTextArea extends Control {
 
     /**
      * Clears the text.
+     * This method delegates to {@link #replaceText(TextPos, TextPos, StyledInput, boolean)} and creates
+     * a redo entry.
+     * This method is no-op if either the control or the model is not editable.
      */
     public void clear() {
         TextPos end = getEndTextPos();
-        replaceText(TextPos.ZERO, end, StyledInput.of(""), true);
+        replaceText(TextPos.ZERO, end, StyledInput.EMPTY, true);
     }
 }

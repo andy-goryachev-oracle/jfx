@@ -161,9 +161,9 @@ public class Actions {
     private void toggle(StyleAttribute<Boolean> attr) {
         TextPos start = control.getAnchorPosition();
         TextPos end = control.getCaretPosition();
-        if(start == null) {
+        if (start == null) {
             return;
-        } else if(start.equals(end)) {
+        } else if (start.equals(end)) {
             // apply to the whole paragraph
             int ix = start.index();
             start = new TextPos(ix, 0);
@@ -175,13 +175,13 @@ public class Actions {
         a = StyleAttrs.builder().set(attr, on).build();
         control.applyStyle(start, end, a);
     }
-    
+
     private <T> void apply(StyleAttribute<T> attr, T value) {
         TextPos start = control.getAnchorPosition();
         TextPos end = control.getCaretPosition();
-        if(start == null) {
+        if (start == null) {
             return;
-        } else if(start.equals(end)) {
+        } else if (start.equals(end)) {
             // apply to the whole paragraph
             int ix = start.index();
             start = new TextPos(ix, 0);
@@ -197,7 +197,7 @@ public class Actions {
     public void setFontSize(Integer size) {
         apply(StyleAttrs.FONT_SIZE, size.doubleValue());
     }
-    
+
     // TODO need to bind selected item in the combo
     public void setFontName(String name) {
         apply(StyleAttrs.FONT_FAMILY, name);
@@ -208,7 +208,7 @@ public class Actions {
     }
 
     private void newDocument() {
-        if(askToSave()) {
+        if (askToSave()) {
             return;
         }
         control.setModel(new EditableRichTextModel());
@@ -216,10 +216,10 @@ public class Actions {
     }
 
     private void open() {
-        if(askToSave()) {
+        if (askToSave()) {
             return;
         }
-        
+
         FileChooser ch = new FileChooser();
         ch.setTitle("Open File");
         // TODO add extensions
@@ -256,7 +256,7 @@ public class Actions {
 
     // returns true if the user chose to Cancel
     private boolean askToSave() {
-        if(isModified()) {
+        if (isModified()) {
             // alert: has been modified. do you want to save?
             Alert alert = new Alert(AlertType.CONFIRMATION);
             alert.initOwner(FX.getParentWindow(control));

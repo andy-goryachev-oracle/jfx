@@ -24,7 +24,6 @@
  */
 package com.oracle.demo.rich.rta;
 
-import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
@@ -33,7 +32,7 @@ import javafx.scene.paint.Color;
 public class BifurcationDiagram {
     private static final double min = 2.4;
     private static final double max = 4.0;
-    
+
     public static Pane generate() {
         Pane p = new Pane();
         p.setPrefSize(600, 200);
@@ -42,14 +41,14 @@ public class BifurcationDiagram {
         update(p);
         return p;
     }
-    
+
     protected static void update(Pane p) {
         double w = p.getWidth();
         double h = p.getHeight();
 
         if ((w < 1) || (h < 1)) {
             return;
-        } else if(w > 600) {
+        } else if (w > 600) {
             w = 600;
         }
 
@@ -76,7 +75,7 @@ public class BifurcationDiagram {
                 }
             }
         }
-        
+
         p.getChildren().setAll(c);
     }
 }
