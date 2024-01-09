@@ -188,8 +188,10 @@ public abstract class StyledTextModel {
     public abstract StyleAttrs getStyleAttrs(StyleResolver resolver, TextPos pos);
 
     /**
-     * Returns a set of supported attributes (to affect filtering in {@link #applyStyle(TextPos, TextPos, StyleAttrs)})
+     * Returns a set of supported attributes to be used for filtering in
+     * {@link #applyStyle(TextPos, TextPos, StyleAttrs, boolean),
      * or null to disable filtering.
+     *
      * @return the supported attributes, or null
      */
     protected Set<StyleAttribute<?>> getSupportedAttributes() { return null; }
