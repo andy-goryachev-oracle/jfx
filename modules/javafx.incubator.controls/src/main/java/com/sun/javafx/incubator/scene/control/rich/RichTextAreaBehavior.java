@@ -653,19 +653,19 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         TextPos pos = control.getEndTextPos();
         control.extendSelection(pos);
     }
-    
+
     public void selectWord() {
         TextPos caret = control.getCaretPosition();
-        if(caret == null) {
+        if (caret == null) {
             return;
         }
 
         int index = caret.index();
         String text = getPlainText(index);
-        if(text == null) {
+        if (text == null) {
             return;
         }
-        
+
         // using default locale, same as TextInputControl.backward() for example
         BreakIterator br = BreakIterator.getWordInstance();
         br.setText(text);

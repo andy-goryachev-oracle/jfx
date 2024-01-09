@@ -412,12 +412,12 @@ public class VFlow extends Pane implements StyleResolver {
             removeCaretAndSelection();
             return;
         }
-        
+
         TextPos anchor = control.getAnchorPosition();
-        if(anchor == null) {
+        if (anchor == null) {
             anchor = caret;
         }
-        
+
         // current line highlight
         if (control.isHighlightCurrentParagraph()) {
             FxPathBuilder b = new FxPathBuilder();
@@ -448,7 +448,7 @@ public class VFlow extends Pane implements StyleResolver {
 
     protected void createCaretPath(FxPathBuilder b, TextPos p) {
         CaretInfo c = getCaretInfo(p);
-        if(c != null) {
+        if (c != null) {
             b.addAll(c.path());
         }
     }
@@ -511,9 +511,9 @@ public class VFlow extends Pane implements StyleResolver {
     protected void createCurrentLineHighlight(FxPathBuilder b, TextPos caret) {
         int ix = caret.index();
         TextCell cell = arrangement().getVisibleCell(ix);
-        if(cell != null) {
+        if (cell != null) {
             double w;
-            if(control.isWrapText()) {
+            if (control.isWrapText()) {
                 w = getWidth();
             } else {
                 w = getContentWidth();
@@ -522,7 +522,7 @@ public class VFlow extends Pane implements StyleResolver {
         }
     }
 
-    /** uses vflow.content cooridinates */ 
+    /** uses vflow.content cooridinates */
     public TextPos getTextPosLocal(double localX, double localY) {
         // convert to cell coordinates
         double x = localX + getOffsetX();
@@ -991,7 +991,7 @@ public class VFlow extends Pane implements StyleResolver {
             y = snapPositionY(y + h);
             count++;
 
-            if(useContentHeight) {
+            if (useContentHeight) {
                 height = y;
             } else {
                 // stop populating the bottom part of the sliding window
@@ -1190,7 +1190,7 @@ public class VFlow extends Pane implements StyleResolver {
     }
 
     private double getLineSpacing(Region r) {
-        if(r instanceof TextFlow f) {
+        if (r instanceof TextFlow f) {
             return f.getLineSpacing();
         }
         return 0.0;

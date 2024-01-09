@@ -74,7 +74,7 @@ public class HtmlStyledOutput implements StyledOutput {
         case TEXT:
             StyleAttrs a = seg.getStyleAttrs(resolver);
             boolean div = ((a != null) && (!a.isEmpty()));
-            if(div) {
+            if (div) {
                 wr.write("<span style='");
                 writeAttributes(a);
                 wr.write("'>");
@@ -82,7 +82,7 @@ public class HtmlStyledOutput implements StyledOutput {
             String text = seg.getText();
             String encoded = encode(text);
             wr.write(encoded);
-            if(div) {
+            if (div) {
                 wr.write("</span>");
             }
             break;
@@ -310,20 +310,20 @@ public class HtmlStyledOutput implements StyledOutput {
 
     private static String createCss(StyleAttribute a, Object v) {
         if (a == StyleAttrs.BOLD) {
-            return  "font-weight: bold;";
+            return "font-weight: bold;";
         } else if (a == StyleAttrs.FONT_FAMILY) {
             return "font-family: \"" + encodeFontFamily(v.toString()) + "\";";
         } else if (a == StyleAttrs.FONT_SIZE) {
             return "font-size: " + v + "pt;";
         } else if (a == StyleAttrs.ITALIC) {
-            return  "font-style: italic;";
+            return "font-style: italic;";
         } else if (a == StyleAttrs.STRIKE_THROUGH) {
             return "text-decoration: line-through;";
         } else if (a == StyleAttrs.TEXT_COLOR) {
             return "color: " + RichUtils.toWebColor((Color)v) + ";";
         } else if (a == StyleAttrs.UNDERLINE) {
             return "text-decoration: underline;";
-        } else if(a == SS_AND_UNDERLINE) {
+        } else if (a == SS_AND_UNDERLINE) {
             return "text-decoration: line-through underline;";
         } else {
             return null;

@@ -473,9 +473,9 @@ public class RichTextFormatHandler extends DataFormatHandler {
                     }
                 }
                 index++;
-                
+
                 int ix = text.indexOf('}', index);
-                if(ix < 0) {
+                if (ix < 0) {
                     throw err("missing }");
                 }
                 String s = text.substring(index, ix);
@@ -512,7 +512,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
                         if (a.isParagraphAttribute() != forParagraph) {
                             throw err("paragraph type mismatch");
                         }
-                        if(b == null) {
+                        if (b == null) {
                             b = StyleAttrs.builder();
                         }
                         b.set(a, v);
@@ -534,12 +534,12 @@ public class RichTextFormatHandler extends DataFormatHandler {
 
         private int charAt(int delta) {
             int ix = index + delta;
-            if(ix >= text.length()) {
+            if (ix >= text.length()) {
                 return -1;
             }
             return text.charAt(ix);
         }
-        
+
         private String decodeText() throws IOException {
             int start = index;
             for(;;) {
@@ -588,18 +588,18 @@ public class RichTextFormatHandler extends DataFormatHandler {
             ch += decodeHex(charAt(0));
             return ch;
         }
-        
+
         private static int decodeHex(int ch) throws IOException {
             int c = ch - '0'; // 0...9
-            if((c >= 0) && (c <= 9)) {
+            if ((c >= 0) && (c <= 9)) {
                 return c;
             }
             c = ch - 55; // handle A...F
-            if((c >= 10) && (c <= 15)) {
+            if ((c >= 10) && (c <= 15)) {
                 return c;
             }
             c = ch - 97; // handle a...f
-            if((c >= 10) && (c <= 15)) {
+            if ((c >= 10) && (c <= 15)) {
                 return c;
             }
             throw new IOException("not a hex char:" + ch);

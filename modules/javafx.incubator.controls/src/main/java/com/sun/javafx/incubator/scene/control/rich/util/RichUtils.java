@@ -88,7 +88,7 @@ public final class RichUtils {
 
     /** Converts Color to "#rrggbb" or "rgba(r,g,b,a)" string */
     public static String toCssColor(Color c) {
-        if(c.getOpacity() == 1.0) {
+        if (c.getOpacity() == 1.0) {
             return String.format(
                 "#%02x%02x%02x",
                 eightBit(c.getRed()),

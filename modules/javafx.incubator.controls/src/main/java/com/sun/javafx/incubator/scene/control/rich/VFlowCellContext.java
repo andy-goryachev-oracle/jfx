@@ -62,7 +62,7 @@ class VFlowCellContext implements CellContext {
     }
 
     void apply() {
-        if(style.length() > 0) {
+        if (style.length() > 0) {
             String s = style.toString();
             node.setStyle(s);
         }

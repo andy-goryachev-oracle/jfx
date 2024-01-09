@@ -136,7 +136,7 @@ public final class TextPos implements Comparable<TextPos> {
             } else if (off > poff) {
                 return 1;
             }
-            if(leading != p.leading) {
+            if (leading != p.leading) {
                 return leading ? 1 : -1;
             }
             return 0;

@@ -43,13 +43,12 @@ public class DemoSyntaxDecorator implements SyntaxDecorator {
     public DemoSyntaxDecorator() {
     }
 
-
     @Override
     public RichParagraph createRichParagraph(String text) {
         RichParagraph.Builder b = RichParagraph.builder();
         if (text != null) {
             int len = text.length();
-            if(len > 0) {
+            if (len > 0) {
                 Matcher m = PATTERN.matcher(text);
                 int beg = 0;
                 while (m.find(beg)) {

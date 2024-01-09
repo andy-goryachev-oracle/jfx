@@ -1246,7 +1246,7 @@ public class RichTextArea extends Control {
     }
 
     public final Insets getContentPadding() {
-        if(contentPadding == null) {
+        if (contentPadding == null) {
             return Params.CONTENT_PADDING;
         }
         return contentPadding.get();

@@ -43,17 +43,17 @@ public class SelInfo {
         this.anchor = anchor;
         this.caretAtMin = caretAtMin;
     }
-    
+
     public static SelInfo get(RichTextArea control) {
-        if(control == null) {
+        if (control == null) {
             return null;
         }
         TextPos ca = control.getCaretPosition();
-        if(ca == null) {
+        if (ca == null) {
             return null;
         }
         TextPos an = control.getAnchorPosition();
-        if(an == null) {
+        if (an == null) {
             an = ca;
         }
         boolean atMin = (ca.compareTo(an) <= 0);

@@ -102,7 +102,7 @@ public class Markers {
 //            " lines=" + linesAdded +
 //            " btm=" + charsBottom
 //        ); // FIX
-        if(start.compareTo(end) > 0) {
+        if (start.compareTo(end) > 0) {
             TextPos p = start;
             start = end;
             end = p;

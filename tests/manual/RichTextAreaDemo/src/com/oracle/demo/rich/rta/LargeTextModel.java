@@ -32,25 +32,25 @@ public class LargeTextModel extends SimpleReadOnlyStyledModel {
     private final Random random = new Random();
 
     public LargeTextModel(int lineCount) {
-        for(int i=0; i<lineCount; i++) {
+        for (int i = 0; i < lineCount; i++) {
             addLine(i);
         }
     }
-    
+
     private void addLine(int n) {
         StringBuilder sb = new StringBuilder();
         sb.append("L").append(n).append(' ');
         int ct;
-        if(random.nextFloat() < 0.01f) {
+        if (random.nextFloat() < 0.01f) {
             ct = 200;
         } else {
             ct = random.nextInt(10);
         }
-        
-        for(int i=0; i<ct; i++) {
+
+        for (int i = 0; i < ct; i++) {
             sb.append(" ").append(i);
             int len = random.nextInt(10) + 1;
-            for(int j=0; j<len; j++) {
+            for (int j = 0; j < len; j++) {
                 sb.append('*');
             }
         }

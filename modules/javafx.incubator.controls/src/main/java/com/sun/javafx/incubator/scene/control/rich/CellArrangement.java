@@ -328,7 +328,7 @@ public class CellArrangement {
             // do not scroll above the top edge
             double top = -origin.offset() - topHeight;
             if (y < top) {
-                if(topIx == 0) {
+                if (topIx == 0) {
                     double topPadding = (contentPadding == null) ? 0.0 : contentPadding.getTop();
                     y = Math.max(y, -topPadding);
                     return new Origin(0, y);

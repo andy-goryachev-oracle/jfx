@@ -320,13 +320,13 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
         Object key;
         EnumSet<KCondition> m = EnumSet.noneOf(KCondition.class);
         EventType<KeyEvent> t = ev.getEventType();
-        if(t == KeyEvent.KEY_PRESSED) {
+        if (t == KeyEvent.KEY_PRESSED) {
             m.add(KCondition.KEY_PRESS);
             key = ev.getCode();
-        } else if(t == KeyEvent.KEY_RELEASED) {
+        } else if (t == KeyEvent.KEY_RELEASED) {
             m.add(KCondition.KEY_RELEASE);
             key = ev.getCode();
-        } else if(t == KeyEvent.KEY_TYPED) {
+        } else if (t == KeyEvent.KEY_TYPED) {
             m.add(KCondition.KEY_TYPED);
             key = ev.getCharacter();
         } else {

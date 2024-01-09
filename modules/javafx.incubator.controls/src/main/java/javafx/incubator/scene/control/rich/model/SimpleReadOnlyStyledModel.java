@@ -232,11 +232,11 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     @Override
     public StyleAttrs getStyleAttrs(StyleResolver r, TextPos pos) {
         int index = pos.index();
-        if(index < paragraphs.size()) {
+        if (index < paragraphs.size()) {
             int off = pos.offset();
             Paragraph par = paragraphs.get(index);
             StyleAttrs pa = par.getParagraphAttributes();
-            StyleAttrs a = par.getStyleAttrs(r,off);
+            StyleAttrs a = par.getStyleAttrs(r, off);
             if (pa == null) {
                 return a;
             } else {

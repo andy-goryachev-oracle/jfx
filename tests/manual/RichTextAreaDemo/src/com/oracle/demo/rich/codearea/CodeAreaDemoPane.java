@@ -61,7 +61,7 @@ import com.oracle.demo.rich.util.FX;
 /**
  * Main Panel contains CodeArea, split panes for quick size adjustment, and an option pane.
  */
-public class CodeAreaDemoPane extends BorderPane { 
+public class CodeAreaDemoPane extends BorderPane {
     public final ROptionPane op;
     public final CodeArea control;
 
@@ -74,7 +74,7 @@ public class CodeAreaDemoPane extends BorderPane {
         hsplit.setBorder(null);
         hsplit.setDividerPositions(0.9);
         hsplit.setOrientation(Orientation.HORIZONTAL);
-        
+
         SplitPane vsplit = new SplitPane(hsplit, pane());
         FX.name(vsplit, "vsplit");
         vsplit.setBorder(null);
@@ -82,49 +82,50 @@ public class CodeAreaDemoPane extends BorderPane {
         vsplit.setOrientation(Orientation.VERTICAL);
 
         FontSelector fontSelector = new FontSelector("font", control::setFont);
-        
+
         CheckBox editable = new CheckBox("editable");
         FX.name(editable, "editable");
         editable.selectedProperty().bindBidirectional(control.editableProperty());
-        
+
         CheckBox wrapText = new CheckBox("wrap text");
         FX.name(wrapText, "wrapText");
         wrapText.selectedProperty().bindBidirectional(control.wrapTextProperty());
-        
+
         CheckBox displayCaret = new CheckBox("display caret");
         FX.name(displayCaret, "displayCaret");
         displayCaret.selectedProperty().bindBidirectional(control.displayCaretProperty());
-        
+
         CheckBox fatCaret = new CheckBox("fat caret");
         FX.name(fatCaret, "fatCaret");
-        fatCaret.selectedProperty().addListener((s,p,on) -> {
+        fatCaret.selectedProperty().addListener((s, p, on) -> {
             Node n = control.lookup(".caret");
-            if(n != null) {
-                if(on) {
-                    n.setStyle("-fx-stroke-width:2; -fx-stroke:red; -fx-effect:dropshadow(gaussian,rgba(0,0,0,.5),5,0,1,1);");
+            if (n != null) {
+                if (on) {
+                    n.setStyle(
+                        "-fx-stroke-width:2; -fx-stroke:red; -fx-effect:dropshadow(gaussian,rgba(0,0,0,.5),5,0,1,1);");
                 } else {
                     n.setStyle(null);
                 }
             }
         });
-        
+
         CheckBox highlightCurrentLine = new CheckBox("highlight current line");
         FX.name(highlightCurrentLine, "highlightCurrentLine");
         highlightCurrentLine.selectedProperty().bindBidirectional(control.highlightCurrentParagraphProperty());
-        
+
         ComboBox<Integer> tabSize = new ComboBox<>();
         FX.name(tabSize, "tabSize");
         tabSize.getItems().setAll(1, 2, 3, 4, 8, 16);
-        tabSize.getSelectionModel().selectedItemProperty().addListener((s,p,v) -> {
+        tabSize.getSelectionModel().selectedItemProperty().addListener((s, p, v) -> {
             control.setTabSize(v);
         });
-        
+
         CheckBox customPopup = new CheckBox("custom popup menu");
         FX.name(customPopup, "customPopup");
-        customPopup.selectedProperty().addListener((s,p,v) -> {
+        customPopup.selectedProperty().addListener((s, p, v) -> {
             setCustomPopup(v);
         });
-        
+
         ComboBox<Insets> contentPadding = new ComboBox<>();
         FX.name(contentPadding, "contentPadding");
         contentPadding.setConverter(new StringConverter<Insets>() {
@@ -157,10 +158,10 @@ public class CodeAreaDemoPane extends BorderPane {
             new Insets(100),
             new Insets(5, 10, 15, 20)
         );
-        contentPadding.getSelectionModel().selectedItemProperty().addListener((s,p,v) -> {
+        contentPadding.getSelectionModel().selectedItemProperty().addListener((s, p, v) -> {
             control.setContentPadding(v);
         });
-        
+
         ComboBox<Double> lineSpacing = new ComboBox<>();
         FX.name(lineSpacing, "lineSpacing");
         lineSpacing.getItems().setAll(
@@ -168,21 +169,21 @@ public class CodeAreaDemoPane extends BorderPane {
             5.0,
             31.415
         );
-        lineSpacing.getSelectionModel().selectedItemProperty().addListener((s,p,v) -> {
+        lineSpacing.getSelectionModel().selectedItemProperty().addListener((s, p, v) -> {
             setLineSpacing(v);
         });
-        
+
         CheckBox lineNumbers = new CheckBox("line numbers");
         FX.name(lineNumbers, "lineNumbers");
         lineNumbers.selectedProperty().bindBidirectional(control.lineNumbersEnabledProperty());
-        
+
         CheckBox syntax = new CheckBox("syntax highlighter");
         FX.name(syntax, "syntax");
         syntax.selectedProperty().addListener((x) -> {
             boolean on = syntax.isSelected();
             control.setSyntaxDecorator(on ? new DemoSyntaxDecorator() : null);
         });
-        
+
         op = new ROptionPane();
         op.option(editable);
         op.label("Font:");
@@ -202,7 +203,7 @@ public class CodeAreaDemoPane extends BorderPane {
         op.label("Line Spacing:");
         op.option(lineSpacing);
         op.option(syntax);
-        
+
         setCenter(vsplit);
         setRight(op);
 
@@ -216,46 +217,46 @@ public class CodeAreaDemoPane extends BorderPane {
         p.setStyle("-fx-background-color:#dddddd;");
         return p;
     }
-    
+
     public Button addButton(String name, Runnable action) {
         Button b = new Button(name);
         b.setOnAction((ev) -> {
             action.run();
         });
-        
+
         toolbar().add(b);
         return b;
     }
-    
+
     public TBar toolbar() {
-        if(getTop() instanceof TBar) {
+        if (getTop() instanceof TBar) {
             return (TBar)getTop();
         }
-        
+
         TBar t = new TBar();
         setTop(t);
         return t;
     }
-    
+
     public Window getWindow() {
         Scene s = getScene();
-        if(s != null) {
+        if (s != null) {
             return s.getWindow();
         }
         return null;
     }
-    
+
     public void setOptions(Node n) {
         setRight(n);
     }
-    
+
     protected String generateStylesheet(boolean fat) {
         String s = ".rich-text-area .caret { -fx-stroke-width:" + (fat ? 2 : 1) + "; }";
         return "data:text/css;base64," + Base64.getEncoder().encodeToString(s.getBytes(Charset.forName("utf-8")));
     }
-    
+
     protected void setCustomPopup(boolean on) {
-        if(on) {
+        if (on) {
             ContextMenu m = new ContextMenu();
             m.getItems().add(new MenuItem("Dummy")); // otherwise no popup is shown
             m.addEventFilter(Menu.ON_SHOWING, (ev) -> {
@@ -356,7 +357,7 @@ public class CodeAreaDemoPane extends BorderPane {
             fontMenu(m2, sel, "Courier New");
             fontMenu(m2, sel, "Times New Roman");
             fontMenu(m2, sel, "null");
-            
+
             items.add(cm = new CheckMenuItem("Toggle Unsupported Attribute"));
             cm.setSelected(a.getBoolean(StyleAttrs.RIGHT_TO_LEFT));
             cm.setOnAction((ev) -> applyStyle(StyleAttrs.RIGHT_TO_LEFT, !a.getBoolean(StyleAttrs.RIGHT_TO_LEFT)));
@@ -381,19 +382,19 @@ public class CodeAreaDemoPane extends BorderPane {
         m.setOnAction((ev) -> apply(StyleAttrs.FONT_SIZE, size));
         menu.getItems().add(m);
     }
-    
+
     protected void colorMenu(Menu menu, boolean selected, Color color) {
         int w = 16;
         int h = 16;
         Canvas c = new Canvas(w, h);
         GraphicsContext g = c.getGraphicsContext2D();
-        if(color != null) {
+        if (color != null) {
             g.setFill(color);
             g.fillRect(0, 0, w, h);
         }
         g.setStroke(Color.DARKGRAY);
         g.strokeRect(0, 0, w, h);
-        
+
         MenuItem m = new MenuItem(null, c);
         m.setDisable(!selected);
         m.setOnAction((ev) -> apply(StyleAttrs.TEXT_COLOR, color));
@@ -403,10 +404,7 @@ public class CodeAreaDemoPane extends BorderPane {
     protected <X> void apply(StyleAttribute<X> attr, X val) {
         TextPos ca = control.getCaretPosition();
         TextPos an = control.getAnchorPosition();
-        StyleAttrs a = StyleAttrs.
-            builder().
-            set(attr, val).
-            build();
+        StyleAttrs a = StyleAttrs.builder().set(attr, val).build();
         control.applyStyle(ca, an, a);
     }
 

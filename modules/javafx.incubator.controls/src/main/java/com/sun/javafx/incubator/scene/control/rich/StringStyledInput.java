@@ -73,9 +73,9 @@ public class StringStyledInput implements StyledInput {
         }
         return null;
     }
-    
+
     private int charAt(int ix) {
-        if(ix < text.length()) {
+        if (ix < text.length()) {
             return text.charAt(ix);
         }
         return -1;

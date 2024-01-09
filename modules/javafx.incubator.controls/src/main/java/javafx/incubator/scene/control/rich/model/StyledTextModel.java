@@ -199,7 +199,7 @@ public abstract class StyledTextModel {
         @Override
         public int compareTo(FHPriority x) {
             int d = x.priority - priority;
-            if(d == 0) {
+            if (d == 0) {
                 // compare formats to guard against someone adding two different formats under the same priority
                 String us = handler().getDataFormat().toString();
                 String them = x.handler().getDataFormat().toString();
@@ -667,7 +667,7 @@ public abstract class StyledTextModel {
 
             // apply character styles
             StyleAttrs ca = attrs.getCharacterAttrs();
-            if(ca != null) {
+            if (ca != null) {
                 int ix = start.index();
                 if (ix == end.index()) {
                     applyStyle(ix, start.offset(), end.offset(), attrs, mergeAttributes);

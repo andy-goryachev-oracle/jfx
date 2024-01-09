@@ -92,7 +92,7 @@ public class EditableRichTextModel extends StyledTextModel {
 
     @Override
     protected void insertLineBreak(int index, int offset) {
-        if(index >= size()) {
+        if (index >= size()) {
             // unlikely to happen
             RParagraph par = new RParagraph();
             paragraphs.add(par);
@@ -156,7 +156,7 @@ public class EditableRichTextModel extends StyledTextModel {
     @Override
     public StyleAttrs getStyleAttrs(StyleResolver resolver, TextPos pos) {
         int index = pos.index();
-        if(index < paragraphs.size()) {
+        if (index < paragraphs.size()) {
             int off = pos.offset();
             RParagraph par = paragraphs.get(index);
             StyleAttrs pa = par.getParagraphAttributes();

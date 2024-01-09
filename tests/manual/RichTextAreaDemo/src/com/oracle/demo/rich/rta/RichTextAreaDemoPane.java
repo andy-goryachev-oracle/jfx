@@ -127,17 +127,17 @@ public class RichTextAreaDemoPane extends BorderPane {
         
         CheckBox fatCaret = new CheckBox("fat caret");
         FX.name(fatCaret, "fatCaret");
-        fatCaret.selectedProperty().addListener((s,p,on) -> {
+        fatCaret.selectedProperty().addListener((s, p, on) -> {
             Node n = control.lookup(".caret");
-            if(n != null) {
-                if(on) {
+            if (n != null) {
+                if (on) {
                     n.setStyle("-fx-stroke-width:2; -fx-stroke:red; -fx-effect:dropshadow(gaussian,rgba(0,0,0,.5),5,0,1,1);");
                 } else {
                     n.setStyle(null);
                 }
             }
         });
-        
+
         CheckBox fastBlink = new CheckBox("blink fast");
         FX.name(fastBlink, "fastBlink");
         fastBlink.selectedProperty().addListener((s,p,on) -> {
@@ -271,8 +271,8 @@ public class RichTextAreaDemoPane extends BorderPane {
     }
 
     protected SideDecorator createDecorator(Decorator d) {
-        if(d != null) {
-            switch(d) {
+        if (d != null) {
+            switch (d) {
             case COLORS:
                 return new DemoColorSideDecorator();
             case LINE_NUMBERS:
@@ -313,36 +313,36 @@ public class RichTextAreaDemoPane extends BorderPane {
         toolbar().add(b);
         return b;
     }
-    
+
     public TBar toolbar() {
-        if(getTop() instanceof TBar) {
+        if (getTop() instanceof TBar) {
             return (TBar)getTop();
         }
-        
+
         TBar t = new TBar();
         setTop(t);
         return t;
     }
-    
+
     public Window getWindow() {
         Scene s = getScene();
-        if(s != null) {
+        if (s != null) {
             return s.getWindow();
         }
         return null;
     }
-    
+
     public void setOptions(Node n) {
         setRight(n);
     }
-    
+
     protected String generateStylesheet(boolean fat) {
         String s = ".rich-text-area .caret { -fx-stroke-width:" + (fat ? 2 : 1) + "; }";
         return "data:text/css;base64," + Base64.getEncoder().encodeToString(s.getBytes(Charset.forName("utf-8")));
     }
-    
+
     protected void setCustomPopup(boolean on) {
-        if(on) {
+        if (on) {
             ContextMenu m = new ContextMenu();
             m.getItems().add(new MenuItem("Dummy")); // otherwise no popup is shown
             m.addEventFilter(Menu.ON_SHOWING, (ev) -> {
@@ -602,25 +602,25 @@ public class RichTextAreaDemoPane extends BorderPane {
         m.setOnAction((ev) -> applyStyle(StyleAttrs.FONT_SIZE, size));
         menu.getItems().add(m);
     }
-    
+
     private void colorMenu(Menu menu, boolean selected, Color color) {
         int w = 16;
         int h = 16;
         Canvas c = new Canvas(w, h);
         GraphicsContext g = c.getGraphicsContext2D();
-        if(color != null) {
+        if (color != null) {
             g.setFill(color);
             g.fillRect(0, 0, w, h);
         }
         g.setStroke(Color.DARKGRAY);
         g.strokeRect(0, 0, w, h);
-        
+
         MenuItem m = new MenuItem(null, c);
         m.setDisable(!selected);
         m.setOnAction((ev) -> applyStyle(StyleAttrs.TEXT_COLOR, color));
         menu.getItems().add(m);
     }
-    
+
     private <T> void applyStyle(StyleAttribute<T> a, T val) {
         TextPos ca = control.getCaretPosition();
         TextPos an = control.getAnchorPosition();
