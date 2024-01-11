@@ -49,6 +49,7 @@ import javafx.incubator.scene.control.rich.CaretInfo;
 import javafx.incubator.scene.control.rich.ConfigurationParameters;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.SideDecorator;
+import javafx.incubator.scene.control.rich.StyleHandlerRegistry;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
@@ -842,10 +843,11 @@ public class VFlow extends Pane implements StyleResolver {
 
     private void applyStyles(Node n, StyleAttrs attrs, boolean forParagraph) {
         if (attrs != null) {
+            StyleHandlerRegistry r = control.getStyleHandlerRegistry();
             for (StyleAttribute a : attrs.getAttributes()) {
                 Object v = attrs.get(a);
                 if (v != null) {
-                    control.processAttribute(forParagraph, context, a, v);
+                    r.process(control, forParagraph, context, a, v);
                 }
             }
         }

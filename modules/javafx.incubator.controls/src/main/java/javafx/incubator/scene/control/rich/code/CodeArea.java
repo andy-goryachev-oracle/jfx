@@ -39,6 +39,7 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.SizeConverter;
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.StyleHandlerRegistry;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
@@ -60,8 +61,7 @@ public class CodeArea extends RichTextArea {
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
     private String fontStyle;
-    
-    static { initStyleHandlers(); }
+    protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
     public CodeArea(CodeTextModel m) {
         super(m);
@@ -332,21 +332,30 @@ public class CodeArea extends RichTextArea {
     public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
         return StyleableProperties.STYLEABLES;
     }
+    
+    @Override
+    public StyleHandlerRegistry getStyleHandlerRegistry() {
+        return styleHandlerRegistry;
+    }
 
-    private static void initStyleHandlers() {
+    private static StyleHandlerRegistry initStyleHandlerRegistry() {
+        StyleHandlerRegistry.Builder b = StyleHandlerRegistry.builder(RichTextArea.styleHandlerRegistry);
+
         // this paragraph attribute affects each segment
-        setSegHandler(CodeArea.FONT, (c, cx, v) -> {
+        b.setSegHandler(CodeArea.FONT, (c, cx, v) -> {
             String family = v.getFamily();
             double size = v.getSize();
             cx.addStyle("-fx-font-family:'" + family + "';");
             cx.addStyle("-fx-font-size:" + size + ";");
         });
 
-        setParHandler(CodeArea.TAB_SIZE, (c, cx, v) -> {
+        b.setParHandler(CodeArea.TAB_SIZE, (c, cx, v) -> {
             if (v > 0) {
                 cx.addStyle("-fx-tab-size:" + v + ";");
             }
         });
+
+        return b.build();
     }
 
     /**

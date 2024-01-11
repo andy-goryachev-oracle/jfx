@@ -30,7 +30,6 @@ package javafx.incubator.scene.control.rich;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -176,9 +175,7 @@ public class RichTextArea extends Control {
     private BooleanProperty highlightCurrentParagraph;
     private BooleanProperty useContentWidth;
     private BooleanProperty useContentHeight;
-    private static HashMap<StyleAttribute,StyleAttributeHandler> parStyleHandlerMap = new HashMap<>();
-    private static HashMap<StyleAttribute,StyleAttributeHandler> segStyleHandlerMap = new HashMap<>();
-    static { initStyleHandlers(); }
+    protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
     /**
      * Creates an editable instance with default configuration parameters,
@@ -1303,58 +1300,26 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Sets a paragraph style attribute handler.
-     * @param <C>
-     * @param <T>
-     * @param a
-     * @param p
+     * Returns the style handler registry for this control.
+     * @return the style handler registry
      */
-    // TODO registry
-    protected static <C extends RichTextArea, T> void setParHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> p) {
-        parStyleHandlerMap.put(a, p);
-    }
-    
-    /**
-     * Sets a text segment style attribute handler.
-     * @param <C> the control type
-     * @param <T> the attribute value type
-     * @param a the attribute
-     * @param h the handler
-     */
-    // FIX this won't work: imagine two siblings that register different handlers for the same attribute!
-    // need to specify the control class in the key, also create a static registry in the com.* hierarchy
-    protected static <C extends RichTextArea, T> void setSegHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> h) {
-        segStyleHandlerMap.put(a, h);
+    public StyleHandlerRegistry getStyleHandlerRegistry() {
+        return styleHandlerRegistry;
     }
 
-    /**
-     * TODO hide behind an accessor
-     *
-     * @param <T>
-     * @param forParagraph
-     * @param cx
-     * @param a
-     * @param value
-     */
-    // TODO move to the registry
-    public <T> void processAttribute(boolean forParagraph, CellContext cx, StyleAttribute<T> a, T value) {
-        StyleAttributeHandler h = (forParagraph ? parStyleHandlerMap : segStyleHandlerMap).get(a);
-        if (h != null) {
-            h.apply(this, cx, value);
-        }
-    }
+    private static StyleHandlerRegistry initStyleHandlerRegistry() {
+        StyleHandlerRegistry.Builder b = StyleHandlerRegistry.builder(null);
 
-    private static void initStyleHandlers() {
-        setParHandler(StyleAttrs.BACKGROUND, (c, cx, v) -> {
+        b.setParHandler(StyleAttrs.BACKGROUND, (c, cx, v) -> {
             String color = RichUtils.toCssColor(v);
             cx.addStyle("-fx-background-color:" + color + ";");
         });
 
-        setSegHandler(StyleAttrs.BOLD, (c, cx, v) -> {
+        b.setSegHandler(StyleAttrs.BOLD, (c, cx, v) -> {
             cx.addStyle(v ? "-fx-font-weight:bold;" : "-fx-font-weight:normal;");
         });
 
-        setSegHandler(CssStyles.CSS, (c, cx, v) -> {
+        b.setSegHandler(CssStyles.CSS, (c, cx, v) -> {
             String st = v.style();
             if (st != null) {
                 cx.addStyle(st);
@@ -1365,26 +1330,26 @@ public class RichTextArea extends Control {
             }
         });
 
-        setSegHandler(StyleAttrs.FONT_FAMILY, (cc, c, v) -> {
-            c.addStyle("-fx-font-family:'" + v + "';");
+        b.setSegHandler(StyleAttrs.FONT_FAMILY, (c, cx, v) -> {
+            cx.addStyle("-fx-font-family:'" + v + "';");
         });
 
-        setSegHandler(StyleAttrs.FONT_SIZE, (cc, c, v) -> {
-            c.addStyle("-fx-font-size:" + v + ";");
+        b.setSegHandler(StyleAttrs.FONT_SIZE, (c, cx, v) -> {
+            cx.addStyle("-fx-font-size:" + v + ";");
         });
 
-        setSegHandler(StyleAttrs.ITALIC, (cc, c, v) -> {
+        b.setSegHandler(StyleAttrs.ITALIC, (c, cx, v) -> {
             if (v) {
-                c.addStyle("-fx-font-style:italic;");
+                cx.addStyle("-fx-font-style:italic;");
             }
         });
 
-        setParHandler(StyleAttrs.LINE_SPACING, (cc, c, v) -> {
-            c.addStyle("-fx-line-spacing:" + v + ";");
+        b.setParHandler(StyleAttrs.LINE_SPACING, (c, cx, v) -> {
+            cx.addStyle("-fx-line-spacing:" + v + ";");
         });
         
-        setParHandler(StyleAttrs.RIGHT_TO_LEFT, (cc, cx, v) -> {
-            if (cc.isWrapText()) {
+        b.setParHandler(StyleAttrs.RIGHT_TO_LEFT, (ctrl, cx, v) -> {
+            if (ctrl.isWrapText()) {
                 // node orientation property is not styleable (yet?)
                 cx.getNode().setNodeOrientation(v ? NodeOrientation.RIGHT_TO_LEFT : NodeOrientation.LEFT_TO_RIGHT);
             }
@@ -1392,42 +1357,44 @@ public class RichTextArea extends Control {
 
         // this is a special case: 4 attributes merged into one -fx style
         // unfortunately, this might create multiple copies of the same style string
-        StyleAttributeHandler<RichTextArea, Double> spaceHandler = (cc, c, v) -> {
-            StyleAttrs a = c.getAttributes();
+        StyleAttributeHandler<RichTextArea, Double> spaceHandler = (c, cx, v) -> {
+            StyleAttrs a = cx.getAttributes();
             double top = a.getDouble(StyleAttrs.SPACE_ABOVE, 0);
             double right = a.getDouble(StyleAttrs.SPACE_RIGHT, 0);
             double bottom = a.getDouble(StyleAttrs.SPACE_BELOW, 0);
             double left = a.getDouble(StyleAttrs.SPACE_LEFT, 0);
-            c.addStyle("-fx-padding:" + top + ' ' + right + ' ' + bottom + ' ' + left + ";");
+            cx.addStyle("-fx-padding:" + top + ' ' + right + ' ' + bottom + ' ' + left + ";");
         };
-        setParHandler(StyleAttrs.SPACE_ABOVE, spaceHandler);
-        setParHandler(StyleAttrs.SPACE_RIGHT, spaceHandler);
-        setParHandler(StyleAttrs.SPACE_BELOW, spaceHandler);
-        setParHandler(StyleAttrs.SPACE_LEFT, spaceHandler);
+        b.setParHandler(StyleAttrs.SPACE_ABOVE, spaceHandler);
+        b.setParHandler(StyleAttrs.SPACE_RIGHT, spaceHandler);
+        b.setParHandler(StyleAttrs.SPACE_BELOW, spaceHandler);
+        b.setParHandler(StyleAttrs.SPACE_LEFT, spaceHandler);
 
-        setSegHandler(StyleAttrs.STRIKE_THROUGH, (cc, c, v) -> {
+        b.setSegHandler(StyleAttrs.STRIKE_THROUGH, (c, cx, v) -> {
             if (v) {
-                c.addStyle("-fx-strikethrough:true;");
+                cx.addStyle("-fx-strikethrough:true;");
             }
         });
 
-        setParHandler(StyleAttrs.TEXT_ALIGNMENT, (c, cx, v) -> {
+        b.setParHandler(StyleAttrs.TEXT_ALIGNMENT, (c, cx, v) -> {
             if (c.isWrapText()) {
                 String alignment = RichUtils.toCss(v);
                 cx.addStyle("-fx-text-alignment:" + alignment + ";");
             }
         });
 
-        setSegHandler(StyleAttrs.TEXT_COLOR, (c, cx, v) -> {
+        b.setSegHandler(StyleAttrs.TEXT_COLOR, (c, cx, v) -> {
             String color = RichUtils.toCssColor(v);
             cx.addStyle("-fx-fill:" + color + ";");
         });
 
-        setSegHandler(StyleAttrs.UNDERLINE, (cc, cx, v) -> {
+        b.setSegHandler(StyleAttrs.UNDERLINE, (cc, cx, v) -> {
             if (v) {
                 cx.addStyle("-fx-underline:true;");
             }
         });
+
+        return b.build();
     }
 
     /**
