@@ -683,6 +683,14 @@ public class RichTextArea extends Control {
     public void delete() {
         execute(DELETE);
     }
+    
+    /**
+     * When selection exists, deletes selected paragraphs.  Otherwise, deletes the paragraph at the caret.
+     * <p>This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
+     */
+    public void deleteParagraph() {
+        execute(DELETE_PARAGRAPH);
+    }
 
     /**
      * Inserts a line break at the caret.  If selection exists, first deletes the selected text.
@@ -778,7 +786,7 @@ public class RichTextArea extends Control {
      * <p>This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
     public void moveLeftWord() {
-        execute(MOVE_WORD_PREVIOUS);
+        execute(MOVE_WORD_LEFT);
     }
 
     /**
@@ -788,7 +796,7 @@ public class RichTextArea extends Control {
      * <p>This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
     public void moveRightWord() {
-        execute(MOVE_WORD_NEXT);
+        execute(MOVE_WORD_RIGHT);
     }
     
     /**
