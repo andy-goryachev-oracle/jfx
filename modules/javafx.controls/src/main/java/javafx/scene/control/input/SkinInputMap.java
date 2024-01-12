@@ -34,6 +34,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyCode;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
@@ -52,7 +53,8 @@ import com.sun.javafx.scene.control.input.PHList;
  * created with {@link #createStateless(Control)}.
  *
  * @param <C> the control type
- * @param <F> the type of a function (Runnable for stateful input maps, Consumer<C> for stateless)
+ * @param <F> the type of a function ({@code Runnable} for stateful input maps,
+ * {@code Consumer<C>} for stateless)
  */
 public abstract class SkinInputMap<C extends Skinnable, F> {
     private static final Object ON_KEY_ENTER = new Object();
@@ -68,8 +70,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
     
     /**
-     * Adds an event handler for the specified event type, in the context of this Behavior.
-     * The handler will get removed in {@link#dispose()} method.
+     * Adds an event handler for the specified event type, in the context of this skin.
      * This mapping always consumes the matching event.
      *
      * @param <T> the actual event type
@@ -81,8 +82,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
 
     /**
-     * Adds an event handler for the specified event type, in the context of this Behavior.
-     * The handler will get removed in {@link#dispose()} method.
+     * Adds an event handler for the specified event type, in the context of this skin.
      *
      * @param <T> the actual event type
      * @param type the event type
@@ -94,9 +94,8 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
 
     /**
-     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * Adds an event handler for the specified event type, in the context of this skin.
      * This event handler will get invoked after all handlers added via map() methods.
-     * The handler will get removed in {@link#dispose()} method.
      * This mapping always consumes the matching event.
      *
      * @param <T> the actual event type
@@ -108,9 +107,8 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
 
     /**
-     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * Adds an event handler for the specified event type, in the context of this skin.
      * This event handler will get invoked after all handlers added via map() methods.
-     * The handler will get removed in {@link#dispose()} method.
      *
      * @param <T> the actual event type
      * @param type the event type
@@ -122,9 +120,8 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
 
     /**
-     * Adds an event handler for the specific event criteria, in the context of this Behavior.
+     * Adds an event handler for the specific event criteria, in the context of this skin.
      * This is a more specific version of {@link #addHandler(EventType,EventHandler)} method.
-     * The handler will get removed in {@link#dispose()} method.
      *
      * @param <T> the actual event type
      * @param criteria the matching criteria
@@ -136,9 +133,8 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
 
     /**
-     * Adds an event handler for the specific event criteria, in the context of this Behavior.
+     * Adds an event handler for the specific event criteria, in the context of this skin.
      * This event handler will get invoked after all handlers added via map() methods.
-     * The handler will get removed in {@link#dispose()} method.
      *
      * @param <T> the actual event type
      * @param criteria the matching criteria
@@ -233,7 +229,6 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
 
     /**
      * Maps a function to the specified function tag.
-     * This method will not override any previous mapping added by {@link #registerFunction(FunctionTag,Runnable)}.
      *
      * @param tag the function tag
      * @param function the function
@@ -283,7 +278,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     
     /**
      * Sets the code to be executed just before handling of the key events.
-     * @param action the action or null
+     * @param function the function or null
      */
     public final void setOnKeyEventEnter(F function) {
         map.put(ON_KEY_ENTER, function);
@@ -291,7 +286,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
 
     /**
      * Sets the code to be executed just after handling of the key events.
-     * @param action the action or null
+     * @param function the function or null
      */
     public final void setOnKeyEventExit(F function) {
         map.put(ON_KEY_EXIT, function);

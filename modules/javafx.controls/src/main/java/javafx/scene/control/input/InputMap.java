@@ -63,8 +63,7 @@ public final class InputMap {
     }
 
     /**
-     * Adds an event handler for the specified event type, in the context of this Behavior.
-     * The handler will get removed in {@link#dispose()} method.
+     * Adds an event handler for the specified event type, at the control level.
      * This mapping always consumes the matching event.
      *
      * @param <T> the actual event type
@@ -77,9 +76,8 @@ public final class InputMap {
     }
 
     /**
-     * Adds an event handler for the specified event type, in the context of this Behavior.
+     * Adds an event handler for the specified event type, at the control level.
      * This event handler will get invoked after all handlers added via map() methods.
-     * The handler will get removed in {@link#dispose()} method.
      * This mapping always consumes the matching event.
      *
      * @param <T> the actual event type
