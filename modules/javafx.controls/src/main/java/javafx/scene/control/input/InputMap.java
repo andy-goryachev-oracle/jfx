@@ -34,7 +34,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
 import javafx.scene.input.KeyEvent;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
 import com.sun.javafx.scene.control.input.PHList;
@@ -99,7 +98,8 @@ public final class InputMap {
         }
     }
 
-    private <T extends Event> PHList handlers(EventType<T> type, boolean create) {
+    private //<T extends Event> 
+    PHList handlers(EventType<?> type, boolean create) {
         Object x = map.get(type);
         if (x instanceof PHList h) {
             return h;
@@ -371,9 +371,25 @@ public final class InputMap {
     // TODO hide behind a helper
     public void setSkinInputMap(SkinInputMap m) {
         if (skinInputMap != null) {
-            skinInputMap.uninstall(this);
+            // uninstall all handlers with SKIN_* priority
+            Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<Object, Object> en = it.next();
+                if (en.getKey() instanceof Event ev) {
+                    PHList hs = (PHList)en.getValue();
+                    if (hs.removeSkinHandlers()) {
+                        it.remove();
+                    }
+                }
+            }
         }
+
         skinInputMap = m;
-        skinInputMap.install(this);
+
+        // install skin handlers with their priority
+        skinInputMap.forEach((type, pri, h) -> {
+            PHList hs = handlers(type, true);
+            hs.add(h, pri);
+        });
     }
 }

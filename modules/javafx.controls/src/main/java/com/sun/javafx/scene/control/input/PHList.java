@@ -26,9 +26,9 @@ package com.sun.javafx.scene.control.input;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 
 /**
  * Priority Handler List.
@@ -100,5 +100,32 @@ public class PHList implements Iterable<EventHandler<?>> {
             }
         }
         return -1;
+    }
+
+    public void forEach(BiConsumer<EventHandlerPriority, EventHandler<?>> client) {
+        int sz = items.size();
+        for (int i = 0; i < sz;) {
+            EventHandlerPriority p = (EventHandlerPriority)items.get(i++);
+            EventHandler<?> h = (EventHandler<?>)items.get(i++);
+            client.accept(p, h);
+        }
+    }
+
+    /**
+     * removes all entries with SKIN_* priorities
+     * @return true if list is empty as a result
+     */
+    public boolean removeSkinHandlers() {
+        for (int i = items.size() - 2; i >= 0; i -= 2) {
+            EventHandlerPriority p = (EventHandlerPriority)items.get(i);
+            switch (p) {
+            case SKIN_HIGH:
+            case SKIN_LOW:
+                items.remove(i);
+                items.remove(i);
+                break;
+            }
+        }
+        return items.size() == 0;
     }
 }

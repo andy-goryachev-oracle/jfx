@@ -119,8 +119,8 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
             tlFocus = new TwoLevelFocusBehavior(textField); // needs to be last.
         }
 
-        addHandler(KeyBinding.of(KeyCode.ENTER), false, this::fire);
-        addHandler(KeyBinding.of(KeyCode.ESCAPE), false, this::cancelEdit);
+        addHandler(KeyBinding.of(KeyCode.ENTER), this::fire);
+        addHandler(KeyBinding.of(KeyCode.ESCAPE), this::cancelEdit);
     }
 
     @Override

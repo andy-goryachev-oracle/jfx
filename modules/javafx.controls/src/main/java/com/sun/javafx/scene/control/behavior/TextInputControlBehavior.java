@@ -234,15 +234,15 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
                         !ev.isShortcutDown();
                 }
             },
-            false,
             (ev) -> ev.consume()
         );
 
         // VK
         // TODO can PlatformImpl.isSupported(ConditionalFeature) change at runtime?
         if (PlatformImpl.isSupported(ConditionalFeature.VIRTUAL_KEYBOARD)) {
-            addHandler(KeyBinding.builder().with(KeyCode.DIGIT9).control().shift().build(), true, (ev) -> {
+            addHandler(KeyBinding.builder().with(KeyCode.DIGIT9).control().shift().build(), (ev) -> {
                 FXVK.toggleUseVK(getControl());
+                ev.consume();
             });
         }
 

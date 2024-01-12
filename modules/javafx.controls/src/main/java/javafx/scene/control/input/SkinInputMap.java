@@ -34,14 +34,25 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyCode;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
 import com.sun.javafx.scene.control.input.PHList;
 
 /**
- * Input Map for use by the Skins.
+ * Input Map for use by the Skin.
+ * <p>
+ * There are two kinds of skin input maps, differentiated by the kind of a handler registered through it.
+ * <p>
+ * When behavior requires to store some state, the skin should use an input map created with
+ * {@link #createStateful(Control)} as it is simpler and manages simple Runnable handlers.
+ * <p>
+ * When all the state required by the behavior is stored in the Control and/or its Skin, a stateless
+ * behavior is possible, and all the instances of such a Control can use a single instance of the skin input map,
+ * created with {@link #createStateless(Control)}.
+ *
+ * @param <C> the control type
+ * @param <F> the type of a function (Runnable for stateful input maps, Consumer<C> for stateless)
  */
 public abstract class SkinInputMap<C extends Skinnable, F> {
     private static final Object ON_KEY_ENTER = new Object();
@@ -49,7 +60,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     // KeyBinding -> FunctionTag
     // FunctionTag -> Runnable
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
-    // EventType -> HList of listeners (with priority)
+    // EventType -> PHList of listeners (with priority)
     final HashMap<Object,Object> map = new HashMap<>();
 
     // use the factory methods to create an instance of SkinInputMap
@@ -331,19 +342,12 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
         }
     }
 
-    final void install(InputMap parent) {
-        // TODO for each event type: merge phlist
-    }
-    
-    final void uninstall(InputMap parent) {
-        // TODO for each event type: remove all with priority=SKIN_* (and move it to input map)
-    }
-
     final Runnable getFunction(FunctionTag tag) {
         Object x = map.get(tag);
         return toRunnable(x);
     }
 
+    // this is the difference between stateful and stateless behaviors 
     abstract Runnable toRunnable(Object x);
 
     // TODO control arg and generics are not needed, but are needed for createStateless().
@@ -398,6 +402,22 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
         Runnable r = toRunnable(x);
         if (r != null) {
             r.run();
+        }
+    }
+
+    @FunctionalInterface
+    static interface TriConsumer {
+        public void accept(EventType<?> type, EventHandlerPriority pri, EventHandler<?> h);
+    }
+
+    void forEach(TriConsumer client) {
+        for (Map.Entry<Object, Object> en : map.entrySet()) {
+            if (en.getKey() instanceof EventType type) {
+                PHList hs = (PHList)en.getValue();
+                hs.forEach((pri, h) -> {
+                    client.accept(type, pri, h);
+                });
+            }
         }
     }
 }
