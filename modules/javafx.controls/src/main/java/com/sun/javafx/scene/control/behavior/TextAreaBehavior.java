@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -70,38 +70,36 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     public void install() {
         super.install();
 
-        TextArea c = getControl();
-
         focusListener = (src, ov, nv) -> handleFocusChange();
         // Register for change events
-        c.focusedProperty().addListener(focusListener);
+        getControl().focusedProperty().addListener(focusListener);
 
         // Only add this if we're on an embedded platform that supports 5-button navigation
         if (Utils.isTwoLevelFocus()) {
-            tlFocus = new TwoLevelFocusBehavior(c); // needs to be last.
+            tlFocus = new TwoLevelFocusBehavior(getControl()); // needs to be last.
         }
 
         // functions
-        registerFunction(TextArea.DOCUMENT_END, c::end); // TODO move end() to behavior
-        registerFunction(TextArea.DOCUMENT_START, c::home); // TODO move home() to behavior
-        registerFunction(TextArea.DOWN, () -> skin.moveCaret(TextUnit.LINE, Direction.DOWN, false));
-        registerFunction(TextArea.LINE_START, () -> lineStart(false));
-        registerFunction(TextArea.LINE_END, () -> lineEnd(false));
-        registerFunction(TextArea.PARAGRAPH_DOWN, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, false));
-        registerFunction(TextArea.PARAGRAPH_UP, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.UP, false));
-        registerFunction(TextArea.PAGE_DOWN, () -> skin.moveCaret(TextUnit.PAGE, Direction.DOWN, false));
-        registerFunction(TextArea.PAGE_UP, () -> skin.moveCaret(TextUnit.PAGE, Direction.UP, false));
-        registerFunction(TextArea.SELECT_DOWN, () -> skin.moveCaret(TextUnit.LINE, Direction.DOWN, true));
+        registerFunction(TextArea.DOCUMENT_END, this::end);
+        registerFunction(TextArea.DOCUMENT_START, this::home);
+        registerFunction(TextArea.DOWN, (c) -> skin.moveCaret(TextUnit.LINE, Direction.DOWN, false));
+        registerFunction(TextArea.LINE_START, (c) -> lineStart(false));
+        registerFunction(TextArea.LINE_END, (c) -> lineEnd(false));
+        registerFunction(TextArea.PARAGRAPH_DOWN, (c) -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, false));
+        registerFunction(TextArea.PARAGRAPH_UP, (c) -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.UP, false));
+        registerFunction(TextArea.PAGE_DOWN, (c) -> skin.moveCaret(TextUnit.PAGE, Direction.DOWN, false));
+        registerFunction(TextArea.PAGE_UP, (c) -> skin.moveCaret(TextUnit.PAGE, Direction.UP, false));
+        registerFunction(TextArea.SELECT_DOWN, (c) -> skin.moveCaret(TextUnit.LINE, Direction.DOWN, true));
         //func(TextArea.SELECT_END_EXTEND, this::selectEndExtend);
         //func(TextArea.SELECT_HOME_EXTEND, this::selectHomeExtend);
-        registerFunction(TextArea.SELECT_LINE_END, () -> lineEnd(true));
-        registerFunction(TextArea.SELECT_PAGE_DOWN, () -> skin.moveCaret(TextUnit.PAGE, Direction.DOWN, true));
-        registerFunction(TextArea.SELECT_PAGE_UP, () -> skin.moveCaret(TextUnit.PAGE, Direction.UP, true));
-        registerFunction(TextArea.SELECT_PARAGRAPH_DOWN, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, true));
-        registerFunction(TextArea.SELECT_PARAGRAPH_UP, () -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.UP, true));
-        registerFunction(TextArea.SELECT_LINE_START, () -> lineStart(true));
-        registerFunction(TextArea.SELECT_UP, () -> skin.moveCaret(TextUnit.LINE, Direction.UP, true));
-        registerFunction(TextArea.UP, () -> skin.moveCaret(TextUnit.LINE, Direction.UP, false));
+        registerFunction(TextArea.SELECT_LINE_END, (c) -> lineEnd(true));
+        registerFunction(TextArea.SELECT_PAGE_DOWN, (c) -> skin.moveCaret(TextUnit.PAGE, Direction.DOWN, true));
+        registerFunction(TextArea.SELECT_PAGE_UP, (c) -> skin.moveCaret(TextUnit.PAGE, Direction.UP, true));
+        registerFunction(TextArea.SELECT_PARAGRAPH_DOWN, (c) -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.DOWN, true));
+        registerFunction(TextArea.SELECT_PARAGRAPH_UP, (c) -> skin.moveCaret(TextUnit.PARAGRAPH, Direction.UP, true));
+        registerFunction(TextArea.SELECT_LINE_START, (c) -> lineStart(true));
+        registerFunction(TextArea.SELECT_UP, (c) -> skin.moveCaret(TextUnit.LINE, Direction.UP, true));
+        registerFunction(TextArea.UP, (c) -> skin.moveCaret(TextUnit.LINE, Direction.UP, false));
         registerFunction(TextArea.INSERT_NEW_LINE, this::insertNewLine);
         registerFunction(TextArea.INSERT_TAB, this::insertTab);
         // TODO create functions instead of the inline lambdas above
@@ -182,37 +180,35 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
         }
     }
 
-    private void insertNewLine() {
+    private void insertNewLine(TextArea c) {
         if (isEditable()) {
             setEditing(true);
-            getControl().replaceSelection("\n");
+            c.replaceSelection("\n");
             setEditing(false);
         }
     }
 
-    private void insertTab() {
+    private void insertTab(TextArea c) {
         if (isEditable()) {
             setEditing(true);
-            getControl().replaceSelection("\t");
+            c.replaceSelection("\t");
             setEditing(false);
         }
     }
 
-    @Override protected void deleteChar(boolean previous) {
+    @Override protected void deleteChar(TextArea c, boolean previous) {
         if (previous) {
-            getControl().deletePreviousChar();
+            c.deletePreviousChar();
         } else {
-            getControl().deleteNextChar();
+            c.deleteNextChar();
         }
     }
 
-    @Override protected void deleteFromLineStart() {
-        TextArea textArea = getControl();
-        int end = textArea.getCaretPosition();
-
+    @Override protected void deleteFromLineStart(TextArea c) {
+        int end = c.getCaretPosition();
         if (end > 0) {
             lineStart(false);
-            int start = textArea.getCaretPosition();
+            int start = c.getCaretPosition();
             if (end > start) {
                 replaceText(start, end, "");
             }

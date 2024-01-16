@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,6 @@
 package test.javafx.scene.control.behavior;
 
 import java.util.Set;
-import java.util.function.Consumer;
 import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.input.FunctionTag;
@@ -152,8 +151,7 @@ public class TestInputMap {
 
         @Override
         public void install() {
-            // stateless behavior
-            SkinInputMap<TestControl, Consumer<TestControl>> m = SkinInputMap.createStateless(getSkinnable());
+            SkinInputMap<TestControl> m = new SkinInputMap<>(null);
             m.register(TAG1, KB1, (c) -> c.setValue(1));
             m.register(TAG2, KeyCode.A, (c) -> c.setValue(2));
             setSkinInputMap(m);

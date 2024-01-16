@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -66,13 +66,15 @@ public class ComboBoxListViewBehavior<T> extends ComboBoxBaseBehavior<T> {
         return (ComboBox<T>) getControl();
     }
 
-    private void selectPrevious() {
+    private void selectPrevious(ComboBoxBase<T> c) {
+        // NOTE: ComboBoxBase<T> does not have getSelectionModel().  design problem?
         SelectionModel<T> sm = getComboBox().getSelectionModel();
         if (sm == null) return;
         sm.selectPrevious();
     }
 
-    private void selectNext() {
+    private void selectNext(ComboBoxBase<T> c) {
+        // NOTE: ComboBoxBase<T> does not have getSelectionModel().  design problem?
         SelectionModel<T> sm = getComboBox().getSelectionModel();
         if (sm == null) return;
         sm.selectNext();

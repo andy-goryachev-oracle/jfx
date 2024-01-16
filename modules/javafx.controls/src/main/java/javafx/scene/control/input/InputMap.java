@@ -96,8 +96,7 @@ public final class InputMap {
         }
     }
 
-    private //<T extends Event> 
-    PHList handlers(EventType<?> type, boolean create) {
+    private PHList handlers(EventType<?> type, boolean create) {
         Object x = map.get(type);
         if (x instanceof PHList h) {
             return h;

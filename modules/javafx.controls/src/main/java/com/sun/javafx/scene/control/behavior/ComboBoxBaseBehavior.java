@@ -73,6 +73,10 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
 
         registerFunction(ComboBoxBase.TOGGLE_POPUP, this::togglePopup);
 
+        registerKey(KeyBinding.withRelease(KeyCode.F4).build(), ComboBoxBase.TOGGLE_POPUP);
+        registerKey(KeyBinding.alt(KeyCode.DOWN), ComboBoxBase.TOGGLE_POPUP);
+        registerKey(KeyBinding.alt(KeyCode.UP), ComboBoxBase.TOGGLE_POPUP);
+
         addHandler(KeyBinding.with(KeyCode.SPACE).build(), true, this::keyPressed);
         addHandler(KeyBinding.withRelease(KeyCode.SPACE).build(), true, this::keyReleased);
         addHandler(KeyBinding.with(KeyCode.ENTER).build(), this::keyPressed);
@@ -84,10 +88,6 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         addHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
         addHandler(MouseEvent.MOUSE_ENTERED, this::mouseEntered);
         addHandler(MouseEvent.MOUSE_EXITED, this::mouseExited);
-
-        registerKey(KeyBinding.withRelease(KeyCode.F4).build(), ComboBoxBase.TOGGLE_POPUP);
-        registerKey(KeyBinding.alt(KeyCode.DOWN), ComboBoxBase.TOGGLE_POPUP);
-        registerKey(KeyBinding.alt(KeyCode.UP), ComboBoxBase.TOGGLE_POPUP);
     }
 
     @Override public void dispose() {
@@ -291,11 +291,11 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         }
     }
 
-    private void togglePopup() {
+    private void togglePopup(ComboBoxBase<T> c) {
         // If popup is shown, KeyEvent causes popup to close
         showPopupOnMouseRelease = true;
 
-        if (getControl().isShowing()) {
+        if (c.isShowing()) {
             hide();
         } else {
             show();

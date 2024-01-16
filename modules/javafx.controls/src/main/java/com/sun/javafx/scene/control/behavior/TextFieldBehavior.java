@@ -180,7 +180,8 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
         }
     }
 
-    @Override protected void deleteChar(boolean previous) {
+    @Override
+    protected void deleteChar(TextField c, boolean previous) {
         skin.deleteChar(previous);
     }
 
@@ -189,10 +190,9 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
         skin.replaceText(start, end, txt);
     }
 
-    @Override protected void deleteFromLineStart() {
-        TextField textField = getControl();
-        int end = textField.getCaretPosition();
-
+    @Override
+    protected void deleteFromLineStart(TextField c) {
+        int end = c.getCaretPosition();
         if (end > 0) {
             replaceText(0, end, "");
         }

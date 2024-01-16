@@ -24,6 +24,7 @@
  */
 package javafx.scene.control.input;
 
+import java.util.function.Consumer;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -51,12 +52,15 @@ import com.sun.javafx.PlatformUtil;
 public abstract class BehaviorBase<C extends Control> {
     /** the instance of Control associated with this behavior */
     protected final C control;
-    protected final SkinInputMap<C, Runnable> inputMap;
+    protected final SkinInputMap<C> inputMap;
 
-    /** The constructor. */
-    public BehaviorBase(C control) {
-        this.control = control;
-        this.inputMap = SkinInputMap.createStateful(control);
+    /**
+     * The constructor.
+     * @param c the owner Control instance
+     */
+    public BehaviorBase(C c) {
+        this.control = c;
+        this.inputMap = new SkinInputMap<C>(c);
     }
 
     /**
@@ -99,7 +103,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      * @param function the function
      */
-    protected void registerFunction(FunctionTag tag, Runnable function) {
+    protected void registerFunction(FunctionTag tag, Consumer<C> function) {
         inputMap.registerFunction(tag, function);
     }
 
@@ -133,7 +137,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param k the key binding
      * @param func the function
      */
-    protected void register(FunctionTag tag, KeyBinding k, Runnable func) {
+    protected void register(FunctionTag tag, KeyBinding k, Consumer<C> func) {
         inputMap.registerFunction(tag, func);
         inputMap.registerKey(k, tag);
     }
@@ -145,7 +149,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param code the key code
      * @param func the function
      */
-    protected void register(FunctionTag tag, KeyCode code, Runnable func) {
+    protected void register(FunctionTag tag, KeyCode code, Consumer<C> func) {
         inputMap.registerFunction(tag, func);
         inputMap.registerKey(KeyBinding.of(code), tag);
     }

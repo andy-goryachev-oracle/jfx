@@ -43,30 +43,22 @@ import com.sun.javafx.scene.control.input.PHList;
 /**
  * Input Map for use by the Skin.
  * <p>
- * There are two kinds of skin input maps, differentiated by the kind of a handler registered through it.
- * <p>
- * When behavior requires to store some state, the skin should use an input map created with
- * {@link #createStateful(Control)} as it is simpler and manages simple Runnable handlers.
- * <p>
- * When all the state required by the behavior is stored in the Control and/or its Skin, a stateless
- * behavior is possible, and all the instances of such a Control can use a single instance of the skin input map,
- * created with {@link #createStateless(Control)}.
  *
  * @param <C> the control type
- * @param <F> the type of a function ({@code Runnable} for stateful input maps,
- * {@code Consumer<C>} for stateless)
  */
-public abstract class SkinInputMap<C extends Skinnable, F> {
+public class SkinInputMap<C extends Skinnable> {
     private static final Object ON_KEY_ENTER = new Object();
     private static final Object ON_KEY_EXIT = new Object();
     // KeyBinding -> FunctionTag
-    // FunctionTag -> Runnable
+    // FunctionTag -> Consumer<C>
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
     // EventType -> PHList of listeners (with priority)
     final HashMap<Object,Object> map = new HashMap<>();
+    private final C control;
 
     // use the factory methods to create an instance of SkinInputMap
-    private SkinInputMap() {
+    public SkinInputMap(C control) {
+        this.control = control;
     }
     
     /**
@@ -89,6 +81,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
+    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
         addHandler(type, consume, EventHandlerPriority.SKIN_HIGH, handler);
     }
@@ -115,6 +108,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
+    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
         addHandler(type, consume, EventHandlerPriority.SKIN_LOW, handler);
     }
@@ -128,6 +122,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
+    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
         addHandler(criteria, consume, EventHandlerPriority.SKIN_HIGH, handler);
     }
@@ -141,6 +136,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
+    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandlerLast(
         EventCriteria<T> criteria,
         boolean consume,
@@ -152,7 +148,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     // FIX remove
     private <T extends Event> void addHandler(
         EventType<T> type,
-        boolean consume,
+        boolean consume, // FIX remove consume flag
         EventHandlerPriority pri,
         EventHandler<T> handler)
     {
@@ -170,10 +166,9 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
         }
     }
 
-    // FIX remove
     private <T extends Event> void addHandler(
         EventCriteria<T> criteria,
-        boolean consume,
+        boolean consume, // FIX remove consume flag
         EventHandlerPriority pri,
         EventHandler<T> handler
     ) {
@@ -233,7 +228,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param tag the function tag
      * @param function the function
      */
-    public final void registerFunction(FunctionTag tag, F function) {
+    public final void registerFunction(FunctionTag tag, Consumer<C> function) {
         map.put(tag, function);
     }
     
@@ -244,7 +239,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param k the key binding
      * @param func the function
      */
-    public void register(FunctionTag tag, KeyBinding k, F func) {
+    public void register(FunctionTag tag, KeyBinding k, Consumer<C> func) {
         registerFunction(tag, func);
         registerKey(k, tag);
     }
@@ -256,7 +251,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * @param code the key code
      * @param func the function
      */
-    public void register(FunctionTag tag, KeyCode code, F func) {
+    public void register(FunctionTag tag, KeyCode code, Consumer<C> func) {
         registerFunction(tag, func);
         registerKey(KeyBinding.of(code), tag);
     }
@@ -280,7 +275,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * Sets the code to be executed just before handling of the key events.
      * @param function the function or null
      */
-    public final void setOnKeyEventEnter(F function) {
+    public final void setOnKeyEventEnter(Runnable function) {
         map.put(ON_KEY_ENTER, function);
     }
 
@@ -288,7 +283,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
      * Sets the code to be executed just after handling of the key events.
      * @param function the function or null
      */
-    public final void setOnKeyEventExit(F function) {
+    public final void setOnKeyEventExit(Runnable function) {
         map.put(ON_KEY_EXIT, function);
     }
 
@@ -338,41 +333,48 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     }
 
     final Runnable getFunction(FunctionTag tag) {
+        if (control == null) {
+            // not available in stateless behaviors
+            // this is a problem
+            return null;
+        }
         Object x = map.get(tag);
-        return toRunnable(x);
+        if (x instanceof Consumer consumer) {
+            return () -> {
+                consumer.accept(control);
+            };
+        }
+        return null;
     }
-
-    // this is the difference between stateful and stateless behaviors 
-    abstract Runnable toRunnable(Object x);
 
     // TODO control arg and generics are not needed, but are needed for createStateless().
     // maybe have a base class and two final classes instead?
-    public static <K extends Control> SkinInputMap<K, Runnable> createStateful(K control) {
-        return new SkinInputMap<K, Runnable>() {
-            @Override
-            Runnable toRunnable(Object x) {
-                if (x instanceof Runnable r) {
-                    return r;
-                }
-                return null;
-            }
-        };
-    }
-
-    // TODO perhaps we don't need to add complexity, and instead pass control instance always
-    public static <K extends Control> SkinInputMap<K, Consumer<K>> createStateless(K control) {
-        return new SkinInputMap<K, Consumer<K>>() {
-            @Override
-            Runnable toRunnable(Object x) {
-                if (x instanceof Consumer f) {
-                    return () -> {
-                        f.accept(control);
-                    };
-                }
-                return null;
-            }
-        };
-    }
+//    public static <K extends Control> SkinInputMap<K, Runnable> createStateful(K control) {
+//        return new SkinInputMap<K, Runnable>() {
+//            @Override
+//            Runnable toRunnable(Object x) {
+//                if (x instanceof Runnable r) {
+//                    return r;
+//                }
+//                return null;
+//            }
+//        };
+//    }
+//
+//    // TODO perhaps we don't need to add complexity, and instead pass control instance always
+//    public static <K extends Control> SkinInputMap<K, Consumer<K>> createStateless(K control) {
+//        return new SkinInputMap<K, Consumer<K>>() {
+//            @Override
+//            Runnable toRunnable(Object x) {
+//                if (x instanceof Consumer f) {
+//                    return () -> {
+//                        f.accept(control);
+//                    };
+//                }
+//                return null;
+//            }
+//        };
+//    }
 
     void unbind(FunctionTag tag) {
         Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
@@ -387,16 +389,14 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
     
     void handleKeyFunctionEnter() {
         Object x = map.get(ON_KEY_ENTER);
-        Runnable r = toRunnable(x);
-        if (r != null) {
+        if (x instanceof Runnable r) {
             r.run();
         }
     }
 
     void handleKeyFunctionExit() {
         Object x = map.get(ON_KEY_EXIT);
-        Runnable r = toRunnable(x);
-        if (r != null) {
+        if (x instanceof Runnable r) {
             r.run();
         }
     }
