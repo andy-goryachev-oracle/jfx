@@ -212,7 +212,7 @@ public final class InputMap {
             return r;
         }
         if (skinInputMap != null) {
-            return skinInputMap.getFunction(tag);
+            return skinInputMap.getFunction(control, tag);
         }
         return null;
     }
@@ -227,7 +227,7 @@ public final class InputMap {
      */
     public Runnable getDefaultFunction(FunctionTag tag) {
         if (skinInputMap != null) {
-            return skinInputMap.getFunction(tag);
+            return skinInputMap.getFunction(control, tag);
         }
         return null;
     }

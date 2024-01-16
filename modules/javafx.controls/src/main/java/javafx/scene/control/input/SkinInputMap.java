@@ -54,11 +54,9 @@ public class SkinInputMap<C extends Skinnable> {
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
     // EventType -> PHList of listeners (with priority)
     final HashMap<Object,Object> map = new HashMap<>();
-    private final C control;
 
     // use the factory methods to create an instance of SkinInputMap
-    public SkinInputMap(C control) {
-        this.control = control;
+    public SkinInputMap() {
     }
     
     /**
@@ -332,12 +330,7 @@ public class SkinInputMap<C extends Skinnable> {
         }
     }
 
-    final Runnable getFunction(FunctionTag tag) {
-        if (control == null) {
-            // not available in stateless behaviors
-            // this is a problem
-            return null;
-        }
+    final Runnable getFunction(C control, FunctionTag tag) {
         Object x = map.get(tag);
         if (x instanceof Consumer consumer) {
             return () -> {

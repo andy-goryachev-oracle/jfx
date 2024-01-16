@@ -60,7 +60,7 @@ public abstract class BehaviorBase<C extends Control> {
      */
     public BehaviorBase(C c) {
         this.control = c;
-        this.inputMap = new SkinInputMap<C>(c);
+        this.inputMap = new SkinInputMap<>();
     }
 
     /**

@@ -151,7 +151,7 @@ public class TestInputMap {
 
         @Override
         public void install() {
-            SkinInputMap<TestControl> m = new SkinInputMap<>(null);
+            SkinInputMap<TestControl> m = new SkinInputMap<>();
             m.register(TAG1, KB1, (c) -> c.setValue(1));
             m.register(TAG2, KeyCode.A, (c) -> c.setValue(2));
             setSkinInputMap(m);
