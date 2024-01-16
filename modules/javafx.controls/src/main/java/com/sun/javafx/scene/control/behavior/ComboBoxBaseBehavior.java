@@ -63,6 +63,16 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
 
     @Override
     public void install() {
+        // ComboBoxBase also cares about focus
+        getControl().focusedProperty().addListener(focusListener);
+
+        // Only add this if we're on an embedded platform that supports 5-button navigation
+        if (Utils.isTwoLevelFocus()) {
+            tlFocus = new TwoLevelFocusComboBehavior(getControl()); // needs to be last.
+        }
+
+        registerFunction(ComboBoxBase.TOGGLE_POPUP, this::togglePopup);
+
         addHandler(KeyBinding.with(KeyCode.SPACE).build(), true, this::keyPressed);
         addHandler(KeyBinding.withRelease(KeyCode.SPACE).build(), true, this::keyReleased);
         addHandler(KeyBinding.with(KeyCode.ENTER).build(), this::keyPressed);
@@ -74,16 +84,6 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         addHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
         addHandler(MouseEvent.MOUSE_ENTERED, this::mouseEntered);
         addHandler(MouseEvent.MOUSE_EXITED, this::mouseExited);
-
-        // ComboBoxBase also cares about focus
-        getControl().focusedProperty().addListener(focusListener);
-
-        // Only add this if we're on an embedded platform that supports 5-button navigation
-        if (Utils.isTwoLevelFocus()) {
-            tlFocus = new TwoLevelFocusComboBehavior(getControl()); // needs to be last.
-        }
-
-        registerFunction(ComboBoxBase.TOGGLE_POPUP, this::togglePopup);
 
         registerKey(KeyBinding.withRelease(KeyCode.F4).build(), ComboBoxBase.TOGGLE_POPUP);
         registerKey(KeyBinding.alt(KeyCode.DOWN), ComboBoxBase.TOGGLE_POPUP);

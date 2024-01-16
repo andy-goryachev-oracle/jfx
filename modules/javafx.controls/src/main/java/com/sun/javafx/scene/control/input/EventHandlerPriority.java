@@ -28,11 +28,10 @@ package com.sun.javafx.scene.control.input;
  * Codifies priority of event handler invocation.
  */
 public enum EventHandlerPriority {
-    USER_HIGH(1000),
-    SKIN_HIGH(800),
-    USER_MED(600), // TODO get rid of this and we can use a boolean high/low
-    SKIN_LOW(400),
-    USER_LOW(200);
+    USER_HIGH(4000),
+    SKIN_HIGH(3000),
+    SKIN_LOW(2000),
+    USER_LOW(1000);
 
     final int priority;
 

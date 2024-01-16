@@ -359,6 +359,7 @@ public abstract class SkinInputMap<C extends Skinnable, F> {
         };
     }
 
+    // TODO perhaps we don't need to add complexity, and instead pass control instance always
     public static <K extends Control> SkinInputMap<K, Consumer<K>> createStateless(K control) {
         return new SkinInputMap<K, Consumer<K>>() {
             @Override

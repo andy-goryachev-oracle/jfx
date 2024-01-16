@@ -97,11 +97,11 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
     @Override
     public void install() {
         TextInputControl c = getControl();
+        c.textProperty().addListener(textListener);
 
+        // TODO to be replaced by a caret position listener JDK-8322748
         setOnKeyEventEnter(() -> setCaretAnimating(false));
         setOnKeyEventExit(() -> setCaretAnimating(true));
-
-        c.textProperty().addListener(textListener);
 
         registerFunction(TextInputControl.COPY, c::copy); // TODO move function here to enable user override
         registerFunction(TextInputControl.CUT, this::cut);
@@ -258,7 +258,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
      * Binds keypad arrow keys to the same function tags as the regular arrow keys.
      */
     protected void addKeyPadMappings() {
-        SkinInputMap m = getInputMap();
+        SkinInputMap m = getSkinInputMap();
         Set<KeyBinding> keys = m.getKeyBindings();
         for (KeyBinding k: keys) {
             KeyCode cd = k.getKeyCode();

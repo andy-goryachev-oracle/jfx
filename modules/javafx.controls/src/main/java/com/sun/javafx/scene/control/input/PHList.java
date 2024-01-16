@@ -35,6 +35,7 @@ import javafx.event.EventHandler;
  * Arranges event handlers according to their EventHandlerPriority.
  */
 public class PHList implements Iterable<EventHandler<?>> {
+    // TODO alternative: simply use 4 lists
     /** EventHandlerPriority, EventHandler<?> pairs, ordered from high priority to low */
     private final ArrayList<Object> items = new ArrayList(4);
     
