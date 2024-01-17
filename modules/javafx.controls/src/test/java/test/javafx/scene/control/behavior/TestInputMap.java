@@ -32,6 +32,7 @@ import javafx.scene.control.input.InputMap;
 import javafx.scene.control.input.KeyBinding;
 import javafx.scene.control.input.SkinInputMap;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -101,7 +102,17 @@ public class TestInputMap {
         Assertions.assertEquals(Set.of(), m.getKeyBindingFor(TAG1));
     }
 
-    // TODO test behavior-facing functions
+    @Test
+    public void testAddHandler() {
+        TestControl c = new TestControl();
+        c.getInputMap().addHandler(KeyEvent.ANY, (ev) -> System.out.println("KeyEvent.ANY ev=" + ev));
+        c.getInputMap().addHandler(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("KeyEvent.KEY_PRESSED ev=" + ev));
+        
+        KeyEvent ev = new KeyEvent(this, c, KeyEvent.KEY_PRESSED, "A", "A", KeyCode.A, false, false, false, false);
+        c.fireEvent(ev);
+    }
+
+    // TODO test skin input map functions
 
     /**
      * Creates an input map from the list of items:

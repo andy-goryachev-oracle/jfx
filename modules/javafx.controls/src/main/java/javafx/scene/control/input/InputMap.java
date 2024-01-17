@@ -51,9 +51,10 @@ public final class InputMap {
     private final Control control;
     // KeyBinding -> FunctionTag
     // FunctionTag -> Runnable
-    // EventType -> HList of listeners (with priority)
+    // EventType -> PHList of listeners
     private final HashMap<Object,Object> map = new HashMap<>();
     private SkinInputMap skinInputMap;
+    private final EventHandler<Event> eventHandler = this::handleEvent;
 
     /**
      * The constructor.
@@ -71,8 +72,7 @@ public final class InputMap {
      * @param handler the event handler
      */
     public <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
-        PHList hs = handlers(type, true);
-        hs.add(handler, EventHandlerPriority.USER_HIGH);
+        extendHandler(type, handler, EventHandlerPriority.USER_HIGH);
     }
 
     /**
@@ -85,30 +85,49 @@ public final class InputMap {
      * @param handler the event handler
      */
     public <T extends Event> void addHandlerLast(EventType<T> type, EventHandler<T> handler) {
-        PHList hs = handlers(type, true);
-        hs.add(handler, EventHandlerPriority.USER_LOW);
+        extendHandler(type, handler, EventHandlerPriority.USER_LOW);
     }
 
+    /**
+     * Removes the specified handler.
+     *
+     * @param <T> the event class
+     * @param type the event type
+     * @param handler the handler to remove
+     */
     public <T extends Event> void removeHandler(EventType<T> type, EventHandler<T> handler) {
-        PHList hs = handlers(type, false);
-        if (hs != null) {
+        Object x = map.get(type);
+        if (x instanceof PHList hs) {
             hs.remove(handler);
+ 
+            if (hs.isEmpty()) {
+                // remove listener (can only be eventHandler)
+                control.removeEventHandler(type, eventHandler);
+            }
         }
     }
 
-    private PHList handlers(EventType<?> type, boolean create) {
-        Object x = map.get(type);
-        if (x instanceof PHList h) {
-            return h;
+    private <T extends Event> void extendHandler(EventType<T> t, EventHandler<T> handler, EventHandlerPriority pri) {
+        Object x = map.get(t);
+        PHList hs;
+        if(x instanceof PHList h) {
+            hs = h;
+        } else {
+            // first entry for this event type
+            hs = new PHList();
+            map.put(t, hs);
+            // add event listener to the control
+            switch(pri) {
+            case SKIN_KB:
+            case USER_KB:
+                control.addEventHandler(t, this::handleKeyBindingEvent);
+                break;
+            default:
+                control.addEventHandler(t, eventHandler);
+                break;
+            }
         }
-
-        if (create) {
-            PHList h = new PHList();
-            map.put(type, h);
-            control.addEventHandler(type, this::handleEvent);
-            return h;
-        }
-        return null;
+        hs.add(handler, pri);
     }
 
     private void handleEvent(Event ev) {
@@ -117,9 +136,9 @@ public final class InputMap {
         }
 
         EventType<?> t = ev.getEventType();
-        PHList handlers = handlers(t, false);
-        if (handlers != null) {
-            for (EventHandler h: handlers) {
+        Object x = map.get(t);
+        if (x instanceof PHList hs) {
+            for (EventHandler h : hs) {
                 h.handle(ev);
                 if (ev.isConsumed()) {
                     break;
@@ -128,7 +147,7 @@ public final class InputMap {
         }
     }
 
-    private void handleKeyEvent(Event ev) {
+    private void handleKeyBindingEvent(Event ev) {
         if (ev == null || ev.isConsumed()) {
             return;
         }
@@ -145,22 +164,22 @@ public final class InputMap {
             }
             return;
         }
-
-        EventType<?> t = ev.getEventType();
-        PHList handlers = handlers(t, false);
-        if (handlers != null) {
-            handleKeyFunctionEnter();
-            try {
-                for (EventHandler h: handlers) {
-                    h.handle(ev);
-                    if (ev.isConsumed()) {
-                        break;
-                    }
-                }
-            } finally {
-                handleKeyFunctionExit();
-            }
-        }
+//
+//        EventType<?> t = ev.getEventType();
+//        PHList handlers = handlers(t, false);
+//        if (handlers != null) {
+//            handleKeyFunctionEnter();
+//            try {
+//                for (EventHandler h: handlers) {
+//                    h.handle(ev);
+//                    if (ev.isConsumed()) {
+//                        break;
+//                    }
+//                }
+//            } finally {
+//                handleKeyFunctionExit();
+//            }
+//        }
     }
 
     private void handleKeyFunctionEnter() {
@@ -181,6 +200,7 @@ public final class InputMap {
      * @param tag the function tag
      * @param function the function
      */
+    // TODO or FunctionHandler<C> ? that accepts a Control?
     public void registerFunction(FunctionTag tag, Runnable function) {
         Objects.requireNonNull(tag, "function tag must not be null");
         Objects.requireNonNull(function, "function must not be null");
@@ -198,6 +218,8 @@ public final class InputMap {
         Objects.requireNonNull(k, "KeyBinding must not be null");
         Objects.requireNonNull(tag, "function tag must not be null");
         map.put(k, tag);
+
+        extendHandler(KeyEvent.ANY, null, EventHandlerPriority.USER_KB);
     }
 
     /**
@@ -365,7 +387,8 @@ public final class InputMap {
         }
     }
 
-    // TODO hide behind a helper
+    // TODO hide behind a helper (if the caller is moved to some base class)
+    // or keep it public and call in every leaf skin class install().
     public void setSkinInputMap(SkinInputMap m) {
         if (skinInputMap != null) {
             // uninstall all handlers with SKIN_* priority
@@ -376,17 +399,21 @@ public final class InputMap {
                     PHList hs = (PHList)en.getValue();
                     if (hs.removeSkinHandlers()) {
                         it.remove();
+                        // TODO remove listener!
                     }
                 }
             }
+            
+            // TODO remove key bindings listener, if present
         }
 
         skinInputMap = m;
 
         // install skin handlers with their priority
         skinInputMap.forEach((type, pri, h) -> {
-            PHList hs = handlers(type, true);
-            hs.add(h, pri);
+            extendHandler(type, h, pri);
         });
+        
+        // TODO add key bindings listener, if present
     }
 }

@@ -828,6 +828,7 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
     public void install() {
         super.install();
         behavior.install();
+        getSkinnable().getInputMap().setSkinInputMap(behavior.getSkinInputMap());
     }
 
     @Override

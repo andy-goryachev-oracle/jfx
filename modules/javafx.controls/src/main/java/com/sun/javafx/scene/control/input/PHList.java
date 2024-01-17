@@ -35,7 +35,7 @@ import javafx.event.EventHandler;
  * Arranges event handlers according to their EventHandlerPriority.
  */
 public class PHList implements Iterable<EventHandler<?>> {
-    // TODO alternative: simply use 4 lists
+    // TODO alternative: EventHandlerPriority, EventHandler<?>..., EventHandlerPriority
     /** EventHandlerPriority, EventHandler<?> pairs, ordered from high priority to low */
     private final ArrayList<Object> items = new ArrayList(4);
     
@@ -120,6 +120,7 @@ public class PHList implements Iterable<EventHandler<?>> {
         for (int i = items.size() - 2; i >= 0; i -= 2) {
             EventHandlerPriority p = (EventHandlerPriority)items.get(i);
             switch (p) {
+            case SKIN_KB:
             case SKIN_HIGH:
             case SKIN_LOW:
                 items.remove(i);
@@ -127,6 +128,14 @@ public class PHList implements Iterable<EventHandler<?>> {
                 break;
             }
         }
+        return items.size() == 0;
+    }
+
+    /**
+     * Returns true if the handler list is empty.
+     * @return true if empty
+     */
+    public boolean isEmpty() {
         return items.size() == 0;
     }
 }

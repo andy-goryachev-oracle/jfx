@@ -33,8 +33,6 @@ import java.util.function.Consumer;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import javafx.scene.control.Control;
-import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyCode;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
@@ -52,7 +50,7 @@ public class SkinInputMap<C extends Skinnable> {
     // KeyBinding -> FunctionTag
     // FunctionTag -> Consumer<C>
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
-    // EventType -> PHList of listeners (with priority)
+    // EventType -> PHList of listeners
     final HashMap<Object,Object> map = new HashMap<>();
 
     // use the factory methods to create an instance of SkinInputMap
@@ -184,6 +182,17 @@ public class SkinInputMap<C extends Skinnable> {
         });
     }
 
+//    private void addKeyHandlerIfNeeded(EventType<KeyEvent> type, EventHandler<KeyEvent> handler) {
+//        Object x = map.get(type);
+//        if (x instanceof PHList) {
+//            return;
+//        }
+//        extendHandlers(type, EventHandlerPriority.SKIN_KB, handler);
+//    }
+
+    // adds the specified handler to input map with the given priority
+    // and event type.  If this is the first instance for the given event type,
+    // a listener is added to the control
     private <T extends Event> void extendHandlers(
         EventType<T> type,
         EventHandlerPriority priority,
@@ -196,6 +205,7 @@ public class SkinInputMap<C extends Skinnable> {
         } else {
             hs = new PHList();
             map.put(type, hs);
+//            if (type.getSuperType() == KeyEvent.ANY) {
         }
         hs.add(handler, priority);
     }
@@ -340,35 +350,6 @@ public class SkinInputMap<C extends Skinnable> {
         return null;
     }
 
-    // TODO control arg and generics are not needed, but are needed for createStateless().
-    // maybe have a base class and two final classes instead?
-//    public static <K extends Control> SkinInputMap<K, Runnable> createStateful(K control) {
-//        return new SkinInputMap<K, Runnable>() {
-//            @Override
-//            Runnable toRunnable(Object x) {
-//                if (x instanceof Runnable r) {
-//                    return r;
-//                }
-//                return null;
-//            }
-//        };
-//    }
-//
-//    // TODO perhaps we don't need to add complexity, and instead pass control instance always
-//    public static <K extends Control> SkinInputMap<K, Consumer<K>> createStateless(K control) {
-//        return new SkinInputMap<K, Consumer<K>>() {
-//            @Override
-//            Runnable toRunnable(Object x) {
-//                if (x instanceof Consumer f) {
-//                    return () -> {
-//                        f.accept(control);
-//                    };
-//                }
-//                return null;
-//            }
-//        };
-//    }
-
     void unbind(FunctionTag tag) {
         Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
@@ -394,11 +375,6 @@ public class SkinInputMap<C extends Skinnable> {
         }
     }
 
-    @FunctionalInterface
-    static interface TriConsumer {
-        public void accept(EventType<?> type, EventHandlerPriority pri, EventHandler<?> h);
-    }
-
     void forEach(TriConsumer client) {
         for (Map.Entry<Object, Object> en : map.entrySet()) {
             if (en.getKey() instanceof EventType type) {
@@ -408,5 +384,10 @@ public class SkinInputMap<C extends Skinnable> {
                 });
             }
         }
+    }
+
+    @FunctionalInterface
+    static interface TriConsumer<T extends Event> {
+        public void accept(EventType<T> type, EventHandlerPriority pri, EventHandler<T> h);
     }
 }

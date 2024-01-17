@@ -257,8 +257,8 @@ public class ColorPickerSkin extends ComboBoxPopupControl<Color> {
     @Override
     public void install() {
         super.install();
-
         behavior.install();
+        getSkinnable().getInputMap().setSkinInputMap(behavior.getSkinInputMap());
     }
 
     @Override

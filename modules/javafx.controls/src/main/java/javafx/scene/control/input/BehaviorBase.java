@@ -52,7 +52,7 @@ import com.sun.javafx.PlatformUtil;
 public abstract class BehaviorBase<C extends Control> {
     /** the instance of Control associated with this behavior */
     protected final C control;
-    protected final SkinInputMap<C> inputMap;
+    protected final SkinInputMap<C> skinInputMap;
 
     /**
      * The constructor.
@@ -60,7 +60,7 @@ public abstract class BehaviorBase<C extends Control> {
      */
     public BehaviorBase(C c) {
         this.control = c;
-        this.inputMap = new SkinInputMap<>();
+        this.skinInputMap = new SkinInputMap<>();
     }
 
     /**
@@ -75,8 +75,8 @@ public abstract class BehaviorBase<C extends Control> {
      * Returns the skin input map associated with this behavior.
      * @return the input map
      */
-    protected final SkinInputMap getSkinInputMap() {
-        return inputMap;
+    public final SkinInputMap<C> getSkinInputMap() {
+        return skinInputMap;
     }
 
     /**
@@ -104,7 +104,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param function the function
      */
     protected void registerFunction(FunctionTag tag, Consumer<C> function) {
-        inputMap.registerFunction(tag, function);
+        skinInputMap.registerFunction(tag, function);
     }
 
     /**
@@ -116,7 +116,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      */
     protected void registerKey(KeyBinding k, FunctionTag tag) {
-        inputMap.registerKey(k, tag);
+        skinInputMap.registerKey(k, tag);
     }
 
     /**
@@ -127,7 +127,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      */
     protected void registerKey(KeyCode code, FunctionTag tag) {
-        inputMap.registerKey(code, tag);
+        skinInputMap.registerKey(code, tag);
     }
 
     /**
@@ -138,8 +138,8 @@ public abstract class BehaviorBase<C extends Control> {
      * @param func the function
      */
     protected void register(FunctionTag tag, KeyBinding k, Consumer<C> func) {
-        inputMap.registerFunction(tag, func);
-        inputMap.registerKey(k, tag);
+        skinInputMap.registerFunction(tag, func);
+        skinInputMap.registerKey(k, tag);
     }
 
     /**
@@ -150,8 +150,8 @@ public abstract class BehaviorBase<C extends Control> {
      * @param func the function
      */
     protected void register(FunctionTag tag, KeyCode code, Consumer<C> func) {
-        inputMap.registerFunction(tag, func);
-        inputMap.registerKey(KeyBinding.of(code), tag);
+        skinInputMap.registerFunction(tag, func);
+        skinInputMap.registerKey(KeyBinding.of(code), tag);
     }
 
     /**
@@ -161,7 +161,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param newk the new key binding
      */
     protected void duplicateMapping(KeyBinding existing, KeyBinding newk) {
-        inputMap.duplicateMapping(existing, newk);
+        skinInputMap.duplicateMapping(existing, newk);
     }
 
     /**
@@ -174,7 +174,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
-        inputMap.addHandler(type, handler);
+        skinInputMap.addHandler(type, handler);
     }
 
     /**
@@ -188,7 +188,7 @@ public abstract class BehaviorBase<C extends Control> {
      */
     @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        inputMap.addHandler(type, consume, handler);
+        skinInputMap.addHandler(type, consume, handler);
     }
 
     /**
@@ -202,7 +202,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandlerLast(EventType<T> type, EventHandler<T> handler) {
-        inputMap.addHandler(type, handler);
+        skinInputMap.addHandler(type, handler);
     }
 
     /**
@@ -217,7 +217,7 @@ public abstract class BehaviorBase<C extends Control> {
      */
     @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        inputMap.addHandler(type, consume, handler);
+        skinInputMap.addHandler(type, consume, handler);
     }
 
     /**
@@ -232,7 +232,7 @@ public abstract class BehaviorBase<C extends Control> {
      */
     @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
-        inputMap.addHandler(criteria, consume, handler);
+        skinInputMap.addHandler(criteria, consume, handler);
     }
 
     /**
@@ -245,7 +245,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventCriteria<T> criteria, EventHandler<T> handler) {
-        inputMap.addHandler(criteria, false, handler);
+        skinInputMap.addHandler(criteria, false, handler);
     }
 
     /**
@@ -264,7 +264,7 @@ public abstract class BehaviorBase<C extends Control> {
         boolean consume,
         EventHandler<T> handler
     ) {
-        inputMap.addHandler(criteria, consume, handler);
+        skinInputMap.addHandler(criteria, consume, handler);
     }
 
     /**
@@ -280,7 +280,7 @@ public abstract class BehaviorBase<C extends Control> {
         EventCriteria<T> criteria,
         EventHandler<T> handler
     ) {
-        inputMap.addHandler(criteria, false, handler);
+        skinInputMap.addHandler(criteria, false, handler);
     }
 
     /**
@@ -288,7 +288,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param action the action or null
      */
     protected void setOnKeyEventEnter(Runnable action) {
-        inputMap.setOnKeyEventEnter(action);
+        skinInputMap.setOnKeyEventEnter(action);
     }
 
     /**
@@ -296,7 +296,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param action the action or null
      */
     protected void setOnKeyEventExit(Runnable action) {
-        inputMap.setOnKeyEventExit(action);
+        skinInputMap.setOnKeyEventExit(action);
     }
 
     /**

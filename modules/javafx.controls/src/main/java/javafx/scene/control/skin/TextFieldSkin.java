@@ -386,6 +386,7 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
             new PasswordFieldBehavior(f, this) :
             new TextFieldBehavior(c, this);
         behavior.install();
+        getSkinnable().getInputMap().setSkinInputMap(behavior.getSkinInputMap());
     }
 
     @Override

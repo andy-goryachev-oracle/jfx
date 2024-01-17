@@ -28,7 +28,9 @@ package com.sun.javafx.scene.control.input;
  * Codifies priority of event handler invocation.
  */
 public enum EventHandlerPriority {
-    USER_HIGH(4000),
+    USER_HIGH(6000),
+    USER_KB(5000),
+    SKIN_KB(4000),
     SKIN_HIGH(3000),
     SKIN_LOW(2000),
     USER_LOW(1000);
