@@ -279,7 +279,7 @@ public abstract class BehaviorBase<C extends Control> {
         EventCriteria<T> criteria,
         EventHandler<T> handler
     ) {
-        skinInputMap.addHandler(criteria, false, handler);
+        skinInputMap.addHandlerLast(criteria, false, handler);
     }
 
     /**

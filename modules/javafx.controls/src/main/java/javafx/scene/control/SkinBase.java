@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -187,14 +187,6 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
         // TODO use a helper
         control.getInputMap().setSkinInputMap(map);
     }
-    
-//    protected final SkinInputMap<C,Runnable> getSkinInputMap() {
-//        TODO needed?
-//    }
-//    
-//    protected final SkinInputMap<C,Consumer<C>> getStatelessSkinInputMap() {
-//        
-//    }
 
     /* *************************************************************************
      *                                                                         *

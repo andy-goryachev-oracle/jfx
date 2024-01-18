@@ -51,9 +51,14 @@ public class SkinInputMap<C extends Skinnable> {
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
     // EventType -> PHList of listeners
     final HashMap<Object,Object> map = new HashMap<>();
+    private boolean hasKeys;
 
     // use the factory methods to create an instance of SkinInputMap
     public SkinInputMap() {
+    }
+
+    boolean hasKeyBindings() {
+        return hasKeys;
     }
     
     /**
@@ -145,7 +150,7 @@ public class SkinInputMap<C extends Skinnable> {
     {
         if (consume) {
             // FIX remove
-            extendHandlers(type, pri, new EventHandler<T>() {
+            putHandler(type, pri, new EventHandler<T>() {
                 @Override
                 public void handle(T ev) {
                     handler.handle(ev);
@@ -153,7 +158,7 @@ public class SkinInputMap<C extends Skinnable> {
                 }
             });
         } else {
-            extendHandlers(type, pri, handler);
+            putHandler(type, pri, handler);
         }
     }
 
@@ -165,7 +170,7 @@ public class SkinInputMap<C extends Skinnable> {
         EventHandler<T> handler
     ) {
         EventType<T> type = criteria.getEventType();
-        extendHandlers(type, pri, new EventHandler<T>() {
+        putHandler(type, pri, new EventHandler<T>() {
             @Override
             public void handle(T ev) {
                 if (criteria.isEventAcceptable(ev)) {
@@ -179,12 +184,8 @@ public class SkinInputMap<C extends Skinnable> {
     }
 
     // adds the specified handler to input map with the given priority
-    // and event type.  If this is the first instance for the given event type,
-    // a listener is added to the control
-    private <T extends Event> void extendHandlers(
-        EventType<T> type,
-        EventHandlerPriority priority,
-        EventHandler<T> handler)
+    // and event type.
+    private <T extends Event> void putHandler(EventType<T> type, EventHandlerPriority pri, EventHandler<T> handler)
     {
         Object x = map.get(type);
         PHList hs;
@@ -193,9 +194,8 @@ public class SkinInputMap<C extends Skinnable> {
         } else {
             hs = new PHList();
             map.put(type, hs);
-//            if (type.getSuperType() == KeyEvent.ANY) {
         }
-        hs.add(handler, priority);
+        hs.add(handler, pri);
     }
 
     /**
@@ -206,6 +206,7 @@ public class SkinInputMap<C extends Skinnable> {
      */
     public void registerKey(KeyBinding k, FunctionTag tag) {
         map.put(k, tag);
+        hasKeys = true;
     }
     
     /**

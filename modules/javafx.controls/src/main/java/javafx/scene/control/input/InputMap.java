@@ -55,7 +55,9 @@ public final class InputMap {
     // EventType -> PHList of listeners
     private final HashMap<Object,Object> map = new HashMap<>();
     private SkinInputMap skinInputMap;
+    private boolean hasKeys;
     private final EventHandler<Event> eventHandler = this::handleEvent;
+    private EventHandler<KeyEvent> keyBindingEventHandler;
 
     /**
      * The constructor.
@@ -121,7 +123,10 @@ public final class InputMap {
             switch(pri) {
             case SKIN_KB:
             case USER_KB:
-                control.addEventHandler(t, this::handleKeyBindingEvent);
+                if (keyBindingEventHandler == null) {
+                    keyBindingEventHandler = this::handleKeyBindingEvent;
+                    control.addEventHandler(KeyEvent.ANY, keyBindingEventHandler);
+                }
                 break;
             default:
                 control.addEventHandler(t, eventHandler);
@@ -132,6 +137,7 @@ public final class InputMap {
     }
 
     private void handleEvent(Event ev) {
+        // probably unnecessary
         if (ev == null || ev.isConsumed()) {
             return;
         }
@@ -148,12 +154,13 @@ public final class InputMap {
         }
     }
 
-    private void handleKeyBindingEvent(Event ev) {
+    private void handleKeyBindingEvent(KeyEvent ev) {
+        // probably unnecessary
         if (ev == null || ev.isConsumed()) {
             return;
         }
 
-        KeyBinding k = KeyBinding.from((KeyEvent)ev);
+        KeyBinding k = KeyBinding.from(ev);
         FunctionHandler f = getFunction(k);
         if (f != null) {
             handleKeyFunctionEnter();
@@ -202,6 +209,7 @@ public final class InputMap {
         Objects.requireNonNull(k, "KeyBinding must not be null");
         Objects.requireNonNull(tag, "function tag must not be null");
         map.put(k, tag);
+        hasKeys = true;
 
         extendHandler(KeyEvent.ANY, null, EventHandlerPriority.USER_KB);
     }
@@ -214,11 +222,10 @@ public final class InputMap {
      */
     public <C extends Skinnable> FunctionHandler<C> getFunction(FunctionTag tag) {
         Object x = map.get(tag);
+        // TODO check for NULL?
         if (x instanceof FunctionHandler r) {
-            // TODO check for null?
             return r;
-        }
-        else if (skinInputMap != null) {
+        } else if (skinInputMap != null) {
             return skinInputMap.getFunction(tag);
         }
         return null;
@@ -358,6 +365,7 @@ public final class InputMap {
      * This is an irreversible operation.
      * @param tag the function tag
      */
+    // TODO this should not affect the skin input map, but perhaps place NULL for each found KeyBinding
     public void unbind(FunctionTag tag) {
         if (skinInputMap != null) {
             skinInputMap.unbind(tag);
@@ -384,12 +392,18 @@ public final class InputMap {
                     PHList hs = (PHList)en.getValue();
                     if (hs.removeSkinHandlers()) {
                         it.remove();
-                        // TODO remove listener!
+                        // TODO remove corresponding listener!
                     }
                 }
             }
             
-            // TODO remove key bindings listener, if present
+            // remove key bindings listener, if present
+            if(!hasKeys) {
+                if(keyBindingEventHandler != null) {
+                    control.removeEventHandler(KeyEvent.ANY, keyBindingEventHandler);
+                    keyBindingEventHandler = null;
+                }
+            }
         }
 
         skinInputMap = m;
@@ -398,7 +412,11 @@ public final class InputMap {
         skinInputMap.forEach((type, pri, h) -> {
             extendHandler(type, h, pri);
         });
-        
-        // TODO add key bindings listener, if present
+
+        // add key bindings listener if needed
+        if (skinInputMap.hasKeyBindings() && (keyBindingEventHandler == null)) {
+            keyBindingEventHandler = this::handleKeyBindingEvent;
+            control.addEventHandler(KeyEvent.ANY, keyBindingEventHandler);
+        }
     }
 }
