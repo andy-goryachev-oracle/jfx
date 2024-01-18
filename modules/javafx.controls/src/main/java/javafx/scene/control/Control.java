@@ -48,6 +48,7 @@ import javafx.event.EventHandler;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
+import javafx.scene.control.input.FunctionHandler;
 import javafx.scene.control.input.FunctionTag;
 import javafx.scene.control.input.InputMap;
 import javafx.scene.input.ContextMenuEvent;
@@ -484,9 +485,9 @@ public abstract class Control extends Region implements Skinnable {
      * @param tag the function tag
      */
     protected final void execute(FunctionTag tag) {
-        Runnable f = getInputMap().getFunction(tag);
+        FunctionHandler<Control> f = getInputMap().getFunction(tag);
         if (f != null) {
-            f.run();
+            f.handleFunction(this);
         }
     }
 

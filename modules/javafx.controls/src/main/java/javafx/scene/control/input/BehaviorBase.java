@@ -24,7 +24,6 @@
  */
 package javafx.scene.control.input;
 
-import java.util.function.Consumer;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -103,7 +102,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      * @param function the function
      */
-    protected void registerFunction(FunctionTag tag, Consumer<C> function) {
+    protected void registerFunction(FunctionTag tag, FunctionHandler<C> function) {
         skinInputMap.registerFunction(tag, function);
     }
 
@@ -137,7 +136,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param k the key binding
      * @param func the function
      */
-    protected void register(FunctionTag tag, KeyBinding k, Consumer<C> func) {
+    protected void register(FunctionTag tag, KeyBinding k, FunctionHandler<C> func) {
         skinInputMap.registerFunction(tag, func);
         skinInputMap.registerKey(k, tag);
     }
@@ -149,7 +148,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param code the key code
      * @param func the function
      */
-    protected void register(FunctionTag tag, KeyCode code, Consumer<C> func) {
+    protected void register(FunctionTag tag, KeyCode code, FunctionHandler<C> func) {
         skinInputMap.registerFunction(tag, func);
         skinInputMap.registerKey(KeyBinding.of(code), tag);
     }

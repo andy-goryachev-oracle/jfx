@@ -27,6 +27,7 @@ package test.javafx.scene.control.behavior;
 import java.util.Set;
 import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
+import javafx.scene.control.input.FunctionHandler;
 import javafx.scene.control.input.FunctionTag;
 import javafx.scene.control.input.InputMap;
 import javafx.scene.control.input.KeyBinding;
@@ -76,13 +77,13 @@ public class TestInputMap {
 
     @Test
     public void testRegisterFunction() {
-        Runnable func = () -> { };
-        Runnable defaultFunc;
+        FunctionHandler<TestControl> func = (TestControl c) -> { };
+        FunctionHandler<TestControl> defaultFunc;
 
         TestControl c = new TestControl();
         InputMap m = c.getInputMap();
         defaultFunc = m.getDefaultFunction(TAG1);
-        Assertions.assertNotEquals(null, defaultFunc);
+        Assertions.assertNotNull(defaultFunc);
         Assertions.assertEquals(null, m.getDefaultFunction(TAG3));
 
         m.registerFunction(TAG1, func);
@@ -128,7 +129,7 @@ public class TestInputMap {
         for (int i = 0; i < items.length;) {
             Object x = items[i++];
             if (x instanceof FunctionTag t) {
-                m.registerFunction(t, () -> { });
+                m.registerFunction(t, (c) -> { });
             } else if (x instanceof KeyBinding kb) {
                 FunctionTag t = (FunctionTag)items[i++];
                 m.registerKey(kb, t);

@@ -34,6 +34,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyEvent;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
 import com.sun.javafx.scene.control.input.PHList;
@@ -50,7 +51,7 @@ public final class InputMap {
     private static final Object NULL = new Object();
     private final Control control;
     // KeyBinding -> FunctionTag
-    // FunctionTag -> Runnable
+    // FunctionTag -> FunctionHandler
     // EventType -> PHList of listeners
     private final HashMap<Object,Object> map = new HashMap<>();
     private SkinInputMap skinInputMap;
@@ -153,33 +154,17 @@ public final class InputMap {
         }
 
         KeyBinding k = KeyBinding.from((KeyEvent)ev);
-        Runnable f = getFunction(k);
+        FunctionHandler f = getFunction(k);
         if (f != null) {
             handleKeyFunctionEnter();
             try {
-                f.run();
+                f.handleFunction(control);
                 ev.consume();
             } finally {
                 handleKeyFunctionExit();
             }
             return;
         }
-//
-//        EventType<?> t = ev.getEventType();
-//        PHList handlers = handlers(t, false);
-//        if (handlers != null) {
-//            handleKeyFunctionEnter();
-//            try {
-//                for (EventHandler h: handlers) {
-//                    h.handle(ev);
-//                    if (ev.isConsumed()) {
-//                        break;
-//                    }
-//                }
-//            } finally {
-//                handleKeyFunctionExit();
-//            }
-//        }
     }
 
     private void handleKeyFunctionEnter() {
@@ -200,8 +185,7 @@ public final class InputMap {
      * @param tag the function tag
      * @param function the function
      */
-    // TODO or FunctionHandler<C> ? that accepts a Control?
-    public void registerFunction(FunctionTag tag, Runnable function) {
+    public <C extends Skinnable> void registerFunction(FunctionTag tag, FunctionHandler<C> function) {
         Objects.requireNonNull(tag, "function tag must not be null");
         Objects.requireNonNull(function, "function must not be null");
         map.put(tag, function);
@@ -223,39 +207,40 @@ public final class InputMap {
     }
 
     /**
-     * Returns a {@code Runnable} mapped to the specified function tag, or null if no such mapping exists.
+     * Returns a {@code FunctionHandler} mapped to the specified function tag, or null if no such mapping exists.
      *
      * @param tag the function tag
      * @return the function, or null
      */
-    public Runnable getFunction(FunctionTag tag) {
+    public <C extends Skinnable> FunctionHandler<C> getFunction(FunctionTag tag) {
         Object x = map.get(tag);
-        if (x instanceof Runnable r) {
+        if (x instanceof FunctionHandler r) {
+            // TODO check for null?
             return r;
         }
-        if (skinInputMap != null) {
-            return skinInputMap.getFunction(control, tag);
+        else if (skinInputMap != null) {
+            return skinInputMap.getFunction(tag);
         }
         return null;
     }
 
     /**
-     * Returns a default {@code Runnable} mapped to the specified function tag, or null if no such mapping exists.
+     * Returns a default {@code FunctionHandler} mapped to the specified function tag, or null if no such mapping exists.
      *
      * @implNote the return value might be a lambda, i.e. it will return a new instance each time this method is called.
      *
      * @param tag the function tag
      * @return the function, or null
      */
-    public Runnable getDefaultFunction(FunctionTag tag) {
+    public <C extends Skinnable> FunctionHandler<C> getDefaultFunction(FunctionTag tag) {
         if (skinInputMap != null) {
-            return skinInputMap.getFunction(control, tag);
+            return skinInputMap.getFunction(tag);
         }
         return null;
     }
 
     /**
-     * Returns a {@code Runnable} mapped to the specified {@link KeyBinding},
+     * Returns a {@code FunctionHandler} mapped to the specified {@link KeyBinding},
      * or null if no such mapping exists.
      * <p>
      * @implNote
@@ -265,7 +250,7 @@ public final class InputMap {
      * @param k the key binding
      * @return the function, or null
      */
-    public Runnable getFunction(KeyBinding k) {
+    public <C extends Skinnable> FunctionHandler<C> getFunction(KeyBinding k) {
         FunctionTag tag = getFunctionTag(k);
         if (tag != null) {
             return getFunction(tag);

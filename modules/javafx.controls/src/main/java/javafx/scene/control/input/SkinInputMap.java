@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -48,7 +47,7 @@ public class SkinInputMap<C extends Skinnable> {
     private static final Object ON_KEY_ENTER = new Object();
     private static final Object ON_KEY_EXIT = new Object();
     // KeyBinding -> FunctionTag
-    // FunctionTag -> Consumer<C>
+    // FunctionTag -> FunctionHandler
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
     // EventType -> PHList of listeners
     final HashMap<Object,Object> map = new HashMap<>();
@@ -130,18 +129,14 @@ public class SkinInputMap<C extends Skinnable> {
      * @param <T> the actual event type
      * @param criteria the matching criteria
      * @param consume determines whether the matching event is consumed or not
-     * @param handler the event handler
+     * @param h the event handler
      */
     @Deprecated // handler must explicitly consume the event
-    public <T extends Event> void addHandlerLast(
-        EventCriteria<T> criteria,
-        boolean consume,
-        EventHandler<T> handler
-    ) {
-        addHandler(criteria, consume, EventHandlerPriority.SKIN_HIGH, handler);
+    public <T extends Event> void addHandlerLast(EventCriteria<T> criteria, boolean consume, EventHandler<T> h) {
+        addHandler(criteria, consume, EventHandlerPriority.SKIN_HIGH, h);
     }
 
-    // FIX remove
+    // FIX replace with adding a PHList
     private <T extends Event> void addHandler(
         EventType<T> type,
         boolean consume, // FIX remove consume flag
@@ -162,6 +157,7 @@ public class SkinInputMap<C extends Skinnable> {
         }
     }
 
+    // FIX replace with adding a PHList
     private <T extends Event> void addHandler(
         EventCriteria<T> criteria,
         boolean consume, // FIX remove consume flag
@@ -181,14 +177,6 @@ public class SkinInputMap<C extends Skinnable> {
             }
         });
     }
-
-//    private void addKeyHandlerIfNeeded(EventType<KeyEvent> type, EventHandler<KeyEvent> handler) {
-//        Object x = map.get(type);
-//        if (x instanceof PHList) {
-//            return;
-//        }
-//        extendHandlers(type, EventHandlerPriority.SKIN_KB, handler);
-//    }
 
     // adds the specified handler to input map with the given priority
     // and event type.  If this is the first instance for the given event type,
@@ -236,7 +224,7 @@ public class SkinInputMap<C extends Skinnable> {
      * @param tag the function tag
      * @param function the function
      */
-    public final void registerFunction(FunctionTag tag, Consumer<C> function) {
+    public final void registerFunction(FunctionTag tag, FunctionHandler<C> function) {
         map.put(tag, function);
     }
     
@@ -247,7 +235,7 @@ public class SkinInputMap<C extends Skinnable> {
      * @param k the key binding
      * @param func the function
      */
-    public void register(FunctionTag tag, KeyBinding k, Consumer<C> func) {
+    public void register(FunctionTag tag, KeyBinding k, FunctionHandler<C> func) {
         registerFunction(tag, func);
         registerKey(k, tag);
     }
@@ -259,7 +247,7 @@ public class SkinInputMap<C extends Skinnable> {
      * @param code the key code
      * @param func the function
      */
-    public void register(FunctionTag tag, KeyCode code, Consumer<C> func) {
+    public void register(FunctionTag tag, KeyCode code, FunctionHandler<C> func) {
         registerFunction(tag, func);
         registerKey(KeyBinding.of(code), tag);
     }
@@ -340,12 +328,10 @@ public class SkinInputMap<C extends Skinnable> {
         }
     }
 
-    final Runnable getFunction(C control, FunctionTag tag) {
+    final FunctionHandler<C> getFunction(FunctionTag tag) {
         Object x = map.get(tag);
-        if (x instanceof Consumer consumer) {
-            return () -> {
-                consumer.accept(control);
-            };
+        if (x instanceof FunctionHandler f) {
+            return f;
         }
         return null;
     }
