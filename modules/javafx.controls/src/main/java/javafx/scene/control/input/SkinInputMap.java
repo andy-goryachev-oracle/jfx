@@ -193,7 +193,7 @@ public class SkinInputMap<C extends Skinnable> {
             hs = new PHList();
             map.put(type, hs);
         }
-        hs.add(handler, pri);
+        hs.add(pri, handler);
     }
 
     /**
@@ -366,6 +366,7 @@ public class SkinInputMap<C extends Skinnable> {
                 PHList hs = (PHList)en.getValue();
                 hs.forEach((pri, h) -> {
                     client.accept(type, pri, h);
+                    return true;
                 });
             }
         }

@@ -24,6 +24,8 @@
  */
 package com.sun.javafx.scene.control.input;
 
+import java.util.Set;
+
 /**
  * Codifies priority of event handler invocation.
  */
@@ -34,6 +36,13 @@ public enum EventHandlerPriority {
     SKIN_HIGH(3000),
     SKIN_LOW(2000),
     USER_LOW(1000);
+
+    /** set of priorities associated with a {@code Skin} */
+    public static final Set<EventHandlerPriority> SKIN = Set.of(
+        SKIN_KB,
+        SKIN_HIGH,
+        SKIN_LOW
+    );
 
     final int priority;
 

@@ -111,7 +111,7 @@ public final class InputMap {
     private <T extends Event> void removeHandler(EventType<T> type, EventHandlerPriority pri) {
         Object x = map.get(type);
         if (x instanceof PHList hs) {
-            if (hs.remove(pri)) {
+            if (hs.removeHandlers(Set.of(pri))) {
                 map.remove(type);
                 control.removeEventHandler(type, eventHandler);
             }
@@ -130,7 +130,7 @@ public final class InputMap {
             control.addEventHandler(t, eventHandler);
         }
         
-        hs.add(handler, pri);
+        hs.add(pri, handler);
     }
 
     private void handleEvent(Event ev) {
@@ -142,16 +142,14 @@ public final class InputMap {
         EventType<?> t = ev.getEventType();
         Object x = map.get(t);
         if (x instanceof PHList hs) {
-            for (EventHandler h : hs) {
+            hs.forEach((pri, h) -> {
                 if (h == null) {
                     handleKeyBindingEvent(ev);
                 } else {
                     h.handle(ev);
                 }
-                if (ev.isConsumed()) {
-                    break;
-                }
-            }
+                return !ev.isConsumed();
+            });
         }
     }
 
@@ -391,23 +389,23 @@ public final class InputMap {
                 Map.Entry<Object, Object> en = it.next();
                 if (en.getKey() instanceof Event ev) {
                     PHList hs = (PHList)en.getValue();
-                    if (hs.removeSkinHandlers()) {
+                    if (hs.removeHandlers(EventHandlerPriority.SKIN)) {
                         it.remove();
-                        // TODO remove corresponding listener!
+                        control.removeEventHandler(ev.getEventType(), eventHandler);
                     }
                 }
             }
 
             // remove key bindings listeners, if needed
-            if (!kmapper.hasKeyPressed() && skinInputMap.kmapper.hasKeyPressed()) {
-                removeHandler(KeyEvent.KEY_PRESSED, EventHandlerPriority.SKIN_KB);
-            }
-            if (!kmapper.hasKeyReleased() && skinInputMap.kmapper.hasKeyReleased()) {
-                removeHandler(KeyEvent.KEY_RELEASED, EventHandlerPriority.SKIN_KB);
-            }
-            if (!kmapper.hasKeyTyped() && skinInputMap.kmapper.hasKeyTyped()) {
-                removeHandler(KeyEvent.KEY_TYPED, EventHandlerPriority.SKIN_KB);
-            }
+//            if (!kmapper.hasKeyPressed() && skinInputMap.kmapper.hasKeyPressed()) {
+//                removeHandler(KeyEvent.KEY_PRESSED, EventHandlerPriority.SKIN_KB);
+//            }
+//            if (!kmapper.hasKeyReleased() && skinInputMap.kmapper.hasKeyReleased()) {
+//                removeHandler(KeyEvent.KEY_RELEASED, EventHandlerPriority.SKIN_KB);
+//            }
+//            if (!kmapper.hasKeyTyped() && skinInputMap.kmapper.hasKeyTyped()) {
+//                removeHandler(KeyEvent.KEY_TYPED, EventHandlerPriority.SKIN_KB);
+//            }
         }
 
         skinInputMap = m;

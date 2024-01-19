@@ -25,8 +25,7 @@
 package com.sun.javafx.scene.control.input;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.function.BiConsumer;
+import java.util.Set;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 
@@ -34,27 +33,51 @@ import javafx.event.EventHandler;
  * Priority Handler List.
  * Arranges event handlers according to their EventHandlerPriority.
  */
-public class PHList implements Iterable<EventHandler<?>> {
-    // TODO alternative: EventHandlerPriority, EventHandler<?>..., EventHandlerPriority
-    /** { EventHandlerPriority, EventHandler<?>}[], ordered from high priority to low */
+public class PHList {
+    /**
+     * {@code items} is a list of {@code EventHandler}s ordered from high priority to low,
+     * with each block of same priority prefixed with the priority value.
+     * Also, USER_KB and SKIN_KB require no handler pointer, so none is added.<p>
+     * Example:
+     * [ USER_HIGH, handler1, handler2, SKIN_KB, SKIN_LOW, handler3 ]
+     */
     private final ArrayList<Object> items = new ArrayList(4);
     
     public PHList() {
     }
 
-    // TODO if handler is null, do not add the handler, but add an entry
-    public void add(EventHandler<?> handler, EventHandlerPriority priority) {
+    @Override
+    public String toString() {
+        return "PHList" + items;
+    }
+
+    /**
+     * Adds an event handler under the given priority.
+     * A newly added handler will be inserted after previously added handlers with the same priority.
+     * @param priority the priority
+     * @param handler the handler to add
+     */
+    public void add(EventHandlerPriority priority, EventHandler<?> handler) {
+        // positive: simply insert the handler there
+        // negative: insert priority and the handler if it's not null
         int ix = findInsertionIndex(priority);
-        if(ix < 0) {
-            // a special handling for null handlers - only one null handler is allowed for the given priority
-            // (it's guaranteed to be either SKIN_KB or USER_KB)
+        if (ix < 0) {
+            ix = -ix - 1;
+            insert(ix, priority);
+            // do not store the null handler
             if (handler != null) {
-                items.add(priority);
-                items.add(handler);
+                insert(++ix, handler);
             }
         } else {
-            items.add(ix, priority);
-            items.add(++ix, handler);
+            insert(ix, handler);
+        }
+    }
+
+    private void insert(int ix, Object item) {
+        if (ix < items.size()) {
+            items.add(ix, item);
+        } else {
+            items.add(item);
         }
     }
 
@@ -67,92 +90,122 @@ public class PHList implements Iterable<EventHandler<?>> {
      * @return true when the list becomes empty as a result
      */
     public <T extends Event> boolean remove(EventHandler<T> handler) {
-        for (int i = items.size() - 1; i >= 0; ) {
+        for (int i = 0; i < items.size(); i++) {
             Object x = items.get(i);
-            if (handler == x) {
-                items.remove(i--);
-                items.remove(i--);
-            } else {
-                i -= 2;
+            if (x == handler) {
+                items.remove(i);
+                if (isNullOrPriority(i) && isNullOrPriority(i - 1)) {
+                    // remove priority
+                    --i;
+                    items.remove(i);
+                }
             }
         }
         return items.size() == 0;
+    }
+
+    private boolean isNullOrPriority(int ix) {
+        if ((ix >= 0) && (ix < items.size())) {
+            Object x = items.get(ix);
+            return (x instanceof EventHandlerPriority);
+        }
+        return true;
     }
 
     /**
-     * Removes all the handlers at the specified priority.
-     * Returns true if the list becomes empty as a result of the removal.
+     * Returns the index into {@code items}.
+     * When the list contains no elements of the given priority, the return value is
+     * negative, equals to {@code -(insertionIndex + 1)},
+     * and the caller must insert the priority value in addition to the handler.
      *
-     * @param pri the priority
-     * @return true when the list becomes empty as a result
+     * @param priority the priority
+     * @return the insertion index (positive), or -(insertionIndex + 1) (negative)
      */
-    // TODO unit test
-    public boolean remove(EventHandlerPriority pri) {
-        for (int i = items.size() - 1; i >= 0;) {
-            Object x = items.get(i - 1);
-            if (pri == x) {
-                items.remove(i--);
-                items.remove(i--);
-            } else {
-                i -= 2;
-            }
-        }
-        return items.size() == 0;
-    }
-    
-    @Override
-    public Iterator<EventHandler<?>> iterator() {
-        return new Iterator<EventHandler<?>>() {
-            int index;
-
-            @Override
-            public boolean hasNext() {
-                return index < items.size();
-            }
-
-            @Override
-            public EventHandler<?> next() {
-                Object h = items.get(index + 1);
-                index += 2;
-                return (EventHandler<?>)h;
-            }
-        };
-    }
-
     private int findInsertionIndex(EventHandlerPriority priority) {
         // don't expect many handlers, so linear search is ok
-        for (int i = 0; i > items.size(); i+=2) {
-            EventHandlerPriority p = (EventHandlerPriority)items.get(i);
-            if (p.priority < priority.priority) {
-                return i;
+        int sz = items.size();
+        boolean found = false;
+        for (int i = 0; i < sz; i++) {
+            Object x = items.get(i);
+            if(x instanceof EventHandlerPriority p) {
+                if(p.priority == priority.priority) {
+                    found = true;
+                    continue;
+                } else if(p.priority < priority.priority) {
+                    return found ? i : -(i + 1);
+                }
             }
         }
-        return -1;
+        return -(items.size() + 1);
     }
 
-    public void forEach(BiConsumer<EventHandlerPriority, EventHandler<?>> client) {
+    /**
+     * A client interface for the {@link #forEach(Client)} method.
+     * @param <T> the event type
+     */
+    @FunctionalInterface
+    public static interface Client<T extends Event> {
+        /**
+         * This method gets called for each handler in the order of priority.
+         * The client may signal to stop iterating by returning false from this method.
+         *
+         * @param pri the priority
+         * @param h the handler (can be null)
+         * @return true to continue the process, false to stop
+         */
+        public boolean accept(EventHandlerPriority pri, EventHandler<T> h);
+    }
+
+    /**
+     * Invokes the {@code client} for each handler in the order of priority.
+     * @param <T> the event type
+     * @param client the client reference
+     */
+    public <T extends Event> void forEach(Client<T> client) {
+        EventHandlerPriority pri = null;
+        boolean stop;
         int sz = items.size();
-        for (int i = 0; i < sz;) {
-            EventHandlerPriority p = (EventHandlerPriority)items.get(i++);
-            EventHandler<?> h = (EventHandler<?>)items.get(i++);
-            client.accept(p, h);
+        for (int i = 0; i < sz; i++) {
+            Object x = items.get(i);
+            if (x instanceof EventHandlerPriority p) {
+                pri = p;
+                if (isNullOrPriority(i + 1)) {
+                    stop = !client.accept(pri, null);
+                } else {
+                    continue;
+                }
+            } else {
+                // it's a handler, cannot be null
+                stop = !client.accept(pri, (EventHandler<T>)x);
+            }
+            if (stop) {
+                break;
+            }
         }
     }
 
     /**
-     * removes all entries with SKIN_* priorities
+     * Removes all the entries with the specified priorities.
      * @return true if list is empty as a result
      */
-    public boolean removeSkinHandlers() {
-        for (int i = items.size() - 2; i >= 0; i -= 2) {
-            EventHandlerPriority p = (EventHandlerPriority)items.get(i);
-            switch (p) {
-            case SKIN_KB:
-            case SKIN_HIGH:
-            case SKIN_LOW:
-                items.remove(i);
-                items.remove(i);
-                break;
+    public boolean removeHandlers(Set<EventHandlerPriority> priorities) {
+        boolean remove = false;
+        for (int i = 0; i < items.size();) {
+            Object x = items.get(i);
+            if (x instanceof EventHandlerPriority p) {
+                if (priorities.contains(p)) {
+                    remove = true;
+                    items.remove(i);
+                } else {
+                    remove = false;
+                    i++;
+                }
+            } else {
+                if (remove) {
+                    items.remove(i);
+                } else {
+                    i++;
+                }
             }
         }
         return items.size() == 0;
