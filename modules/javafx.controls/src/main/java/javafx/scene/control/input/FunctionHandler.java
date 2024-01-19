@@ -33,7 +33,7 @@ import javafx.scene.control.Skinnable;
 public interface FunctionHandler<C extends Skinnable> {
     /**
      * Handles the event associated with a function tag or a key binding.
-     * @param control
+     * @param control the control instance
      */
     public void handleFunction(C control);
 }

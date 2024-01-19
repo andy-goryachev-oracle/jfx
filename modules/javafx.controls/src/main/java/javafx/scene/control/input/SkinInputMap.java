@@ -40,7 +40,6 @@ import com.sun.javafx.scene.control.input.PHList;
 
 /**
  * Input Map for use by the Skin.
- * <p>
  *
  * @param <C> the control type
  */
@@ -55,7 +54,9 @@ public class SkinInputMap<C extends Skinnable> {
     final HashMap<Object,Object> map = new HashMap<>();
     final KeyEventMapper kmapper = new KeyEventMapper();
 
-    // use the factory methods to create an instance of SkinInputMap
+    /**
+     * Creates a skin input map.
+     */
     public SkinInputMap() {
     }
     

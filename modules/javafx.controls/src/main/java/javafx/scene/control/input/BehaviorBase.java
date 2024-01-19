@@ -45,12 +45,13 @@ import com.sun.javafx.PlatformUtil;
  * <p>
  * The base class adds a dispose() method (called from Skin.dispose()),
  * which undoes the mappings done in install().
- * <p>
+ *
  * @since 999 TODO
  */
 public abstract class BehaviorBase<C extends Control> {
     /** the instance of Control associated with this behavior */
     protected final C control;
+    /** the skin input map for this behavior */
     protected final SkinInputMap<C> skinInputMap;
 
     /**
@@ -97,7 +98,8 @@ public abstract class BehaviorBase<C extends Control> {
 
     /**
      * Maps a function to the specified function tag.
-     * This method will not override any previous mapping added by {@link #registerFunction(FunctionTag,Runnable)}.
+     * This method will not override any previous mapping added by
+     * {@link #registerFunction(FunctionTag, FunctionHandler)}.
      *
      * @param tag the function tag
      * @param function the function

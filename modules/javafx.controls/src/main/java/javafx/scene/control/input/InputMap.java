@@ -34,6 +34,8 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.control.Control;
+import javafx.scene.control.Skin;
+import javafx.scene.control.SkinBase;
 import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyEvent;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
@@ -61,6 +63,7 @@ public final class InputMap {
 
     /**
      * The constructor.
+     * @param control the owner control
      */
     public InputMap(Control control) {
         this.control = control;
@@ -187,7 +190,9 @@ public final class InputMap {
 
     /**
      * Adds (or overrides) a user-specified function under the given function tag.
-     * This function will override any function set by the behavior.
+     * This function will take precedence over any function set by the skin.
+     *
+     * @param <C> the skinnable type
      * @param tag the function tag
      * @param function the function
      */
@@ -199,7 +204,7 @@ public final class InputMap {
 
     /**
      * Link a key binding to the specified function tag.
-     * This method will override a mapping set by the behavior.
+     * This method will take precedence over any function set by the skin.
      *
      * @param k the key binding
      * @param tag the function tag
@@ -216,6 +221,7 @@ public final class InputMap {
     /**
      * Returns a {@code FunctionHandler} mapped to the specified function tag, or null if no such mapping exists.
      *
+     * @param <C> the skinnable type
      * @param tag the function tag
      * @return the function, or null
      */
@@ -235,6 +241,7 @@ public final class InputMap {
      *
      * @implNote the return value might be a lambda, i.e. it will return a new instance each time this method is called.
      *
+     * @param <C> the skinnable type
      * @param tag the function tag
      * @return the function, or null
      */
@@ -248,11 +255,12 @@ public final class InputMap {
     /**
      * Returns a {@code FunctionHandler} mapped to the specified {@link KeyBinding},
      * or null if no such mapping exists.
-     * <p>
+     *
      * @implNote
      * This method is a functional equivalent of calling {@link #getFunctionTag(KeyBinding)}
      * followed by {@link #getFunction(FunctionTag)} (if the tag is not null).
      *
+     * @param <C> the skinnable type
      * @param k the key binding
      * @return the function, or null
      */
@@ -379,6 +387,13 @@ public final class InputMap {
         }
     }
 
+    /**
+     * Sets the skin input map, adding necessary event handlers to the control instance when required.
+     * This method must be called by the skin only from its {@link Skin#install()} or
+     * {@link SkinBase#setSkinInputMap(SkinInputMap)} method. 
+     * This method removes all the mappings from the previous skin input map, if any.
+     * @param m the skin input map
+     */
     // TODO hide behind a helper (if the caller is moved to some base class)
     // or keep it public and call in every leaf skin class install().
     public void setSkinInputMap(SkinInputMap m) {
@@ -395,17 +410,6 @@ public final class InputMap {
                     }
                 }
             }
-
-            // remove key bindings listeners, if needed
-//            if (!kmapper.hasKeyPressed() && skinInputMap.kmapper.hasKeyPressed()) {
-//                removeHandler(KeyEvent.KEY_PRESSED, EventHandlerPriority.SKIN_KB);
-//            }
-//            if (!kmapper.hasKeyReleased() && skinInputMap.kmapper.hasKeyReleased()) {
-//                removeHandler(KeyEvent.KEY_RELEASED, EventHandlerPriority.SKIN_KB);
-//            }
-//            if (!kmapper.hasKeyTyped() && skinInputMap.kmapper.hasKeyTyped()) {
-//                removeHandler(KeyEvent.KEY_TYPED, EventHandlerPriority.SKIN_KB);
-//            }
         }
 
         skinInputMap = m;
