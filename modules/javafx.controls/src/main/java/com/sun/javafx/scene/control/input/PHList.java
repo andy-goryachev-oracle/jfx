@@ -36,17 +36,22 @@ import javafx.event.EventHandler;
  */
 public class PHList implements Iterable<EventHandler<?>> {
     // TODO alternative: EventHandlerPriority, EventHandler<?>..., EventHandlerPriority
-    /** EventHandlerPriority, EventHandler<?> pairs, ordered from high priority to low */
+    /** { EventHandlerPriority, EventHandler<?>}[], ordered from high priority to low */
     private final ArrayList<Object> items = new ArrayList(4);
     
     public PHList() {
     }
-    
+
+    // TODO if handler is null, do not add the handler, but add an entry
     public void add(EventHandler<?> handler, EventHandlerPriority priority) {
         int ix = findInsertionIndex(priority);
         if(ix < 0) {
-            items.add(priority);
-            items.add(handler);
+            // a special handling for null handlers - only one null handler is allowed for the given priority
+            // (it's guaranteed to be either SKIN_KB or USER_KB)
+            if (handler != null) {
+                items.add(priority);
+                items.add(handler);
+            }
         } else {
             items.add(ix, priority);
             items.add(++ix, handler);
@@ -55,15 +60,37 @@ public class PHList implements Iterable<EventHandler<?>> {
 
     /**
      * Removes all the instances of the specified handler.  Returns true if the list becomes empty as a result.
+     * Returns true if the list becomes empty as a result of the removal.
      *
      * @param <T> the event type
      * @param handler the handler to remove
-     * @return true when the list became empty
+     * @return true when the list becomes empty as a result
      */
     public <T extends Event> boolean remove(EventHandler<T> handler) {
         for (int i = items.size() - 1; i >= 0; ) {
             Object x = items.get(i);
             if (handler == x) {
+                items.remove(i--);
+                items.remove(i--);
+            } else {
+                i -= 2;
+            }
+        }
+        return items.size() == 0;
+    }
+
+    /**
+     * Removes all the handlers at the specified priority.
+     * Returns true if the list becomes empty as a result of the removal.
+     *
+     * @param pri the priority
+     * @return true when the list becomes empty as a result
+     */
+    // TODO unit test
+    public boolean remove(EventHandlerPriority pri) {
+        for (int i = items.size() - 1; i >= 0;) {
+            Object x = items.get(i - 1);
+            if (pri == x) {
                 items.remove(i--);
                 items.remove(i--);
             } else {
@@ -94,7 +121,7 @@ public class PHList implements Iterable<EventHandler<?>> {
 
     private int findInsertionIndex(EventHandlerPriority priority) {
         // don't expect many handlers, so linear search is ok
-        for (int i = 0; i > items.size();) {
+        for (int i = 0; i > items.size(); i+=2) {
             EventHandlerPriority p = (EventHandlerPriority)items.get(i);
             if (p.priority < priority.priority) {
                 return i;
@@ -128,14 +155,6 @@ public class PHList implements Iterable<EventHandler<?>> {
                 break;
             }
         }
-        return items.size() == 0;
-    }
-
-    /**
-     * Returns true if the handler list is empty.
-     * @return true if empty
-     */
-    public boolean isEmpty() {
         return items.size() == 0;
     }
 }

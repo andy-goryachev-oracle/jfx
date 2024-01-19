@@ -35,6 +35,7 @@ import javafx.event.EventType;
 import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyCode;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
+import com.sun.javafx.scene.control.input.KeyEventMapper;
 import com.sun.javafx.scene.control.input.PHList;
 
 /**
@@ -44,21 +45,18 @@ import com.sun.javafx.scene.control.input.PHList;
  * @param <C> the control type
  */
 public class SkinInputMap<C extends Skinnable> {
+    // TODO remove after JDK-8322748
     private static final Object ON_KEY_ENTER = new Object();
     private static final Object ON_KEY_EXIT = new Object();
     // KeyBinding -> FunctionTag
     // FunctionTag -> FunctionHandler
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
-    // EventType -> PHList of listeners
+    // EventType -> PHList
     final HashMap<Object,Object> map = new HashMap<>();
-    private boolean hasKeys;
+    final KeyEventMapper kmapper = new KeyEventMapper();
 
     // use the factory methods to create an instance of SkinInputMap
     public SkinInputMap() {
-    }
-
-    boolean hasKeyBindings() {
-        return hasKeys;
     }
     
     /**
@@ -138,7 +136,7 @@ public class SkinInputMap<C extends Skinnable> {
      */
     @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandlerLast(EventCriteria<T> criteria, boolean consume, EventHandler<T> h) {
-        addHandler(criteria, consume, EventHandlerPriority.SKIN_HIGH, h);
+        addHandler(criteria, consume, EventHandlerPriority.SKIN_LOW, h);
     }
 
     // FIX replace with adding a PHList
@@ -206,7 +204,7 @@ public class SkinInputMap<C extends Skinnable> {
      */
     public void registerKey(KeyBinding k, FunctionTag tag) {
         map.put(k, tag);
-        hasKeys = true;
+        kmapper.addType(k);
     }
     
     /**

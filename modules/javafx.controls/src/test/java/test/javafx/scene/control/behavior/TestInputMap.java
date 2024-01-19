@@ -106,8 +106,18 @@ public class TestInputMap {
     @Test
     public void testAddHandler() {
         TestControl c = new TestControl();
-        c.getInputMap().addHandler(KeyEvent.ANY, (ev) -> System.out.println("KeyEvent.ANY ev=" + ev));
-        c.getInputMap().addHandler(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("KeyEvent.KEY_PRESSED ev=" + ev));
+        c.getInputMap().addHandler(KeyEvent.ANY, (ev) -> System.out.println("KeyEvent.ANY (A1) ev=" + ev));
+        c.getInputMap().addHandler(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("KeyEvent.KEY_PRESSED (A2) ev=" + ev));
+        
+        KeyEvent ev = new KeyEvent(this, c, KeyEvent.KEY_PRESSED, "A", "A", KeyCode.A, false, false, false, false);
+        c.fireEvent(ev);
+    }
+
+    @Test
+    public void testAddHandlerReverse() {
+        TestControl c = new TestControl();
+        c.getInputMap().addHandler(KeyEvent.KEY_PRESSED, (ev) -> System.out.println("KeyEvent.KEY_PRESSED (B1) ev=" + ev));
+        c.getInputMap().addHandler(KeyEvent.ANY, (ev) -> System.out.println("KeyEvent.ANY (B2) ev=" + ev));
         
         KeyEvent ev = new KeyEvent(this, c, KeyEvent.KEY_PRESSED, "A", "A", KeyCode.A, false, false, false, false);
         c.fireEvent(ev);

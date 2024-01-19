@@ -37,6 +37,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.Skinnable;
 import javafx.scene.input.KeyEvent;
 import com.sun.javafx.scene.control.input.EventHandlerPriority;
+import com.sun.javafx.scene.control.input.KeyEventMapper;
 import com.sun.javafx.scene.control.input.PHList;
 
 /**
@@ -52,12 +53,11 @@ public final class InputMap {
     private final Control control;
     // KeyBinding -> FunctionTag
     // FunctionTag -> FunctionHandler
-    // EventType -> PHList of listeners
+    // EventType -> PHList
     private final HashMap<Object,Object> map = new HashMap<>();
     private SkinInputMap skinInputMap;
-    private boolean hasKeys;
+    private final KeyEventMapper kmapper = new KeyEventMapper();
     private final EventHandler<Event> eventHandler = this::handleEvent;
-    private EventHandler<KeyEvent> keyBindingEventHandler;
 
     /**
      * The constructor.
@@ -101,10 +101,18 @@ public final class InputMap {
     public <T extends Event> void removeHandler(EventType<T> type, EventHandler<T> handler) {
         Object x = map.get(type);
         if (x instanceof PHList hs) {
-            hs.remove(handler);
- 
-            if (hs.isEmpty()) {
-                // remove listener (can only be eventHandler)
+            if (hs.remove(handler)) {
+                map.remove(type);
+                control.removeEventHandler(type, eventHandler);
+            }
+        }
+    }
+    
+    private <T extends Event> void removeHandler(EventType<T> type, EventHandlerPriority pri) {
+        Object x = map.get(type);
+        if (x instanceof PHList hs) {
+            if (hs.remove(pri)) {
+                map.remove(type);
                 control.removeEventHandler(type, eventHandler);
             }
         }
@@ -119,20 +127,9 @@ public final class InputMap {
             // first entry for this event type
             hs = new PHList();
             map.put(t, hs);
-            // add event listener to the control
-            switch(pri) {
-            case SKIN_KB:
-            case USER_KB:
-                if (keyBindingEventHandler == null) {
-                    keyBindingEventHandler = this::handleKeyBindingEvent;
-                    control.addEventHandler(KeyEvent.ANY, keyBindingEventHandler);
-                }
-                break;
-            default:
-                control.addEventHandler(t, eventHandler);
-                break;
-            }
+            control.addEventHandler(t, eventHandler);
         }
+        
         hs.add(handler, pri);
     }
 
@@ -146,7 +143,11 @@ public final class InputMap {
         Object x = map.get(t);
         if (x instanceof PHList hs) {
             for (EventHandler h : hs) {
-                h.handle(ev);
+                if (h == null) {
+                    handleKeyBindingEvent(ev);
+                } else {
+                    h.handle(ev);
+                }
                 if (ev.isConsumed()) {
                     break;
                 }
@@ -154,13 +155,13 @@ public final class InputMap {
         }
     }
 
-    private void handleKeyBindingEvent(KeyEvent ev) {
+    private void handleKeyBindingEvent(Event ev) {
         // probably unnecessary
         if (ev == null || ev.isConsumed()) {
             return;
         }
 
-        KeyBinding k = KeyBinding.from(ev);
+        KeyBinding k = KeyBinding.from((KeyEvent)ev); // see extendHandler()
         FunctionHandler f = getFunction(k);
         if (f != null) {
             handleKeyFunctionEnter();
@@ -209,9 +210,9 @@ public final class InputMap {
         Objects.requireNonNull(k, "KeyBinding must not be null");
         Objects.requireNonNull(tag, "function tag must not be null");
         map.put(k, tag);
-        hasKeys = true;
 
-        extendHandler(KeyEvent.ANY, null, EventHandlerPriority.USER_KB);
+        EventType<KeyEvent> t = kmapper.addType(k);
+        extendHandler(t, null, EventHandlerPriority.USER_KB);
     }
 
     /**
@@ -396,13 +397,16 @@ public final class InputMap {
                     }
                 }
             }
-            
-            // remove key bindings listener, if present
-            if(!hasKeys) {
-                if(keyBindingEventHandler != null) {
-                    control.removeEventHandler(KeyEvent.ANY, keyBindingEventHandler);
-                    keyBindingEventHandler = null;
-                }
+
+            // remove key bindings listeners, if needed
+            if (!kmapper.hasKeyPressed() && skinInputMap.kmapper.hasKeyPressed()) {
+                removeHandler(KeyEvent.KEY_PRESSED, EventHandlerPriority.SKIN_KB);
+            }
+            if (!kmapper.hasKeyReleased() && skinInputMap.kmapper.hasKeyReleased()) {
+                removeHandler(KeyEvent.KEY_RELEASED, EventHandlerPriority.SKIN_KB);
+            }
+            if (!kmapper.hasKeyTyped() && skinInputMap.kmapper.hasKeyTyped()) {
+                removeHandler(KeyEvent.KEY_TYPED, EventHandlerPriority.SKIN_KB);
             }
         }
 
@@ -413,10 +417,15 @@ public final class InputMap {
             extendHandler(type, h, pri);
         });
 
-        // add key bindings listener if needed
-        if (skinInputMap.hasKeyBindings() && (keyBindingEventHandler == null)) {
-            keyBindingEventHandler = this::handleKeyBindingEvent;
-            control.addEventHandler(KeyEvent.ANY, keyBindingEventHandler);
+        // add key bindings listeners if needed
+        if (!kmapper.hasKeyPressed() && skinInputMap.kmapper.hasKeyPressed()) {
+            extendHandler(KeyEvent.KEY_PRESSED, null, EventHandlerPriority.SKIN_KB);
+        }
+        if (!kmapper.hasKeyReleased() && skinInputMap.kmapper.hasKeyReleased()) {
+            extendHandler(KeyEvent.KEY_RELEASED, null, EventHandlerPriority.SKIN_KB);
+        }
+        if (!kmapper.hasKeyTyped() && skinInputMap.kmapper.hasKeyTyped()) {
+            extendHandler(KeyEvent.KEY_TYPED, null, EventHandlerPriority.SKIN_KB);
         }
     }
 }
