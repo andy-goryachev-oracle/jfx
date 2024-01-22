@@ -414,20 +414,22 @@ public final class InputMap {
 
         skinInputMap = m;
 
-        // install skin handlers with their priority
-        skinInputMap.forEach((type, pri, h) -> {
-            extendHandler(type, h, pri);
-        });
+        if (skinInputMap != null) {
+            // install skin handlers with their priority
+            skinInputMap.forEach((type, pri, h) -> {
+                extendHandler(type, h, pri);
+            });
 
-        // add key bindings listeners if needed
-        if (!kmapper.hasKeyPressed() && skinInputMap.kmapper.hasKeyPressed()) {
-            extendHandler(KeyEvent.KEY_PRESSED, null, EventHandlerPriority.SKIN_KB);
-        }
-        if (!kmapper.hasKeyReleased() && skinInputMap.kmapper.hasKeyReleased()) {
-            extendHandler(KeyEvent.KEY_RELEASED, null, EventHandlerPriority.SKIN_KB);
-        }
-        if (!kmapper.hasKeyTyped() && skinInputMap.kmapper.hasKeyTyped()) {
-            extendHandler(KeyEvent.KEY_TYPED, null, EventHandlerPriority.SKIN_KB);
+            // add key bindings listeners if needed
+            if (!kmapper.hasKeyPressed() && skinInputMap.kmapper.hasKeyPressed()) {
+                extendHandler(KeyEvent.KEY_PRESSED, null, EventHandlerPriority.SKIN_KB);
+            }
+            if (!kmapper.hasKeyReleased() && skinInputMap.kmapper.hasKeyReleased()) {
+                extendHandler(KeyEvent.KEY_RELEASED, null, EventHandlerPriority.SKIN_KB);
+            }
+            if (!kmapper.hasKeyTyped() && skinInputMap.kmapper.hasKeyTyped()) {
+                extendHandler(KeyEvent.KEY_TYPED, null, EventHandlerPriority.SKIN_KB);
+            }
         }
     }
 }
