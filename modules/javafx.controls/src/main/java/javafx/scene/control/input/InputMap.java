@@ -429,11 +429,11 @@ public final class InputMap {
             Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry<Object, Object> en = it.next();
-                if (en.getKey() instanceof Event ev) {
+                if (en.getKey() instanceof EventType t) {
                     PHList hs = (PHList)en.getValue();
                     if (hs.removeHandlers(EventHandlerPriority.SKIN)) {
                         it.remove();
-                        control.removeEventHandler(ev.getEventType(), eventHandler);
+                        control.removeEventHandler(t, eventHandler);
                     }
                 }
             }
