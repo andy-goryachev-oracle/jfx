@@ -185,7 +185,9 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
      */
     protected final void setSkinInputMap(SkinInputMap<C> map) {
         // TODO use a helper?
-        control.getInputMap().setSkinInputMap(map);
+        if (control != null) {
+            control.getInputMap().setSkinInputMap(map);
+        }
     }
 
     /* *************************************************************************
