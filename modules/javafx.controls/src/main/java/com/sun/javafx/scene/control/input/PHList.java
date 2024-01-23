@@ -127,16 +127,16 @@ public class PHList {
         boolean found = false;
         for (int i = 0; i < sz; i++) {
             Object x = items.get(i);
-            if(x instanceof EventHandlerPriority p) {
-                if(p.priority == priority.priority) {
+            if (x instanceof EventHandlerPriority p) {
+                if (p.priority == priority.priority) {
                     found = true;
                     continue;
-                } else if(p.priority < priority.priority) {
+                } else if (p.priority < priority.priority) {
                     return found ? i : -(i + 1);
                 }
             }
         }
-        return -(items.size() + 1);
+        return found ? sz : -(sz + 1);
     }
 
     /**

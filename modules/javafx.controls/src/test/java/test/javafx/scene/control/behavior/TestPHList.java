@@ -24,6 +24,7 @@
  */
 package test.javafx.scene.control.behavior;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Set;
 import javafx.event.Event;
@@ -55,6 +56,26 @@ public class TestPHList {
             EventHandlerPriority.SKIN_KB, null,
             EventHandlerPriority.SKIN_HIGH, h2,
             EventHandlerPriority.USER_LOW, h3
+        );
+    }
+
+    @Test
+    public void testAddSame() {
+        Handler h1 = new Handler("u.high1");
+        Handler h2 = new Handler("u.high2");
+        PHList hs = new PHList();
+        hs.add(EventHandlerPriority.USER_HIGH, h1);
+        hs.add(EventHandlerPriority.USER_HIGH, h2);
+        checkForEach(
+            hs,
+            EventHandlerPriority.USER_HIGH, h1,
+            EventHandlerPriority.USER_HIGH, h2
+        );
+        checkInternal(
+            hs,
+            EventHandlerPriority.USER_HIGH,
+            h1,
+            h2
         );
     }
 
@@ -121,6 +142,17 @@ public class TestPHList {
             return true;
         });
         Assertions.assertArrayEquals(expected, items.toArray());
+    }
+
+    private void checkInternal(PHList hs, Object... expected) {
+        try {
+            Field f = hs.getClass().getDeclaredField("items");
+            f.setAccessible(true);
+            Object[] actual = ((ArrayList)f.get(hs)).toArray();
+            Assertions.assertArrayEquals(expected, actual);
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // test handler
