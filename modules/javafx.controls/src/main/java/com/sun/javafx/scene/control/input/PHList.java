@@ -25,6 +25,8 @@
 package com.sun.javafx.scene.control.input;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -209,5 +211,15 @@ public class PHList {
             }
         }
         return items.size() == 0;
+    }
+
+    /**
+     * An internal testing method.
+     * @param expected the expected internal structure
+     */
+    public void validateInternalState(Object... expected) {
+        if(!Arrays.equals(expected, items.toArray())) {
+            throw new RuntimeException("internal mismatch:\nitems=" + items + "\nexpected=" + List.of(expected));
+        }
     }
 }
