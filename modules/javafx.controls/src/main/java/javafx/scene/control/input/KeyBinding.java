@@ -27,6 +27,7 @@ package javafx.scene.control.input;
 
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 import javafx.event.EventType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -93,6 +94,20 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     private KeyBinding(Object key, EnumSet<KCondition> modifiers) {
         this.key = key;
         this.modifiers = modifiers;
+    }
+
+    static KeyBinding wrap(KeyBinding k, BooleanSupplier condition, boolean consume) {
+        return new KeyBinding(k.key, k.modifiers) {
+            @Override
+            boolean isEnabled() {
+                return condition.getAsBoolean();
+            }
+
+            @Override
+            boolean isConsume() {
+                return consume;
+            }
+        };
     }
 
     /**
@@ -253,6 +268,14 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
             return c;
         }
         return null;
+    }
+
+    boolean isEnabled() {
+        return true;
+    }
+
+    boolean isConsume() {
+        return true;
     }
 
     /**

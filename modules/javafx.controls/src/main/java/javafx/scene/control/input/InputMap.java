@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -162,17 +163,21 @@ public final class InputMap {
             return;
         }
 
-        KeyBinding k = KeyBinding.from((KeyEvent)ev); // see extendHandler()
-        FunctionHandler f = getFunction(k);
-        if (f != null) {
-            handleKeyFunctionEnter();
-            try {
-                f.handleFunction(control);
-                ev.consume();
-            } finally {
-                handleKeyFunctionExit();
+        KeyBinding k = KeyBinding.from((KeyEvent)ev);
+        if (k.isEnabled()) {
+            FunctionHandler f = getFunction(k);
+            if (f != null) {
+                handleKeyFunctionEnter();
+                try {
+                    f.handleFunction(control);
+                    if (k.isConsume()) {
+                        ev.consume();
+                    }
+                } finally {
+                    handleKeyFunctionExit();
+                }
+                return;
             }
-            return;
         }
     }
 
@@ -204,6 +209,9 @@ public final class InputMap {
 
     /**
      * Link a key binding to the specified function tag.
+     * When the key binding matches the input event, the function is executed, the event is consumed,
+     * and the process of dispatching is stopped.
+     * <p>
      * This method will take precedence over any function set by the skin.
      *
      * @param k the key binding
@@ -216,6 +224,25 @@ public final class InputMap {
 
         EventType<KeyEvent> t = kmapper.addType(k);
         extendHandler(t, null, EventHandlerPriority.USER_KB);
+    }
+
+    /**
+     * Link a key binding to the specified function tag.
+     * When the key binding matches the input event, and the condition is {@code true},
+     * the function is executed and, if the value of {@code consume} parameter is true,
+     * the event is consumed and the process of dispatching is stopped.  If the value of {@code consume} is false,
+     * the event continues to be dispatched.
+     * <p>
+     * This method will take precedence over any function set by the skin.
+     *
+     * @param k the key binding
+     * @param tag the function tag
+     * @param condition the condition to test
+     * @param consume whether to consume the event
+     */
+    public void registerKey(KeyBinding k, FunctionTag tag, BooleanSupplier condition, boolean consume) {
+        Objects.requireNonNull(k, "KeyBinding must not be null");
+        registerKey(KeyBinding.wrap(k, condition, consume), tag);
     }
 
     /**
