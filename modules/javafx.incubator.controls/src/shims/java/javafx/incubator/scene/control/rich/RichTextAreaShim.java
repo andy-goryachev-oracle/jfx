@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,10 +23,16 @@
  * questions.
  */
 
+package javafx.incubator.scene.control.rich;
+
+import com.sun.javafx.incubator.scene.control.rich.VFlow;
+
 /**
- * Experimental JavaFX controls.
- *
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
+ * RichTextArea shim.
  */
-package javafx.incubator.scene.control.dummy;
+public class RichTextAreaShim {
+    /** for when we need to access VFlow */
+    public static VFlow vflow(RichTextArea t) {
+        return t.vflow();
+    }
+}

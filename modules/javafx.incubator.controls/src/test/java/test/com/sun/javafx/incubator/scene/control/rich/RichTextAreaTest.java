@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,31 +23,25 @@
  * questions.
  */
 
-package javafx.incubator.scene.control.dummy;
+package test.com.sun.javafx.incubator.scene.control.rich;
 
-import javafx.scene.control.Button;
-import com.sun.javafx.incubator.scene.control.dummy.MyImpl;
+import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.RichTextAreaShim;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * My experimental control.
- *
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
+ * Tests RichTextArea control.
  */
-public class MyButton extends Button {
-    private final int myField;
+public class RichTextAreaTest {
+    /**
+     * Tests the shim.
+     */
+    // TODO remove once a real test which needs the shim is added.
+    @Test
+    public void testShim() {
+        RichTextArea t = new RichTextArea();
 
-    public MyButton(int myField, String name) {
-        super(name);
-        this.myField = myField;
-    }
-
-    void print() {
-        MyImpl.print(this);
-    }
-
-    // For testing
-    int getMyField() {
-        return myField;
+        Assertions.assertNotNull(RichTextAreaShim.vflow(t));
     }
 }

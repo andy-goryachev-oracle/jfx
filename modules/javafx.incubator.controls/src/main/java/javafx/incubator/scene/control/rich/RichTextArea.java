@@ -420,7 +420,8 @@ public class RichTextArea extends Control {
         return getClassCssMetaData();
     }
     
-    private VFlow vflow() {
+    // TODO made package protected for testing (for the shim example) 
+    VFlow vflow() {
         return RichTextAreaSkinHelper.getVFlow(this);
     }
 
