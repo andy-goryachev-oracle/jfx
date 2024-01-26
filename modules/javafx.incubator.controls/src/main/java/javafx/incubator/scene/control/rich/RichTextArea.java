@@ -1457,7 +1457,8 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Replaces the specified range with the new text.
+     * Replaces the specified range with the new input.
+     *
      * @param start the start text position
      * @param end the end text position
      * @param in the input stream
@@ -1468,6 +1469,23 @@ public class RichTextArea extends Control {
         if (canEdit()) {
             StyledTextModel m = getModel();
             return m.replace(vflow(), start, end, in, createUndo);
+        }
+        return null;
+    }
+
+    /**
+     * Replaces the specified range with the new text.
+     *
+     * @param start the start text position
+     * @param end the end text position
+     * @param in the input stream
+     * @param createUndo when true, creates an undo-redo entry
+     * @return the new caret position at the end of inserted text, or null if the change cannot be made
+     */
+    public TextPos replaceText(TextPos start, TextPos end, String text, boolean createUndo) {
+        if (canEdit()) {
+            StyledTextModel m = getModel();
+            return m.replace(vflow(), start, end, text, createUndo);
         }
         return null;
     }
