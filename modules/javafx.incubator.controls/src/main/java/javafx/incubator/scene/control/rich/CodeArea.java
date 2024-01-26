@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package javafx.incubator.scene.control.rich.code;
+package javafx.incubator.scene.control.rich;
 
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
@@ -38,9 +38,6 @@ import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.SizeConverter;
-import javafx.incubator.scene.control.rich.RichTextArea;
-import javafx.incubator.scene.control.rich.StyleHandlerRegistry;
-import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;

@@ -23,7 +23,7 @@
  * questions.
  */
 
-package javafx.incubator.scene.control.rich.code;
+package javafx.incubator.scene.control.rich;
 
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 

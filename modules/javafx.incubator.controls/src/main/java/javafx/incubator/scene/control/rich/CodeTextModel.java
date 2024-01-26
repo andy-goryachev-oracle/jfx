@@ -23,7 +23,7 @@
  * questions.
  */
 
-package javafx.incubator.scene.control.rich.code;
+package javafx.incubator.scene.control.rich;
 
 import java.util.Set;
 import javafx.beans.property.ObjectProperty;
