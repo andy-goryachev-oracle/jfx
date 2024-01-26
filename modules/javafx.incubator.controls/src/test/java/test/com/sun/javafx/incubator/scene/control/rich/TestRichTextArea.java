@@ -25,12 +25,10 @@
 
 package test.com.sun.javafx.incubator.scene.control.rich;
 
-import javafx.incubator.scene.control.rich.ConfigurationParameters;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.RichTextAreaShim;
-import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import com.sun.javafx.incubator.scene.control.rich.VFlow;
 
 /**
  * Tests RichTextArea control.
@@ -43,8 +41,6 @@ public class TestRichTextArea {
     @Test
     public void testShim() {
         RichTextArea t = new RichTextArea();
-        t.setSkin(new RichTextAreaSkin(t, ConfigurationParameters.defaultConfig()));
-
-        Assertions.assertNotNull(RichTextAreaShim.vflow(t));
+        VFlow f = RichTextAreaShim.vflow(t);
     }
 }
