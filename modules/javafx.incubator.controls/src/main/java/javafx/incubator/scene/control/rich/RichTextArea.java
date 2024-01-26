@@ -438,7 +438,7 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Determines the caret blink rate.
+     * Determines the caret blink period.
      * @return the caret blunk period property
      */
     public final ReadOnlyObjectProperty<Duration> caretBlinkPeriodProperty() {
@@ -1109,7 +1109,7 @@ public class RichTextArea extends Control {
         if (isEditable()) {
             StyledTextModel m = getModel();
             if (m != null) {
-                return m.isEditable();
+                return m.isMutable();
             }
         }
         return false;

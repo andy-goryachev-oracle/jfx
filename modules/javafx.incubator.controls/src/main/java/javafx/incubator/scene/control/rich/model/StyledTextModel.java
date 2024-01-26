@@ -86,13 +86,14 @@ public abstract class StyledTextModel {
     }
     
     /**
-     * Indicates whether the model is editable.
+     * Indicates whether the model is mutable.
      * <p>
-     * When this method returns false, the model must silently ignore any modification attempts.
+     * An immutable may offer methods which allow for initial piecemeal construction,
+     * but it cannot be edited once set to {@code RichTextArea}.
      *
-     * @return true if the model is editable
+     * @return true if the model is mutable
      */
-    public abstract boolean isEditable();
+    public abstract boolean isMutable();
 
     /**
      * Returns the number of paragraphs in the model.
@@ -523,7 +524,7 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean createUndo) {
-        if (isEditable()) {
+        if (isMutable()) {
             StyleAttrs a = getStyleAttrs(resolver, start);
             StyledInput in = StyledInput.of(text, a);
             return replace(resolver, start, end, in, createUndo);
@@ -548,7 +549,7 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean createUndo) {
-        if (isEditable()) {
+        if (isMutable()) {
             // TODO clamp to document boundaries
             int cmp = start.compareTo(end);
             if (cmp > 0) {
@@ -634,7 +635,7 @@ public abstract class StyledTextModel {
      * @param mergeAttributes whether to merge or replace the attributes
      */
     public final void applyStyle(TextPos start, TextPos end, StyleAttrs attrs, boolean mergeAttributes) {
-        if (isEditable()) {
+        if (isMutable()) {
             if (start.compareTo(end) > 0) {
                 TextPos p = start;
                 start = end;

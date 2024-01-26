@@ -273,7 +273,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         if (control.isEditable()) {
             StyledTextModel m = control.getModel();
             if (m != null) {
-                return m.isEditable();
+                return m.isMutable();
             }
         }
         return false;

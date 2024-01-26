@@ -39,7 +39,7 @@ public abstract class StyledTextModelReadOnlyBase extends StyledTextModel {
     }
 
     @Override
-    public final boolean isEditable() {
+    public final boolean isMutable() {
         return false;
     }
 

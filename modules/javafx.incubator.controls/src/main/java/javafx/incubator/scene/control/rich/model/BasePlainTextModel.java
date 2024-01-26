@@ -74,7 +74,7 @@ public class BasePlainTextModel extends StyledTextModel {
     }
 
     @Override
-    public boolean isEditable() {
+    public boolean isMutable() {
         return editable.get();
     }
 
