@@ -1479,7 +1479,7 @@ public class RichTextArea extends Control {
      *
      * @param start the start text position
      * @param end the end text position
-     * @param in the input stream
+     * @param text the input text
      * @param createUndo when true, creates an undo-redo entry
      * @return the new caret position at the end of inserted text, or null if the change cannot be made
      */
