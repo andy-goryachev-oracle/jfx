@@ -1102,7 +1102,7 @@ public class RichTextArea extends Control {
 
     /**
      * Returns true if this control's {@link #isEditable()} returns true and the model's
-     * {@link StyledTextModel#isEditable()} also returns true.
+     * {@link StyledTextModel#isMutable()} also returns true.
      * @return true if model is not null and is editable
      */
     protected boolean canEdit() {
@@ -1480,13 +1480,13 @@ public class RichTextArea extends Control {
      * @param start the start text position
      * @param end the end text position
      * @param text the input text
-     * @param createUndo when true, creates an undo-redo entry
+     * @param allowUndo when true, creates an undo-redo entry
      * @return the new caret position at the end of inserted text, or null if the change cannot be made
      */
-    public TextPos replaceText(TextPos start, TextPos end, String text, boolean createUndo) {
+    public TextPos replaceText(TextPos start, TextPos end, String text, boolean allowUndo) {
         if (canEdit()) {
             StyledTextModel m = getModel();
-            return m.replace(vflow(), start, end, text, createUndo);
+            return m.replace(vflow(), start, end, text, allowUndo);
         }
         return null;
     }

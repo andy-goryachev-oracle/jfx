@@ -520,14 +520,14 @@ public abstract class StyledTextModel {
      * @param start start text position
      * @param end end text position
      * @param text text string to insert
-     * @param createUndo when true, creates an undo-redo entry
+     * @param allowUndo when true, creates an undo-redo entry
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
-    public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean createUndo) {
+    public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean allowUndo) {
         if (isMutable()) {
             StyleAttrs a = getStyleAttrs(resolver, start);
             StyledInput in = StyledInput.of(text, a);
-            return replace(resolver, start, end, in, createUndo);
+            return replace(resolver, start, end, in, allowUndo);
         }
         return null;
     }
@@ -545,10 +545,10 @@ public abstract class StyledTextModel {
      * @param start the start text position
      * @param end the end text position
      * @param input the input content stream
-     * @param createUndo when true, creates an undo-redo entry
+     * @param allowUndo when true, creates an undo-redo entry
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
-    public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean createUndo) {
+    public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean allowUndo) {
         if (isMutable()) {
             // TODO clamp to document boundaries
             int cmp = start.compareTo(end);
@@ -558,7 +558,7 @@ public abstract class StyledTextModel {
                 end = p;
             }
 
-            UndoableChange ch = createUndo ? UndoableChange.create(this, start, end) : null;
+            UndoableChange ch = allowUndo ? UndoableChange.create(this, start, end) : null;
 
             if (cmp != 0) {
                 removeRegion(start, end);
@@ -615,7 +615,7 @@ public abstract class StyledTextModel {
             fireChangeEvent(start, end, top, lines, btm);
 
             TextPos newEnd = new TextPos(index, offset);
-            if (createUndo) {
+            if (allowUndo) {
                 add(ch, newEnd);
             }
             return newEnd;
@@ -628,6 +628,8 @@ public abstract class StyledTextModel {
      * Depending on {@code mergeAttributes} parameter, the attributes will either be merged with (true) or completely
      * replace the existing attributes within the range.  The affected range might be wider than the range specified
      * when applying the paragraph attributes.
+     * <p>
+     * This operation is undoable.
      *
      * @param start the start of text range
      * @param end the end of text range
