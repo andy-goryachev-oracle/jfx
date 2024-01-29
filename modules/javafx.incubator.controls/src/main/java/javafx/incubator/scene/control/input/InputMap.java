@@ -279,6 +279,18 @@ public final class InputMap<C extends Control> {
     }
 
     /**
+     * Link a key binding to an external {@code Runnable{.
+     *
+     * @param k the key binding
+     * @param tag the function tag
+     */
+    public void registerKey(KeyBinding k, Runnable function) {
+        Objects.requireNonNull(k, "KeyBinding must not be null");
+        Objects.requireNonNull(function, "function must not be null");
+        addBinding(null, k, function);
+    }
+
+    /**
      * Maps a key binding to the specified function tag, for use by the behavior.
      * A null key binding will result in no change to this input map.
      * This method will not override a user mapping added by {@link #registerKey(KeyBinding,FunctionTag)}.
@@ -325,7 +337,7 @@ public final class InputMap<C extends Control> {
         }
     }
 
-    private void addBinding(BehaviorBase behavior, KeyBinding k, FunctionTag tag) {
+    private void addBinding(BehaviorBase behavior, KeyBinding k, Object tag) {
         Entry en = map.get(k);
         if (en == null) {
             en = new Entry();
@@ -382,18 +394,19 @@ public final class InputMap<C extends Control> {
     /**
      * Returns a {@code Runnable} mapped to the specified {@link KeyBinding},
      * or null if no such mapping exists.
-     * <p>
-     * @implNote
-     * This method is a functional equivalent of calling {@link #getFunctionTag(KeyBinding)}
-     * followed by {@link #getFunction(FunctionTag)} (if the tag is not null).
      *
      * @param k the key binding
      * @return the function, or null
      */
     public Runnable getFunction(KeyBinding k) {
-        FunctionTag tag = getFunctionTag(k);
-        if (tag != null) {
-            return getFunction(tag);
+        Entry en = map.get(k);
+        if (en != null) {
+            Object v = en.getValue();
+            if (v instanceof FunctionTag tag) {
+                return getFunction(tag);
+            } else if(v instanceof Runnable r) {
+                return r;
+            }
         }
         return null;
     }

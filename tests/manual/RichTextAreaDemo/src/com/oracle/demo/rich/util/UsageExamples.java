@@ -25,9 +25,12 @@
 
 package com.oracle.demo.rich.util;
 
+import javafx.incubator.scene.control.input.FunctionTag;
+import javafx.incubator.scene.control.input.KeyBinding;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.scene.input.KeyCode;
 
 /**
  * The usage examples used in the documentation.
@@ -44,8 +47,23 @@ class UsageExamples {
         rta.appendText("Plain monospaced text.\n", plain);
     }
 
+    // 
+    private static final FunctionTag PRINT_TO_CONSOLE = new FunctionTag();
+
     void customNavigation() {
         RichTextArea richTextArea = new RichTextArea();
+        
+        // new key binding mapped to a new external function
+        richTextArea.getInputMap().registerKey(KeyBinding.shortcut(KeyCode.W), () -> {
+            System.out.println("console!");
+        });
+        
+        richTextArea.getInputMap().registerFunction(PRINT_TO_CONSOLE, () -> {
+            // new functionality
+            System.out.println("PRINT_TO_CONSOLE executed");
+        });
+
+        // change the functionality of an existing key binding
         richTextArea.getInputMap().registerFunction(RichTextArea.MOVE_WORD_NEXT, () -> {
             // refers to custom logic
             TextPos p = getCustomNextWordPosition(richTextArea);
