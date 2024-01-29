@@ -46,6 +46,7 @@ public enum ModelChoice {
     NOTEBOOK2("Notebook: SQL Queries"),
     EDITABLE_PLAIN("Plaintext with Syntax Highlighting"),
     NULL("null"),
+    EXAMPLES("Examples"),
     INLINE("Inline Nodes"),
     MONOSPACED("Monospaced"),
     TABS("Tabs"),
@@ -84,6 +85,8 @@ public enum ModelChoice {
             return new DemoStyledTextModel(2_000_000_000, false);
         case DEMO:
             return new DemoModel();
+        case EXAMPLES:
+            return new ExamplesModel();
         case INLINE:
             return new InlineNodesModel();
         case EDITABLE_PLAIN:
