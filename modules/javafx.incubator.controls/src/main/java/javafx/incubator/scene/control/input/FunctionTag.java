@@ -23,11 +23,15 @@
  * questions.
  */
 
+package javafx.incubator.scene.control.input;
+
 /**
- * <p>The <code>javafx.scene.control.behavior</code> package contains classes related
- * to control's behavior: input map, key bindings, and base class for behavior implementations.
- * </p>
- * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
- * Will be removed in a future release.</b>
+ * A function tag is a public handle for a function in the context of InputMap.
+ *
+ * @since 22
  */
-package javafx.incubator.scene.control.behavior;
+public final class FunctionTag {
+    /** Constructs the function tag. */
+    public FunctionTag() {
+    }
+}

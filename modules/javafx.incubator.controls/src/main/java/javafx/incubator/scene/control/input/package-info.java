@@ -22,27 +22,12 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package javafx.incubator.scene.control.behavior;
-
-import javafx.event.Event;
-import javafx.event.EventType;
 
 /**
- * Determines whether an event passes certain criteria.
- *
- * @since 22
+ * <p>The <code>javafx.scene.control.behavior</code> package contains classes related
+ * to control's behavior: input map, key bindings, and base class for behavior implementations.
+ * </p>
+ * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
+ * Will be removed in a future release.</b>
  */
-public interface EventCriteria<T extends Event> {
-    /**
-     * Returns the event type for which this criteria are valid.
-     * @return the event type
-     */
-    public EventType<T> getEventType();
-
-    /**
-     * Returns true if the specified event matches this criteria.
-     * @param ev the event
-     * @return true if match occurs
-     */
-    public boolean isEventAcceptable(T ev);
-}
+package javafx.incubator.scene.control.input;

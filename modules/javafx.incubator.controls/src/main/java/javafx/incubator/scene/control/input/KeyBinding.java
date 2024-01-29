@@ -23,7 +23,7 @@
  * questions.
  */
 
-package javafx.incubator.scene.control.behavior;
+package javafx.incubator.scene.control.input;
 
 import java.util.EnumSet;
 import java.util.Objects;
