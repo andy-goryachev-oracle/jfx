@@ -44,6 +44,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import com.sun.javafx.incubator.scene.control.rich.Converters;
+import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandlerHelper;
 
 /**
  * A DataFormatHandler for use with attribute-based rich text models.
@@ -97,6 +98,8 @@ import com.sun.javafx.incubator.scene.control.rich.Converters;
  * </pre>
  */
 public class RichTextFormatHandler extends DataFormatHandler {
+    static { initAccessor(); }
+
     /** The data format identifier */
     public static final DataFormat DATA_FORMAT = new DataFormat("application/x-com-oracle-editable-rich-text");
 
@@ -142,6 +145,15 @@ public class RichTextFormatHandler extends DataFormatHandler {
         addHandlerBoolean(StyleAttrs.UNDERLINE, "u");
     }
 
+    private static void initAccessor() {
+        RichTextFormatHandlerHelper.setAccessor(new RichTextFormatHandlerHelper.Accessor() {
+            @Override
+            public StyledOutput createStyledOutput(RichTextFormatHandler h, StyleResolver r, Writer wr) {
+                return h.createStyledOutput(r, wr);
+            }
+        });
+    }
+
     @Override
     public StyledInput createStyledInput(String input) {
         return new RichStyledInput(input);
@@ -163,8 +175,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
         m.exportText(start, end, so);
     }
 
-    // TODO hide behind accessor
-    public StyledOutput createStyledOutput(StyleResolver r, Writer wr) {
+    private StyledOutput createStyledOutput(StyleResolver r, Writer wr) {
         Charset cs = Charset.forName("utf-8");
         boolean buffered = isBuffered(wr);
         if (buffered) {

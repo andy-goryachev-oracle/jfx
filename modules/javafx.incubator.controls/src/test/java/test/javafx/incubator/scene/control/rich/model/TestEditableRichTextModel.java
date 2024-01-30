@@ -34,6 +34,7 @@ import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledOutput;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandlerHelper;
 
 /**
  * Tests EditableRichTextModel handling of style attributes when editing.
@@ -99,7 +100,7 @@ public class TestEditableRichTextModel {
             TextPos end = m.replace(null, TextPos.ZERO, TextPos.ZERO, in, false);
             // check initial text
             StringWriter wr = new StringWriter();
-            StyledOutput out = h.createStyledOutput(null, wr);
+            StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(h, null, wr);
             m.exportText(TextPos.ZERO, end, out);
             String s = wr.toString();
             Assertions.assertEquals(initial, s, "problem setting initial text");
@@ -110,7 +111,7 @@ public class TestEditableRichTextModel {
         // check output
         {
             StringWriter wr = new StringWriter();
-            StyledOutput out = h.createStyledOutput(null, wr);
+            StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(h, null, wr);
             TextPos end = m.getDocumentEnd();
             m.exportText(TextPos.ZERO, end, out);
             String s = wr.toString();

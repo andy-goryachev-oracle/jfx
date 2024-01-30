@@ -39,6 +39,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import com.sun.javafx.incubator.scene.control.rich.RichTextFormatHandlerHelper;
 
 /**
  * Tests RichTextFormatHandler.
@@ -99,7 +100,7 @@ public class TestRichTextFormatHandler {
         };
 
         StringWriter wr = new StringWriter();
-        StyledOutput out = new RichTextFormatHandler().createStyledOutput(null, wr);
+        StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(new RichTextFormatHandler(), null, wr);
         for (StyledSegment s : input) {
             out.append(s);
         }
@@ -112,7 +113,7 @@ public class TestRichTextFormatHandler {
     @Test
     public void testEscapes() throws IOException {
         StringWriter wr = new StringWriter();
-        StyledOutput out = new RichTextFormatHandler().createStyledOutput(null, wr);
+        StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(new RichTextFormatHandler(), null, wr);
         out.append(StyledSegment.of("{|%}"));
         out.flush();
         String s = wr.toString();
@@ -172,7 +173,7 @@ public class TestRichTextFormatHandler {
         // export to string
         int ct = 0;
         StringWriter wr = new StringWriter();
-        StyledOutput out = handler.createStyledOutput(null, wr);
+        StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(handler, null, wr);
         for (StyledSegment s : input) {
             if (DEBUG) {
                 System.out.println(s);
@@ -209,7 +210,7 @@ public class TestRichTextFormatHandler {
 
         // export to a string again
         wr = new StringWriter();
-        out = handler.createStyledOutput(null, wr);
+        out = RichTextFormatHandlerHelper.createStyledOutput(handler, null, wr);
         for (StyledSegment s : segments) {
             out.append(s);
         }
@@ -236,7 +237,7 @@ public class TestRichTextFormatHandler {
         }
 
         StringWriter wr = new StringWriter();
-        StyledOutput out = handler.createStyledOutput(null, wr);
+        StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(handler, null, wr);
         for (StyledSegment s : segments) {
             out.append(s);
         }
