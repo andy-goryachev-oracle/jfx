@@ -58,8 +58,13 @@ public class CodeArea extends RichTextArea {
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
     private String fontStyle;
+    /** The style handler registry instance. */
     protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
+    /**
+     * The constructor.
+     * @param m the model to use
+     */
     public CodeArea(CodeTextModel m) {
         super(m);
         modelProperty().addListener((s, prev, newValue) -> {
@@ -77,6 +82,9 @@ public class CodeArea extends RichTextArea {
         setFont(Font.font("monospace", f.getSize()));
     }
 
+    /**
+     * The constructor.
+     */
     public CodeArea() {
         this(new CodeTextModel());
     }
@@ -161,6 +169,7 @@ public class CodeArea extends RichTextArea {
     /**
      * The size of a tab stop in spaces.
      * Values less than 1 are treated as 1.
+     * @return the tab size property
      * @defaultValue 8
      */
     public final IntegerProperty tabSizeProperty() {

@@ -41,6 +41,10 @@ public class ImageCellPane extends Pane {
     private final ImageView imageView;
     private static final Insets PADDING = new Insets(1, 1, 1, 1);
 
+    /**
+     * The constructor.
+     * @param image the image
+     */
     public ImageCellPane(Image image) {
         this.image = image;
 

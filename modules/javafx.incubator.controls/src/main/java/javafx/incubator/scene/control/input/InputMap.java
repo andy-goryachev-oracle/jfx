@@ -70,7 +70,7 @@ public final class InputMap<C extends Control> {
     private static final Object ON_KEY_EXIT = new Object();
     private final C control;
     // EventType<?> -> Entry with value=List<EventHandler> (behavior only)
-    // KeyBinding -> Entry with value=FunctionTag
+    // KeyBinding -> Entry with value=FunctionTag or Runnable
     // FunctionTag -> Entry with value=Runnable
     // ON_KEY_ENTER/EXIT -> Entry with value=Runnable
     private final HashMap<Object,Entry> map = new HashMap<>();
@@ -279,10 +279,10 @@ public final class InputMap<C extends Control> {
     }
 
     /**
-     * Link a key binding to an external {@code Runnable{.
+     * Link a key binding to an external {@code Runnable}.
      *
      * @param k the key binding
-     * @param tag the function tag
+     * @param function the external function
      */
     public void registerKey(KeyBinding k, Runnable function) {
         Objects.requireNonNull(k, "KeyBinding must not be null");

@@ -213,7 +213,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
         }
     }
 
-    public void handleModelChange(Object src, StyledTextModel old, StyledTextModel m) {
+    private void handleModelChange(Object src, StyledTextModel old, StyledTextModel m) {
         if (old != null) {
             old.removeChangeListener(modelChangeListener);
         }
@@ -223,11 +223,11 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
         }
     }
 
-    protected void handleTextUpdated(TextPos start, TextPos end, int addedTop, int linesAdded, int addedBottom) {
+    private void handleTextUpdated(TextPos start, TextPos end, int addedTop, int linesAdded, int addedBottom) {
         vflow.handleTextUpdated(start, end, addedTop, linesAdded, addedBottom);
     }
     
-    protected void handleStyleUpdated(TextPos start, TextPos end) {
+    private void handleStyleUpdated(TextPos start, TextPos end) {
         vflow.handleStyleUpdated(start, end);
     }
 

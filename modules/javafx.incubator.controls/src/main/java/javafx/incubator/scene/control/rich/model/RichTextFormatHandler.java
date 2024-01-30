@@ -97,14 +97,14 @@ import com.sun.javafx.incubator.scene.control.rich.Converters;
  * </pre>
  */
 public class RichTextFormatHandler extends DataFormatHandler {
-    // TODO add version?  "application/x-com-oracle-editable-rich-text-model-v1"
+    /** The data format identifier */
     public static final DataFormat DATA_FORMAT = new DataFormat("application/x-com-oracle-editable-rich-text");
 
-    protected static final StringConverter<Boolean> BOOLEAN_CONVERTER = Converters.booleanConverter();
-    protected static final StringConverter<Color> COLOR_CONVERTER = Converters.colorConverter();
-    protected static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
-    protected static final StringConverter<String> STRING_CONVERTER = Converters.stringConverter();
-    protected static final StringConverter<TextAlignment> TEXT_ALIGNMENT_CONVERTER = Converters.textAlignmentConverter();
+    private static final StringConverter<Boolean> BOOLEAN_CONVERTER = Converters.booleanConverter();
+    private static final StringConverter<Color> COLOR_CONVERTER = Converters.colorConverter();
+    private static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
+    private static final StringConverter<String> STRING_CONVERTER = Converters.stringConverter();
+    private static final StringConverter<TextAlignment> TEXT_ALIGNMENT_CONVERTER = Converters.textAlignmentConverter();
     // String -> Handler
     // StyleAttribute -> Handler
     private final HashMap<Object,Handler> handlers = new HashMap<>(64);
@@ -163,6 +163,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
         m.exportText(start, end, so);
     }
 
+    // TODO hide behind accessor
     public StyledOutput createStyledOutput(StyleResolver r, Writer wr) {
         Charset cs = Charset.forName("utf-8");
         boolean buffered = isBuffered(wr);
@@ -213,16 +214,16 @@ public class RichTextFormatHandler extends DataFormatHandler {
         }
     }
 
-    protected <T> void addHandler(StyleAttribute<T> a, String id, StringConverter<T> converter) {
+    private <T> void addHandler(StyleAttribute<T> a, String id, StringConverter<T> converter) {
         addHandler(new Handler<T>(a, id, converter));
     }
     
-    protected <T> void addHandler(Handler<T> h) {
+    private <T> void addHandler(Handler<T> h) {
         handlers.put(h.getStyleAttribute(), h);
         handlers.put(h.getId(), h);
     }
     
-    protected void addHandlerBoolean(StyleAttribute<Boolean> a, String id) {
+    private void addHandlerBoolean(StyleAttribute<Boolean> a, String id) {
         addHandler(new Handler<Boolean>(a, id, BOOLEAN_CONVERTER) {
             @Override
             public boolean isAllowed(Boolean value) {
@@ -231,7 +232,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
         });
     }
     
-    protected void addHandlerString(StyleAttribute<String> a, String id) {
+    private void addHandlerString(StyleAttribute<String> a, String id) {
         addHandler(new Handler<String>(a, id, STRING_CONVERTER));
     }
     

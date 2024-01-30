@@ -48,6 +48,9 @@ import com.sun.javafx.incubator.scene.control.rich.TextCell;
 public abstract class RichParagraph {
     static { initAccessor(); }
 
+    /**
+     * The constructor.
+     */
     public RichParagraph() {
     }
 
@@ -89,6 +92,11 @@ public abstract class RichParagraph {
         };
     }
 
+    /**
+     * Returns the generator for this paragraph {@code Region} representation.
+     * This method returns a non-null value when the paragraph is represented by a single {@code Region}.
+     * @return the generator, or null
+     */
     public Supplier<Region> getParagraphRegion() {
         return null;
     }
@@ -189,6 +197,9 @@ public abstract class RichParagraph {
         private ArrayList<StyledSegment> segments;
         private ArrayList<Consumer<TextCell>> highlights;
         private StyleAttrs paragraphAttributes;
+
+        Builder() {
+        }
 
         /**
          * Adds a squiggly line (as seen in a spell checker) with the given color.

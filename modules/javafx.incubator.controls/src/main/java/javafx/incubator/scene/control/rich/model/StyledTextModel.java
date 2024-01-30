@@ -722,7 +722,11 @@ public abstract class StyledTextModel {
         undo = head;
     }
 
-    // we are going to try putting undo management in the model
+    /**
+     * Adds an {@code UndoableChange} to the undo/redo buffer.
+     * @param ch the change
+     * @param end the caret position after the change
+     */
     protected void add(UndoableChange ch, TextPos end) {
         if (ch == null) {
             // the undo-redo system is in inconsistent state, let's drop everything

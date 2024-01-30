@@ -245,7 +245,7 @@ public class EditableRichTextModel extends StyledTextModel {
     /**
      * Model paragraph is a list of RSegments.
      */
-    protected static class RParagraph extends ArrayList<RSegment> {
+    static class RParagraph extends ArrayList<RSegment> {
 
         private StyleAttrs paragraphAttrs;
 
@@ -253,15 +253,15 @@ public class EditableRichTextModel extends StyledTextModel {
         public RParagraph() {
         }
 
-        public StyleAttrs getParagraphAttributes() {
+        StyleAttrs getParagraphAttributes() {
             return paragraphAttrs;
         }
 
-        public void setParagraphAttributes(StyleAttrs a) {
+        void setParagraphAttributes(StyleAttrs a) {
             paragraphAttrs = a;
         }
 
-        public String getPlainText() {
+        String getPlainText() {
             StringBuilder sb = new StringBuilder();
             for(RSegment s: this) {
                 sb.append(s.text());
@@ -269,7 +269,7 @@ public class EditableRichTextModel extends StyledTextModel {
             return sb.toString();
         }
 
-        public int getTextLength() {
+        int getTextLength() {
             int len = 0;
             for(RSegment s: this) {
                 len += s.getTextLength();
@@ -282,7 +282,7 @@ public class EditableRichTextModel extends StyledTextModel {
          * @param offset the offset
          * @return the style info
          */
-        public StyleAttrs getStyleAttrs(int offset) {
+        StyleAttrs getStyleAttrs(int offset) {
             int off = 0;
             int ct = size();
             for (int i = 0; i < ct; i++) {
@@ -302,7 +302,7 @@ public class EditableRichTextModel extends StyledTextModel {
          * @param text the plain text
          * @param attrs the style attributes
          */
-        public void insertText(int offset, String text, StyleAttrs attrs) {
+        void insertText(int offset, String text, StyleAttrs attrs) {
             int off = 0;
             int ct = size();
             for (int i = 0; i < ct; i++) {
@@ -371,7 +371,7 @@ public class EditableRichTextModel extends StyledTextModel {
          * @param offset the offset
          * @return the remaining portion of paragraph
          */
-        public RParagraph insertLineBreak(int offset) {
+        RParagraph insertLineBreak(int offset) {
             RParagraph next = new RParagraph();
             next.setParagraphAttributes(getParagraphAttributes());
 
@@ -426,11 +426,11 @@ public class EditableRichTextModel extends StyledTextModel {
          * Appends the specified paragraph by adding all of its segments.
          * @param p the paragraph to append
          */
-        public void append(RParagraph p) {
+        void append(RParagraph p) {
             addAll(p);
         }
 
-        public void removeRegion(int start, int end) {
+        void removeRegion(int start, int end) {
             int ix0 = -1;
             int off0 = 0;
             int off = 0;
@@ -501,7 +501,7 @@ public class EditableRichTextModel extends StyledTextModel {
             }
         }
 
-        public void applyStyle(int start, int end, StyleAttrs attrs, boolean merge, Function<StyleAttrs,StyleAttrs> dedup) {
+        private void applyStyle(int start, int end, StyleAttrs attrs, boolean merge, Function<StyleAttrs,StyleAttrs> dedup) {
             int off = 0;
             int i = 0;
             for ( ; i < size(); i++) {
@@ -591,12 +591,17 @@ public class EditableRichTextModel extends StyledTextModel {
         }
 
         /** 
-         * applies style to the segment.
-         * if the new style is exactly the same as the style of the previous segment,
+         * Applies style to the segment.
+         * If the new style is exactly the same as the style of the previous segment,
          * it simply merges the two segments.
+         * @param ix
+         * @param seg
+         * @param a
+         * @param merge
+         * @param dedup
          * @return true if this segment has been merged with the previous segment
          */
-        public boolean applyStyle(int ix, RSegment seg, StyleAttrs a, boolean merge, Function<StyleAttrs,StyleAttrs> dedup) {
+        boolean applyStyle(int ix, RSegment seg, StyleAttrs a, boolean merge, Function<StyleAttrs,StyleAttrs> dedup) {
             StyleAttrs newAttrs = dedup.apply(merge ? seg.attrs().combine(a) : a);
             if (ix > 0) {
                 RSegment prev = get(ix - 1);
@@ -682,7 +687,7 @@ public class EditableRichTextModel extends StyledTextModel {
             }
         }
 
-        public RichParagraph createRichParagraph() {
+        private RichParagraph createRichParagraph() {
             RichParagraph.Builder b = RichParagraph.builder();
             for (RSegment seg : this) {
                 String text = seg.text();

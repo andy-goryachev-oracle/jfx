@@ -81,6 +81,9 @@ public class StyleHandlerRegistry {
         private HashMap<StyleAttribute, StyleAttributeHandler> parStyleHandlerMap = new HashMap<>();
         private HashMap<StyleAttribute, StyleAttributeHandler> segStyleHandlerMap = new HashMap<>();
 
+        Builder() {
+        }
+
         /**
          * Sets the paragraph handler for the given attribute.
          *

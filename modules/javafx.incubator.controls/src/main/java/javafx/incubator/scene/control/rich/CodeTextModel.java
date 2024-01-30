@@ -40,6 +40,9 @@ public class CodeTextModel extends BasePlainTextModel {
     private SimpleObjectProperty<SyntaxDecorator> decorator;
     private static final Set<StyleAttribute<?>> SUPPORTED = initSupportedAttributes();
 
+    /**
+     * The constructor.
+     */
     public CodeTextModel() {
     }
 

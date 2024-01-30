@@ -48,6 +48,10 @@ public interface CellContext {
      * @return the node being styled.
      */
     public Node getNode();
-    
+
+    /**
+     * Returns the current attributes.
+     * @return the current attributes.
+     */
     public StyleAttrs getAttributes();
 }

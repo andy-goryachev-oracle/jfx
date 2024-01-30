@@ -47,10 +47,15 @@ import javafx.scene.layout.Region;
 public abstract class StyledSegment {
     /** StyledSegment type */
     public enum Type {
+        /** Identifies a segment which contains an inline node. */
         INLINE_NODE,
+        /** Identifies a line break segment. */
         LINE_BREAK,
+        /** Identifies a segment which contains the paragraph attributes. */
         PARAGRAPH_ATTRIBUTES,
+        /** Identifies a segment which contains a single paragraph containing a {@code Region}. */
         REGION,
+        /** Identifies a text segment */
         TEXT
     }
 

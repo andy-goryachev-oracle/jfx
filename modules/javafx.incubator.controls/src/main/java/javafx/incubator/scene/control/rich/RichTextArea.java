@@ -175,6 +175,7 @@ public class RichTextArea extends Control {
     private BooleanProperty highlightCurrentParagraph;
     private BooleanProperty useContentWidth;
     private BooleanProperty useContentHeight;
+    /** The style handler registry instance. */
     protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
     /**
@@ -1295,11 +1296,19 @@ public class RichTextArea extends Control {
     // TODO to be moved to Control JDK-8314968
     private final InputMap<RichTextArea> inputMap = new InputMap<>(this);
 
+    /**
+     * Returns the input map instance.
+     * @return the input map instance
+     */
     // TODO to be moved to Control JDK-8314968
     public InputMap<RichTextArea> getInputMap() {
         return inputMap;
     }
 
+    /**
+     * Executes the function tag, if any.
+     * @param tag the function tag.
+     */
     // TODO to be moved to Control JDK-8314968
     protected final void execute(FunctionTag tag) {
         Runnable f = getInputMap().getFunction(tag);

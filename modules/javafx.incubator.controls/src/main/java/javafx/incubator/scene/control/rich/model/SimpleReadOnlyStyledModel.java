@@ -50,6 +50,9 @@ import com.sun.javafx.incubator.scene.control.rich.TextCell;
 public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
     private final ArrayList<Paragraph> paragraphs = new ArrayList<>();
 
+    /**
+     * The constructor.
+     */
     public SimpleReadOnlyStyledModel() {
     }
 
@@ -57,6 +60,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * Creates the model from the supplied text string by breaking it down into individual text segments.
      * @param text the input multi-line text
      * @return the new instance
+     * @throws IOException if an I/O error occurs
      */
     public static SimpleReadOnlyStyledModel from(String text) throws IOException {
         SimpleReadOnlyStyledModel m = new SimpleReadOnlyStyledModel();
@@ -153,7 +157,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
         return this;
     }
 
-    protected Paragraph lastParagraph() {
+    private Paragraph lastParagraph() {
         int sz = paragraphs.size();
         if (sz == 0) {
             Paragraph p = new Paragraph();

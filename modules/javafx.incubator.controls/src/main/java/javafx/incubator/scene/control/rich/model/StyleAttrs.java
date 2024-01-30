@@ -107,6 +107,7 @@ public class StyleAttrs {
 
     /**
      * Convenience method creates an instance with a single attribute.
+     * @param <X> the attribute value type
      * @param attribute the attribute
      * @param value the attribute value
      * @return the new instance
@@ -157,6 +158,7 @@ public class StyleAttrs {
 
     /**
      * Returns the attribute value, or null if no such attribute is present.
+     * @param <X> the attribute value type
      * @param a attribute
      * @return attribute value or null
      */
@@ -500,6 +502,7 @@ public class StyleAttrs {
          * This method will throw an {@code IllegalArgumentException} if the value cannot be cast to the
          * type specified by the attribute.
          *
+         * @param <X> the attribute value type
          * @param a the attribute
          * @param value the attribute value
          * @return this Builder instance
