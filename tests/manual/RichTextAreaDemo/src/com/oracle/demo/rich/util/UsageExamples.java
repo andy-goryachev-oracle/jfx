@@ -27,9 +27,12 @@ package com.oracle.demo.rich.util;
 
 import javafx.incubator.scene.control.input.FunctionTag;
 import javafx.incubator.scene.control.input.KeyBinding;
+import javafx.incubator.scene.control.rich.ConfigurationParameters;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.input.KeyCode;
 
 /**
@@ -51,12 +54,34 @@ class UsageExamples {
     private static final FunctionTag PRINT_TO_CONSOLE = new FunctionTag();
 
     void customNavigation() {
-        RichTextArea richTextArea = new RichTextArea();
+        // sets a custom vertical scroll bar
+        ConfigurationParameters cp = ConfigurationParameters.
+            builder().
+            verticalScrollBar(ScrollBar::new).
+            build();
+        RichTextArea richTextArea = new RichTextArea(cp, null);
         
-        // new key binding mapped to a new external function
+        // creates a new key binding mapped to an external function
         richTextArea.getInputMap().registerKey(KeyBinding.shortcut(KeyCode.W), () -> {
             System.out.println("console!");
         });
+
+        // unbind old key bindings
+        var old = richTextArea.getInputMap().getKeyBindingsFor(RichTextArea.PASTE_PLAIN_TEXT);
+        for (KeyBinding k : old) {
+            richTextArea.getInputMap().unbind(k);
+        }
+        // map a new key binding
+        richTextArea.getInputMap().registerKey(KeyBinding.shortcut(KeyCode.W), RichTextArea.PASTE_PLAIN_TEXT);
+        
+        // redefine a function
+        richTextArea.getInputMap().registerFunction(RichTextArea.PASTE_PLAIN_TEXT, () -> { });
+        richTextArea.pastePlainText(); // becomes a no-op
+        // revert back to the default behavior
+        richTextArea.getInputMap().restoreDefaultFunction(RichTextArea.PASTE_PLAIN_TEXT);
+        
+        // sets a side decorator
+        richTextArea.setLeftDecorator(new LineNumberDecorator());
         
         richTextArea.getInputMap().registerFunction(PRINT_TO_CONSOLE, () -> {
             // new functionality

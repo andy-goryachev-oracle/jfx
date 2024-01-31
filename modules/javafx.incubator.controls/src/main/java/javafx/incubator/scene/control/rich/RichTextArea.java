@@ -195,9 +195,9 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Creates an instance with the specified configuration parameters and model.
+     * Creates an instance with the specified configuration parameters and the model.
      * @param c configuration parameters
-     * @param m styled text model
+     * @param m styled text model, or null to use the default model
      */
     public RichTextArea(ConfigurationParameters c, StyledTextModel m) {
         this.config = c;

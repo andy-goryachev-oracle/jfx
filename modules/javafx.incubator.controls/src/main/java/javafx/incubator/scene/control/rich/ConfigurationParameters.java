@@ -55,7 +55,7 @@ public final class ConfigurationParameters {
      * @return default parameters
      */
     public static ConfigurationParameters defaultConfig() {
-        return ConfigurationParameters.builder().create();
+        return ConfigurationParameters.builder().build();
     }
 
     /**
@@ -79,24 +79,28 @@ public final class ConfigurationParameters {
          * Creates an immutable instance of {@link ConfigurationParameters}
          * @return the new instance
          */
-        public ConfigurationParameters create() {
+        public ConfigurationParameters build() {
             return new ConfigurationParameters(this);
         }
 
         /**
          * Allows for creating custom vertical scroll bar.  A null (default) results in a standard ScrollBar.
          * @param gen the code to generate the ScrollBar, or null
+         * @return this Builder
          */
-        public void setVerticalScrollBarGenerator(Supplier<ScrollBar> gen) {
+        public Builder verticalScrollBar(Supplier<ScrollBar> gen) {
             verticalScrollBarGenerator = gen;
+            return this;
         }
 
         /**
          * Allows for creating custom horizontal scroll bar.  A null (default) results in a standard ScrollBar.
          * @param gen the code to generate the ScrollBar, or null
+         * @return this Builder
          */
-        public void setHorizontalScrollBarGenerator(Supplier<ScrollBar> gen) {
+        public Builder horizontalScrollBar(Supplier<ScrollBar> gen) {
             horizontalScrollBarGenerator = gen;
+            return this;
         }
     }
 }

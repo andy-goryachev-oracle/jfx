@@ -206,12 +206,14 @@ public abstract class RichParagraph {
          * @param start the start offset
          * @param length the end offset
          * @param color the background color
+         * @return this {@code Builder} instance
          */
-        public void addSquiggly(int start, int length, Color color) {
+        public Builder addSquiggly(int start, int length, Color color) {
             int end = start + length;
             highlights().add((cell) -> {
                 cell.addSquiggly(start, end, color);
             });
+            return this;
         }
 
         private List<Consumer<TextCell>> highlights() {
@@ -225,7 +227,7 @@ public abstract class RichParagraph {
          * Adds a text segment with no styling (i.e. using default style).
          *
          * @param text segment text
-         * @return this Builder instance
+         * @return this {@code Builder} instance
          */
         public Builder addSegment(String text) {
             StyledSegment seg = StyledSegment.of(text);
@@ -239,7 +241,7 @@ public abstract class RichParagraph {
          * @param text non-null text string
          * @param style direct style (such as {@code -fx-fill:red;}), or null
          * @param css array of style names, or null
-         * @return this Builder instance
+         * @return this {@code Builder} instance
          */
         public Builder addSegment(String text, String style, String[] css) {
             StyleAttrs a = StyleAttrs.fromCss(style, css);
@@ -251,10 +253,12 @@ public abstract class RichParagraph {
          * Adds a styled text segment.
          * @param text the non-null text string
          * @param attrs the styled attributes
+         * @return this {@code Builder} instance
          */
-        public void addSegment(String text, StyleAttrs attrs) {
+        public Builder addSegment(String text, StyleAttrs attrs) {
             StyledSegment seg = StyledSegment.of(text, attrs);
             segments().add(seg);
+            return this;
         }
 
         /**
@@ -263,10 +267,12 @@ public abstract class RichParagraph {
          * @param start the start offset of the input string
          * @param end the end offset of the input string
          * @param attrs the styled attributes
+         * @return this {@code Builder} instance
          */
-        public void addSegment(String text, int start, int end, StyleAttrs attrs) {
+        public Builder addSegment(String text, int start, int end, StyleAttrs attrs) {
             String s = text.substring(start, end);
             addSegment(s, attrs);
+            return this;
         }
 
         /**
@@ -275,12 +281,14 @@ public abstract class RichParagraph {
          * @param start the start offset
          * @param length the end offset
          * @param color the background color
+         * @return this {@code Builder} instance
          */
-        public void addHighlight(int start, int length, Color color) {
+        public Builder addHighlight(int start, int length, Color color) {
             int end = start + length;
             highlights().add((cell) -> {
                 cell.addHighlight(start, end, color);
             });
+            return this;
         }
 
         /**
@@ -292,10 +300,12 @@ public abstract class RichParagraph {
          * For example, a bidirectional binding between an inline control and some property in the model
          * would synchronize the model with all the views that use it. 
          * @param generator the generator that provides the actual {@code Node}
+         * @return this {@code Builder} instance
          */
-        public void addInlineNode(Supplier<Node> generator) {
+        public Builder addInlineNode(Supplier<Node> generator) {
             StyledSegment seg = StyledSegment.ofInlineNode(generator);
             segments().add(seg);
+            return this;
         }
 
         private List<StyledSegment> segments() {
@@ -308,9 +318,11 @@ public abstract class RichParagraph {
         /**
          * Sets the paragraph attributes.
          * @param a the paragraph attributes
+         * @return this {@code Builder} instance
          */
-        public void setParagraphAttributes(StyleAttrs a) {
+        public Builder setParagraphAttributes(StyleAttrs a) {
             paragraphAttributes = a;
+            return this;
         }
 
         /**

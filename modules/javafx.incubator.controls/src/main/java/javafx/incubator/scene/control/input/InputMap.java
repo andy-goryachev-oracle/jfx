@@ -549,7 +549,7 @@ public final class InputMap<C extends Control> {
      * @param tag the function tag
      * @return the set of KeyBindings
      */
-    public Set<KeyBinding> getKeyBindingFor(FunctionTag tag) {
+    public Set<KeyBinding> getKeyBindingsFor(FunctionTag tag) {
         /*
         return map.entrySet().stream().
             filter((me) -> (me.getKey() instanceof KeyBinding) && (me.getValue().getValue() == tag)).
