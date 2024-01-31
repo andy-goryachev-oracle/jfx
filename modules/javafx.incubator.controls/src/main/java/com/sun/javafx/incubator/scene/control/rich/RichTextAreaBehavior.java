@@ -121,8 +121,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         registerFunction(RichTextArea.PASTE_PLAIN_TEXT, this::pastePlainText);
         registerFunction(RichTextArea.REDO, this::redo);
         registerFunction(RichTextArea.SELECT_ALL, this::selectAll);
-        registerFunction(RichTextArea.SELECT_DOCUMENT_END, this::selectDocumentEnd);
-        registerFunction(RichTextArea.SELECT_DOCUMENT_START, this::selectDocumentStart);
+        registerFunction(RichTextArea.SELECT_TO_DOCUMENT_END, this::selectDocumentEnd);
+        registerFunction(RichTextArea.SELECT_TO_DOCUMENT_START, this::selectDocumentStart);
         registerFunction(RichTextArea.SELECT_DOWN, this::selectDown);
         registerFunction(RichTextArea.SELECT_LEFT, this::selectLeft);
         registerFunction(RichTextArea.SELECT_PAGE_DOWN, this::selectPageDown);
@@ -172,8 +172,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             registerKey(KeyBinding.with(KeyCode.Z).shift().command().build(), RichTextArea.REDO);
             registerKey(KeyBinding.with(KeyCode.LEFT).shift().option().build(), RichTextArea.SELECT_WORD_LEFT);
             registerKey(KeyBinding.with(KeyCode.RIGHT).shift().option().build(), RichTextArea.SELECT_WORD_RIGHT);
-            registerKey(KeyBinding.with(KeyCode.UP).shift().shortcut().build(), RichTextArea.SELECT_DOCUMENT_START);
-            registerKey(KeyBinding.with(KeyCode.DOWN).shift().shortcut().build(), RichTextArea.SELECT_DOCUMENT_END);
+            registerKey(KeyBinding.with(KeyCode.UP).shift().shortcut().build(), RichTextArea.SELECT_TO_DOCUMENT_START);
+            registerKey(KeyBinding.with(KeyCode.DOWN).shift().shortcut().build(), RichTextArea.SELECT_TO_DOCUMENT_END);
         } else {
             registerKey(KeyBinding.with(KeyCode.HOME).control().build(), RichTextArea.MOVE_DOCUMENT_START);
             registerKey(KeyBinding.with(KeyCode.END).control().build(), RichTextArea.MOVE_DOCUMENT_END);
@@ -182,8 +182,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             registerKey(KeyBinding.with(KeyCode.Y).control().build(), RichTextArea.REDO);
             registerKey(KeyBinding.with(KeyCode.LEFT).shift().control().build(), RichTextArea.SELECT_WORD_LEFT);
             registerKey(KeyBinding.with(KeyCode.RIGHT).shift().control().build(), RichTextArea.SELECT_WORD_RIGHT);
-            registerKey(KeyBinding.with(KeyCode.HOME).control().shift().build(), RichTextArea.SELECT_DOCUMENT_START);
-            registerKey(KeyBinding.with(KeyCode.END).control().shift().build(), RichTextArea.SELECT_DOCUMENT_END);
+            registerKey(KeyBinding.with(KeyCode.HOME).control().shift().build(), RichTextArea.SELECT_TO_DOCUMENT_START);
+            registerKey(KeyBinding.with(KeyCode.END).control().shift().build(), RichTextArea.SELECT_TO_DOCUMENT_END);
         }
 
         Pane cp = vflow.getContentPane();
@@ -490,7 +490,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
      * Moves the caret to before the first character of the text, also clearing the selection.
      */
     public void moveDocumentStart() {
-        control.setCaret(TextPos.ZERO);
+        control.select(TextPos.ZERO);
     }
 
     /**
@@ -498,7 +498,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
      */
     public void moveDocumentEnd() {
         TextPos pos = control.getEndTextPos();
-        control.setCaret(pos);
+        control.select(pos);
     }
 
     protected void moveLine(double deltaPixels, boolean extendSelection) {

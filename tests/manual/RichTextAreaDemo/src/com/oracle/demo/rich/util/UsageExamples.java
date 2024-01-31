@@ -92,7 +92,7 @@ class UsageExamples {
         richTextArea.getInputMap().registerFunction(RichTextArea.MOVE_WORD_NEXT, () -> {
             // refers to custom logic
             TextPos p = getCustomNextWordPosition(richTextArea);
-            richTextArea.setCaret(p);
+            richTextArea.select(p);
         });
     }
 

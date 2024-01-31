@@ -227,7 +227,7 @@ public class VFlow extends Pane implements StyleResolver {
         setOrigin(new Origin(0, -topPadding));
         setOffsetX(-leftPadding);
         requestControlLayout(true);
-        control.setCaret(TextPos.ZERO);
+        control.select(TextPos.ZERO);
     }
 
     protected double wrappedWidth() {

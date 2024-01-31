@@ -59,6 +59,7 @@ public class SingleSelectionModel implements SelectionModel {
 
     @Override
     public void setSelection(Marker an, Marker ca) {
+        // TODO clamp selection to document start/end?
         SelectionSegment seg = new SelectionSegment(an, ca);
         setSelectionSegment(seg);
     }

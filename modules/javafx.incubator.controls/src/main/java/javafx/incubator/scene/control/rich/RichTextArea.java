@@ -114,9 +114,9 @@ public class RichTextArea extends Control {
     public static final FunctionTag MOVE_WORD_PREVIOUS = new FunctionTag();
     /** Moves the caret one word right (next word if LTR, previous word if RTL) */
     public static final FunctionTag MOVE_WORD_RIGHT = new FunctionTag();
-    /** Moves the caret one page down */
+    /** Moves the caret one screen page down */
     public static final FunctionTag PAGE_DOWN = new FunctionTag();
-    /** Moves the caret one page up */
+    /** Moves the caret one screen page up */
     public static final FunctionTag PAGE_UP = new FunctionTag();
     /** Inserts rich text from the clipboard */
     public static final FunctionTag PASTE = new FunctionTag();
@@ -126,10 +126,10 @@ public class RichTextArea extends Control {
     public static final FunctionTag REDO = new FunctionTag();
     /** Selects all text in the document */
     public static final FunctionTag SELECT_ALL = new FunctionTag();
-    /** Selects text (or extends selection) from the current caret position to the end of document */
-    public static final FunctionTag SELECT_DOCUMENT_END = new FunctionTag();
-    /** Selects text (or extends selection) from the current caret position to the start of document */
-    public static final FunctionTag SELECT_DOCUMENT_START = new FunctionTag();
+    /** Selects text (or extends selection) from the current caret position to the end of the document */
+    public static final FunctionTag SELECT_TO_DOCUMENT_END = new FunctionTag();
+    /** Selects text (or extends selection) from the current caret position to the start of the document */
+    public static final FunctionTag SELECT_TO_DOCUMENT_START = new FunctionTag();
     /** Selects text (or extends selection) from the current caret position one visual text line down */
     public static final FunctionTag SELECT_DOWN = new FunctionTag();
     /** Selects text (or extends selection) from the current position to one symbol to the left */
@@ -526,10 +526,10 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Moves the caret (and the anchor) to the specified position, clearing any existing selection.
+     * Moves both the caret and the anchor to the specified position, clearing any existing selection.
      * @param pos the text position
      */
-    public void setCaret(TextPos pos) {
+    public void select(TextPos pos) {
         StyledTextModel model = getModel();
         if (model != null) {
             Marker m = model.getMarker(pos);
@@ -898,16 +898,16 @@ public class RichTextArea extends Control {
      * Selects from the anchor position to the document start.
      * <p>This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
-    public void selectDocumentStart() {
-        execute(SELECT_DOCUMENT_START);
+    public void selectToDocumentStart() {
+        execute(SELECT_TO_DOCUMENT_START);
     }
 
     /**
      * Selects from the anchor position to the document end.
      * <p>This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
-    public void selectDocumentEnd() {
-        execute(SELECT_DOCUMENT_END);
+    public void selectToDocumentEnd() {
+        execute(SELECT_TO_DOCUMENT_END);
     }
     
     /**
