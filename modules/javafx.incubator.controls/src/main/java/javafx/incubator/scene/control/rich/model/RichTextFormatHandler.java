@@ -163,7 +163,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
     public Object copy(StyledTextModel m, StyleResolver r, TextPos start, TextPos end) throws IOException {
         StringWriter wr = new StringWriter();
         StyledOutput so = createStyledOutput(r, wr);
-        m.exportText(start, end, so);
+        m.export(start, end, so);
         return wr.toString();
     }
 
@@ -172,7 +172,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
         Charset cs = Charset.forName("utf-8");
         Writer wr = new OutputStreamWriter(out, cs);
         StyledOutput so = createStyledOutput(r, wr);
-        m.exportText(start, end, so);
+        m.export(start, end, so);
     }
 
     private StyledOutput createStyledOutput(StyleResolver r, Writer wr) {

@@ -364,13 +364,14 @@ public abstract class StyledTextModel {
     }
 
     /**
-     * Sends the styled text in the given range to the specified output.
+     * Exports the stream of {@code StyledSegment}s in the given range to the specified
+     * {@code StyledOutput}.
      * @param start start of the range
      * @param end end of the range
      * @param out {@link StyledOutput} to receive the stream
      * @throws IOException when an I/O error occurs
      */
-    public void exportText(TextPos start, TextPos end, StyledOutput out) throws IOException {
+    public void export(TextPos start, TextPos end, StyledOutput out) throws IOException {
         int cmp = start.compareTo(end);
         if (cmp > 0) {
             // make sure start < end
@@ -512,6 +513,11 @@ public abstract class StyledTextModel {
 
     /**
      * Replaces the given range with the provided plain text.
+     * <p>
+     * This is a convenience method which eventually calls
+     * {@link #replace(StyleResolver, TextPos, TextPos, StyledInput, boolean)}
+     * with the attributes provided by {@link #getStyleAttrs(StyleResolver, TextPos)} at the
+     * {@code start} position.
      *
      * @param resolver the StyleResolver to use
      * @param start start text position
@@ -803,7 +809,7 @@ public abstract class StyledTextModel {
         try {
             sb.append("\n");
             TextPos end = getDocumentEnd();
-            exportText(TextPos.ZERO, end, new StyledOutput() {
+            export(TextPos.ZERO, end, new StyledOutput() {
                 @Override
                 public void append(StyledSegment seg) throws IOException {
                     sb.append(" ");

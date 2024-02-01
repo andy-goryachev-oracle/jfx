@@ -73,10 +73,10 @@ public class RtfFormatHandler extends DataFormatHandler {
 
         RtfStyledOutput out = new RtfStyledOutput(resolver, wr);
         // collect styles
-        model.exportText(start, end, out.firstPassBuilder());
+        model.export(start, end, out.firstPassBuilder());
 
         out.writePrologue();
-        model.exportText(start, end, out);
+        model.export(start, end, out);
         out.writeEpilogue();
         out.flush();
     }

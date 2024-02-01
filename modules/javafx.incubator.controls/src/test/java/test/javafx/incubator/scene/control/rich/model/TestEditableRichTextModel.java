@@ -101,7 +101,7 @@ public class TestEditableRichTextModel {
             // check initial text
             StringWriter wr = new StringWriter();
             StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(h, null, wr);
-            m.exportText(TextPos.ZERO, end, out);
+            m.export(TextPos.ZERO, end, out);
             String s = wr.toString();
             Assertions.assertEquals(initial, s, "problem setting initial text");
         }
@@ -113,7 +113,7 @@ public class TestEditableRichTextModel {
             StringWriter wr = new StringWriter();
             StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(h, null, wr);
             TextPos end = m.getDocumentEnd();
-            m.exportText(TextPos.ZERO, end, out);
+            m.export(TextPos.ZERO, end, out);
             String s = wr.toString();
             Assertions.assertEquals(expected, s, "operation failed");
         }

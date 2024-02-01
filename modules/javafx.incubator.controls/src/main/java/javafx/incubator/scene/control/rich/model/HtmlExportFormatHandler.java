@@ -72,10 +72,10 @@ public class HtmlExportFormatHandler extends DataFormatHandler {
         throws IOException {
         HtmlStyledOutput out = new HtmlStyledOutput(resolver, wr, INLINE_STYLES);
         // collect styles
-        model.exportText(start, end, out.firstPassBuilder());
+        model.export(start, end, out.firstPassBuilder());
 
         out.writePrologue();
-        model.exportText(start, end, out);
+        model.export(start, end, out);
         out.writeEpilogue();
         out.flush();
     }

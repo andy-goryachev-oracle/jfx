@@ -66,7 +66,7 @@ public class UndoableChange {
     public static UndoableChange create(StyledTextModel model, TextPos start, TextPos end) {
         try {
             SegmentStyledOutput out = new SegmentStyledOutput(128);
-            model.exportText(start, end, out);
+            model.export(start, end, out);
             StyledSegment[] ss = out.getSegments();
             return new UndoableChange(model, start, end, ss);
         } catch (IOException e) {
@@ -96,7 +96,7 @@ public class UndoableChange {
         if (redo == null) {
             // create redo
             SegmentStyledOutput out = new SegmentStyledOutput(128);
-            model.exportText(start, endAfter, out);
+            model.export(start, endAfter, out);
             redo = out.getSegments();
         }
 
