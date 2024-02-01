@@ -29,17 +29,19 @@ import java.util.function.Supplier;
 import javafx.scene.control.ScrollBar;
 
 /**
- * Configuration parameters for RichTextArea.
- *
- * These (immutable) parameters are passed to to the constructor,
- * affording modification of the default skin or behavior
- * without subsclassing of internal classes.
+ * These immutable parameters are passed to to the RichTextArea constructor.
  */
 public final class ConfigurationParameters {
-    /** creates a horizontal scroll bar.  when set to null (default) a standard ScrollBar will be created */
+    /**
+     * This {@code Supplier} allows the skin to create a custom horizontal scroll bar.
+     * When set to {@code null}, a regular {@code ScrollBar} will be created.
+     */
     public final Supplier<ScrollBar> scrollBarGeneratorHorizontal;
     
-    /** creates a vertical scroll bar.  when set to null (default) a standard ScrollBar will be created */
+    /**
+     * This {@code Supplier} allows the skin to create a custom vertical scroll bar.
+     * When set to {@code null}, a regular {@code ScrollBar} will be created.
+     */
     public final Supplier<ScrollBar> scrollBarGeneratorVertical;
 
     /**
@@ -67,7 +69,9 @@ public final class ConfigurationParameters {
         scrollBarGeneratorHorizontal = b.horizontalScrollBarGenerator;
     }
 
-    /** A builder class allows for making {@code ConfigurationParameters} immutable */
+    /**
+     * This builder creates an instance of immutable {@code ConfigurationParameters}.
+     */
     public static final class Builder {
         private Supplier<ScrollBar> verticalScrollBarGenerator;
         private Supplier<ScrollBar> horizontalScrollBarGenerator;
@@ -84,8 +88,8 @@ public final class ConfigurationParameters {
         }
 
         /**
-         * Allows for creating custom vertical scroll bar.  A null (default) results in a standard ScrollBar.
-         * @param gen the code to generate the ScrollBar, or null
+         * Sets the {@code Supplier} for a custom vertical scroll bar for use by the skin.
+         * @param gen the scroll bar generator
          * @return this Builder
          */
         public Builder verticalScrollBar(Supplier<ScrollBar> gen) {
@@ -94,8 +98,8 @@ public final class ConfigurationParameters {
         }
 
         /**
-         * Allows for creating custom horizontal scroll bar.  A null (default) results in a standard ScrollBar.
-         * @param gen the code to generate the ScrollBar, or null
+         * Sets the {@code Supplier} for a custom horizontal scroll bar for use by the skin.
+         * @param gen the scroll bar generator
          * @return this Builder
          */
         public Builder horizontalScrollBar(Supplier<ScrollBar> gen) {

@@ -30,6 +30,7 @@ import javafx.incubator.scene.control.input.KeyBinding;
 import javafx.incubator.scene.control.rich.ConfigurationParameters;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.TextPos;
+import javafx.incubator.scene.control.rich.RichTextArea.Tags;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.control.ScrollBar;
@@ -67,18 +68,18 @@ class UsageExamples {
         });
 
         // unbind old key bindings
-        var old = richTextArea.getInputMap().getKeyBindingsFor(RichTextArea.PASTE_PLAIN_TEXT);
+        var old = richTextArea.getInputMap().getKeyBindingsFor(RichTextArea.Tags.PASTE_PLAIN_TEXT);
         for (KeyBinding k : old) {
             richTextArea.getInputMap().unbind(k);
         }
         // map a new key binding
-        richTextArea.getInputMap().registerKey(KeyBinding.shortcut(KeyCode.W), RichTextArea.PASTE_PLAIN_TEXT);
+        richTextArea.getInputMap().registerKey(KeyBinding.shortcut(KeyCode.W), RichTextArea.Tags.PASTE_PLAIN_TEXT);
         
         // redefine a function
-        richTextArea.getInputMap().registerFunction(RichTextArea.PASTE_PLAIN_TEXT, () -> { });
+        richTextArea.getInputMap().registerFunction(RichTextArea.Tags.PASTE_PLAIN_TEXT, () -> { });
         richTextArea.pastePlainText(); // becomes a no-op
         // revert back to the default behavior
-        richTextArea.getInputMap().restoreDefaultFunction(RichTextArea.PASTE_PLAIN_TEXT);
+        richTextArea.getInputMap().restoreDefaultFunction(RichTextArea.Tags.PASTE_PLAIN_TEXT);
         
         // sets a side decorator
         richTextArea.setLeftDecorator(new LineNumberDecorator());
@@ -89,7 +90,7 @@ class UsageExamples {
         });
 
         // change the functionality of an existing key binding
-        richTextArea.getInputMap().registerFunction(RichTextArea.MOVE_WORD_NEXT, () -> {
+        richTextArea.getInputMap().registerFunction(RichTextArea.Tags.MOVE_WORD_NEXT, () -> {
             // refers to custom logic
             TextPos p = getCustomNextWordPosition(richTextArea);
             richTextArea.select(p);
