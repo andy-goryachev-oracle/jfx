@@ -49,7 +49,7 @@ public abstract class DataFormatHandler {
      * The caller must guarantee that the {@code start} precedes the {@code end} position.
      * <p>
      * Typically, the implementation creates an instance of {@link StyledOutput} and calls
-     * {@link StyledTextModel#exportText(TextPos, TextPos, StyledOutput)} method.
+     * {@link StyledTextModel#export(TextPos, TextPos, StyledOutput)} method.
      *
      * @param model source model
      * @param resolver view-specific style resolver
@@ -68,7 +68,7 @@ public abstract class DataFormatHandler {
      * It is the responsibility of the caller to close the {@code OutputStream}.
      * <p>
      * Typically, the implementation creates an instance of {@link StyledOutput} and calls
-     * {@link StyledTextModel#exportText(TextPos, TextPos, StyledOutput)} method.
+     * {@link StyledTextModel#export(TextPos, TextPos, StyledOutput)} method.
      *
      * @param model source model
      * @param resolver view-specific style resolver

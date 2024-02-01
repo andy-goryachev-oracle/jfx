@@ -173,7 +173,7 @@ public class DemoModel extends SimpleViewOnlyStyledModel {
         addSegment("\t\t終 The End.", "-fx-font-size:200%;", null);
         nl();
 
-        registerDataFormatHandler(new RichTextFormatHandler(), true, 2000);
+        registerDataFormatHandler(new RichTextFormatHandler(), true, false, 2000);
     }
 
     private Region createRect() {

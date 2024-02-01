@@ -47,7 +47,7 @@ public class BasePlainTextModel extends StyledTextModel {
      * Constructs an empty model.
      */
     public BasePlainTextModel() {
-        registerDataFormatHandler(new PlainTextFormatHandler(), 0);
+        registerDataFormatHandler(new PlainTextFormatHandler(), true, true, 0);
     }
 
     @Override

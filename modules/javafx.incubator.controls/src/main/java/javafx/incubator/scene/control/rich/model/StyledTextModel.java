@@ -218,9 +218,9 @@ public abstract class StyledTextModel {
 
     /** The constructor. */
     public StyledTextModel() {
-        registerDataFormatHandler(new RtfFormatHandler(), true, 1000);
-        registerDataFormatHandler(new HtmlExportFormatHandler(), true, 100);
-        registerDataFormatHandler(new PlainTextFormatHandler(), true, 0);
+        registerDataFormatHandler(new RtfFormatHandler(), true, false, 1000);
+        registerDataFormatHandler(new HtmlExportFormatHandler(), true, false, 100);
+        registerDataFormatHandler(new PlainTextFormatHandler(), true, false, 0);
     }
 
     /**
@@ -241,22 +241,6 @@ public abstract class StyledTextModel {
     }
 
     /**
-     * Registers a format handler for export and import operations.
-     * Priority determines the format chosen for operations with the {@link javafx.scene.input.Clipboard}
-     * when input data is available in more than one supported format.
-     * <p>
-     * This method is expected to be called by a StyledTextModel implementation constructor.
-     *
-     * @param h data format handler
-     * @param priority from 0 (lowest, usually plain text) to {@code Integer.MAX_VALUE}, for a native model format.
-     */
-    protected void registerDataFormatHandler(DataFormatHandler h, int priority) {
-        FHPriority p = new FHPriority(h, priority);
-        handlers.put(new FHKey(h.getDataFormat(), true), p);
-        handlers.put(new FHKey(h.getDataFormat(), false), p);
-    }
-    
-    /**
      * Registers a format handler for either export or import operations.
      * Priority determines the format chosen for operations with the {@link javafx.scene.input.Clipboard}
      * when input data is available in more than one supported format.
@@ -264,12 +248,18 @@ public abstract class StyledTextModel {
      * This method is expected to be called by a StyledTextModel implementation constructor.
      *
      * @param h data format handler
-     * @param forExport determines the class of operations this handler supports
+     * @param forExport true if the handler supports export operations
+     * @param forImport true if the handler supports import operations
      * @param priority from 0 (lowest, usually plain text) to {@code Integer.MAX_VALUE}
      */
-    protected void registerDataFormatHandler(DataFormatHandler h, boolean forExport, int priority) {
+    protected void registerDataFormatHandler(DataFormatHandler h, boolean forExport, boolean forImport, int priority) {
         FHPriority p = new FHPriority(h, priority);
-        handlers.put(new FHKey(h.getDataFormat(), forExport), p);
+        if (forExport) {
+            handlers.put(new FHKey(h.getDataFormat(), true), p);
+        }
+        if (forImport) {
+            handlers.put(new FHKey(h.getDataFormat(), false), p);
+        }
     }
 
     /**

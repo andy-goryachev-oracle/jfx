@@ -49,7 +49,7 @@ public class ParagraphAttributesDemoModel extends SimpleViewOnlyStyledModel {
         build();
 
     public ParagraphAttributesDemoModel() {
-        registerDataFormatHandler(new RtfFormatHandler(), true, 1000);
+        registerDataFormatHandler(new RtfFormatHandler(), true, false, 1000);
         insert(this);
     }
 

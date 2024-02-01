@@ -48,10 +48,10 @@ public class EditableRichTextModel extends StyledTextModel {
      * Creates an empty model.
      */
     public EditableRichTextModel() {
-        registerDataFormatHandler(new RichTextFormatHandler(), 2000);
-        registerDataFormatHandler(new RtfFormatHandler(), 1000);
-        registerDataFormatHandler(new HtmlExportFormatHandler(), true, 100);
-        registerDataFormatHandler(new PlainTextFormatHandler(), 0);
+        registerDataFormatHandler(new RichTextFormatHandler(), true, true, 2000);
+        registerDataFormatHandler(new RtfFormatHandler(), true, true, 1000);
+        registerDataFormatHandler(new HtmlExportFormatHandler(), true, false, 100);
+        registerDataFormatHandler(new PlainTextFormatHandler(), true, true, 0);
         // always has at least one paragraph
         paragraphs.add(new RParagraph());
     }
