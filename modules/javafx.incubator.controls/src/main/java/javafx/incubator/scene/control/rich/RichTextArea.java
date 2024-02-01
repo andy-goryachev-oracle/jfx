@@ -1103,7 +1103,7 @@ public class RichTextArea extends Control {
 
     /**
      * Returns true if this control's {@link #isEditable()} returns true and the model's
-     * {@link StyledTextModel#isMutable()} also returns true.
+     * {@link StyledTextModel#isUserEditable()} also returns true.
      * @return true if model is not null and is editable
      */
     protected boolean canEdit() {
