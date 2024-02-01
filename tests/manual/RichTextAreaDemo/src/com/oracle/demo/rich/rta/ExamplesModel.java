@@ -25,15 +25,20 @@
 
 package com.oracle.demo.rich.rta;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModelViewOnlyBase;
+import javafx.scene.control.CheckBox;
 import javafx.scene.paint.Color;
 
 /** This model contains code examples used in the documentation. */
 public class ExamplesModel extends StyledTextModelViewOnlyBase {
+    /** properties in the model allow for inline controls */
+    private final SimpleBooleanProperty exampleProperty = new SimpleBooleanProperty();
+
     public ExamplesModel() {
     }
 
@@ -59,10 +64,16 @@ public class ExamplesModel extends StyledTextModelViewOnlyBase {
             StyleAttrs a1 = StyleAttrs.builder().setBold(true).build();
             RichParagraph.Builder b = RichParagraph.builder();
             b.addSegment("Example: ", a1);
-            b.addSegment("spelling, highlights.");
+            b.addSegment("spelling, highlights, ");
             b.addSquiggly(9, 8, Color.RED);
             b.addHighlight(19, 4, Color.rgb(255, 128, 128, 0.5));
             b.addHighlight(20, 7, Color.rgb(128, 255, 128, 0.5));
+            // creates an embedded control bound to a property within the model
+            b.addInlineNode(() -> {
+               CheckBox cb = new CheckBox("inline node.");
+               cb.selectedProperty().bindBidirectional(exampleProperty);
+               return cb;
+            });
             return b.build();
         }
         return null;
