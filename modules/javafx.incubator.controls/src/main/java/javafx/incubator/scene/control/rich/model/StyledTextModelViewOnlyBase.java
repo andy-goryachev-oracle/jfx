@@ -30,16 +30,18 @@ import javafx.incubator.scene.control.rich.TextPos;
 import javafx.scene.layout.Region;
 
 /**
- * A base class for read-only {@link StyledTextModel}s.
+ * A base class for view-only {@link StyledTextModel}s.
+ * <p>
+ * Models extending this class will not be editable by the user.
  */
-public abstract class StyledTextModelReadOnlyBase extends StyledTextModel {
+public abstract class StyledTextModelViewOnlyBase extends StyledTextModel {
     /** The constructor. */
-    public StyledTextModelReadOnlyBase() {
+    public StyledTextModelViewOnlyBase() {
         registerDataFormatHandler(new RichTextFormatHandler(), true, 2000);
     }
 
     @Override
-    public final boolean isMutable() {
+    public final boolean isUserEditable() {
         return false;
     }
 

@@ -1110,7 +1110,7 @@ public class RichTextArea extends Control {
         if (isEditable()) {
             StyledTextModel m = getModel();
             if (m != null) {
-                return m.isMutable();
+                return m.isUserEditable();
             }
         }
         return false;

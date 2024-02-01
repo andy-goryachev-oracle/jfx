@@ -45,15 +45,15 @@ import javafx.scene.paint.Color;
 import com.sun.javafx.incubator.scene.control.rich.TextCell;
 
 /**
- * A simple, read-only, in-memory, styled text model.
+ * A simple, view-only, in-memory, styled text model.
  */
-public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
+public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
     private final ArrayList<Paragraph> paragraphs = new ArrayList<>();
 
     /**
      * The constructor.
      */
-    public SimpleReadOnlyStyledModel() {
+    public SimpleViewOnlyStyledModel() {
     }
 
     /**
@@ -62,8 +62,8 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @return the new instance
      * @throws IOException if an I/O error occurs
      */
-    public static SimpleReadOnlyStyledModel from(String text) throws IOException {
-        SimpleReadOnlyStyledModel m = new SimpleReadOnlyStyledModel();
+    public static SimpleViewOnlyStyledModel from(String text) throws IOException {
+        SimpleViewOnlyStyledModel m = new SimpleViewOnlyStyledModel();
         BufferedReader rd = new BufferedReader(new StringReader(text));
         String s;
         while ((s = rd.readLine()) != null) {
@@ -95,7 +95,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param text the text to append, must not contain \n
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel addSegment(String text) {
+    public SimpleViewOnlyStyledModel addSegment(String text) {
         return addSegment(text, StyleAttrs.EMPTY);
     }
 
@@ -108,7 +108,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param css external style names
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel addSegment(String text, String style, String... css) {
+    public SimpleViewOnlyStyledModel addSegment(String text, String style, String... css) {
         Paragraph p = lastParagraph();
         p.addSegment(text, style, css);
         return this;
@@ -121,7 +121,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param a the style attributes
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel addSegment(String text, StyleAttrs a) {
+    public SimpleViewOnlyStyledModel addSegment(String text, StyleAttrs a) {
         // TODO split into paragraphs if \n is found, or check for \n ?
         Objects.requireNonNull(a);
         Paragraph p = lastParagraph();
@@ -137,7 +137,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param c the highlight color
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel highlight(int start, int length, Color c) {
+    public SimpleViewOnlyStyledModel highlight(int start, int length, Color c) {
         Paragraph p = lastParagraph();
         p.addHighlight(start, length, c);
         return this;
@@ -151,7 +151,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param c the highlight color
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel squiggly(int start, int length, Color c) {
+    public SimpleViewOnlyStyledModel squiggly(int start, int length, Color c) {
         Paragraph p = lastParagraph();
         p.addSquiggly(start, length, c);
         return this;
@@ -175,7 +175,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param in the input stream providing the image.
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel addImage(InputStream in) {
+    public SimpleViewOnlyStyledModel addImage(InputStream in) {
         Image im = new Image(in);
         Paragraph p = Paragraph.of(() -> {
             return new ImageCellPane(im);
@@ -192,7 +192,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param generator the supplier of the paragraph content
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel addParagraph(Supplier<Region> generator) {
+    public SimpleViewOnlyStyledModel addParagraph(Supplier<Region> generator) {
         Paragraph p = Paragraph.of(() -> {
             return generator.get();
         });
@@ -205,7 +205,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param generator the supplier of the embedded Node
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel addNodeSegment(Supplier<Node> generator) {
+    public SimpleViewOnlyStyledModel addNodeSegment(Supplier<Node> generator) {
         Paragraph p = lastParagraph();
         p.addInlineNode(generator);
         return this;
@@ -216,7 +216,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * This convenience method invokes {@link #nl(int)} with a value of 1.
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel nl() {
+    public SimpleViewOnlyStyledModel nl() {
         return nl(1);
     }
 
@@ -225,7 +225,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param count the number of paragraphs to append
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel nl(int count) {
+    public SimpleViewOnlyStyledModel nl(int count) {
         for (int i = 0; i < count; i++) {
             int ix = paragraphs.size();
             paragraphs.add(new Paragraph());
@@ -255,7 +255,7 @@ public class SimpleReadOnlyStyledModel extends StyledTextModelReadOnlyBase {
      * @param a the paragraph attributes
      * @return this model instance
      */
-    public SimpleReadOnlyStyledModel setParagraphAttributes(StyleAttrs a) {
+    public SimpleViewOnlyStyledModel setParagraphAttributes(StyleAttrs a) {
         Paragraph p = lastParagraph();
         p.setParagraphAttributes(a);
         return this;

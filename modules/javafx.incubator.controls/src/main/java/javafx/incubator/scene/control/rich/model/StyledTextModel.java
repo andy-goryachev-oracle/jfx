@@ -86,14 +86,11 @@ public abstract class StyledTextModel {
     }
     
     /**
-     * Indicates whether the model is mutable.
-     * <p>
-     * An immutable may offer methods which allow for initial piecemeal construction,
-     * but it cannot be edited once set to {@code RichTextArea}.
+     * Indicates whether the model supports editing by the user.
      *
-     * @return true if the model is mutable
+     * @return true if the model supports editing by the user
      */
-    public abstract boolean isMutable();
+    public abstract boolean isUserEditable();
 
     /**
      * Returns the number of paragraphs in the model.
@@ -524,7 +521,7 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean allowUndo) {
-        if (isMutable()) {
+        if (isUserEditable()) {
             StyleAttrs a = getStyleAttrs(resolver, start);
             StyledInput in = StyledInput.of(text, a);
             return replace(resolver, start, end, in, allowUndo);
@@ -549,7 +546,7 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean allowUndo) {
-        if (isMutable()) {
+        if (isUserEditable()) {
             // TODO clamp to document boundaries
             int cmp = start.compareTo(end);
             if (cmp > 0) {
@@ -637,7 +634,7 @@ public abstract class StyledTextModel {
      * @param mergeAttributes whether to merge or replace the attributes
      */
     public final void applyStyle(TextPos start, TextPos end, StyleAttrs attrs, boolean mergeAttributes) {
-        if (isMutable()) {
+        if (isUserEditable()) {
             if (start.compareTo(end) > 0) {
                 TextPos p = start;
                 start = end;

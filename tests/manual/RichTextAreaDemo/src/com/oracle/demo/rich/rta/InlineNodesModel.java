@@ -24,14 +24,14 @@
  */
 package com.oracle.demo.rich.rta;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
+import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 /**
  * A demo model with inline Nodes.
  */
-public class InlineNodesModel extends SimpleReadOnlyStyledModel {
+public class InlineNodesModel extends SimpleViewOnlyStyledModel {
     private final SimpleStringProperty textField = new SimpleStringProperty();
     
     public InlineNodesModel() {

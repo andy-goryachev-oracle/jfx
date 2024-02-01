@@ -26,14 +26,14 @@ package com.oracle.demo.rich.rta;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
+import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 /**
  * Mocks a Notebook Page that Provides a SQL Query Engine Interface
  */
-public class NotebookModel2 extends SimpleReadOnlyStyledModel {
+public class NotebookModel2 extends SimpleViewOnlyStyledModel {
     private final SimpleStringProperty query = new SimpleStringProperty();
     private final SimpleObjectProperty<Object> result = new SimpleObjectProperty<>();
     private static final String QUERY = "SELECT * FROM Book WHERE price > 100.00;";

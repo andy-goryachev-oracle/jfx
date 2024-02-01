@@ -29,7 +29,7 @@ import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
-import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
+import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
@@ -172,7 +172,7 @@ public enum ModelChoice {
 
     private static StyledTextModel writingSystemsPlain() {
         try {
-            return SimpleReadOnlyStyledModel.from(WritingSystemsDemo.getText());
+            return SimpleViewOnlyStyledModel.from(WritingSystemsDemo.getText());
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -181,7 +181,7 @@ public enum ModelChoice {
 
     private static StyledTextModel tabs() {
         try {
-            return SimpleReadOnlyStyledModel.from("0123456789012345678901234567890\n0\n\t1\n\t\t2\n\t\t\t3\n\t\t\t\t4\n0\n");
+            return SimpleViewOnlyStyledModel.from("0123456789012345678901234567890\n0\n\t1\n\t\t2\n\t\t\t3\n\t\t\t\t4\n0\n");
         } catch (IOException e) {
             e.printStackTrace();
             return null;

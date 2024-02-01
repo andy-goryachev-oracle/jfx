@@ -26,7 +26,7 @@
 package com.oracle.demo.rich.rta;
 
 import javafx.incubator.scene.control.rich.model.RtfFormatHandler;
-import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
+import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
@@ -35,7 +35,7 @@ import com.oracle.demo.rich.util.FX;
 /**
  * This simple, read-only StyledModel demonstrates various paragraph attributes.
  */
-public class ParagraphAttributesDemoModel extends SimpleReadOnlyStyledModel {
+public class ParagraphAttributesDemoModel extends SimpleViewOnlyStyledModel {
     private final static StyleAttrs TITLE = StyleAttrs.builder().
         setFontSize(24).
         setUnderline(true).
@@ -53,7 +53,7 @@ public class ParagraphAttributesDemoModel extends SimpleReadOnlyStyledModel {
         insert(this);
     }
 
-    public static void insert(SimpleReadOnlyStyledModel m) {
+    public static void insert(SimpleViewOnlyStyledModel m) {
         m.addSegment("Bullet List", TITLE);
         m.nl(2);
         m.setParagraphAttributes(BULLET);

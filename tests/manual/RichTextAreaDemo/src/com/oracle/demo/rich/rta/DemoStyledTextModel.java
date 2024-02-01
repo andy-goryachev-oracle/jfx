@@ -29,7 +29,7 @@ import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.model.StyledTextModelReadOnlyBase;
+import javafx.incubator.scene.control.rich.model.StyledTextModelViewOnlyBase;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -38,7 +38,7 @@ import javafx.scene.text.TextFlow;
  * Demo StyledTextModel.
  * Does not support editing events - populate the model first, then pass it to the control.
  */
-public class DemoStyledTextModel extends StyledTextModelReadOnlyBase {
+public class DemoStyledTextModel extends StyledTextModelViewOnlyBase {
     private final int size;
     private final boolean monospaced;
     private static final DecimalFormat format = new DecimalFormat("#,##0");

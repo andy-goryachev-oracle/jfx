@@ -29,11 +29,11 @@ import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.model.StyledTextModelReadOnlyBase;
+import javafx.incubator.scene.control.rich.model.StyledTextModelViewOnlyBase;
 import javafx.scene.paint.Color;
 
 /** This model contains code examples used in the documentation. */
-public class ExamplesModel extends StyledTextModelReadOnlyBase {
+public class ExamplesModel extends StyledTextModelViewOnlyBase {
     public ExamplesModel() {
     }
 

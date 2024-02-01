@@ -25,9 +25,9 @@
 package com.oracle.demo.rich.rta;
 
 import java.util.Random;
-import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
+import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
 
-public class LargeTextModel extends SimpleReadOnlyStyledModel {
+public class LargeTextModel extends SimpleViewOnlyStyledModel {
     private final String STYLE = "-fx-font-size:500%";
     private final Random random = new Random();
 

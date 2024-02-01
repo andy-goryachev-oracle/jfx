@@ -24,9 +24,9 @@
  */
 package com.oracle.demo.rich.rta;
 
-import javafx.incubator.scene.control.rich.model.SimpleReadOnlyStyledModel;
+import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
 
-public class NoLastNewlineModel extends SimpleReadOnlyStyledModel {
+public class NoLastNewlineModel extends SimpleViewOnlyStyledModel {
     public NoLastNewlineModel(int lineCount) {
         for(int i=0; i<lineCount; i++) {
             addSegment("L." + i);

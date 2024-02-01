@@ -57,7 +57,7 @@ public class EditableRichTextModel extends StyledTextModel {
     }
 
     @Override
-    public final boolean isMutable() {
+    public final boolean isUserEditable() {
         return true;
     }
 
