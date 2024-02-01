@@ -171,7 +171,7 @@ public final class InputMap<C extends Control> {
      *
      * @param behavior
      */
-    void unregister(BehaviorBase behavior) {
+    void removeAllMappings(BehaviorBase behavior) {
         Objects.nonNull(behavior);
 
         for (Entry en: map.values()) {

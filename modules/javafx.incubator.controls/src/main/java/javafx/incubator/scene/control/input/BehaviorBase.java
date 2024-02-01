@@ -82,7 +82,7 @@ public abstract class BehaviorBase<C extends Control> {
     public abstract void install();
 
     /**
-     * Disposes of this behavior by unregistering all key mappings and event handlers registered by
+     * Disposes of this behavior by removing all key mappings and event handlers registered by
      * this behavior.  This method gets invoked by {@code Skin.dispose()}, the application should not need
      * to call it directly.
      * <p>
@@ -90,7 +90,7 @@ public abstract class BehaviorBase<C extends Control> {
      * implementation.
      */
     public void dispose() {
-        getInputMap().unregister(this);
+        getInputMap().removeAllMappings(this);
     }
 
     /**
