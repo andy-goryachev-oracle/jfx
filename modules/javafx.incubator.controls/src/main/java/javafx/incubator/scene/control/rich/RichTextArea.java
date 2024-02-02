@@ -442,8 +442,10 @@ public class RichTextArea extends Control {
 
     /**
      * Determines the caret blink period.
+     * <p>
+     * The default value will be used if this property is set to null.
      * @return the caret blunk period property
-     * @defaultValue 500 ms
+     * @defaultValue 1000 ms
      */
     public final ReadOnlyObjectProperty<Duration> caretBlinkPeriodProperty() {
         return caretBlinkPeriod;
