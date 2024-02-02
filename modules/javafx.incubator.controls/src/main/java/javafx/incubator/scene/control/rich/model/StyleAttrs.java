@@ -45,58 +45,58 @@ import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
  */
 public class StyleAttrs {
 
-    /** Paragraph background attribute */
+    /** Paragraph background color attribute */
     public static final StyleAttribute<Color> BACKGROUND = new StyleAttribute<>("BACKGROUND", Color.class, true);
 
     /** Bullet point paragraph attribute */
     public static final StyleAttribute<String> BULLET = new StyleAttribute<>("BULLET", String.class, true);
 
-    /** Bold typeface attribute */
+    /** Bold typeface text attribute */
     public static final StyleAttribute<Boolean> BOLD = new StyleAttribute<>("BOLD", Boolean.class, false);
 
     /** First line indent paragraph attribute, in pixels. */
     public static final StyleAttribute<Double> FIRST_LINE_INDENT = new StyleAttribute<>("FIRST_LINE_INDENT", Double.class, true);
 
-    /** Font family attribute */
+    /** Font family text attribute */
     public static final StyleAttribute<String> FONT_FAMILY = new StyleAttribute<>("FONT_FAMILY", String.class, false);
 
-    /** Font size attribute, in pixels. */
+    /** Font size text attribute, in pixels. */
     public static final StyleAttribute<Double> FONT_SIZE = new StyleAttribute<>("FONT_SIZE", Double.class, false);
 
-    /** Italic type face attribute */
+    /** Italic type face text attribute */
     public static final StyleAttribute<Boolean> ITALIC = new StyleAttribute<>("ITALIC", Boolean.class, false);
 
     /** Line spacing paragraph attribute */
     public static final StyleAttribute<Double> LINE_SPACING = new StyleAttribute<>("LINE_SPACING", Double.class, true);
 
-    /** Paragraph right-to-left orientation attribute */
+    /** Right-to-left orientation paragraph attribute */
     public static final StyleAttribute<Boolean> RIGHT_TO_LEFT = new StyleAttribute<>("RIGHT_TO_LEFT", Boolean.class, true);
 
-    /** Space above the paragraph (top padding) attribute */
+    /** Space above (top padding) paragraph attribute */
     public static final StyleAttribute<Double> SPACE_ABOVE = new StyleAttribute<>("SPACE_ABOVE", Double.class, true);
 
-    /** Space below the paragraph (bottom padding) attribute */
+    /** Space below (bottom padding) paragraph attribute */
     public static final StyleAttribute<Double> SPACE_BELOW = new StyleAttribute<>("SPACE_BELOW", Double.class, true);
 
-    /** Space to the left of the paragraph (left padding) attribute */
+    /** Space to the left (left padding) paragraph attribute */
     public static final StyleAttribute<Double> SPACE_LEFT = new StyleAttribute<>("SPACE_LEFT", Double.class, true);
 
-    /** Space to the right of the paragraph (right padding) attribute */
+    /** Space to the right (right padding) paragraph attribute */
     public static final StyleAttribute<Double> SPACE_RIGHT = new StyleAttribute<>("SPACE_RIGHT", Double.class, true);
 
-    /** Strike-through style attribute */
+    /** Strike-through text attribute */
     public static final StyleAttribute<Boolean> STRIKE_THROUGH = new StyleAttribute<>("STRIKE_THROUGH", Boolean.class, false);
 
-    /** Paragraph text alignment attribute */
+    /** Text alignment paragraph attribute */
     public static final StyleAttribute<TextAlignment> TEXT_ALIGNMENT = new StyleAttribute<>("TEXT_ALIGNMENT", TextAlignment.class, true);
 
     /** Text color attrbute */
     public static final StyleAttribute<Color> TEXT_COLOR = new StyleAttribute<>("TEXT_COLOR", Color.class, false);
 
-    /** Underline style attribute */
+    /** Underline text attribute */
     public static final StyleAttribute<Boolean> UNDERLINE = new StyleAttribute<>("UNDERLINE", Boolean.class, false);
 
-    /** an instance with no attributes set */
+    /** Empty attribute set */
     public static final StyleAttrs EMPTY = new StyleAttrs(Collections.emptyMap());
 
     private final HashMap<StyleAttribute<?>,Object> attributes;
@@ -108,12 +108,12 @@ public class StyleAttrs {
 
     /**
      * Convenience method creates an instance with a single attribute.
-     * @param <X> the attribute value type
+     * @param <V> the attribute value type
      * @param attribute the attribute
      * @param value the attribute value
      * @return the new instance
      */
-    public static <X> StyleAttrs of(StyleAttribute<X> attribute, X value) {
+    public static <V> StyleAttrs of(StyleAttribute<V> attribute, V value) {
         return new Builder().set(attribute, value).build();
     }
 
@@ -159,12 +159,12 @@ public class StyleAttrs {
 
     /**
      * Returns the attribute value, or null if no such attribute is present.
-     * @param <X> the attribute value type
+     * @param <V> the attribute value type
      * @param a attribute
      * @return attribute value or null
      */
-    public <X> X get(StyleAttribute<X> a) {
-        return (X)attributes.get(a);
+    public <V> V get(StyleAttribute<V> a) {
+        return (V)attributes.get(a);
     }
 
     /**
@@ -503,12 +503,12 @@ public class StyleAttrs {
          * This method will throw an {@code IllegalArgumentException} if the value cannot be cast to the
          * type specified by the attribute.
          *
-         * @param <X> the attribute value type
+         * @param <V> the attribute value type
          * @param a the attribute
          * @param value the attribute value
          * @return this Builder instance
          */
-        public <X> Builder set(StyleAttribute<X> a, X value) {
+        public <V> Builder set(StyleAttribute<V> a, V value) {
             if (value == null) {
                 attributes.put(a, null);
             } else if (value.getClass().isAssignableFrom(a.getType())) {

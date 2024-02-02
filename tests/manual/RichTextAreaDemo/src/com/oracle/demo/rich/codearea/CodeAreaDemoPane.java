@@ -401,7 +401,7 @@ public class CodeAreaDemoPane extends BorderPane {
         menu.getItems().add(m);
     }
 
-    protected <X> void apply(StyleAttribute<X> attr, X val) {
+    protected <V> void apply(StyleAttribute<V> attr, V val) {
         TextPos ca = control.getCaretPosition();
         TextPos an = control.getAnchorPosition();
         StyleAttrs a = StyleAttrs.builder().set(attr, val).build();
@@ -412,7 +412,7 @@ public class CodeAreaDemoPane extends BorderPane {
         control.setDefaultAttribute(StyleAttrs.LINE_SPACING, x);
     }
 
-    private <T> void applyStyle(StyleAttribute<T> a, T val) {
+    private <V> void applyStyle(StyleAttribute<V> a, V val) {
         TextPos ca = control.getCaretPosition();
         TextPos an = control.getAnchorPosition();
         StyleAttrs m = StyleAttrs.of(a, val);
