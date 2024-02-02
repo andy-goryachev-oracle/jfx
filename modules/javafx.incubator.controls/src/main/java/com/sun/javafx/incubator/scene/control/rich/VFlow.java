@@ -598,15 +598,18 @@ public class VFlow extends Pane implements StyleResolver {
 
     public void setSuppressBlink(boolean on) {
         suppressBlink.set(on);
-        
-        if(!on) {
+
+        if (!on) {
             updateRateRestartBlink();
         }
     }
 
     public void updateRateRestartBlink() {
-        Duration t1 = control.getCaretBlinkPeriod();
-        Duration t2 = t1.multiply(2.0);
+        Duration t2 = control.getCaretBlinkPeriod();
+        if (t2 == null) {
+            t2 = Duration.millis(Params.DEFAULT_CARET_BLINK_PERIOD);
+        }
+        Duration t1 = t2.divide(2.0);
 
         caretAnimation.stop();
         caretAnimation.getKeyFrames().setAll(

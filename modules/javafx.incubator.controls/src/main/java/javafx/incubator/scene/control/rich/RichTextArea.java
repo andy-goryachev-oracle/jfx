@@ -35,7 +35,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -169,15 +168,15 @@ public class RichTextArea extends Control {
     private final SimpleObjectProperty<StyleAttrs> defaultTextCellAttributes;
     private SimpleBooleanProperty editableProperty;
     private StyleableObjectProperty<Font> font;
-    private final ReadOnlyObjectWrapper<Duration> caretBlinkPeriod;
+    private final SimpleObjectProperty<Duration> caretBlinkPeriod;
     private final SelectionModel selectionModel = new SingleSelectionModel();
-    private ReadOnlyIntegerWrapper tabSizeProperty;
-    private ObjectProperty<SideDecorator> leftDecorator;
-    private ObjectProperty<SideDecorator> rightDecorator;
-    private ObjectProperty<Insets> contentPadding;
-    private BooleanProperty highlightCurrentParagraph;
-    private BooleanProperty useContentWidth;
-    private BooleanProperty useContentHeight;
+    private ReadOnlyIntegerWrapper tabSizeProperty; // FIX
+    private SimpleObjectProperty<SideDecorator> leftDecorator;
+    private SimpleObjectProperty<SideDecorator> rightDecorator;
+    private SimpleStyleableObjectProperty<Insets> contentPadding;
+    private SimpleBooleanProperty highlightCurrentParagraph;
+    private SimpleBooleanProperty useContentWidth;
+    private SimpleBooleanProperty useContentHeight;
     /** The style handler registry instance. */
     protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
@@ -205,7 +204,7 @@ public class RichTextArea extends Control {
     public RichTextArea(ConfigurationParameters c, StyledTextModel m) {
         this.config = c;
         
-        caretBlinkPeriod = new ReadOnlyObjectWrapper<>(this, "caretBlinkPeriod", Duration.millis(Params.DEFAULT_CARET_BLINK_PERIOD));
+        caretBlinkPeriod = new SimpleObjectProperty<>(this, "caretBlinkPeriod");
 
         defaultTextCellAttributes = new SimpleObjectProperty<>(this, "defaultTextCellAttributes");
 
@@ -444,15 +443,13 @@ public class RichTextArea extends Control {
     /**
      * Determines the caret blink period.
      * @return the caret blunk period property
+     * @defaultValue 500 ms
      */
     public final ReadOnlyObjectProperty<Duration> caretBlinkPeriodProperty() {
-        return caretBlinkPeriod.getReadOnlyProperty();
+        return caretBlinkPeriod;
     }
 
     public final void setCaretBlinkPeriod(Duration period) {
-        if (period == null) {
-            throw new NullPointerException("caret blink period cannot be null");
-        }
         caretBlinkPeriod.set(period);
     }
 

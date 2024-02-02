@@ -50,7 +50,7 @@ public class Params {
     public static final Insets CONTENT_PADDING = new Insets(4, 8, 4, 8);
 
     /** default caret blink period, in milliseconds. */
-    public static final int DEFAULT_CARET_BLINK_PERIOD = 500;
+    public static final int DEFAULT_CARET_BLINK_PERIOD = 1000;
 
     /** small space between the end of last character and the right edge when typing, in pixels. */
     public static final double HORIZONTAL_GUARD = 20;
