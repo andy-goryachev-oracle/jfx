@@ -25,26 +25,26 @@
 
 package com.oracle.demo.rich.rta;
 
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModelViewOnlyBase;
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 
 /** This model contains code examples used in the documentation. */
 public class ExamplesModel extends StyledTextModelViewOnlyBase {
     /** properties in the model allow for inline controls */
-    private final SimpleBooleanProperty exampleProperty = new SimpleBooleanProperty();
+    private final SimpleStringProperty exampleProperty = new SimpleStringProperty();
 
     public ExamplesModel() {
     }
 
     @Override
     public int size() {
-        return 1;
+        return 10;
     }
 
     @Override
@@ -60,22 +60,30 @@ public class ExamplesModel extends StyledTextModelViewOnlyBase {
     @Override
     public RichParagraph getParagraph(int index) {
         switch(index) {
-        case 0: // this model contains one line
-            StyleAttrs a1 = StyleAttrs.builder().setBold(true).build();
-            RichParagraph.Builder b = RichParagraph.builder();
-            b.addSegment("Example: ", a1);
-            b.addSegment("spelling, highlights, ");
-            b.addSquiggly(9, 8, Color.RED);
-            b.addHighlight(19, 4, Color.rgb(255, 128, 128, 0.5));
-            b.addHighlight(20, 7, Color.rgb(128, 255, 128, 0.5));
-            // creates an embedded control bound to a property within the model
-            b.addInlineNode(() -> {
-               CheckBox cb = new CheckBox("inline node.");
-               cb.selectedProperty().bindBidirectional(exampleProperty);
-               return cb;
-            });
-            return b.build();
+        case 0:
+            {
+                StyleAttrs a1 = StyleAttrs.builder().setBold(true).build();
+                RichParagraph.Builder b = RichParagraph.builder();
+                b.addSegment("Example: ", a1);
+                b.addSegment("spelling, highlights");
+                b.addSquiggly(9, 8, Color.RED);
+                b.addHighlight(19, 4, Color.rgb(255, 128, 128, 0.5));
+                b.addHighlight(20, 7, Color.rgb(128, 255, 128, 0.5));
+                return b.build();
+            }
+        case 4:
+            {
+                RichParagraph.Builder b = RichParagraph.builder();
+                b.addSegment("Input field: ");
+                // creates an embedded control bound to a property within this model
+                b.addInlineNode(() -> {
+                   TextField t = new TextField();
+                   t.textProperty().bindBidirectional(exampleProperty);
+                   return t;
+                });
+                return b.build();
+            }
         }
-        return null;
+        return RichParagraph.builder().build();
     }
 }

@@ -1075,8 +1075,8 @@ public class RichTextArea extends Control {
     /**
      * Applies the specified style to the selected range.  The specified attributes will be merged, overriding
      * the existing ones.
-     * When applying the paragraph attributes, the affected range might go beyond the range specified by
-     * {@code start} and {@code end}.
+     * When applying paragraph attributes, the affected range might extend beyond {@code start} and {@code end}
+     * to include whole paragraphs.
      * @param start the start of text range
      * @param end the end of text range
      * @param attrs the style attributes to apply

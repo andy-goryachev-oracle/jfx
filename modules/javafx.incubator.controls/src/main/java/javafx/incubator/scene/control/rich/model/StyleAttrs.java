@@ -41,6 +41,7 @@ import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * An immutable object containing style attributes.
+ * TODO name: StyleSet? (though it's not a set)
  */
 public class StyleAttrs {
 

@@ -31,6 +31,7 @@ import javafx.scene.control.ScrollBar;
 /**
  * These immutable parameters are passed to to the RichTextArea constructor.
  */
+// TODO corner node?
 public final class ConfigurationParameters {
     /**
      * This {@code Supplier} allows the skin to create a custom horizontal scroll bar.

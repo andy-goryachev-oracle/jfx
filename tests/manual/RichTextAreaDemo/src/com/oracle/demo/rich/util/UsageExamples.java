@@ -100,4 +100,20 @@ class UsageExamples {
     private TextPos getCustomNextWordPosition(RichTextArea richTextArea) {
         return null;
     }
+    
+    public static class MyControl extends RichTextArea {
+        // function tag allows the user to customize key bindings
+        public static final FunctionTag MY_TAG = new FunctionTag();
+
+        public MyControl() {
+            // register custom functionality with the input map
+            getInputMap().registerFunction(MY_TAG, this::newFunctionImpl);
+            // create a key binding
+            getInputMap().registerKey(KeyBinding.shortcut(KeyCode.W), MY_TAG);
+        }
+
+        private void newFunctionImpl() {
+            // custom functionality
+        }
+    }
 }
