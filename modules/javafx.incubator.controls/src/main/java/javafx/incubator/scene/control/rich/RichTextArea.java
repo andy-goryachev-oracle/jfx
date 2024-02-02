@@ -34,7 +34,6 @@ import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
-import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -447,7 +446,7 @@ public class RichTextArea extends Control {
      * @return the caret blunk period property
      * @defaultValue 1000 ms
      */
-    public final ReadOnlyObjectProperty<Duration> caretBlinkPeriodProperty() {
+    public final ObjectProperty<Duration> caretBlinkPeriodProperty() {
         return caretBlinkPeriod;
     }
 
