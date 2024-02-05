@@ -26,6 +26,7 @@ package javafx.incubator.scene.control.rich;
 
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -34,11 +35,13 @@ import javafx.css.CssMetaData;
 import javafx.css.FontCssMetaData;
 import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
+import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.SizeConverter;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Node;
@@ -49,15 +52,15 @@ import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 /**
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.
  */
-// TODO lineSpacing property
 public class CodeArea extends RichTextArea {
-    private static final int DEFAULT_TAB_SIZE = 8;
-
     static final StyleAttribute<Font> FONT = new StyleAttribute<>("CodeArea.FONT", Font.class, false);
     static final StyleAttribute<Integer> TAB_SIZE = new StyleAttribute<>("CodeArea.TAB_SIZE", Integer.class, true);
+    private static final int DEFAULT_TAB_SIZE = 8;
     private BooleanProperty lineNumbers;
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
+    private StyleableDoubleProperty lineSpacing;
+    private String fontStyle;
     /** The style handler registry instance. */
     protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
@@ -67,6 +70,7 @@ public class CodeArea extends RichTextArea {
      */
     public CodeArea(CodeTextModel m) {
         super(m);
+
         modelProperty().addListener((s, prev, newValue) -> {
             // TODO is there a better way?
             // perhaps even block any change of (already set CodeModel)
@@ -77,6 +81,7 @@ public class CodeArea extends RichTextArea {
                 }
             }
         });
+
         // set default font
         Font f = Font.getDefault();
         setFont(Font.font("monospace", f.getSize()));
@@ -87,18 +92,6 @@ public class CodeArea extends RichTextArea {
      */
     public CodeArea() {
         this(new CodeTextModel());
-    }
-
-    private CodeTextModel codeModel() {
-        return (CodeTextModel)getModel();
-    }
-
-    private void updateFont(Font f) {
-        setDefaultAttribute(FONT, f);
-    }
-
-    private void updateTabSize(int sz) {
-        setDefaultAttribute(TAB_SIZE, sz);
     }
 
     /**
@@ -288,8 +281,62 @@ public class CodeArea extends RichTextArea {
         return font == null ? Font.getDefault() : font.getValue();
     }
 
-    // TODO lazy initialization is not necessary
+    /**
+     * Defines the vertical space in pixel between lines.
+     *
+     * @return the property instance
+     * @defaultValue 0
+     */
+    public final DoubleProperty lineSpacingProperty() {
+        if (lineSpacing == null) {
+            lineSpacing = new StyleableDoubleProperty(0) {
+                @Override
+                public Object getBean() {
+                    return CodeArea.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "lineSpacing";
+                }
+
+                @Override
+                public CssMetaData<CodeArea, Number> getCssMetaData() {
+                    return StyleableProperties.LINE_SPACING;
+                }
+
+                @Override
+                public void invalidated() {
+                    updateLineSpacing(get());
+                    requestLayout();
+                }
+            };
+        }
+        return lineSpacing;
+    }
+    
+    public final void setLineSpacing(double spacing) {
+        lineSpacingProperty().set(spacing);
+    }
+
+    public final double getLineSpacing() {
+        return lineSpacing == null ? 0 : lineSpacing.get();
+    }
+
+    /** styleable properties */
     private static class StyleableProperties {
+        private static final CssMetaData<CodeArea,Number> LINE_SPACING =
+            new CssMetaData<>("-fx-line-spacing", SizeConverter.getInstance(), 0) {
+    
+            @Override public boolean isSettable(CodeArea n) {
+                return n.lineSpacing == null || !n.lineSpacing.isBound();
+            }
+    
+            @Override public StyleableProperty<Number> getStyleableProperty(CodeArea n) {
+                return (StyleableProperty<Number>)n.lineSpacingProperty();
+            }
+        };
+
         private static final FontCssMetaData<CodeArea> FONT =
             new FontCssMetaData<>("-fx-font", Font.getDefault())
         {
@@ -382,11 +429,29 @@ public class CodeArea extends RichTextArea {
     }
 
     /**
-     * Replaces text in this CodeArea.  The caret gets reset to the start of the document.
+     * Replaces text in this CodeArea.
+     * <p>
+     * The caret gets reset to the start of the document, selection gets cleared, and an undo event gets created.
      * @param text the text string
      */
     public void setText(String text) {
         TextPos end = getEndTextPos();
         getModel().replace(null, TextPos.ZERO, end, text, true);
+    }
+
+    private CodeTextModel codeModel() {
+        return (CodeTextModel)getModel();
+    }
+
+    private void updateFont(Font f) {
+        setDefaultAttribute(FONT, f);
+    }
+
+    private void updateTabSize(int size) {
+        setDefaultAttribute(TAB_SIZE, size);
+    }
+
+    private void updateLineSpacing(double spacing) {
+        setDefaultAttribute(StyleAttrs.LINE_SPACING, spacing);
     }
 }

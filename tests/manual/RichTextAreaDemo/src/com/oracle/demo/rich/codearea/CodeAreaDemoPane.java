@@ -409,7 +409,7 @@ public class CodeAreaDemoPane extends BorderPane {
     }
 
     protected void setLineSpacing(double x) {
-        control.setDefaultAttribute(StyleAttrs.LINE_SPACING, x);
+        control.setLineSpacing(x);
     }
 
     private <V> void applyStyle(StyleAttribute<V> a, V val) {
