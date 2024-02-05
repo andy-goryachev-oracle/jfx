@@ -43,7 +43,7 @@ import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
  * An immutable object containing style attributes.
  * TODO name: StyleSet? (though it's not a set)
  */
-public class StyleAttrs {
+public final class StyleAttrs {
 
     /** Paragraph background color attribute */
     public static final StyleAttribute<Color> BACKGROUND = new StyleAttribute<>("BACKGROUND", Color.class, true);
@@ -250,7 +250,7 @@ public class StyleAttrs {
      * This convenience method returns the value of {@link #BACKGROUND} attribute, or null.
      * @return the background color attribute value
      */
-    public final Color getBackground() {
+    public Color getBackground() {
         return get(BACKGROUND);
     }
 
@@ -258,7 +258,7 @@ public class StyleAttrs {
      * This convenience method returns the value of {@link #BULLET} attribute, or null.
      * @return the bullet paragraph attribute value
      */
-    public final String getBullet() {
+    public String getBullet() {
         return get(BULLET);
     }
 
@@ -266,7 +266,7 @@ public class StyleAttrs {
      * This convenience method returns the value of the {@link #FIRST_LINE_INDENT} attribute.
      * @return the first line indent value in points
      */
-    public final Double getFirstLineIndent() {
+    public Double getFirstLineIndent() {
         return get(FIRST_LINE_INDENT);
     }
 
@@ -283,7 +283,7 @@ public class StyleAttrs {
      * false otherwise.
      * @return the font family name
      */
-    public final String getFontFamily() {
+    public String getFontFamily() {
         return get(FONT_FAMILY);
     }
 
@@ -331,7 +331,7 @@ public class StyleAttrs {
      * This convenience method returns the value of {@link #TEXT_ALIGNMENT} attribute, or null.
      * @return the paragraph alignment attribute value
      */
-    public final TextAlignment getTextAlignment() {
+    public TextAlignment getTextAlignment() {
         return get(TEXT_ALIGNMENT);
     }
 
@@ -339,7 +339,7 @@ public class StyleAttrs {
      * This convenience method returns the value of {@link #TEXT_COLOR} attribute, or null.
      * @return the text color attribute value
      */
-    public final Color getTextColor() {
+    public Color getTextColor() {
         return get(TEXT_COLOR);
     }
 
@@ -348,7 +348,7 @@ public class StyleAttrs {
      * false otherwise.
      * @return the bold attribute value
      */
-    public final boolean isBold() {
+    public boolean isBold() {
         return getBoolean(BOLD);
     }
 
@@ -357,7 +357,7 @@ public class StyleAttrs {
      * false otherwise.
      * @return the italic attribute value
      */
-    public final boolean isItalic() {
+    public boolean isItalic() {
         return getBoolean(ITALIC);
     }
 
@@ -366,7 +366,7 @@ public class StyleAttrs {
      * false otherwise.
      * @return the right-to-left paragraph attribute value
      */
-    public final boolean isRTL() {
+    public boolean isRTL() {
         return getBoolean(RIGHT_TO_LEFT);
     }
 
@@ -375,7 +375,7 @@ public class StyleAttrs {
      * false otherwise.
      * @return the strike through attribute value
      */
-    public final boolean isStrikeThrough() {
+    public boolean isStrikeThrough() {
         return getBoolean(STRIKE_THROUGH);
     }
 
@@ -384,7 +384,7 @@ public class StyleAttrs {
      * false otherwise.
      * @return the underline attribute value
      */
-    public final boolean isUnderline() {
+    public boolean isUnderline() {
         return getBoolean(UNDERLINE);
     }
 

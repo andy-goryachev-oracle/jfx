@@ -69,6 +69,7 @@ public interface SelectionModel {
      * value.  A listener monitoring the anchorProperty might see erroneous value for the caret, so keep that in mind.
      *
      * @return the caret position property
+     * @defaultValue null
      */
     public ReadOnlyProperty<TextPos> caretPositionProperty();
     
@@ -82,12 +83,14 @@ public interface SelectionModel {
      * value.  A listener monitoring the anchorProperty might see erroneous value for the caret, so keep that in mind.
      *
      * @return the anchor position property
+     * @defaultValue null
      */
     public ReadOnlyProperty<TextPos> anchorPositionProperty();
 
     /**
      * Selection segment property.  The value can be null.
      * @return the selection segment property
+     * @defaultValue null
      */
     public ReadOnlyProperty<SelectionSegment> selectionSegmentProperty();
 

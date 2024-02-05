@@ -35,7 +35,7 @@ import javafx.scene.image.WritableImage;
  * <p>
  * Whenever the {@code StyledTextModel} contains logical class names instead of actual attributes,
  * a separate CSS style resolution step is required.  The resulting attributes might depend on the view that
- * originated an operation (such as copying to RTF, for example).
+ * originated an operation (example: export or copy).
  */
 public interface StyleResolver {
     /**
