@@ -294,6 +294,7 @@ public class RichTextArea extends Control {
     /**
      * Indicates whether this RichTextArea can be edited by the user.
      * @return the editable property
+     * @defaultValue true
      */
     public final BooleanProperty editableProperty() {
         if (editableProperty == null) {
@@ -317,6 +318,7 @@ public class RichTextArea extends Control {
      * Indicates whether the current paragraph will be visually highlighted.
      * TODO StyleableProperty ?
      * @return the highlight current paragraph property
+     * @defaultValue true
      */
     public final BooleanProperty highlightCurrentParagraphProperty() {
         if (highlightCurrentParagraph == null) {
@@ -479,6 +481,7 @@ public class RichTextArea extends Control {
      * value.  A listener monitoring the anchorProperty might see erroneous value for the caret, so keep that in mind.
      *
      * @return the caret position property
+     * @defaultValue null
      */
     public final ReadOnlyProperty<TextPos> caretPositionProperty() {
         return selectionModel.caretPositionProperty();
@@ -502,6 +505,7 @@ public class RichTextArea extends Control {
      * value.  A listener monitoring the anchorProperty might see erroneous value for the caret, so keep that in mind.
      *
      * @return the anchor position property
+     * @defaultValue null
      */
     public final ReadOnlyProperty<TextPos> anchorPositionProperty() {
         return selectionModel.anchorPositionProperty();
