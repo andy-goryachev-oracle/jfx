@@ -244,7 +244,7 @@ public abstract class RichParagraph {
          * @return this {@code Builder} instance
          */
         public Builder addSegment(String text, String style, String[] css) {
-            StyleAttrs a = StyleAttrs.fromCss(style, css);
+            StyleAttrs a = StyleAttrs.fromStyles(style, css);
             addSegment(text, a);
             return this;
         }

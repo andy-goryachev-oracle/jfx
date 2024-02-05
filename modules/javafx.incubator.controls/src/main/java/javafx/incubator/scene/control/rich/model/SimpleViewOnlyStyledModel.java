@@ -323,7 +323,7 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
          * @param css array of style names, or null
          */
         void addSegment(String text, String style, String[] css) {
-            StyleAttrs a = StyleAttrs.fromCss(style, css);
+            StyleAttrs a = StyleAttrs.fromStyles(style, css);
             addSegment(text, a);
         }
 

@@ -32,7 +32,6 @@ import javafx.incubator.scene.control.rich.model.StyleAttribute;
  * and a number of style names.
  */
 public final record CssStyles(String style, String[] names) {
-
     /** This special attribute contains CSS direct style and style names for text segments only */
     public static final StyleAttribute<CssStyles> CSS = new StyleAttribute<>("CSS", CssStyles.class, false);
 }

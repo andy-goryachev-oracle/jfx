@@ -26,14 +26,14 @@
 package com.oracle.demo.rich.rta;
 
 import javafx.geometry.Insets;
+import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
+import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
-import javafx.incubator.scene.control.rich.RichTextArea;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
-import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
@@ -222,11 +222,11 @@ public class MultipleStackedBoxWindow extends Stage {
     }
 
     protected void setLineSpacing(RichTextArea t, double x) {
-        StyleAttrs a = getStyleAttrs(t).
-            toBuilder().
+        StyleAttrs a = getStyleAttrs(t);
+        a = StyleAttrs.builder().
+            merge(a).
             setLineSpacing(x).
             build();
         t.setDefaultAttributes(a);
-        System.out.println(a);
     }
 }

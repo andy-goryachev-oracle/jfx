@@ -118,13 +118,13 @@ public final class StyleAttrs {
     }
 
     /**
-     * Convenience method creates an instance from a direct style and a number of
+     * This convenience method creates an instance from an inline style and a number of
      * CSS style names.
-     * @param style the direct style, can be null
+     * @param style the inline style, will not be applied when null
      * @param names style names
      * @return the new instance
      */
-    public static StyleAttrs fromCss(String style, String... names) {
+    public static StyleAttrs fromStyles(String style, String... names) {
         if ((style == null) && (names == null)) {
             return StyleAttrs.EMPTY;
         } else if (names == null) {
@@ -424,10 +424,20 @@ public final class StyleAttrs {
 
     /**
      * Creates an instance of StyleAttrs which contains character attributes found in the Text node.
+     * The following attributes might be set:
+     * <ul>
+     * <li>{@link #BOLD}
+     * <li>{@link #FONT_FAMILY}
+     * <li>{@link #FONT_SIZE}
+     * <li>{@link #ITALIC}
+     * <li>{@link #STRIKE_THROUGH}
+     * <li>{@link #TEXT_COLOR}
+     * <li>{@link #UNDERLINE}
+     * </ul>
      * @param textNode the text node
      * @return the StyleAttrs instance
      */
-    public static StyleAttrs from(Text textNode) {
+    public static StyleAttrs fromTextNode(Text textNode) {
         StyleAttrs.Builder b = StyleAttrs.builder();
         Font f = textNode.getFont();
         String st = f.getStyle().toLowerCase(Locale.US);
@@ -475,14 +485,6 @@ public final class StyleAttrs {
         return new Builder();
     }
 
-    /**
-     * Creates a new Builder, populated with attributes from this StyleAttrs instance.
-     * @return the new Builder instance
-     */
-    public Builder toBuilder() {
-        return new Builder().merge(this);
-    }
-    
     /** StyleAttrs are immutable, so a Builder is required to create a new instance */
     public static class Builder {
         private final HashMap<StyleAttribute<?>,Object> attributes = new HashMap<>(4);

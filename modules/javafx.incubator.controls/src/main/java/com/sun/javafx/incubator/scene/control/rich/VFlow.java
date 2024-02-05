@@ -1383,7 +1383,7 @@ public class VFlow extends Pane implements StyleResolver {
                 measurer.getStyleClass().setAll(names);
             }
             measurer.applyCss();
-            return StyleAttrs.from(measurer);
+            return StyleAttrs.fromTextNode(measurer);
         } finally {
             getChildren().remove(measurer);
         }
