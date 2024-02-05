@@ -41,7 +41,6 @@ import javafx.css.SimpleStyleableObjectProperty;
 import javafx.css.StyleConverter;
 import javafx.css.Styleable;
 import javafx.css.StyleableBooleanProperty;
-import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.InsetsConverter;
 import javafx.geometry.Insets;
@@ -59,7 +58,6 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.Control;
 import javafx.scene.input.DataFormat;
-import javafx.scene.text.Font;
 import javafx.util.Duration;
 import com.sun.javafx.incubator.scene.control.rich.CssStyles;
 import com.sun.javafx.incubator.scene.control.rich.Params;
@@ -164,7 +162,6 @@ public class RichTextArea extends Control {
     private final SimpleBooleanProperty displayCaretProperty = new SimpleBooleanProperty(this, "displayCaret", true);
     private final SimpleObjectProperty<StyleAttrs> defaultAttributes;
     private SimpleBooleanProperty editableProperty;
-    private StyleableObjectProperty<Font> font;
     private final SimpleObjectProperty<Duration> caretBlinkPeriod = new SimpleObjectProperty<>(this, "caretBlinkPeriod");
     private final SelectionModel selectionModel = new SingleSelectionModel();
     private SimpleObjectProperty<SideDecorator> leftDecorator;
@@ -200,7 +197,6 @@ public class RichTextArea extends Control {
     public RichTextArea(ConfigurationParameters c, StyledTextModel m) {
         this.config = c;
 
-        // FIX remove
         defaultAttributes = new SimpleObjectProperty<>(this, "defaultParagraphAttributes");
 
         setFocusTraversable(true);
@@ -1185,8 +1181,7 @@ public class RichTextArea extends Control {
      *
      * @return the non-null {@code StyleAttrs} instance
      */
-    // FIX add paragraph attributes
-    public StyleAttrs getActiveStyleAttrs() {
+    public final StyleAttrs getActiveStyleAttrs() {
         StyleResolver r = resolver();
         StyleAttrs a = getModelStyleAttrs(r);
 
@@ -1202,7 +1197,7 @@ public class RichTextArea extends Control {
      *
      * @return the text position
      */
-    public TextPos getEndTextPos() {
+    public final TextPos getEndTextPos() {
         StyledTextModel m = getModel();
         return (m == null) ? TextPos.ZERO : m.getDocumentEnd();
     }
@@ -1213,7 +1208,7 @@ public class RichTextArea extends Control {
      * @param index paragraph index
      * @return text position
      */
-    public TextPos getEndOfParagraph(int index) {
+    public final TextPos getEndOfParagraph(int index) {
         StyledTextModel m = getModel();
         return (m == null) ? TextPos.ZERO : m.getEndOfParagraphTextPos(index);
     }
@@ -1297,10 +1292,10 @@ public class RichTextArea extends Control {
 
     /**
      * Specifies the default attributes.
+     * This property can be used by a subclass to specify the default attribute values for every paragraph in the model.
      * The value can be null.
      * @return the default attributes property
      */
-    // TODO this might be a mistake.  Instead, the default attrbiutes should be in the model?
     public final ObjectProperty<StyleAttrs> defaultAttributesProperty() {
         return defaultAttributes;
     }
@@ -1309,7 +1304,6 @@ public class RichTextArea extends Control {
         defaultAttributes.set(a);
     }
 
-    @Deprecated // FIX remove
     public final StyleAttrs getDefaultAttributes() {
         return defaultAttributes.get();
     }

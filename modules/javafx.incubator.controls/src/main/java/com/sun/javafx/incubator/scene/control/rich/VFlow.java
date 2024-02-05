@@ -760,7 +760,6 @@ public class VFlow extends Pane implements StyleResolver {
     }
 
     private TextCell createTextCell(int index, RichParagraph par) {
-        // TODO use a static CellContext here
         TextCell cell;
         StyleAttrs da = control.getDefaultAttributes();
         StyleAttrs pa = RichUtils.combine(da, par.getParagraphAttributes());

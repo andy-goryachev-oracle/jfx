@@ -51,13 +51,13 @@ import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
  */
 // TODO lineSpacing property
 public class CodeArea extends RichTextArea {
+    private static final int DEFAULT_TAB_SIZE = 8;
+
     static final StyleAttribute<Font> FONT = new StyleAttribute<>("CodeArea.FONT", Font.class, false);
     static final StyleAttribute<Integer> TAB_SIZE = new StyleAttribute<>("CodeArea.TAB_SIZE", Integer.class, true);
-    private static final int DEFAULT_TAB_SIZE = 8;
     private BooleanProperty lineNumbers;
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
-    private String fontStyle;
     /** The style handler registry instance. */
     protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
