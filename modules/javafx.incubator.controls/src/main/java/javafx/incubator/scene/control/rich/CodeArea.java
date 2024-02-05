@@ -282,7 +282,7 @@ public class CodeArea extends RichTextArea {
     }
 
     /**
-     * Defines the vertical space in pixel between lines.
+     * Defines the vertical space in pixels between lines.
      *
      * @return the property instance
      * @defaultValue 0
@@ -368,6 +368,7 @@ public class CodeArea extends RichTextArea {
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = RichUtils.combine(
             RichTextArea.getClassCssMetaData(),
             FONT,
+            LINE_SPACING,
             TAB_SIZE
         );
     }
