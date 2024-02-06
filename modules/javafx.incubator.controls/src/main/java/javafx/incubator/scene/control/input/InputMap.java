@@ -66,13 +66,10 @@ public final class InputMap<C extends Control> {
     }
 
     private static final Object NULL = new Object();
-    private static final Object ON_KEY_ENTER = new Object();
-    private static final Object ON_KEY_EXIT = new Object();
     private final C control;
     // EventType<?> -> Entry with value=List<EventHandler> (behavior only)
     // KeyBinding -> Entry with value=FunctionTag or Runnable
     // FunctionTag -> Entry with value=Runnable
-    // ON_KEY_ENTER/EXIT -> Entry with value=Runnable
     private final HashMap<Object,Entry> map = new HashMap<>();
 
     /**
@@ -118,49 +115,19 @@ public final class InputMap<C extends Control> {
         KeyBinding k = KeyBinding.from((KeyEvent)ev);
         Runnable f = getFunction(k);
         if (f != null) {
-            handleKeyFunctionEnter();
-            try {
-                f.run();
-                ev.consume();
-            } finally {
-                handleKeyFunctionExit();
-            }
+            f.run();
+            ev.consume();
             return;
         }
 
         EventType<?> t = ev.getEventType();
         HList handlers = getHandlers(t);
         if (handlers != null) {
-            handleKeyFunctionEnter();
-            try {
-                for (EventHandler h: handlers) {
-                    h.handle(ev);
-                    if (ev.isConsumed()) {
-                        break;
-                    }
+            for (EventHandler h : handlers) {
+                h.handle(ev);
+                if (ev.isConsumed()) {
+                    break;
                 }
-            } finally {
-                handleKeyFunctionExit();
-            }
-        }
-    }
-
-    private void handleKeyFunctionEnter() {
-        Entry en = map.get(ON_KEY_ENTER);
-        if (en != null) {
-            Object x = en.getValue();
-            if (x instanceof Runnable r) {
-                r.run();
-            }
-        }
-    }
-
-    private void handleKeyFunctionExit() {
-        Entry en = map.get(ON_KEY_EXIT);
-        if (en != null) {
-            Object x = en.getValue();
-            if (x instanceof Runnable r) {
-                r.run();
             }
         }
     }
@@ -605,38 +572,6 @@ public final class InputMap<C extends Control> {
             en2.behavior = en1.behavior;
             en2.behaviorValue = en1.behaviorValue;
             map.put(newk, en2);
-        }
-    }
-
-    void setOnKeyEventEnter(BehaviorBase behavior, Runnable action) {
-        Objects.nonNull(behavior);
-        Entry en = map.get(ON_KEY_ENTER);
-        if (en == null) {
-            en = new Entry();
-            map.put(ON_KEY_ENTER, en);
-        }
-
-        if (behavior == null) {
-            en.value = action;
-        } else {
-            en.behavior = behavior;
-            en.behaviorValue = action;
-        }
-    }
-
-   void setOnKeyEventExit(BehaviorBase behavior, Runnable action) {
-        Objects.nonNull(behavior);
-        Entry en = map.get(ON_KEY_EXIT);
-        if (en == null) {
-            en = new Entry();
-            map.put(ON_KEY_EXIT, en);
-        }
-
-        if (behavior == null) {
-            en.value = action;
-        } else {
-            en.behavior = behavior;
-            en.behaviorValue = action;
         }
     }
 }

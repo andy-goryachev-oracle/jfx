@@ -248,22 +248,6 @@ public abstract class BehaviorBase<C extends Control> {
     }
 
     /**
-     * Sets the code to be executed just before handling of the key events.
-     * @param action the action or null
-     */
-    protected void setOnKeyEventEnter(Runnable action) {
-        getInputMap().setOnKeyEventEnter(this, action);
-    }
-
-    /**
-     * Sets the code to be executed just after handling of the key events.
-     * @param action the action or null
-     */
-    protected void setOnKeyEventExit(Runnable action) {
-        getInputMap().setOnKeyEventExit(this, action);
-    }
-
-    /**
      * Returns true if this method is invoked on a Linux platform.
      * @return true on a Linux platform
      */
