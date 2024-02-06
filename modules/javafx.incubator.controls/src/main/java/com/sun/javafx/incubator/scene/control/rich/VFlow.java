@@ -396,10 +396,12 @@ public class VFlow extends Pane implements StyleResolver {
             updateHorizontalScrollBar();
         }
     }
-    
+
     public void handleSelectionChange() {
+        setSuppressBlink(true);
         updateCaretAndSelection();
         scrollCaretToVisible();
+        setSuppressBlink(false);
     }
 
     public void updateCaretAndSelection() {

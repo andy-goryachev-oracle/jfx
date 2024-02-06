@@ -180,7 +180,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
 
         behavior = new RichTextAreaBehavior(control);
 
-        listenerHelper.addInvalidationListener(vflow::handleSelectionChange, control.selectionSegmentProperty());
+        listenerHelper.addChangeListener(vflow::handleSelectionChange, control.selectionSegmentProperty());
         listenerHelper.addInvalidationListener(vflow::updateRateRestartBlink, true, control.caretBlinkPeriodProperty());
         listenerHelper.addInvalidationListener(vflow::updateCaretAndSelection, control.highlightCurrentParagraphProperty());
         listenerHelper.addInvalidationListener(vflow::handleContentPadding, true, control.contentPaddingProperty());

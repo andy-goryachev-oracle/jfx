@@ -100,4 +100,26 @@ public class SelectionSegment {
             throw new IllegalArgumentException(nameMin + " must be less or equal to " + nameMax);
         }
     }
+
+    @Override
+    public boolean equals(Object x) {
+        if (x == this) {
+            return true;
+        } else if (x instanceof SelectionSegment s) {
+            return
+                (caretAtMin == s.caretAtMin) &&
+                (min.equals(s.min)) &&
+                (max.equals(s.max));
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int h = SelectionSegment.class.hashCode();
+        h = 31 * h + Boolean.hashCode(caretAtMin);
+        h = 31 * h + min.hashCode();
+        h = 31 * h + max.hashCode();
+        return h;
+    }
 }

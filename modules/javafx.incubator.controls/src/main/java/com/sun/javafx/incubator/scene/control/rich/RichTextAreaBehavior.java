@@ -41,7 +41,6 @@ import javafx.incubator.scene.control.input.KeyBinding;
 import javafx.incubator.scene.control.rich.CaretInfo;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.rich.RichTextArea.Tags;
 import javafx.incubator.scene.control.rich.model.DataFormatHandler;
 import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
@@ -90,10 +89,6 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     @Override
     public void install() {
         vflow = RichTextAreaSkinHelper.getVFlow(control);
-
-        // avoid blinking the caret when handling keys
-        setOnKeyEventEnter(() -> vflow.setSuppressBlink(true));
-        setOnKeyEventExit(() -> vflow.setSuppressBlink(false));
 
         // functions
         registerFunction(RichTextArea.Tags.BACKSPACE, this::backspace);

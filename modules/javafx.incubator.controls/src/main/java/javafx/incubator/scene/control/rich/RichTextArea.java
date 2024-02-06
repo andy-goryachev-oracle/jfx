@@ -517,6 +517,10 @@ public class RichTextArea extends Control {
         return selectionModel.selectionSegmentProperty();
     }
 
+    public final SelectionSegment getSelectionSegment() {
+        return selectionModel.getSelectionSegment();
+    }
+
     /**
      * Clears existing selection, if any.
      */
