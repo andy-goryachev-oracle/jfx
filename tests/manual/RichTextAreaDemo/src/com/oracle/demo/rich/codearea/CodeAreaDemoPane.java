@@ -32,6 +32,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.incubator.scene.control.rich.CodeArea;
 import javafx.incubator.scene.control.rich.CodeTextModel;
+import javafx.incubator.scene.control.rich.SyntaxDecorator;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
@@ -177,11 +178,26 @@ public class CodeAreaDemoPane extends BorderPane {
         FX.name(lineNumbers, "lineNumbers");
         lineNumbers.selectedProperty().bindBidirectional(control.lineNumbersEnabledProperty());
 
-        CheckBox syntax = new CheckBox("syntax highlighter");
+        ComboBox<SyntaxDecorator> syntax = new ComboBox<>();
         FX.name(syntax, "syntax");
-        syntax.selectedProperty().addListener((x) -> {
-            boolean on = syntax.isSelected();
-            control.setSyntaxDecorator(on ? new DemoSyntaxDecorator() : null);
+        syntax.getItems().addAll(
+            null,
+            new DemoSyntaxDecorator(),
+            new JavaSyntaxDecorator()
+        );
+        syntax.setConverter(new StringConverter<SyntaxDecorator>() {
+            @Override
+            public String toString(SyntaxDecorator x) {
+                return x == null ? "<NULL>" : x.toString();
+            }
+
+            @Override
+            public SyntaxDecorator fromString(String s) {
+                return null;
+            }
+        });
+        syntax.getSelectionModel().selectedItemProperty().addListener((s, p, v) -> {
+            control.setSyntaxDecorator(v);
         });
 
         op = new ROptionPane();
@@ -202,6 +218,7 @@ public class CodeAreaDemoPane extends BorderPane {
         op.option(contentPadding);
         op.label("Line Spacing:");
         op.option(lineSpacing);
+        op.label("Syntax Highlighter:");
         op.option(syntax);
 
         setCenter(vsplit);
@@ -209,6 +226,7 @@ public class CodeAreaDemoPane extends BorderPane {
 
         contentPadding.getSelectionModel().selectFirst();
         lineSpacing.getSelectionModel().selectFirst();
+        syntax.getSelectionModel().selectFirst();
     }
 
     protected static Pane pane() {

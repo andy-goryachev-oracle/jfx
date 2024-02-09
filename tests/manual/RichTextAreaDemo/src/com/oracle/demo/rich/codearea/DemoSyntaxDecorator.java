@@ -26,6 +26,7 @@ package com.oracle.demo.rich.codearea;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.incubator.scene.control.rich.CodeTextModel;
 import javafx.incubator.scene.control.rich.SyntaxDecorator;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
@@ -44,7 +45,21 @@ public class DemoSyntaxDecorator implements SyntaxDecorator {
     }
 
     @Override
-    public RichParagraph createRichParagraph(String text) {
+    public String toString() {
+        return "DemoSyntaxDecorator";
+    }
+
+    @Override
+    public void attach(CodeTextModel m) {
+    }
+
+    @Override
+    public void detach(CodeTextModel m) {
+    }
+
+    @Override
+    public RichParagraph createRichParagraph(CodeTextModel model, int index) {
+        String text = model.getPlainText(index);
         RichParagraph.Builder b = RichParagraph.builder();
         if (text != null) {
             int len = text.length();

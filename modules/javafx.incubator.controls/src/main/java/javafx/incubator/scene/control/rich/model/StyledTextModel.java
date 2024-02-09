@@ -210,6 +210,7 @@ public abstract class StyledTextModel {
     }
 
     private record FHKey(DataFormat format, boolean forExport) { }
+    // TODO should it hold WeakReferences?
     private final CopyOnWriteArrayList<ChangeListener> listeners = new CopyOnWriteArrayList();
     private final HashMap<FHKey,FHPriority> handlers = new HashMap<>(2);
     private final Markers markers = new Markers();

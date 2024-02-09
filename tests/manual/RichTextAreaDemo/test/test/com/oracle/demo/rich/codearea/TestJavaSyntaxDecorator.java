@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,35 +23,28 @@
  * questions.
  */
 
-package javafx.incubator.scene.control.rich;
+package test.com.oracle.demo.rich.codearea;
 
-import javafx.incubator.scene.control.rich.model.RichParagraph;
+import java.util.List;
+import com.oracle.demo.rich.codearea.JavaSyntaxAnalyzer;
 
+public class TestJavaSyntaxDecorator {
+    static final String TEXT = """
 /**
- * Decorates plain text by producing a {@link RichParagraph}.
- */
-public interface SyntaxDecorator {
-    /**
-     * This method allows for attaching this decorator to the model.
-     * Called by {@link CodeTextModel#setDecorator(SyntaxDecorator)}.
-     * The implementation may add a change listener to the model if required.
-     * @param m the model
-     */
-    public void attach(CodeTextModel m);
+block comment
+*/
+package a;
 
-    /**
-     * This method allows for detaching this decorator from the model and subsequent cleanup.
-     * Called by {@link CodeTextModel#setDecorator(SyntaxDecorator)}.
-     * @param m the model
-     */
-    public void detach(CodeTextModel m);
+public // comment
+class A { }
 
-    /**
-     * Converts plain text into a rich text paragraph.
-     *
-     * @param model the model
-     * @param index the paragraph index
-     * @return the decorated {@link RichParagraph} instance
-     */
-    public RichParagraph createRichParagraph(CodeTextModel model, int index);
+        """;
+
+    public static void main(String[] a) {
+        List<JavaSyntaxAnalyzer.Line> lines = new JavaSyntaxAnalyzer(TEXT).analyze();
+        System.out.println("result:");
+        for (JavaSyntaxAnalyzer.Line line : lines) {
+            System.out.println(line);
+        }
+    }
 }

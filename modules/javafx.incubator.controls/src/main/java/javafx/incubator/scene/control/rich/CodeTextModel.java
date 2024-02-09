@@ -72,8 +72,7 @@ public class CodeTextModel extends BasePlainTextModel {
         if (d == null) {
             return super.getParagraph(index);
         } else {
-            String text = getPlainText(index);
-            return d.createRichParagraph(text);
+            return d.createRichParagraph(this, index);
         }
     }
 
@@ -84,9 +83,18 @@ public class CodeTextModel extends BasePlainTextModel {
     public final ObjectProperty<SyntaxDecorator> decoratorProperty() {
         if (decorator == null) {
             decorator = new SimpleObjectProperty<>() {
+                private SyntaxDecorator old;
+
                 @SuppressWarnings("synthetic-access")
                 @Override
                 protected void invalidated() {
+                    if (old != null) {
+                        old.detach(CodeTextModel.this);
+                    }
+                    old = get();
+                    if (old != null) {
+                        old.attach(CodeTextModel.this);
+                    }
                     fireStylingUpdate();
                 }
             };
