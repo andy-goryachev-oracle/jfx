@@ -50,6 +50,21 @@ public class JavaSyntaxAnalyzer {
         public String toString() {
             return segments.toString();
         }
+        
+        @Override
+        public boolean equals(Object x) {
+            if (x == this) {
+                return true;
+            } else if (x instanceof Line n) {
+                return segments.equals(n.segments);
+            }
+            return false;
+        }
+        
+        @Override
+        public int hashCode() {
+            return 0; // we only need equals, don't put a hash table!
+        }
     }
     
     public static class Segment {
@@ -73,6 +88,23 @@ public class JavaSyntaxAnalyzer {
         public String toString() {
             return type + ":[" + text + "]";
         }
+        
+        @Override
+        public boolean equals(Object x) {
+            if (x == this) {
+                return true;
+            } else if (x instanceof Segment s) {
+                return
+                    (type == s.type) &&
+                    (text.equals(s.text));
+            }
+            return false;
+        }
+        
+        @Override
+        public int hashCode() {
+            return 0; // we only need equals, don't put a hash table!
+        }
     }
     
     public enum Type {
@@ -89,6 +121,8 @@ public class JavaSyntaxAnalyzer {
         EOF,
         EOL,
         OTHER,
+        STRING,
+        TEXT_BLOCK,
         WHITESPACE,
     }
 
@@ -193,6 +227,10 @@ public class JavaSyntaxAnalyzer {
             return Type.OTHER;
         case OTHER:
             return Type.OTHER;
+        case STRING:
+            return Type.STRING;
+        case TEXT_BLOCK:
+            return Type.STRING;
         case WHITESPACE:
             return Type.OTHER;
         default:
@@ -288,6 +326,8 @@ public class JavaSyntaxAnalyzer {
                 switch(state) {
                 case COMMENT_BLOCK:
                 case COMMENT_LINE:
+                case STRING:
+                case TEXT_BLOCK:
                     break;
                 default:
                     if (match("/*")) {
@@ -302,9 +342,39 @@ public class JavaSyntaxAnalyzer {
                         continue;
                     }
                 }
+                break;
+            case '"':
+                switch(state) {
+                case COMMENT_BLOCK:
+                case COMMENT_LINE:
+                    break;
+                case STRING:
+                    pos++;
+                    addSegment();
+                    state = State.OTHER;
+                    continue;
+                default:
+                    if(match("\"\"\"")) {
+                        addSegment();
+                        pos += tokenLength;
+                        state = State.TEXT_BLOCK;
+                        continue;
+                    } else {
+                        addSegment();
+                        state = State.STRING;
+                    }
+                    break;
+                }
+                break;
             }
             
             pos++;
         }
     }
+    
+    // TODO keywords
+    // TODO chars
+    // TODO espaces inside char and string
+    // TODO text blocks
+    // TODO numbers
 }

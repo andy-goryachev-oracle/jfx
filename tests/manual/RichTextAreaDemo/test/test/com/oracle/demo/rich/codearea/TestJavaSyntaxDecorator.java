@@ -25,26 +25,52 @@
 
 package test.com.oracle.demo.rich.codearea;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import com.oracle.demo.rich.codearea.JavaSyntaxAnalyzer;
 
 public class TestJavaSyntaxDecorator {
-    static final String TEXT = """
-/**
-block comment
-*/
-package a;
+    private static final JavaSyntaxAnalyzer.Type C = JavaSyntaxAnalyzer.Type.COMMENT;
+    private static final JavaSyntaxAnalyzer.Type K = JavaSyntaxAnalyzer.Type.KEYWORD;
+    private static final JavaSyntaxAnalyzer.Type N = JavaSyntaxAnalyzer.Type.NUMBER;
+    private static final JavaSyntaxAnalyzer.Type O = JavaSyntaxAnalyzer.Type.OTHER;
+    private static final JavaSyntaxAnalyzer.Type S = JavaSyntaxAnalyzer.Type.STRING;
+    private static final Object NL = new Object();
 
-public // comment
-class A { }
+    @Test
+    public void tests() {
+        t(O, "if(", S, "\"/*\"", O, " == null) {", NL);
+        t(C, "// test", NL, O, "--", NL);
+    }
 
-        """;
+    private void t(Object... items) {
+        StringBuilder sb = new StringBuilder();
+        ArrayList<JavaSyntaxAnalyzer.Line> expected = new ArrayList<>();
+        JavaSyntaxAnalyzer.Line line = null;
 
-    public static void main(String[] a) {
-        List<JavaSyntaxAnalyzer.Line> lines = new JavaSyntaxAnalyzer(TEXT).analyze();
-        System.out.println("result:");
-        for (JavaSyntaxAnalyzer.Line line : lines) {
-            System.out.println(line);
+        for (int i = 0; i < items.length; ) {
+            Object x = items[i++];
+            if (x == NL) {
+                sb.append("\n");
+                if (line == null) {
+                    line = new JavaSyntaxAnalyzer.Line();
+                }
+                expected.add(line);
+                line = null;
+            } else if (x instanceof JavaSyntaxAnalyzer.Type t) {
+                String text = (String)items[i++];
+                if (line == null) {
+                    line = new JavaSyntaxAnalyzer.Line();
+                }
+                line.addSegment(t, text);
+                sb.append(text);
+            }
         }
+
+        String input = sb.toString();
+        List<JavaSyntaxAnalyzer.Line> res = new JavaSyntaxAnalyzer(input).analyze();
+        Assertions.assertArrayEquals(expected.toArray(), res.toArray());
     }
 }
