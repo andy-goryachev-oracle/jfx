@@ -44,12 +44,15 @@ public class TestJavaSyntaxDecorator {
     public void tests() {
         // TODO
 
-        // TODO strings
-        t(O, "S, ", S, "\"\\\"/*\\\"\"", NL);
+        // strings
+        t(O, " ", S, "\"\\\"/*\\\"\"", NL);
         t(S, "\"\\\"\\\"\\\"\"", O, " {", NL);
         t(S, "\"abc\"", NL, O, "s = ", S, "\"\"");
         
-        // TODO comments
+        // comments
+        t(O, " ", C, "/* yo", NL, C, "yo yo", NL, C, " */", O, " ");
+        t(O, " ", C, "// yo yo", NL, K, "int", O, " c;");
+        t(C, "/* // yo", NL, C, "// */", O, " ");
         
         // chars
         t(H, "'\\b'");
@@ -80,7 +83,8 @@ public class TestJavaSyntaxDecorator {
                 }
                 expected.add(line);
                 line = null;
-            } else if (x instanceof JavaSyntaxAnalyzer.Type t) {
+            } else {
+                JavaSyntaxAnalyzer.Type t = (JavaSyntaxAnalyzer.Type)x;
                 String text = (String)items[i++];
                 if (line == null) {
                     line = new JavaSyntaxAnalyzer.Line();

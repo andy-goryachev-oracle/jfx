@@ -220,7 +220,6 @@ public class JavaSyntaxAnalyzer {
                 sep = true;
             }
             sb.append("\\G"); // match at start of the input in match(pos);
-            //sb.append("\\b("); // word boundary + capturing group
             sb.append("("); // capturing group
             sb.append(k);
             sb.append(")\\b"); // capturing group + word boundary
@@ -457,10 +456,9 @@ public class JavaSyntaxAnalyzer {
                     switch (charAt(1)) {
                     case '\n':
                         break;
-                        // FIX breaks around "\"/*...
                     default:
                         pos++;
-                        continue;
+                        break;
                     }
                     break;
                 }
