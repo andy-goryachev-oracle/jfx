@@ -42,6 +42,7 @@ import javafx.scene.paint.Color;
  * and does not take into account version-specific language features.
  */
 public class JavaSyntaxDecorator implements SyntaxDecorator, StyledTextModel.ChangeListener {
+    private static final StyleAttrs CHARACTER = mkStyle(Color.BLUE);
     private static final StyleAttrs COMMENT = mkStyle(Color.RED);
     private static final StyleAttrs KEYWORD = mkStyle(Color.GREEN);
     private static final StyleAttrs NUMBER = mkStyle(Color.BLUE);
@@ -141,6 +142,8 @@ public class JavaSyntaxDecorator implements SyntaxDecorator, StyledTextModel.Cha
 
     private StyleAttrs getStyleAttrs(JavaSyntaxAnalyzer.Type t) {
         switch(t) {
+        case CHARACTER:
+            return CHARACTER;
         case COMMENT:
             return COMMENT;
         case KEYWORD:

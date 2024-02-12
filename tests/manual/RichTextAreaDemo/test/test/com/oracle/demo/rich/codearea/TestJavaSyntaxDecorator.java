@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import com.oracle.demo.rich.codearea.JavaSyntaxAnalyzer;
 
 public class TestJavaSyntaxDecorator {
+    private static final JavaSyntaxAnalyzer.Type H = JavaSyntaxAnalyzer.Type.CHARACTER;
     private static final JavaSyntaxAnalyzer.Type C = JavaSyntaxAnalyzer.Type.COMMENT;
     private static final JavaSyntaxAnalyzer.Type K = JavaSyntaxAnalyzer.Type.KEYWORD;
     private static final JavaSyntaxAnalyzer.Type N = JavaSyntaxAnalyzer.Type.NUMBER;
@@ -41,7 +42,27 @@ public class TestJavaSyntaxDecorator {
 
     @Test
     public void tests() {
-        t(O, "if(", S, "\"/*\"", O, " == null) {", NL);
+        // TODO
+
+        // TODO strings
+        t(O, "S, ", S, "\"\\\"/*\\\"\"", NL);
+        t(S, "\"\\\"\\\"\\\"\"", O, " {", NL);
+        t(S, "\"abc\"", NL, O, "s = ", S, "\"\"");
+        
+        // TODO comments
+        
+        // chars
+        t(H, "'\\b'");
+        t(H, "'\\b'", NL);
+        t(H, "'\\u0000'", NL, H, "'\\uFf9a'", NL );
+        t(H, "'a'", NL, H, "'\\b'", NL, H, "'\\f'", NL, H, "'\\n'", NL, H, "'\\r'", NL);
+        t(H, "'\\''", NL, H, "'\\\"'", NL, H, "'\\\\'", NL );
+        // keywords
+        t(K, "package", O, " java.com;", NL);
+        t(K, "import", O, " java.util.ArrayList;", NL);
+        t(K, "import", O, " java.util.ArrayList;", NL, K, "import", O, " java.util.ArrayList;", NL);
+        // misc
+        t(K, "if", O, "(", S, "\"/*\"", O, " == null) {", NL);
         t(C, "// test", NL, O, "--", NL);
     }
 
@@ -67,6 +88,10 @@ public class TestJavaSyntaxDecorator {
                 line.addSegment(t, text);
                 sb.append(text);
             }
+        }
+
+        if (line != null) {
+            expected.add(line);
         }
 
         String input = sb.toString();

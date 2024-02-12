@@ -26,7 +26,9 @@
 package com.oracle.demo.rich.codearea;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +38,7 @@ import java.util.regex.Pattern;
  * and does not take into account version-specific language features.
  */
 public class JavaSyntaxAnalyzer {
-    private static boolean DEBUG = false;
+    private boolean DEBUG = !false;
 
     public static class Line {
         private ArrayList<Segment> segments = new ArrayList<>();
@@ -111,6 +113,7 @@ public class JavaSyntaxAnalyzer {
     }
     
     public enum Type {
+        CHARACTER,
         COMMENT,
         KEYWORD,
         NUMBER,
@@ -131,8 +134,14 @@ public class JavaSyntaxAnalyzer {
     }
 
     private static final int EOF = -1;
+    private static Pattern KEYWORDS;
+    private static Set<Integer> FIRST;
+    private static Pattern CHARS;
+    static { init(); }
+
     private final String text;
-    private final JavaKeywords javaKeywords;
+    private final Matcher keywordMatcher;
+    private final Matcher charsMatcher;
     private int pos;
     private int start;
     private boolean blockComment;
@@ -143,7 +152,114 @@ public class JavaSyntaxAnalyzer {
 
     public JavaSyntaxAnalyzer(String text) {
         this.text = text;
-        this.javaKeywords = new JavaKeywords(text);
+        this.keywordMatcher = KEYWORDS.matcher(text);
+        this.charsMatcher = CHARS.matcher(text);
+    }
+
+    private static void init() {
+        String[] keywords = {
+            "abstract",
+            "assert",
+            "boolean",
+            "break",
+            "byte",
+            "case",
+            "catch",
+            "char",
+            "class",
+            "const",
+            "continue",
+            "default",
+            "do",
+            "double",
+            "else",
+            "enum",
+            "extends",
+            "final",
+            "finally",
+            "float",
+            "for",
+            "goto",
+            "if",
+            "implements",
+            "import",
+            "instanceof",
+            "int",
+            "interface",
+            "long",
+            "native",
+            "new",
+            "package",
+            "private",
+            "protected",
+            "public",
+            "return",
+            "short",
+            "static",
+            "strictfpv",
+            "super",
+            "switch",
+            "synchronized",
+            "this",
+            "throw",
+            "throws",
+            "transient",
+            "try",
+            "void",
+            "volatile",
+            "while"
+        };
+
+        HashSet<Integer> chars = new HashSet<>();
+        StringBuilder sb = new StringBuilder();
+        boolean sep = false;
+        for (String k : keywords) {
+            if (sep) {
+                sb.append("|");
+            } else {
+                sep = true;
+            }
+            sb.append("\\G"); // match at start of the input in match(pos);
+            //sb.append("\\b("); // word boundary + capturing group
+            sb.append("("); // capturing group
+            sb.append(k);
+            sb.append(")\\b"); // capturing group + word boundary
+
+            chars.add(Integer.valueOf(k.charAt(0)));
+        }
+
+        KEYWORDS = Pattern.compile(sb.toString());
+        FIRST = chars;
+
+        String charsPattern =
+            "(\\G\\\\[bfnrt'\"\\\\]')|" +  // \b' + \f' + \n' + \r' + \t' + \'' + \"' +  \\'
+            "(\\G[^\\\\u]')|" + // any char followed by ', except u and \
+            "(\\G\\\\u[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]')" // unicode escapes
+            ;
+        CHARS = Pattern.compile(charsPattern);
+    }
+    
+    // returns the length of java keyword, 0 if not a java keyword
+    private int matchJavaKeyword() {
+        int c = charAt(0);
+        if (FIRST.contains(c)) {
+            if (keywordMatcher.find(pos)) {
+                int start = keywordMatcher.start();
+                int end = keywordMatcher.end();
+                return (end - start);
+            }
+        }
+        return 0;
+    }
+
+    // returns the length of the character, or 0 if not a character
+    private int matchCharacter() {
+        if(charsMatcher.find(pos + 1)) {
+            int start = charsMatcher.start();
+            int end = charsMatcher.end();
+            return (end - start);
+        }
+        return 0;
     }
 
     private int peek() {
@@ -179,9 +295,13 @@ public class JavaSyntaxAnalyzer {
     }
 
     private void addSegment() {
+        Type type = type(state);
+        addSegment(type);
+    }
+
+    private void addSegment(Type type) {
         if (pos > start) {
             String s = text.substring(start, pos);
-            Type type = type(state);
             
             if (currentLine == null) {
                 currentLine = new Line();
@@ -230,7 +350,7 @@ public class JavaSyntaxAnalyzer {
             tokenLength = 0;
             int c = peek();
             
-            switch(c) {
+            switch (c) {
             case EOF:
                 addSegment();
                 if (currentLine != null) {
@@ -308,18 +428,58 @@ public class JavaSyntaxAnalyzer {
                     break;
                 }
                 break;
+            case '\'':
+                switch(state) {
+                case COMMENT_BLOCK:
+                case COMMENT_LINE:
+                case STRING:
+                    break;
+                default:
+                    switch (charAt(1)) {
+                    case '\n':
+                        pos++;
+                        continue;
+                    }
+                    tokenLength = matchCharacter();
+                    if (tokenLength > 0) {
+                        addSegment();
+                        pos += (tokenLength + 1);
+                        addSegment(Type.CHARACTER);
+                        state = State.OTHER;
+                        continue;
+                    }
+                    break;
+                }
+                break;
+            case '\\':
+                switch (state) {
+                case STRING:
+                    switch (charAt(1)) {
+                    case '\n':
+                        break;
+                        // FIX breaks around "\"/*...
+                    default:
+                        pos++;
+                        continue;
+                    }
+                    break;
+                }
+                break;
             default:
                 switch (state) {
                 case OTHER:
-                    int len = javaKeywords.matchJavaKeyword(pos);
-                    if (len > 0) {
+                    tokenLength = matchJavaKeyword();
+                    if (tokenLength > 0) {
                         addSegment();
-                        pos += len;
+                        pos += tokenLength;
                         state = State.KEYWORD;
                         addSegment();
                         state = State.OTHER;
                         continue;
                     }
+                    break;
+                default:
+                    int x = 5; // FIX
                     break;
                 }
                 break;
@@ -329,8 +489,6 @@ public class JavaSyntaxAnalyzer {
         }
     }
     
-    // TODO chars
-    // TODO escapes inside char and string
     // TODO text blocks
     // TODO ints, longs, doubles
 }
