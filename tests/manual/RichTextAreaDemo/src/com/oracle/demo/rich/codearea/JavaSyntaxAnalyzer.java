@@ -130,10 +130,9 @@ public class JavaSyntaxAnalyzer {
         WHITESPACE,
     }
 
-    private static final Pattern KEYWORDS = initKeywords();
     private static final int EOF = -1;
     private final String text;
-    private final Matcher matcher;
+    private final JavaKeywords javaKeywords;
     private int pos;
     private int start;
     private boolean blockComment;
@@ -144,78 +143,7 @@ public class JavaSyntaxAnalyzer {
 
     public JavaSyntaxAnalyzer(String text) {
         this.text = text;
-        this.matcher = KEYWORDS.matcher(text);
-    }
-
-    private static Pattern initKeywords() {
-        String[] keywords = {
-            "abstract",
-            "assert",
-            "boolean",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "class",
-            "const",
-            "continue",
-            "default",
-            "do",
-            "double",
-            "else",
-            "enum",
-            "extends",
-            "final",
-            "finally",
-            "float",
-            "for",
-            "goto",
-            "if",
-            "implements",
-            "import",
-            "instanceof",
-            "int",
-            "interface",
-            "long",
-            "native",
-            "new",
-            "package",
-            "private",
-            "protected",
-            "public",
-            "return",
-            "short",
-            "static",
-            "strictfpv",
-            "super",
-            "switch",
-            "synchronized",
-            "this",
-            "throw",
-            "throws",
-            "transient",
-            "try",
-            "void",
-            "volatile",
-            "while"
-        };
-
-        StringBuilder sb = new StringBuilder();
-        boolean sep = false;
-        for (String k : keywords) {
-            if (sep) {
-                sb.append("|");
-            } else {
-                sep = true;
-            }
-            sb.append("\\G"); // match at start of the input in match(pos);
-            //sb.append("\\b("); // word boundary + capturing group
-            sb.append("("); // capturing group
-            sb.append(k);
-            sb.append(")\\b"); // capturing group + word boundary
-        }
-        return Pattern.compile(sb.toString());
+        this.javaKeywords = new JavaKeywords(text);
     }
 
     private int peek() {
@@ -293,16 +221,6 @@ public class JavaSyntaxAnalyzer {
         return EOF;
     }
     
-    private boolean isKeyword() {
-        if (matcher.find(pos)) {
-            int start = matcher.start();
-            int end = matcher.end();
-            tokenLength += (end - start);
-            return true;
-        }
-        return false;
-    }
-
     public List<Line> analyze() {
         if(DEBUG) System.out.println("analyze"); // FIX
         lines = new ArrayList<>();
@@ -393,10 +311,10 @@ public class JavaSyntaxAnalyzer {
             default:
                 switch (state) {
                 case OTHER:
-                    // FIX takes too long!  check if char is in a set of first characters in keywords?
-                    if (isKeyword()) {
+                    int len = javaKeywords.matchJavaKeyword(pos);
+                    if (len > 0) {
                         addSegment();
-                        pos += tokenLength;
+                        pos += len;
                         state = State.KEYWORD;
                         addSegment();
                         state = State.OTHER;
