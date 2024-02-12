@@ -27,6 +27,7 @@ package com.oracle.demo.rich.codearea;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -35,6 +36,8 @@ import java.util.regex.Pattern;
  * and does not take into account version-specific language features.
  */
 public class JavaSyntaxAnalyzer {
+    private static boolean DEBUG = false;
+
     public static class Line {
         private ArrayList<Segment> segments = new ArrayList<>();
 
@@ -120,15 +123,17 @@ public class JavaSyntaxAnalyzer {
         COMMENT_LINE,
         EOF,
         EOL,
+        KEYWORD,
         OTHER,
         STRING,
         TEXT_BLOCK,
         WHITESPACE,
     }
 
-    private static final Pattern PATTERNS = initPattern();
+    private static final Pattern KEYWORDS = initKeywords();
     private static final int EOF = -1;
     private final String text;
+    private final Matcher matcher;
     private int pos;
     private int start;
     private boolean blockComment;
@@ -139,9 +144,10 @@ public class JavaSyntaxAnalyzer {
 
     public JavaSyntaxAnalyzer(String text) {
         this.text = text;
+        this.matcher = KEYWORDS.matcher(text);
     }
 
-    private static Pattern initPattern() {
+    private static Pattern initKeywords() {
         String[] keywords = {
             "abstract",
             "assert",
@@ -196,14 +202,18 @@ public class JavaSyntaxAnalyzer {
         };
 
         StringBuilder sb = new StringBuilder();
-        // digits
-        sb.append("(\\b\\d+\\b)");
-
-        // keywords
+        boolean sep = false;
         for (String k : keywords) {
-            sb.append("|\\b(");
+            if (sep) {
+                sb.append("|");
+            } else {
+                sep = true;
+            }
+            sb.append("\\G"); // match at start of the input in match(pos);
+            //sb.append("\\b("); // word boundary + capturing group
+            sb.append("("); // capturing group
             sb.append(k);
-            sb.append(")\\b");
+            sb.append(")\\b"); // capturing group + word boundary
         }
         return Pattern.compile(sb.toString());
     }
@@ -225,6 +235,8 @@ public class JavaSyntaxAnalyzer {
             return Type.OTHER;
         case EOL:
             return Type.OTHER;
+        case KEYWORD:
+            return Type.KEYWORD;
         case OTHER:
             return Type.OTHER;
         case STRING:
@@ -249,7 +261,7 @@ public class JavaSyntaxAnalyzer {
             currentLine.addSegment(type, s);
             
             start = pos;
-            System.out.println("  " + type + ":[" + s + "]"); // FIX
+            if(DEBUG) System.out.println("  " + type + ":[" + s + "]"); // FIX
         }
     }
 
@@ -259,28 +271,40 @@ public class JavaSyntaxAnalyzer {
         }
         lines.add(currentLine);
         currentLine = null;
-        System.out.println("  <NL>"); // FIX
+        if(DEBUG) System.out.println("  <NL>"); // FIX
     }
 
     private boolean match(String pattern) {
         for (int i = 0; i < pattern.length(); i++) {
-            if (charAt(pos + i) != pattern.charAt(i)) {
+            if (charAt(i) != pattern.charAt(i)) {
                 return false;
             }
         }
         tokenLength = pattern.length();
         return true;
     }
-    
+
+    // relative to 'pos'
     private int charAt(int ix) {
-        if (ix < text.length()) {
+        ix += pos;
+        if ((ix >= 0) && (ix < text.length())) {
             return text.charAt(ix);
         }
         return EOF;
     }
+    
+    private boolean isKeyword() {
+        if (matcher.find(pos)) {
+            int start = matcher.start();
+            int end = matcher.end();
+            tokenLength += (end - start);
+            return true;
+        }
+        return false;
+    }
 
     public List<Line> analyze() {
-        System.out.println("analyze"); // FIX
+        if(DEBUG) System.out.println("analyze"); // FIX
         lines = new ArrayList<>();
         start = 0;
 
@@ -366,15 +390,29 @@ public class JavaSyntaxAnalyzer {
                     break;
                 }
                 break;
+            default:
+                switch (state) {
+                case OTHER:
+                    // FIX takes too long!  check if char is in a set of first characters in keywords?
+                    if (isKeyword()) {
+                        addSegment();
+                        pos += tokenLength;
+                        state = State.KEYWORD;
+                        addSegment();
+                        state = State.OTHER;
+                        continue;
+                    }
+                    break;
+                }
+                break;
             }
             
             pos++;
         }
     }
     
-    // TODO keywords
     // TODO chars
-    // TODO espaces inside char and string
+    // TODO escapes inside char and string
     // TODO text blocks
-    // TODO numbers
+    // TODO ints, longs, doubles
 }
