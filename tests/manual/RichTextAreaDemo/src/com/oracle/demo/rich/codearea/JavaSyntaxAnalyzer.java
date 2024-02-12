@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
  * This is just a demo, as it has no link to the real compiler, does not understand Java language
  * and does not take into account version-specific language features.
  */
+// TODO ints, longs, doubles
 public class JavaSyntaxAnalyzer {
     private boolean DEBUG = !false;
 
@@ -339,6 +340,43 @@ public class JavaSyntaxAnalyzer {
         }
         return EOF;
     }
+
+    // leading: """(whitespace)\n  trailing: """(whitespace);
+    private boolean isTextBlock(boolean leading) {
+        for (int i = 0; ; i++) {
+            int c = charAt(i);
+            switch (c) {
+            case '"':
+                if (i >= 3) {
+                    return false;
+                }
+                break;
+            case ' ':
+            case '\t':
+                if (i < 3) {
+                    return false;
+                }
+                break;
+            case '\n':
+                if (leading) {
+                    tokenLength = i;
+                    return true;
+                } else {
+                    return false;
+                }
+            case ';':
+                if (i < 3) {
+                    return false;
+                }
+                if (!leading) {
+                    tokenLength = i;
+                    return true;
+                }
+            case -1:
+                return false;
+            }
+        }
+    }
     
     public List<Line> analyze() {
         if(DEBUG) System.out.println("analyze"); // FIX
@@ -350,15 +388,6 @@ public class JavaSyntaxAnalyzer {
             int c = peek();
             
             switch (c) {
-            case EOF:
-                addSegment();
-                if (currentLine != null) {
-                    lines.add(currentLine);
-                }
-                if (lines.size() == 0) {
-                    lines.add(new Line());
-                }
-                return lines;
             case '*':
                 switch (state) {
                 case COMMENT_BLOCK:
@@ -377,6 +406,7 @@ public class JavaSyntaxAnalyzer {
                 start = pos;
                 switch (state) {
                 case COMMENT_BLOCK:
+                case TEXT_BLOCK:
                     break;
                 default:
                     state = State.OTHER;
@@ -409,13 +439,21 @@ public class JavaSyntaxAnalyzer {
                 case COMMENT_BLOCK:
                 case COMMENT_LINE:
                     break;
+                case TEXT_BLOCK:
+                    if(isTextBlock(false)) {
+                        pos += tokenLength;
+                        addSegment();
+                        state = State.OTHER;
+                        continue;
+                    }
+                    break;
                 case STRING:
                     pos++;
                     addSegment();
                     state = State.OTHER;
                     continue;
                 default:
-                    if(match("\"\"\"")) {
+                    if(isTextBlock(true)) {
                         addSegment();
                         pos += tokenLength;
                         state = State.TEXT_BLOCK;
@@ -463,6 +501,15 @@ public class JavaSyntaxAnalyzer {
                     break;
                 }
                 break;
+            case EOF:
+                addSegment();
+                if (currentLine != null) {
+                    lines.add(currentLine);
+                }
+                if (lines.size() == 0) {
+                    lines.add(new Line());
+                }
+                return lines;
             default:
                 switch (state) {
                 case OTHER:
@@ -486,7 +533,4 @@ public class JavaSyntaxAnalyzer {
             pos++;
         }
     }
-    
-    // TODO text blocks
-    // TODO ints, longs, doubles
 }

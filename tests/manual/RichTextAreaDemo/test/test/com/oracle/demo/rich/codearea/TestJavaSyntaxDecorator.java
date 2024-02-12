@@ -42,7 +42,31 @@ public class TestJavaSyntaxDecorator {
 
     @Test
     public void tests() {
-        // TODO
+        var s = """
+        ---
+        """  ; // text block
+        double x = .1e15;
+        x = 1_000_000;
+        x = -1_000e-1;
+        x = +1_000e+1;
+        x = 1__1e-1_______________________________1;
+        //Long.parseLong("1_000_000");
+        //Double.parseDouble("1_000_000"); // eh?
+        
+        // text blocks
+        t(O, "String s =", S, "\"\"\"   ", NL, S, " yo /* // */ */ \"\" \"  ", NL, S, "a  \"\"\"   ", O, ";"); 
+
+        // TODO ints, longs, doubles
+        // t(N, "1");
+        // t(N, "1_000_000");
+        // t(N, "1_000_000_000", O, ";", NL);
+        // t(N, 3.141592");
+        // t(N, ".12345");
+        // t(N, "1.5e2");
+        // t(N, "1.5E-2");
+        // t(N, ".57E22");
+        // t(N, ".75E-5");
+        // t(N, "1___2e-3___6");
 
         // strings
         t(O, " ", S, "\"\\\"/*\\\"\"", NL);
@@ -60,10 +84,12 @@ public class TestJavaSyntaxDecorator {
         t(H, "'\\u0000'", NL, H, "'\\uFf9a'", NL );
         t(H, "'a'", NL, H, "'\\b'", NL, H, "'\\f'", NL, H, "'\\n'", NL, H, "'\\r'", NL);
         t(H, "'\\''", NL, H, "'\\\"'", NL, H, "'\\\\'", NL );
+
         // keywords
         t(K, "package", O, " java.com;", NL);
         t(K, "import", O, " java.util.ArrayList;", NL);
         t(K, "import", O, " java.util.ArrayList;", NL, K, "import", O, " java.util.ArrayList;", NL);
+
         // misc
         t(K, "if", O, "(", S, "\"/*\"", O, " == null) {", NL);
         t(C, "// test", NL, O, "--", NL);
