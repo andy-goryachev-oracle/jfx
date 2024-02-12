@@ -268,6 +268,10 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
             updatePrefViewportHeight();
         });
 
+        registerChangeListener(control.fontProperty(), e -> {
+            contentView.requestLayout();
+        });
+
         updateFontMetrics();
         fontMetrics.addListener(valueModel -> {
             updateFontMetrics();
@@ -1310,8 +1314,7 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
             final double topPadding = snappedTopInset();
             final double leftPadding = snappedLeftInset();
 
-            double wrappingWidth = Math.max(width - (leftPadding + snappedRightInset()), 0);
-
+            double wrappingWidth = textArea.isWrapText() ? Math.max(width - (leftPadding + snappedRightInset()), 0) : 0;
             double y = topPadding;
 
             final List<Node> paragraphNodesChildren = paragraphNodes.getChildren();
@@ -1471,7 +1474,7 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
                 }
             }
 
-            // RT-36454: Fit to width/height only if smaller than viewport.
+            // RT-36454 (JDK-8097060): Fit to width/height only if smaller than viewport.
             // That is, grow to fit but don't shrink to fit.
             Bounds viewportBounds = scrollPane.getViewportBounds();
             boolean wasFitToWidth = scrollPane.isFitToWidth();
@@ -1479,11 +1482,16 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
             boolean setFitToWidth = textArea.isWrapText() || computePrefWidth(-1) <= viewportBounds.getWidth();
             boolean setFitToHeight = computePrefHeight(width) <= viewportBounds.getHeight();
             if (wasFitToWidth != setFitToWidth || wasFitToHeight != setFitToHeight) {
-                Platform.runLater(() -> {
-                    scrollPane.setFitToWidth(setFitToWidth);
-                    scrollPane.setFitToHeight(setFitToHeight);
-                });
+                scrollPane.setFitToWidth(setFitToWidth);
+                scrollPane.setFitToHeight(setFitToHeight);
                 getParent().requestLayout();
+
+                // if only there was a way to force a layout from within the layout!
+                // runlater causes flicker
+                Platform.runLater(() -> {
+                    scrollPane.layout();
+                    scrollCaretToVisible();
+                });
             }
         }
     }
