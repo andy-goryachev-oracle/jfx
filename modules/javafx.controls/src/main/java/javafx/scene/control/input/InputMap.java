@@ -227,25 +227,6 @@ public final class InputMap {
     }
 
     /**
-     * Link a key binding to the specified function tag.
-     * When the key binding matches the input event, and the condition is {@code true},
-     * the function is executed and, if the value of {@code consume} parameter is true,
-     * the event is consumed and the process of dispatching is stopped.  If the value of {@code consume} is false,
-     * the event continues to be dispatched.
-     * <p>
-     * This method will take precedence over any function set by the skin.
-     *
-     * @param k the key binding
-     * @param tag the function tag
-     * @param condition the condition to test
-     * @param consume whether to consume the event
-     */
-    public void registerKey(KeyBinding k, FunctionTag tag, BooleanSupplier condition, boolean consume) {
-        Objects.requireNonNull(k, "KeyBinding must not be null");
-        registerKey(KeyBinding.wrap(k, condition, consume), tag);
-    }
-
-    /**
      * Returns a {@code FunctionHandler} mapped to the specified function tag, or null if no such mapping exists.
      *
      * @param <C> the skinnable type

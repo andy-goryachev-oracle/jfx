@@ -96,20 +96,6 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
         this.modifiers = modifiers;
     }
 
-    static KeyBinding wrap(KeyBinding k, BooleanSupplier condition, boolean consume) {
-        return new KeyBinding(k.key, k.modifiers) {
-            @Override
-            boolean isEnabled() {
-                return condition.getAsBoolean();
-            }
-
-            @Override
-            boolean isConsume() {
-                return consume;
-            }
-        };
-    }
-
     /**
      * Utility method creates a KeyBinding corresponding to a key press.
      *
@@ -482,6 +468,8 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     /** Key bindings builder */
     public static class Builder {
         private Object key; // KeyCode or String
+        private BooleanSupplier condition;
+        private Boolean consume = true;
         private final EnumSet<KCondition> m = EnumSet.noneOf(KCondition.class);
 
         /** Constructs a Builder */
@@ -672,6 +660,31 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
             if (on) {
                 m.add(KCondition.SHORTCUT);
             }
+            return this;
+        }
+
+        /**
+         * Sets the condition when this KeyBinding is active.
+         * When condition resolves to {@code false}, the key mapping is ignored and the matching event is not
+         * consumed.
+         *
+         * @param condition the condition which activates the key binding
+         * @return this Builder
+         */
+        public Builder when(BooleanSupplier condition) {
+            this.condition = condition;
+            return this;
+        }
+
+        /**
+         * Sets whether the key mapping will consume the event when matched.
+         * The default value is {@code true}.
+         *
+         * @param on whether to consume the matching event
+         * @return this Builder
+         */
+        public Builder autoConsume(boolean on) {
+            consume = on;
             return this;
         }
 
