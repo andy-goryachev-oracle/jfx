@@ -420,6 +420,159 @@ public class JavaSyntaxAnalyzer {
         }
     }
 
+    // relative to pos
+    private boolean isDigit(int ix) {
+        int c = charAt(ix);
+        switch (c) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            return true;
+        }
+        return false;
+    }
+
+    // TODO move up
+    private enum Phase {
+        S_0,   // first character of significand
+        S_BEG, // beginning of significand, before period
+        S_PER, // decimal point in the significand
+        S_END, // after period in significand
+        E_DIV, // exponent divider ('e' or 'E')
+        E_0,   // first character in the exponent after divider
+        E_SIG, // exponent sign
+        E_BEG, // exponent before decimal point
+        E_PER, // decimal point in the exponent
+        E_END, // after decimal point in the exponent
+        QUAL   // trailing qualifier (D/d/F/f/L/l)
+    }
+    private Phase phase;
+    private boolean hasSignificand;
+    private boolean hasExponent;
+
+    private int matchNumber() {
+        int c = charAt(0);
+        switch (c) {
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case '.':
+            break;
+        default:
+            return 0;
+        }
+        
+        phase = Phase.S_BEG;
+        hasSignificand = false;
+        hasExponent = false;
+
+        for (int i = 0; ; i++) {
+            c = charAt(i);
+            char ch = (char)c; // FIX
+            switch (c) {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                switch (phase) {
+                case S_PER:
+                    phase = Phase.S_END;
+                    hasSignificand = true;
+                    break;
+                case E_DIV:
+                    phase = Phase.E_SIG;
+                    hasExponent = true;
+                    break;
+                case E_PER:
+                    phase = Phase.E_END;
+                    hasExponent = true;
+                    break;
+                case E_SIG:
+                    phase = Phase.E_BEG;
+                    hasExponent = true;
+                    break;
+                }
+                break;
+            case '.':
+                switch (phase) {
+                case S_0:
+                case S_BEG:
+                    phase = Phase.S_PER;
+                    break;
+                case E_0:
+                case E_SIG:
+                case E_BEG:
+                case E_DIV:
+                    phase = Phase.E_PER;
+                    break;
+                default:
+                    return 0;
+                }
+                break;
+            case '_':
+                switch (phase) {
+                case S_BEG:
+                case S_END:
+                case E_BEG:
+                case E_END:
+                    if (!(isDigit(i - 1) && isDigit(i + 1))) {
+                        return 0;
+                    }
+                    break;
+                default:
+                    return 0;
+                }
+                break;
+            case 'e':
+            case 'E':
+            case 'd':
+            case 'D':
+            case 'l':
+            case 'L':
+            case '+':
+            case '-':
+                // TODO check if followed by a number
+                break;
+            case -1:
+            default:
+                switch (phase) {
+                case S_PER:
+                    return hasSignificand ? i : 0;
+                case E_PER:
+                    return hasExponent ? i : 0;
+                case S_BEG:
+                case S_END:
+                case E_BEG:
+                case E_END:
+                case QUAL:
+                    return i;
+                default:
+                    return 0;
+                }
+            }
+        }
+    }
+
     /**
      * Analyzes the input text, producing a list of {@code Line}s containing syntax information.
      * @return the list of lines with syntax highlighting
@@ -563,8 +716,15 @@ public class JavaSyntaxAnalyzer {
                     if (tokenLength > 0) {
                         addSegment();
                         pos += tokenLength;
-                        state = State.KEYWORD;
+                        addSegment(Type.KEYWORD);
+                        state = State.OTHER;
+                        continue;
+                    }
+                    tokenLength = matchNumber();
+                    if (tokenLength > 0) {
                         addSegment();
+                        pos += tokenLength;
+                        addSegment(Type.NUMBER);
                         state = State.OTHER;
                         continue;
                     }

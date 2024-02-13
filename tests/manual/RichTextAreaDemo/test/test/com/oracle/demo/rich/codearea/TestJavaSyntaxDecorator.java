@@ -46,20 +46,25 @@ public class TestJavaSyntaxDecorator {
         ---
         """  ; // text block
         double x = .1e15;
+        x = 1e3f;
+        x = 1.1f;
         x = 1_000_000;
         x = -1_000e-1;
         x = +1_000e+1;
         x = 1__1e-1_______________________________1;
         //Long.parseLong("1_000_000");
         //Double.parseDouble("1_000_000"); // eh?
-        
-        // text blocks
-        t(O, "String s =", S, "\"\"\"   ", NL, S, " yo /* // */ */ \"\" \"  ", NL, S, "a  \"\"\"   ", O, ";"); 
 
+        // integers
+        t(N, "1");
+        t(N, "1_0");
+        t(N, "1_000_000_000");
+        // negative scenarios with integers
+        t(O, "_", N, "1");
+        t(O, "1_");
+        
         // TODO ints, longs, doubles
-        // t(N, "1");
-        // t(N, "1_000_000");
-        // t(N, "1_000_000_000", O, ";", NL);
+        // 
         // t(N, 3.141592");
         // t(N, ".12345");
         // t(N, "1.5e2");
@@ -67,6 +72,15 @@ public class TestJavaSyntaxDecorator {
         // t(N, ".57E22");
         // t(N, ".75E-5");
         // t(N, "1___2e-3___6");
+        // t(N, "1L", NL, N, "1l", NL);
+        // t(N, "1D", NL, N, "1d", NL, N, "1.1D", NL, "1.1d", NL, "1.2e-3d",  NL, "1.2e-3D",  NL, "1.2E+3d");
+        // t(N, "1F", NL, N, "1f", NL, N, "1.1F", NL, "1.1f", NL, "1.2e-3f",  NL, "1.2e-3F",  NL, "1.2E+3f");
+        // TODO hex!! binary!  octal!
+        // t(N, 0xffffffffffffffffL, NL);
+        // t(N, 
+        
+        // text blocks
+        t(O, "String s =", S, "\"\"\"   ", NL, S, " yo /* // */ */ \"\" \"  ", NL, S, "a  \"\"\"   ", O, ";"); 
 
         // strings
         t(O, " ", S, "\"\\\"/*\\\"\"", NL);
