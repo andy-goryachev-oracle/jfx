@@ -27,6 +27,7 @@ package javafx.incubator.scene.control.rich.model;
 
 /**
  * Style Attribute provides a way to specify style in the RichTextArea.
+ * @param <T> the attribute value type
  */
 public final class StyleAttribute<T> {
     private final String name;

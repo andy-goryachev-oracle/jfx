@@ -29,8 +29,8 @@ import javafx.event.EventType;
 
 /**
  * Determines whether an event passes certain criteria.
- *
- * @since 22
+ * @param <T> the event type
+ * @since 999 TODO
  */
 public interface EventCriteria<T extends Event> {
     /**

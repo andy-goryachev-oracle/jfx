@@ -44,7 +44,8 @@ import com.sun.javafx.PlatformUtil;
  * The base class adds a dispose() method (called from Skin.dispose()),
  * which undoes the mappings done in install().
  *
- * @since 22
+ * @param <C> the actual control type
+ * @since 999 TODO
  */
 public abstract class BehaviorBase<C extends Control> {
     /** the instance of Control associated with this behavior */

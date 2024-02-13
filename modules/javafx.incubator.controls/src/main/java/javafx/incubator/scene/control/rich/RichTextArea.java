@@ -155,6 +155,7 @@ public class RichTextArea extends Control {
         public static final FunctionTag SELECT_WORD_RIGHT = new FunctionTag();
         /** Undoes the last edit operation */
         public static final FunctionTag UNDO = new FunctionTag();
+        private Tags() { }
     }
 
     private final ConfigurationParameters config;

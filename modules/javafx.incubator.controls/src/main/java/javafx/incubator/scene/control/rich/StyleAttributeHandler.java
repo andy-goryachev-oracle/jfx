@@ -29,6 +29,8 @@ package javafx.incubator.scene.control.rich;
  * This functional interface defines a style attribute handler.
  * The purpose of this handler is to apply changes to the {@code CellContext} based on the value
  * of the related attribute.
+ * @param <C> the actual type of RichTextArea control
+ * @param <T> the attribute value type 
  */
 @FunctionalInterface
 public interface StyleAttributeHandler<C extends RichTextArea, T> {
