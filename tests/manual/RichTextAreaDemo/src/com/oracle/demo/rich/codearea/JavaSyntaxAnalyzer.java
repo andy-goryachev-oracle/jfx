@@ -33,11 +33,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A simple Java syntax analyzer.
- * This is just a demo, as it has no link to the real compiler, does not understand Java language
- * and does not take into account version-specific language features.
+ * A simple Java syntax analyzer implemented as a recursive descent parser.
+ * This is just a demo, as it has no link to the real compiler, does not understand Java language,
+ * does not take into account version-specific language features, and reports no errors.
  */
-// TODO ints, longs, doubles
 public class JavaSyntaxAnalyzer {
     private boolean DEBUG = false;
 
@@ -421,22 +420,29 @@ public class JavaSyntaxAnalyzer {
     }
 
     // relative to pos
-    private boolean isDigit(int ix) {
-        int c = charAt(ix);
-        switch (c) {
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-            return true;
+    private boolean isBoundedByDigit(int ix, boolean increase) {
+        for(;;) {
+            int c = charAt(ix);
+            switch (c) {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                return true;
+            case '_':
+                break;
+            default:
+                return false;
+            }
+
+            ix += (increase ? 1 : -1);
         }
-        return false;
     }
 
     // TODO move up
@@ -499,14 +505,11 @@ public class JavaSyntaxAnalyzer {
                     phase = Phase.S_END;
                     hasSignificand = true;
                     break;
-                case E_DIV:
-                    phase = Phase.E_SIG;
-                    hasExponent = true;
-                    break;
                 case E_PER:
                     phase = Phase.E_END;
                     hasExponent = true;
                     break;
+                case E_DIV:
                 case E_SIG:
                     phase = Phase.E_BEG;
                     hasExponent = true;
@@ -535,7 +538,7 @@ public class JavaSyntaxAnalyzer {
                 case S_END:
                 case E_BEG:
                 case E_END:
-                    if (!(isDigit(i - 1) && isDigit(i + 1))) {
+                    if (!(isBoundedByDigit(i - 1, false) && isBoundedByDigit(i + 1, true))) {
                         return 0;
                     }
                     break;
@@ -545,14 +548,45 @@ public class JavaSyntaxAnalyzer {
                 break;
             case 'e':
             case 'E':
+                switch (phase) {
+                case S_PER:
+                    if(!hasSignificand) {
+                        return 0;
+                    }
+                    // fall through
+                case S_BEG:
+                case S_END:
+                    phase = Phase.E_DIV;
+                    break;
+                default:
+                    return 0;
+                }
+                break;
             case 'd':
             case 'D':
-            case 'l':
-            case 'L':
+                // TODO
+                break;
             case '+':
             case '-':
-                // TODO check if followed by a number
+                switch (phase) {
+                case E_DIV:
+                    phase = Phase.E_SIG;
+                    break;
+                case S_BEG:
+                case S_END:
+                case S_PER:
+                    return i;
+                default: 
+                    return 0;
+                }
                 break;
+            case 'l':
+            case 'L':
+                switch (phase) {
+                case S_BEG:
+                    return i + 1;
+                }
+                return 0;
             case -1:
             default:
                 switch (phase) {

@@ -46,38 +46,53 @@ public class TestJavaSyntaxDecorator {
         ---
         """  ; // text block
         double x = .1e15;
+        x = 1.5e2;
         x = 1e3f;
         x = 1.1f;
+        x = 5_0.1e2_3;
         x = 1_000_000;
         x = -1_000e-1;
         x = +1_000e+1;
         x = 1__1e-1_______________________________1;
+        x = 0b10100001010001011010000101000101;
+        x = 0b1010_0001_0100_0_1011_________01000010100010___1;
         //Long.parseLong("1_000_000");
         //Double.parseDouble("1_000_000"); // eh?
+        
+        // doubles
+        t(N, "1___2e-3___6");
+        t(N, ".15e2");
+        t(N, "3.141592");
+        t(N, ".12345");
+        t(N, "1.5e2");
+        t(N, "1.5e2_2");
+        t(N, "1.5E-2");
+        t(N, "1_2.5E-2");
+        t(N, ".57E22");
+        t(N, ".75E-5");
+//      t(N, "1D", NL, N, "1d", NL, N, "1.1D", NL, "1.1d", NL, "1.2e-3d", NL, "1.2e-3D", NL, "1.2E+3d");
+        
+        // TODO floats
+//        t(N, "1F", NL, N, "1f", NL, N, "1.1F", NL, "1.1f", NL, "1.2e-3f", NL, "1.2e-3F", NL, "1.2E+3f");
 
+        // longs
+        t(N, "1L", NL, N, "1l", NL);
+        t(N, "2_2L", NL, N, "2_2l", NL);
+        t(N, "2____2L", NL, N, "2___2l", NL);
+        t(O, "-", N, "99999L", NL);
+        
         // integers
         t(N, "1");
         t(N, "1_0");
         t(N, "1_000_000_000");
+        t(N, "1______000___000_____000");
         // negative scenarios with integers
         t(O, "_", N, "1");
         t(O, "1_");
+        t(O, "-", N, "9999");
         
-        // TODO ints, longs, doubles
-        // 
-        // t(N, 3.141592");
-        // t(N, ".12345");
-        // t(N, "1.5e2");
-        // t(N, "1.5E-2");
-        // t(N, ".57E22");
-        // t(N, ".75E-5");
-        // t(N, "1___2e-3___6");
-        // t(N, "1L", NL, N, "1l", NL);
-        // t(N, "1D", NL, N, "1d", NL, N, "1.1D", NL, "1.1d", NL, "1.2e-3d",  NL, "1.2e-3D",  NL, "1.2E+3d");
-        // t(N, "1F", NL, N, "1f", NL, N, "1.1F", NL, "1.1f", NL, "1.2e-3f",  NL, "1.2e-3F",  NL, "1.2E+3f");
         // TODO hex!! binary!  octal!
         // t(N, 0xffffffffffffffffL, NL);
-        // t(N, 
         
         // text blocks
         t(O, "String s =", S, "\"\"\"   ", NL, S, " yo /* // */ */ \"\" \"  ", NL, S, "a  \"\"\"   ", O, ";"); 
