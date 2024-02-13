@@ -36,7 +36,10 @@ import java.util.regex.Pattern;
  * A simple Java syntax analyzer implemented as a recursive descent parser.
  * This is just a demo, as it has no link to the real compiler, does not understand Java language,
  * does not take into account version-specific language features, and reports no errors.
+ * It also does not check validity of numeric literals, allowing malformed octal or binary numbers,
+ * or values that are too large to be represented.
  */
+// FIX the keyword regex is TOO SLOW!
 public class JavaSyntaxAnalyzer {
     private boolean DEBUG = false;
 
@@ -281,6 +284,7 @@ public class JavaSyntaxAnalyzer {
     }
     
     // returns the length of java keyword, 0 if not a java keyword
+    // FIX way too slow!
     private int matchJavaKeyword() {
         int c = charAt(0);
         if (FIRST.contains(c)) {
@@ -420,7 +424,7 @@ public class JavaSyntaxAnalyzer {
     }
 
     // relative to pos
-    private boolean isBoundedByDigit(int ix, boolean increase) {
+    private boolean isBoundedByDigit(boolean hex, int ix, boolean increase) {
         for(;;) {
             int c = charAt(ix);
             switch (c) {
@@ -435,6 +439,19 @@ public class JavaSyntaxAnalyzer {
             case '8':
             case '9':
                 return true;
+            case 'a':
+            case 'A':
+            case 'b':
+            case 'B':
+            case 'c':
+            case 'C':
+            case 'd':
+            case 'D':
+            case 'e':
+            case 'E':
+            case 'f':
+            case 'F':
+                return hex ? true : false;
             case '_':
                 break;
             default:
@@ -454,6 +471,8 @@ public class JavaSyntaxAnalyzer {
         E_SIG, // exponent sign
         E_BEG, // exponent before decimal point
         E_END, // after decimal point in the exponent
+        HEX,   // hexadecimal literal
+        BIN,   // binary literal
         UNKNOWN
     }
     private Phase phase;
@@ -508,6 +527,11 @@ public class JavaSyntaxAnalyzer {
             case '8':
             case '9':
                 switch (phase) {
+                case HEX:
+                case BIN:
+                    // not validating binary literals
+                    hasSignificand = true;
+                    break;                    
                 case UNKNOWN:
                     phase = Phase.S_BEG;
                     hasSignificand = true;
@@ -526,6 +550,18 @@ public class JavaSyntaxAnalyzer {
                     break;
                 }
                 break;
+            case 'a':
+            case 'A':
+            case 'c':
+            case 'C':
+                switch (phase) {
+                case HEX:
+                    hasSignificand = true;
+                    break;
+                default:
+                    return 0;
+                }
+                break;
             case '.':
                 switch (phase) {
                 case UNKNOWN:
@@ -538,11 +574,17 @@ public class JavaSyntaxAnalyzer {
                 break;
             case '_':
                 switch (phase) {
+                case HEX:
+                    if (!(isBoundedByDigit(true, i - 1, false) && isBoundedByDigit(true, i + 1, true))) {
+                        return 0;
+                    }
+                    break;
+                case BIN:
                 case S_BEG:
                 case S_END:
                 case E_BEG:
                 case E_END:
-                    if (!(isBoundedByDigit(i - 1, false) && isBoundedByDigit(i + 1, true))) {
+                    if (!(isBoundedByDigit(false, i - 1, false) && isBoundedByDigit(false, i + 1, true))) {
                         return 0;
                     }
                     break;
@@ -553,6 +595,9 @@ public class JavaSyntaxAnalyzer {
             case 'e':
             case 'E':
                 switch (phase) {
+                case HEX:
+                    hasSignificand = true;
+                    break;
                 case S_PER:
                     if(!hasSignificand) {
                         return 0;
@@ -571,6 +616,9 @@ public class JavaSyntaxAnalyzer {
             case 'f':
             case 'F':
                 switch (phase) {
+                case HEX:
+                    hasSignificand = true;
+                    break;
                 case S_BEG:
                 case S_PER:
                 case S_END:
@@ -578,8 +626,10 @@ public class JavaSyntaxAnalyzer {
                 case E_BEG:
                 case E_END:
                     return hasExponent ? (i + 1) : 0;
+                default:
+                    return 0;
                 }
-                return 0;
+                break;
             case '+':
             case '-':
                 switch (phase) {
@@ -597,14 +647,42 @@ public class JavaSyntaxAnalyzer {
             case 'l':
             case 'L':
                 switch (phase) {
+                case HEX:
+                case BIN:
                 case S_BEG:
                     return i + 1;
                 }
                 return 0;
+            case 'x':
+            case 'X':
+                if ((i == 1) && (charAt(i - 1) == '0')) {
+                    phase = Phase.HEX;
+                    hasSignificand = false;
+                } else {
+                    return 0;
+                }
+                break;
+            case 'b':
+            case 'B':
+                switch (phase) {
+                case HEX:
+                    hasSignificand = true;
+                    break;
+                default:
+                    if ((i == 1) && (charAt(i - 1) == '0')) {
+                        phase = Phase.BIN;
+                        hasSignificand = false;
+                    } else {
+                        return 0;
+                    }
+                }
+                break;
             case -1:
             default:
                 switch (phase) {
                 case S_PER:
+                case HEX:
+                case BIN:
                     return hasSignificand ? i : 0;
                 case S_BEG:
                 case S_END:

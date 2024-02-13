@@ -44,9 +44,12 @@ public class TestJavaSyntaxDecorator {
     private static final Object NL = new Object();
 
     private void someExamplesOfValidCode() {
+        // text block
         var s = """
         ---/** */ -- // return ;
-        """  ; // text block
+        """  ;
+
+        // numbers
         double x = .1e15;
         x = 1.5e2;
         x = 1e3f;
@@ -58,14 +61,25 @@ public class TestJavaSyntaxDecorator {
         x = 1__1e-1_______________________________1;
         x = 0b10100001010001011010000101000101;
         x = 0b1010_0001_0100_0_1011_________01000010100010___1;
+        x = 0x0_000__00;
     }
 
     @Test
     public void tests() {
-        t(O, "S_0,");
-        t(N, "1D");
-        t(K, "import", O, " com.oracle.demo");
+        // FIX these fail
+//        "tempState.point.y = ";
+//        "import javafx.geometry.BoundingBox;"
+//        "new StringPropertyBase("") {"
         
+        // hex
+        t(N, "0x0123456789abcdefL");
+        t(N, "0x00", NL, N, "0x0123456789abcdefL");
+        t(N, "0xeFeF", NL, N, "0x0123__4567__89ab_cdefL");
+
+        // binary
+        t(N, "0b00000");
+        t(N, "0b1010101010L");
+
         // doubles
         t(N, "1___2e-3___6");
         t(N, ".15e2");
@@ -77,6 +91,7 @@ public class TestJavaSyntaxDecorator {
         t(N, "1_2.5E-2");
         t(N, ".57E22");
         t(N, ".75E-5");
+        t(N, "1D");
         t(N, "1___2e-3___6d");
         t(N, ".15e2d");
         t(N, "3.141592d");
@@ -88,8 +103,9 @@ public class TestJavaSyntaxDecorator {
         t(N, ".57E22d");
         t(N, ".75E-5d");
         t(N, "1D", NL, N, "1d", NL, N, "1.1D", NL, N, "1.1d", NL, N, "1.2e-3d", NL, N, "1.2e-3D", NL, N, "1.2E+3d");
-        
+
         // floats
+        t(N, "1f");
         t(N, "1___2e-3___6f");
         t(N, ".15e2f");
         t(N, "3.141592f");
@@ -108,7 +124,7 @@ public class TestJavaSyntaxDecorator {
         t(N, "2____2L", NL, N, "2___2l", NL);
         t(O, "-", N, "99999L", NL);
         t(O, "5.L");
-        
+
         // integers
         t(N, "1");
         t(N, "1_0");
@@ -118,38 +134,37 @@ public class TestJavaSyntaxDecorator {
         t(O, "_1");
         t(O, "1_");
         t(O, "-", N, "9999");
-        
-        // TODO hex!! binary!  octal!
-        // t(N, 0xffffffffffffffffL, NL);
-        
+
         // text blocks
-        t(O, "String s =", S, "\"\"\"   ", NL, S, " yo /* // */ */ \"\" \"  ", NL, S, "a  \"\"\"   ", O, ";"); 
+        t(O, "String s =", S, "\"\"\"   ", NL, S, " yo /* // */ */ \"\" \"  ", NL, S, "a  \"\"\"   ", O, ";");
 
         // strings
         t(O, " ", S, "\"\\\"/*\\\"\"", NL);
         t(S, "\"\\\"\\\"\\\"\"", O, " {", NL);
         t(S, "\"abc\"", NL, O, "s = ", S, "\"\"");
-        
+
         // comments
         t(O, " ", C, "/* yo", NL, C, "yo yo", NL, C, " */", O, " ");
         t(O, " ", C, "// yo yo", NL, K, "int", O, " c;");
         t(C, "/* // yo", NL, C, "// */", O, " ");
-        
+
         // chars
         t(H, "'\\b'");
         t(H, "'\\b'", NL);
-        t(H, "'\\u0000'", NL, H, "'\\uFf9a'", NL );
+        t(H, "'\\u0000'", NL, H, "'\\uFf9a'", NL);
         t(H, "'a'", NL, H, "'\\b'", NL, H, "'\\f'", NL, H, "'\\n'", NL, H, "'\\r'", NL);
-        t(H, "'\\''", NL, H, "'\\\"'", NL, H, "'\\\\'", NL );
+        t(H, "'\\''", NL, H, "'\\\"'", NL, H, "'\\\\'", NL);
 
         // keywords
         t(K, "package", O, " java.com;", NL);
         t(K, "import", O, " java.util.ArrayList;", NL);
         t(K, "import", O, " java.util.ArrayList;", NL, K, "import", O, " java.util.ArrayList;", NL);
+        t(K, "import", O, " com.oracle.demo");
 
         // misc
         t(K, "if", O, "(", S, "\"/*\"", O, " == null) {", NL);
         t(C, "// test", NL, O, "--", NL);
+        t(O, "S_0,");
     }
 
     private void t(Object... items) {
@@ -157,6 +172,7 @@ public class TestJavaSyntaxDecorator {
         ArrayList<JavaSyntaxAnalyzer.Line> expected = new ArrayList<>();
         JavaSyntaxAnalyzer.Line line = null;
 
+        // builds the input string and the expected result array
         for (int i = 0; i < items.length; ) {
             Object x = items[i++];
             if (x == NL) {
