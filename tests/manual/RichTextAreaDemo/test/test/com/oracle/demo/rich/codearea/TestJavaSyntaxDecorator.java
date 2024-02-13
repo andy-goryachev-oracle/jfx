@@ -31,6 +31,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import com.oracle.demo.rich.codearea.JavaSyntaxAnalyzer;
 
+/**
+ * Tests JavaSyntaxDecorator.
+ */
 public class TestJavaSyntaxDecorator {
     private static final JavaSyntaxAnalyzer.Type H = JavaSyntaxAnalyzer.Type.CHARACTER;
     private static final JavaSyntaxAnalyzer.Type C = JavaSyntaxAnalyzer.Type.COMMENT;
@@ -40,10 +43,9 @@ public class TestJavaSyntaxDecorator {
     private static final JavaSyntaxAnalyzer.Type S = JavaSyntaxAnalyzer.Type.STRING;
     private static final Object NL = new Object();
 
-    @Test
-    public void tests() {
+    private void someExamplesOfValidCode() {
         var s = """
-        ---
+        ---/** */ -- // return ;
         """  ; // text block
         double x = .1e15;
         x = 1.5e2;
@@ -56,8 +58,13 @@ public class TestJavaSyntaxDecorator {
         x = 1__1e-1_______________________________1;
         x = 0b10100001010001011010000101000101;
         x = 0b1010_0001_0100_0_1011_________01000010100010___1;
-        //Long.parseLong("1_000_000");
-        //Double.parseDouble("1_000_000"); // eh?
+    }
+
+    @Test
+    public void tests() {
+        t(O, "S_0,");
+        t(N, "1D");
+        t(K, "import", O, " com.oracle.demo");
         
         // doubles
         t(N, "1___2e-3___6");
@@ -70,16 +77,37 @@ public class TestJavaSyntaxDecorator {
         t(N, "1_2.5E-2");
         t(N, ".57E22");
         t(N, ".75E-5");
-//      t(N, "1D", NL, N, "1d", NL, N, "1.1D", NL, "1.1d", NL, "1.2e-3d", NL, "1.2e-3D", NL, "1.2E+3d");
+        t(N, "1___2e-3___6d");
+        t(N, ".15e2d");
+        t(N, "3.141592d");
+        t(N, ".12345d");
+        t(N, "1.5e2d");
+        t(N, "1.5e2_2d");
+        t(N, "1.5E-2d");
+        t(N, "1_2.5E-2d");
+        t(N, ".57E22d");
+        t(N, ".75E-5d");
+        t(N, "1D", NL, N, "1d", NL, N, "1.1D", NL, N, "1.1d", NL, N, "1.2e-3d", NL, N, "1.2e-3D", NL, N, "1.2E+3d");
         
-        // TODO floats
-//        t(N, "1F", NL, N, "1f", NL, N, "1.1F", NL, "1.1f", NL, "1.2e-3f", NL, "1.2e-3F", NL, "1.2E+3f");
+        // floats
+        t(N, "1___2e-3___6f");
+        t(N, ".15e2f");
+        t(N, "3.141592f");
+        t(N, ".12345f");
+        t(N, "1.5e2f");
+        t(N, "1.5e2_2f");
+        t(N, "1.5E-2f");
+        t(N, "1_2.5E-2f");
+        t(N, ".57E22f");
+        t(N, ".75E-5f");
+        t(N, "1F", NL, N, "1f", NL, N, "1.1F", NL, N, "1.1f", NL, N, "1.2e-3f", NL, N, "1.2e-3F", NL, N, "1.2E+3f");
 
         // longs
         t(N, "1L", NL, N, "1l", NL);
         t(N, "2_2L", NL, N, "2_2l", NL);
         t(N, "2____2L", NL, N, "2___2l", NL);
         t(O, "-", N, "99999L", NL);
+        t(O, "5.L");
         
         // integers
         t(N, "1");
@@ -87,7 +115,7 @@ public class TestJavaSyntaxDecorator {
         t(N, "1_000_000_000");
         t(N, "1______000___000_____000");
         // negative scenarios with integers
-        t(O, "_", N, "1");
+        t(O, "_1");
         t(O, "1_");
         t(O, "-", N, "9999");
         

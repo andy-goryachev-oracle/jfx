@@ -447,17 +447,14 @@ public class JavaSyntaxAnalyzer {
 
     // TODO move up
     private enum Phase {
-        S_0,   // first character of significand
         S_BEG, // beginning of significand, before period
         S_PER, // decimal point in the significand
         S_END, // after period in significand
         E_DIV, // exponent divider ('e' or 'E')
-        E_0,   // first character in the exponent after divider
         E_SIG, // exponent sign
         E_BEG, // exponent before decimal point
-        E_PER, // decimal point in the exponent
         E_END, // after decimal point in the exponent
-        QUAL   // trailing qualifier (D/d/F/f/L/l)
+        UNKNOWN
     }
     private Phase phase;
     private boolean hasSignificand;
@@ -476,13 +473,23 @@ public class JavaSyntaxAnalyzer {
         case '7':
         case '8':
         case '9':
+            c = charAt(-1);
+            switch (c) {
+            case -1:
+                break;
+            default:
+                if (Character.isJavaIdentifierPart(c)) {
+                    return 0;
+                }
+            }
+            break;
         case '.':
             break;
         default:
             return 0;
         }
         
-        phase = Phase.S_BEG;
+        phase = Phase.UNKNOWN;
         hasSignificand = false;
         hasExponent = false;
 
@@ -501,13 +508,16 @@ public class JavaSyntaxAnalyzer {
             case '8':
             case '9':
                 switch (phase) {
+                case UNKNOWN:
+                    phase = Phase.S_BEG;
+                    hasSignificand = true;
+                    break;
+                case S_BEG:
+                    hasSignificand = true;
+                    break;
                 case S_PER:
                     phase = Phase.S_END;
                     hasSignificand = true;
-                    break;
-                case E_PER:
-                    phase = Phase.E_END;
-                    hasExponent = true;
                     break;
                 case E_DIV:
                 case E_SIG:
@@ -518,15 +528,9 @@ public class JavaSyntaxAnalyzer {
                 break;
             case '.':
                 switch (phase) {
-                case S_0:
+                case UNKNOWN:
                 case S_BEG:
                     phase = Phase.S_PER;
-                    break;
-                case E_0:
-                case E_SIG:
-                case E_BEG:
-                case E_DIV:
-                    phase = Phase.E_PER;
                     break;
                 default:
                     return 0;
@@ -564,8 +568,18 @@ public class JavaSyntaxAnalyzer {
                 break;
             case 'd':
             case 'D':
-                // TODO
-                break;
+            case 'f':
+            case 'F':
+                switch (phase) {
+                case S_BEG:
+                case S_PER:
+                case S_END:
+                    return hasSignificand ? (i + 1) : 0; 
+                case E_BEG:
+                case E_END:
+                    return hasExponent ? (i + 1) : 0;
+                }
+                return 0;
             case '+':
             case '-':
                 switch (phase) {
@@ -592,13 +606,10 @@ public class JavaSyntaxAnalyzer {
                 switch (phase) {
                 case S_PER:
                     return hasSignificand ? i : 0;
-                case E_PER:
-                    return hasExponent ? i : 0;
                 case S_BEG:
                 case S_END:
                 case E_BEG:
                 case E_END:
-                case QUAL:
                     return i;
                 default:
                     return 0;
