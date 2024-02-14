@@ -67,9 +67,9 @@ public class TestJavaSyntaxDecorator {
     @Test
     public void tests() {
         // FIX these fail
-//        "tempState.point.y = ";
-//        "import javafx.geometry.BoundingBox;"
-//        "new StringPropertyBase("") {"
+        //t(O, "tempState.point.y = ");
+        //t(O, "import javafx.geometry.BoundingBox;");
+        //t(O, "new StringPropertyBase(", S, "\"\"", O, ") {");
         
         // hex
         t(N, "0x0123456789abcdefL");

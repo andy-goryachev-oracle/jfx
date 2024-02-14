@@ -26,9 +26,7 @@
 package com.oracle.demo.rich.codearea;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -173,7 +171,6 @@ public class JavaSyntaxAnalyzer {
 
     private static final int EOF = -1;
     private static Pattern KEYWORDS;
-    private static Set<Integer> FIRST;
     private static Pattern CHARS;
     static { init(); }
 
@@ -255,7 +252,6 @@ public class JavaSyntaxAnalyzer {
             "while"
         };
 
-        HashSet<Integer> chars = new HashSet<>();
         StringBuilder sb = new StringBuilder();
         boolean sep = false;
         for (String k : keywords) {
@@ -268,12 +264,9 @@ public class JavaSyntaxAnalyzer {
             sb.append("("); // capturing group
             sb.append(k);
             sb.append(")\\b"); // capturing group + word boundary
-
-            chars.add(Integer.valueOf(k.charAt(0)));
         }
 
         KEYWORDS = Pattern.compile(sb.toString());
-        FIRST = chars;
 
         String charsPattern =
             "(\\G\\\\[bfnrt'\"\\\\]')|" +  // \b' + \f' + \n' + \r' + \t' + \'' + \"' +  \\'
@@ -287,12 +280,32 @@ public class JavaSyntaxAnalyzer {
     // FIX way too slow!
     private int matchJavaKeyword() {
         int c = charAt(0);
-        if (FIRST.contains(c)) {
-            if (keywordMatcher.find(pos)) {
-                int start = keywordMatcher.start();
-                int end = keywordMatcher.end();
-                return (end - start);
-            }
+        switch (c) {
+        case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'i':
+        case 'l':
+        case 'n':
+        case 'p':
+        case 'r':
+        case 's':
+        case 't':
+        case 'v':
+        case 'w':
+            break;
+        default:
+            return 0;
+        };
+
+        if (keywordMatcher.find(pos)) {
+            int start = keywordMatcher.start();
+            int end = keywordMatcher.end();
+            return (end - start);
         }
         return 0;
     }
