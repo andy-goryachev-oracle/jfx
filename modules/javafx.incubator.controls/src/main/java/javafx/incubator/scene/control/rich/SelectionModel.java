@@ -88,15 +88,15 @@ public interface SelectionModel {
     public ReadOnlyProperty<TextPos> anchorPositionProperty();
 
     /**
-     * Selection segment property.  The value can be null.
-     * @return the selection segment property
+     * Selection property.  The value can be null.
+     * @return the selection property
      * @defaultValue null
      */
-    public ReadOnlyProperty<SelectionSegment> selectionSegmentProperty();
+    public ReadOnlyProperty<SelectionSegment> selectionProperty();
 
     /**
-     * Returns the current selection segment, or null.
-     * @return current selection segment, or null
+     * Returns the current selection, or null.
+     * @return current selection, or null
      */
-    public SelectionSegment getSelectionSegment();
+    public SelectionSegment getSelection();
 }

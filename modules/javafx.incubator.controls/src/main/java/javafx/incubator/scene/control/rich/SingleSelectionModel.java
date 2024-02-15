@@ -112,7 +112,7 @@ public class SingleSelectionModel implements SelectionModel {
     }
 
     private Marker anchor() {
-        SelectionSegment seg = getSelectionSegment();
+        SelectionSegment seg = getSelection();
         if (seg == null) {
             return null;
         }
@@ -120,7 +120,7 @@ public class SingleSelectionModel implements SelectionModel {
     }
 
     private Marker caret() {
-        SelectionSegment seg = getSelectionSegment();
+        SelectionSegment seg = getSelection();
         if (seg == null) {
             return null;
         }
@@ -141,12 +141,12 @@ public class SingleSelectionModel implements SelectionModel {
     }
 
     @Override
-    public ReadOnlyProperty<SelectionSegment> selectionSegmentProperty() {
+    public ReadOnlyProperty<SelectionSegment> selectionProperty() {
         return segment.getReadOnlyProperty();
     }
 
     @Override
-    public SelectionSegment getSelectionSegment() {
+    public SelectionSegment getSelection() {
         return segment.get();
     }
 }

@@ -509,17 +509,17 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Tracks the current selection segment position.
+     * Tracks the current selection.
      * The value can be null.
-     * @return the selection segment property
+     * @return the selection property
      * @defaultValue null
      */
-    public final ReadOnlyProperty<SelectionSegment> selectionSegmentProperty() {
-        return selectionModel.selectionSegmentProperty();
+    public final ReadOnlyProperty<SelectionSegment> selectionProperty() {
+        return selectionModel.selectionProperty();
     }
 
-    public final SelectionSegment getSelectionSegment() {
-        return selectionModel.getSelectionSegment();
+    public final SelectionSegment getSelection() {
+        return selectionModel.getSelection();
     }
 
     /**
