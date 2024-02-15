@@ -253,6 +253,8 @@ public class JavaSyntaxAnalyzer {
         };
 
         StringBuilder sb = new StringBuilder();
+        sb.append("\\G"); // match at start of the input in match(pos);
+        sb.append("("); // capturing group
         boolean sep = false;
         for (String k : keywords) {
             if (sep) {
@@ -260,11 +262,13 @@ public class JavaSyntaxAnalyzer {
             } else {
                 sep = true;
             }
-            sb.append("\\G"); // match at start of the input in match(pos);
             sb.append("("); // capturing group
             sb.append(k);
-            sb.append(")\\b"); // capturing group + word boundary
+            // TODO add a post-match check instead
+            sb.append("\\b"); // word boundary
+            sb.append(")"); // capturing group
         }
+        sb.append(")"); // capturing group
 
         KEYWORDS = Pattern.compile(sb.toString());
 
