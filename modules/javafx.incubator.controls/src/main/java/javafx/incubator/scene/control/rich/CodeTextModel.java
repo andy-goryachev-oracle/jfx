@@ -28,7 +28,7 @@ package javafx.incubator.scene.control.rich;
 import java.util.Set;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
+import javafx.incubator.scene.control.rich.model.PlainTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
@@ -36,7 +36,7 @@ import javafx.incubator.scene.control.rich.model.StyleAttrs;
 /**
  * Editable plain text model with syntax highlighting for the {@link CodeArea} control.
  */
-public class CodeTextModel extends BasePlainTextModel {
+public class CodeTextModel extends PlainTextModel {
     private SimpleObjectProperty<SyntaxDecorator> decorator;
     private static final Set<StyleAttribute<?>> SUPPORTED = initSupportedAttributes();
 

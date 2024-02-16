@@ -30,7 +30,7 @@ import java.util.function.Supplier;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
+import javafx.incubator.scene.control.rich.model.PlainTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
@@ -61,10 +61,10 @@ public class NotebookModelStacked extends StyledTextModel {
     }
 
     public static StyledTextModel create(Type type, String ... text) {
-        BasePlainTextModel m;
+        PlainTextModel m;
         switch(type) {
         case CODE:
-            m = new BasePlainTextModel() {
+            m = new PlainTextModel() {
                 @Override
                 public RichParagraph getParagraph(int index) {
                     String text = getPlainText(index);
@@ -75,7 +75,7 @@ public class NotebookModelStacked extends StyledTextModel {
             };
             break;
         case COMMENT:
-            m = new BasePlainTextModel() {
+            m = new PlainTextModel() {
                 @Override
                 public RichParagraph getParagraph(int index) {
                     String text = getPlainText(index);

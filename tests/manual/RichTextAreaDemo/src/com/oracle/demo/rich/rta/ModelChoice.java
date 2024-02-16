@@ -26,7 +26,7 @@ package com.oracle.demo.rich.rta;
 
 import java.io.IOException;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.incubator.scene.control.rich.model.BasePlainTextModel;
+import javafx.incubator.scene.control.rich.model.PlainTextModel;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
 import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
@@ -91,7 +91,7 @@ public enum ModelChoice {
             return new InlineNodesModel();
         case EDITABLE_PLAIN:
             {
-                BasePlainTextModel m = new BasePlainTextModel() {
+                PlainTextModel m = new PlainTextModel() {
                     private static final String DIGITS = "-fx-fill:magenta;";
 
                     @Override

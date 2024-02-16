@@ -39,14 +39,14 @@ import javafx.scene.layout.Region;
  * This class provides no styling.  Subclasses might override {@link #getParagraph(int)} to provide
  * syntax highlighting based on the model content.
  */
-public class BasePlainTextModel extends StyledTextModel {
+public class PlainTextModel extends StyledTextModel {
     private final ArrayList<String> paragraphs = new ArrayList<>();
     private final SimpleBooleanProperty editable = new SimpleBooleanProperty(true);
 
     /**
      * Constructs an empty model.
      */
-    public BasePlainTextModel() {
+    public PlainTextModel() {
         registerDataFormatHandler(new PlainTextFormatHandler(), true, true, 0);
     }
 
