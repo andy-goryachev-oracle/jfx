@@ -618,11 +618,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void selectDown() {
-        CaretInfo c = vflow.getCaretInfo();
-        if (c != null) {
-            double sp = c.getMaxY() - c.getMinY() + c.getLineSpacing();
-            moveLine(sp, true);
-        }
+        moveLine(1.0, true);
     }
 
     public void selectPageDown() {
