@@ -98,12 +98,12 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         registerFunction(RichTextArea.Tags.DELETE_PARAGRAPH, this::deleteParagraph);
         registerFunction(RichTextArea.Tags.INSERT_LINE_BREAK, this::insertLineBreak);
         registerFunction(RichTextArea.Tags.INSERT_TAB, this::insertTab);
-        registerFunction(RichTextArea.Tags.MOVE_DOCUMENT_END, this::moveDocumentEnd);
-        registerFunction(RichTextArea.Tags.MOVE_DOCUMENT_START, this::moveDocumentStart);
         registerFunction(RichTextArea.Tags.MOVE_DOWN, this::moveDown);
         registerFunction(RichTextArea.Tags.MOVE_LEFT, this::moveLeft);
-        registerFunction(RichTextArea.Tags.MOVE_PARAGRAPH_END, this::moveParagraphEnd);
-        registerFunction(RichTextArea.Tags.MOVE_PARAGRAPH_START, this::moveParagraphStart);
+        registerFunction(RichTextArea.Tags.MOVE_TO_DOCUMENT_END, this::moveDocumentEnd);
+        registerFunction(RichTextArea.Tags.MOVE_TO_DOCUMENT_START, this::moveDocumentStart);
+        registerFunction(RichTextArea.Tags.MOVE_TO_PARAGRAPH_END, this::moveParagraphEnd);
+        registerFunction(RichTextArea.Tags.MOVE_TO_PARAGRAPH_START, this::moveParagraphStart);
         registerFunction(RichTextArea.Tags.MOVE_RIGHT, this::moveRight);
         registerFunction(RichTextArea.Tags.MOVE_UP, this::moveUp);
         registerFunction(RichTextArea.Tags.MOVE_WORD_NEXT, this::nextWord);
@@ -117,14 +117,14 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         registerFunction(RichTextArea.Tags.PASTE_PLAIN_TEXT, this::pastePlainText);
         registerFunction(RichTextArea.Tags.REDO, this::redo);
         registerFunction(RichTextArea.Tags.SELECT_ALL, this::selectAll);
-        registerFunction(RichTextArea.Tags.SELECT_TO_DOCUMENT_END, this::selectDocumentEnd);
-        registerFunction(RichTextArea.Tags.SELECT_TO_DOCUMENT_START, this::selectDocumentStart);
         registerFunction(RichTextArea.Tags.SELECT_DOWN, this::selectDown);
         registerFunction(RichTextArea.Tags.SELECT_LEFT, this::selectLeft);
         registerFunction(RichTextArea.Tags.SELECT_PAGE_DOWN, this::selectPageDown);
         registerFunction(RichTextArea.Tags.SELECT_PAGE_UP, this::selectPageUp);
         registerFunction(RichTextArea.Tags.SELECT_PARAGRAPH, this::selectParagraph);
         registerFunction(RichTextArea.Tags.SELECT_RIGHT, this::selectRight);
+        registerFunction(RichTextArea.Tags.SELECT_TO_DOCUMENT_END, this::selectDocumentEnd);
+        registerFunction(RichTextArea.Tags.SELECT_TO_DOCUMENT_START, this::selectDocumentStart);
         registerFunction(RichTextArea.Tags.SELECT_UP, this::selectUp);
         registerFunction(RichTextArea.Tags.SELECT_WORD, this::selectWord);
         registerFunction(RichTextArea.Tags.SELECT_WORD_LEFT, this::selectLeftWord);
@@ -133,7 +133,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         registerFunction(RichTextArea.Tags.SELECT_WORD_PREVIOUS, this::selectPreviousWord);
         registerFunction(RichTextArea.Tags.SELECT_WORD_RIGHT, this::selectRightWord);
         registerFunction(RichTextArea.Tags.UNDO, this::undo);
-        // keys
+        // key mappings
         registerKey(KeyCode.BACK_SPACE, RichTextArea.Tags.BACKSPACE);
         registerKey(KeyBinding.shortcut(KeyCode.C), RichTextArea.Tags.COPY);        
         registerKey(KeyBinding.shortcut(KeyCode.X), RichTextArea.Tags.CUT);
@@ -145,8 +145,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         registerKey(KeyCode.RIGHT, RichTextArea.Tags.MOVE_RIGHT);
         registerKey(KeyCode.UP, RichTextArea.Tags.MOVE_UP);
         registerKey(KeyCode.DOWN, RichTextArea.Tags.MOVE_DOWN);
-        registerKey(KeyCode.HOME, RichTextArea.Tags.MOVE_PARAGRAPH_START);
-        registerKey(KeyCode.END, RichTextArea.Tags.MOVE_PARAGRAPH_END);
+        registerKey(KeyCode.HOME, RichTextArea.Tags.MOVE_TO_PARAGRAPH_START);
+        registerKey(KeyCode.END, RichTextArea.Tags.MOVE_TO_PARAGRAPH_END);
         registerKey(KeyCode.PAGE_DOWN, RichTextArea.Tags.PAGE_DOWN);
         registerKey(KeyCode.PAGE_UP, RichTextArea.Tags.PAGE_UP);
         registerKey(KeyBinding.shortcut(KeyCode.V), RichTextArea.Tags.PASTE);
@@ -161,8 +161,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         registerKey(KeyBinding.shortcut(KeyCode.Z), RichTextArea.Tags.UNDO);
 
         if (isMac()) {
-            registerKey(KeyBinding.with(KeyCode.UP).shortcut().build(), RichTextArea.Tags.MOVE_DOCUMENT_START);
-            registerKey(KeyBinding.with(KeyCode.DOWN).shortcut().build(), RichTextArea.Tags.MOVE_DOCUMENT_END);
+            registerKey(KeyBinding.with(KeyCode.UP).shortcut().build(), RichTextArea.Tags.MOVE_TO_DOCUMENT_START);
+            registerKey(KeyBinding.with(KeyCode.DOWN).shortcut().build(), RichTextArea.Tags.MOVE_TO_DOCUMENT_END);
             registerKey(KeyBinding.with(KeyCode.LEFT).option().build(), RichTextArea.Tags.MOVE_WORD_LEFT);
             registerKey(KeyBinding.with(KeyCode.RIGHT).option().build(), RichTextArea.Tags.MOVE_WORD_RIGHT);
             registerKey(KeyBinding.with(KeyCode.Z).shift().command().build(), RichTextArea.Tags.REDO);
@@ -171,8 +171,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             registerKey(KeyBinding.with(KeyCode.UP).shift().shortcut().build(), RichTextArea.Tags.SELECT_TO_DOCUMENT_START);
             registerKey(KeyBinding.with(KeyCode.DOWN).shift().shortcut().build(), RichTextArea.Tags.SELECT_TO_DOCUMENT_END);
         } else {
-            registerKey(KeyBinding.with(KeyCode.HOME).control().build(), RichTextArea.Tags.MOVE_DOCUMENT_START);
-            registerKey(KeyBinding.with(KeyCode.END).control().build(), RichTextArea.Tags.MOVE_DOCUMENT_END);
+            registerKey(KeyBinding.with(KeyCode.HOME).control().build(), RichTextArea.Tags.MOVE_TO_DOCUMENT_START);
+            registerKey(KeyBinding.with(KeyCode.END).control().build(), RichTextArea.Tags.MOVE_TO_DOCUMENT_END);
             registerKey(KeyBinding.with(KeyCode.LEFT).control().build(), RichTextArea.Tags.MOVE_WORD_LEFT);
             registerKey(KeyBinding.with(KeyCode.RIGHT).control().build(), RichTextArea.Tags.MOVE_WORD_RIGHT);
             registerKey(KeyBinding.with(KeyCode.Y).control().build(), RichTextArea.Tags.REDO);

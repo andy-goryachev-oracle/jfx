@@ -69,92 +69,93 @@ import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
  * Text input component that allows a user to enter multiple lines of rich text.
  */
 public class RichTextArea extends Control {
-    /** Function tags. */
+    /** Function tags serve as identifiers of methods that can be customized via the {@code InputMap}. */
     public static class Tags {
-        /** Deletes the previous symbol */
+        /** Deletes the symbol before the caret. */
         public static final FunctionTag BACKSPACE = new FunctionTag();
-        /** Copies selected text to the clipboard */
+        /** Copies selected text to the clipboard. */
         public static final FunctionTag COPY = new FunctionTag();
-        /** Cuts selected text and places it to the clipboard */
+        /** Cuts selected text and places it to the clipboard. */
         public static final FunctionTag CUT = new FunctionTag();
-        /** Deletes symbol at the caret */
+        /** Deletes symbol at the caret. */
         public static final FunctionTag DELETE = new FunctionTag();
         /** Deletes paragraph at the caret, or selected paragraphs */
         public static final FunctionTag DELETE_PARAGRAPH = new FunctionTag();
-        /** Inserts a single line break */
+        /** Inserts a line break at the caret. */
         public static final FunctionTag INSERT_LINE_BREAK = new FunctionTag();
-        /** Inserts a TAB symbol */
+        /** Inserts a tab symbol at the caret. */
         public static final FunctionTag INSERT_TAB = new FunctionTag();
-        /** Moves the caret to end of the document */
-        public static final FunctionTag MOVE_DOCUMENT_END = new FunctionTag();
-        /** Moves the caret to beginning of the document */
-        public static final FunctionTag MOVE_DOCUMENT_START = new FunctionTag();
-        /** Moves the caret one visual text line down */
+        /** Moves the caret one visual line down. */
         public static final FunctionTag MOVE_DOWN = new FunctionTag();
-        /** Moves the caret one symbol to the left */
+        /** Moves the caret one symbol to the left. */
         public static final FunctionTag MOVE_LEFT = new FunctionTag();
-        /** Moves the caret to the end of the current paragraph */
-        public static final FunctionTag MOVE_PARAGRAPH_END = new FunctionTag();
-        /** Moves the caret to the beginning of the current paragraph */
-        public static final FunctionTag MOVE_PARAGRAPH_START = new FunctionTag();
-        /** Moves the caret one symbol to the right */
+        /** Moves the caret one symbol to the right. */
         public static final FunctionTag MOVE_RIGHT = new FunctionTag();
-        /** Moves the caret one visual text line up */
+        /** Moves the caret to after the last character of the text. */
+        public static final FunctionTag MOVE_TO_DOCUMENT_END = new FunctionTag();
+        /** Moves the caret to before the first character of the text. */
+        public static final FunctionTag MOVE_TO_DOCUMENT_START = new FunctionTag();
+        /** Moves the caret to the end of the paragraph at caret. */
+        public static final FunctionTag MOVE_TO_PARAGRAPH_END = new FunctionTag();
+        /** Moves the caret to the beginning of the paragraph at caret. */
+        public static final FunctionTag MOVE_TO_PARAGRAPH_START = new FunctionTag();
+        /** Moves the caret one visual text line up. */
         public static final FunctionTag MOVE_UP = new FunctionTag();
-        /** Moves the caret one word left (previous word if LTR, next word if RTL) */
+        /** Moves the caret one word left (previous word if LTR, next word if RTL). */
         public static final FunctionTag MOVE_WORD_LEFT = new FunctionTag();
-        /** Moves the caret to the next word */
+        /** Moves the caret to the beginning of next word. */
         public static final FunctionTag MOVE_WORD_NEXT = new FunctionTag();
-        /** Moves the caret to the end of next word */
+        /** Moves the caret to the end of the next word. */
         public static final FunctionTag MOVE_WORD_NEXT_END = new FunctionTag();
-        /** Moves the caret to the previous word */
+        /** Moves the caret to the beginning of previous word. */
         public static final FunctionTag MOVE_WORD_PREVIOUS = new FunctionTag();
-        /** Moves the caret one word right (next word if LTR, previous word if RTL) */
+        /** Moves the caret one word right (next word if LTR, previous word if RTL). */
         public static final FunctionTag MOVE_WORD_RIGHT = new FunctionTag();
-        /** Moves the caret one screen page down */
+        /** Moves the caret one visual page down. */
         public static final FunctionTag PAGE_DOWN = new FunctionTag();
-        /** Moves the caret one screen page up */
+        /** Moves the caret one visual page up. */
         public static final FunctionTag PAGE_UP = new FunctionTag();
-        /** Inserts rich text from the clipboard */
+        /** Pastes the clipboard content. */
         public static final FunctionTag PASTE = new FunctionTag();
-        /** Inserts plain text from the clipboard */
+        /** Pastes the plain text clipboard content. */
         public static final FunctionTag PASTE_PLAIN_TEXT = new FunctionTag();
-        /** Reverts the last undo operation */
+        /** If possible, redoes the last undone modification. */
         public static final FunctionTag REDO = new FunctionTag();
-        /** Selects all text in the document */
+        /** Selects all text in the document. */
         public static final FunctionTag SELECT_ALL = new FunctionTag();
-        /** Selects text (or extends selection) from the current caret position to the end of the document */
-        public static final FunctionTag SELECT_TO_DOCUMENT_END = new FunctionTag();
-        /** Selects text (or extends selection) from the current caret position to the start of the document */
-        public static final FunctionTag SELECT_TO_DOCUMENT_START = new FunctionTag();
-        /** Selects text (or extends selection) from the current caret position one visual text line down */
+        /** Extends selection one visual text line down. */
         public static final FunctionTag SELECT_DOWN = new FunctionTag();
-        /** Selects text (or extends selection) from the current position to one symbol to the left */
+        /** Extends selection one symbol to the left. */
         public static final FunctionTag SELECT_LEFT = new FunctionTag();
-        /** Selects text (or extends selection) from the current position to one page down */
+        /** Extends selection one visible page down. */
         public static final FunctionTag SELECT_PAGE_DOWN = new FunctionTag();
-        /** Selects text (or extends selection) from the current position to one page up */
+        /** Extends selection one visible page up. */
         public static final FunctionTag SELECT_PAGE_UP = new FunctionTag();
-        /** Selects text (or extends selection) of the current paragraph */
+        /** Selects the current paragraph. */
         public static final FunctionTag SELECT_PARAGRAPH = new FunctionTag();
-        /** Selects text (or extends selection) from the current position to one symbol to the right */
+        /** Extends selection one symbol to the right. */
         public static final FunctionTag SELECT_RIGHT = new FunctionTag();
-        /** Selects text (or extends selection) from the current caret position one visual text line up */
+        /** Extends selection to the end of the document. */
+        public static final FunctionTag SELECT_TO_DOCUMENT_END = new FunctionTag();
+        /** Extends selection to the start of the document. */
+        public static final FunctionTag SELECT_TO_DOCUMENT_START = new FunctionTag();
+        /** Extends selection one visual text line up. */
         public static final FunctionTag SELECT_UP = new FunctionTag();
-        /** Selects word at the caret position */
+        /** Selects a word at the caret position. */
         public static final FunctionTag SELECT_WORD = new FunctionTag();
-        /** Extends selection to the previous word (LTR) or next word (RTL) */
+        /** Extends selection to the previous word (LTR) or next word (RTL). */
         public static final FunctionTag SELECT_WORD_LEFT = new FunctionTag();
-        /** Extends selection to the next word */
+        /** Extends selection to the beginning of next word. */
         public static final FunctionTag SELECT_WORD_NEXT = new FunctionTag();
-        /** Extends selection to the end of next word */
+        /** Extends selection to the end of next word. */
         public static final FunctionTag SELECT_WORD_NEXT_END = new FunctionTag();
-        /** Extends selection to the previous word */
+        /** Extends selection to the previous word. */
         public static final FunctionTag SELECT_WORD_PREVIOUS = new FunctionTag();
-        /** Extends selection to the next word (LTR) or previous word (RTL) */
+        /** Extends selection to the next word (LTR) or previous word (RTL). */
         public static final FunctionTag SELECT_WORD_RIGHT = new FunctionTag();
-        /** Undoes the last edit operation */
+        /** If possible, undoes the last modification. */
         public static final FunctionTag UNDO = new FunctionTag();
+
         private Tags() { }
     }
 
@@ -366,7 +367,7 @@ public class RichTextArea extends Control {
         }
     }
 
-    // TODO lazy initialization is not necessary
+    /** Defines styleable properties at the class level */
     private static class StyleableProperties {
         private static final CssMetaData<RichTextArea, Insets> CONTENT_PADDING =
             new CssMetaData<>("-fx-content-padding", InsetsConverter.getInstance(), Params.CONTENT_PADDING)
@@ -400,6 +401,7 @@ public class RichTextArea extends Control {
             Control.getClassCssMetaData(),
             CONTENT_PADDING,
             WRAP_TEXT
+            // TODO other?
         );
     }
 
@@ -728,7 +730,7 @@ public class RichTextArea extends Control {
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
     public void moveDocumentEnd() {
-        execute(Tags.MOVE_DOCUMENT_END);
+        execute(Tags.MOVE_TO_DOCUMENT_END);
     }
     
     /**
@@ -737,11 +739,11 @@ public class RichTextArea extends Control {
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
     public void moveDocumentStart() {
-        execute(Tags.MOVE_DOCUMENT_START);
+        execute(Tags.MOVE_TO_DOCUMENT_START);
     }
     
     /**
-     * Moves the caret down, clearing an existing selection.
+     * Moves the caret one visual line down, clearing an existing selection.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -759,12 +761,12 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret to the end of the current paragraph, clearing an existing selection.
+     * Moves the caret to the end of the paragraph at caret, clearing an existing selection.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
     public void moveParagraphEnd() {
-        execute(Tags.MOVE_PARAGRAPH_END);
+        execute(Tags.MOVE_TO_PARAGRAPH_END);
     }
     
     /**
@@ -773,7 +775,7 @@ public class RichTextArea extends Control {
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
     public void moveLineStart() {
-        execute(Tags.MOVE_PARAGRAPH_START);
+        execute(Tags.MOVE_TO_PARAGRAPH_START);
     }
     
     /**
@@ -786,7 +788,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret up, clearing an existing selection.
+     * Moves the caret one visual line up, clearing an existing selection.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -842,7 +844,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Move caret one page down, clearing an existing selection.
+     * Move caret one visual page down, clearing an existing selection.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -851,7 +853,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Move caret one page up, clearing an existing selection.
+     * Move caret one visual page up, clearing an existing selection.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -913,7 +915,7 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Selects from the anchor position to the document start.
+     * Extends selection to the start of the document.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -922,7 +924,7 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Selects from the anchor position to the document end.
+     * Extends selection to the end of the document.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -931,7 +933,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret down and extends selection to the new position.
+     * Extends selection one visual text line down.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -940,7 +942,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret left and extends selection to the new position.
+     * Extends selection one symbol to the left.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -949,7 +951,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret one page down and extends selection to the new position.
+     * Extends selection one visible page down.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -958,7 +960,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret one page up and extends selection to the new position.
+     * Extends selection one visible page up.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -967,7 +969,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Selects the paragraph at the caret.
+     * Selects the current paragraph.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -976,7 +978,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret right and extends selection to the new position.
+     * Extends selection one symbol to the right.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -985,7 +987,7 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Moves the caret up and extends selection to the new position.
+     * Extends selection one visual text line up.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -994,7 +996,7 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Selects a word at the caret.
+     * Selects a word at the caret position.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
@@ -1051,8 +1053,7 @@ public class RichTextArea extends Control {
     }
 
     /**
-     * Moves the caret to the end of the next word. This does not cause
-     * the selection to be cleared.
+     * Extends selection to the end of the next word.
      * <p>
      * This action can be changed by remapping the default behavior, @see {@link #getInputMap()}.
      */
