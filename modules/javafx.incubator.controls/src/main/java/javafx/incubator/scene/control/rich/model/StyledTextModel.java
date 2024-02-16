@@ -242,7 +242,7 @@ public abstract class StyledTextModel {
     }
 
     /**
-     * Registers a format handler for either export or import operations.
+     * Registers a format handler for either export and/or import operations.
      * Priority determines the format chosen for operations with the {@link javafx.scene.input.Clipboard}
      * when input data is available in more than one supported format.
      * <p>
@@ -264,13 +264,20 @@ public abstract class StyledTextModel {
     }
 
     /**
-     * Removes the data format handler for the given {@code DataFormat} and {@code forExport}, if any.
+     * Removes the data format handler registered previously with
+     * {@link #registerDataFormatHandler(DataFormatHandler, boolean, boolean, int)}.
+     *
      * @param f the data format
-     * @param forExport whether to remove an export handler (true), or an import one (false)
+     * @param forExport whether to remove an export handler
+     * @param forImport whether to remove an import handler
      */
-    protected void removeDataFormatHandler(DataFormat f, boolean forExport) {
-        FHKey k = new FHKey(f, forExport);
-        handlers.remove(k);
+    protected void removeDataFormatHandler(DataFormat f, boolean forExport, boolean forImport) {
+        if (forExport) {
+            handlers.remove(new FHKey(f, true));
+        }
+        if (forImport) {
+            handlers.remove(new FHKey(f, false));
+        }
     }
 
     /**
