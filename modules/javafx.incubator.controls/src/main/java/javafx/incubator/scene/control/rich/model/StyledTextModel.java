@@ -49,7 +49,8 @@ import com.sun.javafx.incubator.scene.control.rich.UndoableChange;
 import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
- * Base class for a styled text model for {@link RichTextArea}.
+ * Base class for a styled text model for
+ * {@link javafx.incubator.scene.control.rich.RichTextArea}.
  * <p>
  * This class implements the following functionality with the intent
  * to simplify custom models that extend this class:
@@ -147,7 +148,7 @@ public abstract class StyledTextModel {
     protected abstract void insertLineBreak(int index, int offset);
     
     /**
-     * Inserts a paragraph that contains a single {@link Node}.
+     * Inserts a paragraph that contains a single {@link javafx.scene.Node}.
      * @param index model index
      * @param generator code that will be used to create a Node instance
      */
