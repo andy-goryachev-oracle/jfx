@@ -37,11 +37,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.incubator.scene.control.rich.Marker;
-import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
-import javafx.scene.Node;
 import javafx.scene.input.DataFormat;
 import javafx.scene.layout.Region;
 import com.sun.javafx.incubator.scene.control.rich.Markers;
@@ -215,6 +215,8 @@ public abstract class StyledTextModel {
     private final HashMap<FHKey,FHPriority> handlers = new HashMap<>(2);
     private final Markers markers = new Markers();
     private final UndoableChange head = UndoableChange.createHead();
+    private final ReadOnlyBooleanWrapper undoable = new ReadOnlyBooleanWrapper(this, "undoable", false);
+    private final ReadOnlyBooleanWrapper redoable = new ReadOnlyBooleanWrapper(this, "redoable", false);
     private UndoableChange undo = head;
 
     /** The constructor. */
@@ -721,6 +723,7 @@ public abstract class StyledTextModel {
      */
     public void clearUndoRedo() {
         undo = head;
+        updateUndoRedo();
     }
 
     /**
@@ -739,14 +742,7 @@ public abstract class StyledTextModel {
         ch.setPrev(undo);
         undo.setNext(ch);
         undo = ch;
-    }
-
-    /**
-     * Returns true if the model can undo the most recent change.
-     * @return true if undoable
-     */
-    public final boolean isUndoable() {
-        return (undo != head);
+        updateUndoRedo();
     }
 
     /**
@@ -762,6 +758,7 @@ public abstract class StyledTextModel {
                 undo.undo(resolver);
                 TextPos[] sel = undo.getSelectionBefore();
                 undo = undo.getPrev();
+                updateUndoRedo();
                 return sel;
             } catch (IOException e) {
                 // undo-redo is in inconsistent state, clear
@@ -769,14 +766,6 @@ public abstract class StyledTextModel {
             }
         }
         return null;
-    }
-
-    /**
-     * Returns true if the model can redo the most recent change.
-     * @return true if redoable
-     */
-    public final boolean isRedoable() {
-        return (undo.getNext() != null);
     }
 
     /**
@@ -792,6 +781,7 @@ public abstract class StyledTextModel {
                 undo.getNext().redo(resolver);
                 TextPos[] sel = undo.getNext().getSelectionAfter();
                 undo = undo.getNext();
+                updateUndoRedo();
                 return sel;
             } catch (IOException e) {
                 // undo-redo is in inconsistent state, clear
@@ -799,6 +789,43 @@ public abstract class StyledTextModel {
             }
         }
         return null;
+    }
+
+    /**
+     * The property describes if it's currently possible to undo the latest change of the content that was done.
+     * @defaultValue false
+     */
+    public final ReadOnlyBooleanProperty undoableProperty() {
+        return undoable.getReadOnlyProperty();
+    }
+    
+    public final boolean isUndoable() {
+        return undoable.get();
+    }
+
+    private void setUndoable(boolean on) {
+        undoable.set(on);
+    }
+
+    /**
+     * The property describes if it's currently possible to redo the latest change of the content that was undone.
+     * @defaultValue false
+     */
+    public final ReadOnlyBooleanProperty redoableProperty() {
+        return redoable.getReadOnlyProperty();
+    }
+
+    public final boolean isRedoable() {
+        return redoable.get();
+    }
+
+    private void setRedoable(boolean on) {
+        redoable.set(on);
+    }
+
+    private void updateUndoRedo() {
+        setUndoable(undo != head);
+        setRedoable(undo.getNext() != null);
     }
 
     /** for debugging */

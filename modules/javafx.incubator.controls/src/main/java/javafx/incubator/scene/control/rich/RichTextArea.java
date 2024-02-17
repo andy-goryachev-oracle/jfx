@@ -33,6 +33,8 @@ import java.io.OutputStream;
 import java.util.List;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -160,7 +162,7 @@ public class RichTextArea extends Control {
     }
 
     private final ConfigurationParameters config;
-    private final ObjectProperty<StyledTextModel> model = new SimpleObjectProperty<>(this, "model");
+    private SimpleObjectProperty<StyledTextModel> model;
     private final SimpleBooleanProperty displayCaretProperty = new SimpleBooleanProperty(this, "displayCaret", true);
     private final SimpleObjectProperty<StyleAttrs> defaultAttributes;
     private SimpleBooleanProperty editableProperty;
@@ -172,6 +174,8 @@ public class RichTextArea extends Control {
     private SimpleBooleanProperty highlightCurrentParagraph;
     private SimpleBooleanProperty useContentWidth;
     private SimpleBooleanProperty useContentHeight;
+    private ReadOnlyBooleanWrapper undoable;
+    private ReadOnlyBooleanWrapper redoable;
     /** The style handler registry instance. */
     protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
@@ -222,6 +226,28 @@ public class RichTextArea extends Control {
      * @defaultValue an instance of {@link EditableRichTextModel}, unless set in the constructor
      */
     public final ObjectProperty<StyledTextModel> modelProperty() {
+        if (model == null) {
+            model = new SimpleObjectProperty<>(this, "model") {
+                @Override
+                protected void invalidated() {
+                    if (undoable != null) {
+                        undoable.unbind();
+                        StyledTextModel m = get();
+                        if (m != null) {
+                            undoable.bind(m.undoableProperty());
+                        }
+                    }
+
+                    if(redoable != null) {
+                        redoable.unbind();
+                        StyledTextModel m = get();
+                        if (m != null) {
+                            redoable.bind(m.redoableProperty());
+                        }
+                    }
+                }
+            };
+        }
         return model;
     }
 
@@ -1072,21 +1098,41 @@ public class RichTextArea extends Control {
     }
     
     /**
-     * Determines whether the last edit operation is undoable.
-     * @return true if undoable
+     * The property describes if it's currently possible to undo the latest change of the content that was done.
+     * @defaultValue false
      */
-    public boolean isUndoable() {
-        StyledTextModel m = getModel();
-        return m == null ? false : m.isUndoable();
+    public final ReadOnlyBooleanProperty undoableProperty() {
+        if (undoable == null) {
+            undoable = new ReadOnlyBooleanWrapper(this, "undoable", false);
+            StyledTextModel m = getModel();
+            if (m != null) {
+                undoable.bind(m.undoableProperty());
+            }
+        }
+        return undoable.getReadOnlyProperty();
+    }
+    
+    public final boolean isUndoable() {
+        return undoable == null ? false : undoable.get();
     }
 
     /**
-     * Determines whether the last edit operation is redoable.
-     * @return true if redoable
+     * The property describes if it's currently possible to redo the latest change of the content that was undone.
+     * @defaultValue false
      */
-    public boolean isRedoable() {
-        StyledTextModel m = getModel();
-        return m == null ? false : m.isRedoable();
+    public final ReadOnlyBooleanProperty redoableProperty() {
+        if (redoable == null) {
+            redoable = new ReadOnlyBooleanWrapper(this, "redoable", false);
+            StyledTextModel m = getModel();
+            if (m != null) {
+                redoable.bind(m.redoableProperty());
+            }
+        }
+        return redoable.getReadOnlyProperty();
+    }
+
+    public final boolean isRedoable() {
+        return redoable == null ? false : redoable.get();
     }
 
     /**

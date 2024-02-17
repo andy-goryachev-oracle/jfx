@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Optional;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -85,18 +86,37 @@ public class Actions {
         this.control = control;
 
         newDocument = new FxAction(this::newDocument);
+
         open = new FxAction(this::open);
+
         save = new FxAction(this::save);
+
         undo = new FxAction(control::undo);
+        undo.disabledProperty().bind(Bindings.createBooleanBinding(() -> {
+            return !control.isUndoable();
+        }, control.undoableProperty()));
+
         redo = new FxAction(control::redo);
+        redo.disabledProperty().bind(Bindings.createBooleanBinding(() -> {
+            return !control.isRedoable();
+        }, control.redoableProperty()));
+
         cut = new FxAction(control::cut);
+
         copy = new FxAction(control::copy);
+
         paste = new FxAction(control::paste);
+
         pasteUnformatted = new FxAction(control::pastePlainText);
+
         selectAll = new FxAction(control::selectAll);
+
         bold = new FxAction(() -> toggle(StyleAttrs.BOLD));
+
         italic = new FxAction(() -> toggle(StyleAttrs.ITALIC));
+
         underline = new FxAction(() -> toggle(StyleAttrs.UNDERLINE));
+
         strikeThrough = new FxAction(() -> toggle(StyleAttrs.STRIKE_THROUGH));
 
         wrapText = new FxAction();
@@ -140,8 +160,6 @@ public class Actions {
     }
 
     private void handleEdit() {
-        undo.setEnabled(control.isUndoable());
-        redo.setEnabled(control.isRedoable());
         modified.set(true);
     }
 
