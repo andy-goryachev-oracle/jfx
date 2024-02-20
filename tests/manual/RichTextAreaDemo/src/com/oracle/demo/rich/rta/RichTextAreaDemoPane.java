@@ -35,6 +35,7 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.SideDecorator;
+import javafx.incubator.scene.control.rich.StyleHandlerRegistry;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
 import javafx.incubator.scene.control.rich.model.StyleAttribute;
@@ -86,7 +87,27 @@ public class RichTextAreaDemoPane extends BorderPane {
     public RichTextAreaDemoPane(boolean useContentSize) {
         FX.name(this, "RichTextAreaDemoPane");
 
-        control = new RichTextArea();
+        control = new RichTextArea() {
+            private static final StyleHandlerRegistry registry = init();
+
+            private static StyleHandlerRegistry init() {
+                // brings in the handlers from the base class
+                StyleHandlerRegistry.Builder b = StyleHandlerRegistry.builder(RichTextArea.styleHandlerRegistry);
+                // adds a handler for the new attribute
+                b.setParHandler(NotebookModel.OUTLINE, (c, cx, v) -> {
+                    if (v) {
+                        cx.addStyle("-fx-border-color:LIGHTPINK;");
+                        cx.addStyle("-fx-border-width:1;");
+                    }
+                });
+                return b.build();
+            }
+
+            @Override
+            public StyleHandlerRegistry getStyleHandlerRegistry() {
+                return registry;
+            }
+        };
         control.setUseContentHeight(useContentSize);
         control.setUseContentWidth(useContentSize);
 

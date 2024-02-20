@@ -189,7 +189,10 @@ public abstract class StyledTextModel {
     /**
      * Returns a set of supported attributes to be used for filtering in
      * {@link #applyStyle(TextPos, TextPos, StyleAttrs, boolean)},
-     * or null to disable filtering.
+     * {@link #replace(StyleResolver, TextPos, TextPos, StyledInput, boolean)}, and
+     * {@link #replace(StyleResolver, TextPos, TextPos, String, boolean)}.
+     * <p>
+     * A {@code null} value disables filtering.
      *
      * @return the supported attributes, or null
      */

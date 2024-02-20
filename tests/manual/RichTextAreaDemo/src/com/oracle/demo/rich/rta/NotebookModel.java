@@ -25,9 +25,13 @@
 package com.oracle.demo.rich.rta;
 
 import javafx.incubator.scene.control.rich.model.SimpleViewOnlyStyledModel;
-import javafx.scene.Node;
+import javafx.incubator.scene.control.rich.model.StyleAttribute;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
 
 public class NotebookModel extends SimpleViewOnlyStyledModel {
+
+    public static final StyleAttribute<Boolean> OUTLINE = new StyleAttribute<>("OUTLINE", Boolean.class, true);
+
     public NotebookModel() {
         String GREEN = "green";
         String GRAY = "gray";
@@ -50,6 +54,7 @@ public class NotebookModel extends SimpleViewOnlyStyledModel {
         addSegment("(1 - x", EQ);
         addSegment("n", EQ, SUB);
         addSegment(")", null, EQ);
+        setParagraphAttributes(StyleAttrs.of(OUTLINE, Boolean.TRUE));
         nl(2);
         addSegment("The bifurcation parameter λ is shown on the horizontal axis of the plot and the vertical axis shows the set of values of the logistic function visited asymptotically from almost all initial conditions.", null, GRAY);
         nl(2);
