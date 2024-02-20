@@ -27,7 +27,6 @@ package com.oracle.demo.rich.rta;
 
 import javafx.geometry.Insets;
 import javafx.incubator.scene.control.rich.RichTextArea;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
@@ -36,7 +35,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import com.oracle.demo.rich.util.FX;
 
@@ -46,18 +44,9 @@ import com.oracle.demo.rich.util.FX;
 public class MultipleStackedBoxWindow extends Stage {
 
     public MultipleStackedBoxWindow(boolean vertical) {
-        Font font = new Font("System Regular", 24);
-
-        StyleAttrs def = StyleAttrs.builder().
-            setFontFamily("Iosevka Fixed SS16").
-            setFontSize(12).
-            build();
-
         RichTextArea a1 = new RichTextArea(NotebookModelStacked.m1());
         a1.setWrapText(true);
         a1.setLeftDecorator(new LineNumberDecorator());
-        //a1.setFont(font);
-        a1.setDefaultAttributes(def);
         createPopupMenu(a1);
         
         TextArea t1 = new TextArea("This TextArea has wrap text property set to false.");
@@ -68,8 +57,6 @@ public class MultipleStackedBoxWindow extends Stage {
         RichTextArea a2 = new RichTextArea(NotebookModelStacked.m2());
         a2.setWrapText(true);
         a2.setLeftDecorator(new LineNumberDecorator());
-        //a2.setFont(font);
-        a2.setDefaultAttributes(def);
         createPopupMenu(a2);
 
         PrefSizeTester tester = new PrefSizeTester();
@@ -182,51 +169,9 @@ public class MultipleStackedBoxWindow extends Stage {
                     t.setContentPadding(new Insets(55.75));
                 }
             });
-            // line spacing
-            m = FX.menu(c, "Line Spacing");
-            FX.checkItem(m, "0", getLineSpacing(t) == 0, (on) -> {
-                if (on) {
-                    setLineSpacing(t, 0);
-                }
-            });
-            FX.checkItem(m, "1", getLineSpacing(t) == 1, (on) -> {
-                if (on) {
-                    setLineSpacing(t, 1);
-                }
-            });
-            FX.checkItem(m, "10", getLineSpacing(t) == 10, (on) -> {
-                if (on) {
-                    setLineSpacing(t, 10);
-                }
-            });
-            FX.checkItem(m, "20", getLineSpacing(t) == 20, (on) -> {
-                if (on) {
-                    setLineSpacing(t, 20);
-                }
-            });
 
             FX.checkItem(c, "Wrap Text", t.isWrapText(), (on) -> t.setWrapText(on));
             return c;
         });
-    }
-
-    private StyleAttrs getStyleAttrs(RichTextArea t) {
-        StyleAttrs a = t.getDefaultAttributes();
-        return (a == null) ? StyleAttrs.EMPTY : a;
-    }
-
-    private double getLineSpacing(RichTextArea t) {
-        StyleAttrs a = getStyleAttrs(t);
-        Double v = a.getLineSpacing();
-        return v == null ? 0.0 : v;
-    }
-
-    protected void setLineSpacing(RichTextArea t, double x) {
-        StyleAttrs a = getStyleAttrs(t);
-        a = StyleAttrs.builder().
-            merge(a).
-            setLineSpacing(x).
-            build();
-        t.setDefaultAttributes(a);
     }
 }

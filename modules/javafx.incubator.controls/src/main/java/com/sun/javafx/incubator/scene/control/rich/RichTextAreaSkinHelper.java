@@ -28,6 +28,7 @@ package com.sun.javafx.incubator.scene.control.rich;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
 import javafx.scene.control.Skin;
+import com.sun.javafx.incubator.scene.control.rich.util.ListenerHelper;
 import com.sun.javafx.util.Utils;
 
 /**
@@ -36,6 +37,7 @@ import com.sun.javafx.util.Utils;
 public class RichTextAreaSkinHelper {
     public interface Accessor {
         public VFlow getVFlow(Skin<?> skin);
+        public ListenerHelper getListenerHelper(Skin<?> skin);
     }
 
     static {
@@ -54,5 +56,9 @@ public class RichTextAreaSkinHelper {
     public static VFlow getVFlow(RichTextArea t) {
         var skin = t.getSkin();
         return accessor.getVFlow(skin);
+    }
+
+    public static ListenerHelper getListenerHelper(RichTextAreaSkin skin) {
+        return accessor.getListenerHelper(skin);
     }
 }

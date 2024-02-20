@@ -48,13 +48,8 @@ public class CodeTextModel extends PlainTextModel {
 
     private static Set<StyleAttribute<?>> initSupportedAttributes() {
         return Set.of(
-            CodeArea.FONT,
-            CodeArea.TAB_SIZE,
             StyleAttrs.BOLD,
-            StyleAttrs.FONT_FAMILY,
-            StyleAttrs.FONT_SIZE,
             StyleAttrs.ITALIC,
-            StyleAttrs.LINE_SPACING,
             StyleAttrs.STRIKE_THROUGH,
             StyleAttrs.TEXT_COLOR,
             StyleAttrs.UNDERLINE

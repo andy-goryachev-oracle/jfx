@@ -49,11 +49,9 @@ import javafx.incubator.scene.control.rich.CaretInfo;
 import javafx.incubator.scene.control.rich.ConfigurationParameters;
 import javafx.incubator.scene.control.rich.RichTextArea;
 import javafx.incubator.scene.control.rich.SideDecorator;
-import javafx.incubator.scene.control.rich.StyleHandlerRegistry;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
 import javafx.incubator.scene.control.rich.model.RichParagraph;
-import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledSegment;
 import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
@@ -73,13 +71,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
-import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
 
 /**
  * Virtual text flow deals with TextCells, scroll bars, and conversion
  * between the model and the screen coordinates.
  */
 public class VFlow extends Pane implements StyleResolver {
+    private final RichTextAreaSkin skin;
     private final RichTextArea control;
     private final ConfigurationParameters config;
     private final ScrollBar vscroll;
@@ -115,6 +113,7 @@ public class VFlow extends Pane implements StyleResolver {
     private static final VFlowCellContext context = new VFlowCellContext();
 
     public VFlow(RichTextAreaSkin skin, ConfigurationParameters c, ScrollBar vscroll, ScrollBar hscroll) {
+        this.skin = skin;
         this.control = skin.getSkinnable();
         this.config = c;
         this.vscroll = vscroll;
@@ -271,7 +270,7 @@ public class VFlow extends Pane implements StyleResolver {
         return cache;
     }
 
-    public void handleDefaultParagraphAttributes() {
+    public void invalidateLayout() {
         cellCache.clear();
         requestLayout();
         updateHorizontalScrollBar();
@@ -763,8 +762,7 @@ public class VFlow extends Pane implements StyleResolver {
 
     private TextCell createTextCell(int index, RichParagraph par) {
         TextCell cell;
-        StyleAttrs da = control.getDefaultAttributes();
-        StyleAttrs pa = RichUtils.combine(da, par.getParagraphAttributes());
+        StyleAttrs pa = par.getParagraphAttributes();
         Supplier<Region> gen = par.getParagraphRegion();
         if (gen != null) {
             // it's a paragraph node
@@ -795,7 +793,7 @@ public class VFlow extends Pane implements StyleResolver {
             if ((segments == null) || segments.isEmpty()) {
                 // a bit of a hack: avoid TextCells with an empty TextFlow,
                 // otherwise it makes the caret collapse to a single point
-                cell.add(createTextNode("", da));
+                cell.add(createTextNode("", StyleAttrs.EMPTY));
             } else {
                 for (StyledSegment seg : segments) {
                     switch (seg.getType()) {
@@ -806,7 +804,6 @@ public class VFlow extends Pane implements StyleResolver {
                     case TEXT:
                         String text = seg.getText();
                         StyleAttrs a = seg.getStyleAttrs(this);
-                        a = RichUtils.combine(da, a);
                         Text t = createTextNode(text, a);
                         cell.add(t);
                         break;
@@ -815,14 +812,10 @@ public class VFlow extends Pane implements StyleResolver {
             }
         }
 
-        if (pa != null) {
-            context.reset(cell.getContent(), pa);
-            applyStyles(cell.getContent(), pa, true);
-            context.apply();
-        }
-
-        // these attributes operate on TextCell instead of its content
-        if (pa != null) {
+        if (pa == null) {
+            pa = StyleAttrs.EMPTY;
+        } else {
+            // these two attributes operate on TextCell instead of its content
             String bullet = pa.getBullet();
             if (bullet != null) {
                 cell.setBullet(bullet);
@@ -834,27 +827,19 @@ public class VFlow extends Pane implements StyleResolver {
             }
         }
 
+        context.reset(cell.getContent(), pa);
+        skin.applyStyles(context, pa, true);
+        context.apply();
+
         return cell;
     }
 
     private Text createTextNode(String text, StyleAttrs attrs) {
         Text t = new Text(text);
         context.reset(t, attrs);
-        applyStyles(t, attrs, false);
+        skin.applyStyles(context, attrs, false);
         context.apply();
         return t;
-    }
-
-    private void applyStyles(Node n, StyleAttrs attrs, boolean forParagraph) {
-        if (attrs != null) {
-            StyleHandlerRegistry r = control.getStyleHandlerRegistry();
-            for (StyleAttribute a : attrs.getAttributes()) {
-                Object v = attrs.get(a);
-                if (v != null) {
-                    r.process(control, forParagraph, context, a, v);
-                }
-            }
-        }
     }
 
     private double computeSideWidth(SideDecorator d) {

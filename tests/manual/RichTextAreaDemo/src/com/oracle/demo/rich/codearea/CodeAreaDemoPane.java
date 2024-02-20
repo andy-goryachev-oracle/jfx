@@ -38,11 +38,8 @@ import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
@@ -52,7 +49,6 @@ import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 import com.oracle.demo.rich.rta.FontSelector;
@@ -290,11 +286,6 @@ public class CodeAreaDemoPane extends BorderPane {
     protected void populatePopupMenu(ObservableList<MenuItem> items) {
         boolean sel = control.hasNonEmptySelection();
         boolean paste = true; // would be easier with Actions (findFormatForPaste() != null);
-        boolean styled = true; //(control.getModel() instanceof EditableRichTextModel);
-
-        items.add(new MenuItem("★ Custom Context Menu"));
-
-        items.add(new SeparatorMenuItem());
 
         MenuItem m;
         items.add(m = new MenuItem("Undo"));
@@ -319,104 +310,10 @@ public class CodeAreaDemoPane extends BorderPane {
         m.setOnAction((ev) -> control.paste());
         m.setDisable(!paste);
 
-        items.add(m = new MenuItem("Paste and Match Style"));
-        m.setOnAction((ev) -> control.pastePlainText());
-        m.setDisable(!paste);
-
-        if (styled) {
-            StyleAttrs a = control.getActiveStyleAttrs();
-            System.err.println(a); // FIX
-
-            items.add(new SeparatorMenuItem());
-
-            items.add(m = new MenuItem("Bold"));
-            m.setOnAction((ev) -> apply(StyleAttrs.BOLD, !a.getBoolean(StyleAttrs.BOLD)));
-            m.setDisable(!sel);
-
-            items.add(m = new MenuItem("Italic"));
-            m.setOnAction((ev) -> apply(StyleAttrs.ITALIC, !a.getBoolean(StyleAttrs.ITALIC)));
-            m.setDisable(!sel);
-
-            items.add(m = new MenuItem("Strike Through"));
-            m.setOnAction((ev) -> apply(StyleAttrs.STRIKE_THROUGH, !a.getBoolean(StyleAttrs.STRIKE_THROUGH)));
-            m.setDisable(!sel);
-
-            items.add(m = new MenuItem("Underline"));
-            m.setOnAction((ev) -> apply(StyleAttrs.UNDERLINE, !a.getBoolean(StyleAttrs.UNDERLINE)));
-            m.setDisable(!sel);
-
-            Menu m2;
-            CheckMenuItem cm;
-            items.add(m2 = new Menu("Text Color"));
-            colorMenu(m2, sel, Color.GREEN);
-            colorMenu(m2, sel, Color.RED);
-            colorMenu(m2, sel, Color.BLUE);
-            colorMenu(m2, sel, null);
-
-            items.add(m2 = new Menu("Text Size"));
-            sizeMenu(m2, sel, 300);
-            sizeMenu(m2, sel, 200);
-            sizeMenu(m2, sel, 150);
-            sizeMenu(m2, sel, 125);
-            sizeMenu(m2, sel, 100);
-            sizeMenu(m2, sel, 75);
-            sizeMenu(m2, sel, 60);
-            sizeMenu(m2, sel, 50);
-
-            items.add(m2 = new Menu("Font Family"));
-            fontMenu(m2, sel, "System");
-            fontMenu(m2, sel, "Serif");
-            fontMenu(m2, sel, "Sans-serif");
-            fontMenu(m2, sel, "Cursive");
-            fontMenu(m2, sel, "Fantasy");
-            fontMenu(m2, sel, "Monospaced");
-            m2.getItems().add(new SeparatorMenuItem());
-            fontMenu(m2, sel, "Arial");
-            fontMenu(m2, sel, "Courier New");
-            fontMenu(m2, sel, "Times New Roman");
-            fontMenu(m2, sel, "null");
-
-            items.add(cm = new CheckMenuItem("Toggle Unsupported Attribute"));
-            cm.setSelected(a.getBoolean(StyleAttrs.RIGHT_TO_LEFT));
-            cm.setOnAction((ev) -> applyStyle(StyleAttrs.RIGHT_TO_LEFT, !a.getBoolean(StyleAttrs.RIGHT_TO_LEFT)));
-        }
-
         items.add(new SeparatorMenuItem());
 
         items.add(m = new MenuItem("Select All"));
         m.setOnAction((ev) -> control.selectAll());
-    }
-
-    protected void fontMenu(Menu menu, boolean selected, String family) {
-        MenuItem m = new MenuItem(family);
-        m.setDisable(!selected);
-        m.setOnAction((ev) -> apply(StyleAttrs.FONT_FAMILY, family));
-        menu.getItems().add(m);
-    }
-
-    protected void sizeMenu(Menu menu, boolean selected, double size) {
-        MenuItem m = new MenuItem(String.valueOf(size));
-        m.setDisable(!selected);
-        m.setOnAction((ev) -> apply(StyleAttrs.FONT_SIZE, size));
-        menu.getItems().add(m);
-    }
-
-    protected void colorMenu(Menu menu, boolean selected, Color color) {
-        int w = 16;
-        int h = 16;
-        Canvas c = new Canvas(w, h);
-        GraphicsContext g = c.getGraphicsContext2D();
-        if (color != null) {
-            g.setFill(color);
-            g.fillRect(0, 0, w, h);
-        }
-        g.setStroke(Color.DARKGRAY);
-        g.strokeRect(0, 0, w, h);
-
-        MenuItem m = new MenuItem(null, c);
-        m.setDisable(!selected);
-        m.setOnAction((ev) -> apply(StyleAttrs.TEXT_COLOR, color));
-        menu.getItems().add(m);
     }
 
     protected <V> void apply(StyleAttribute<V> attr, V val) {

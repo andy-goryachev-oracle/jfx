@@ -40,10 +40,10 @@ import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.converter.SizeConverter;
-import javafx.incubator.scene.control.rich.model.StyleAttribute;
-import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
+import javafx.incubator.scene.control.rich.skin.CodeAreaSkin;
 import javafx.incubator.scene.control.rich.skin.LineNumberDecorator;
+import javafx.incubator.scene.control.rich.skin.RichTextAreaSkin;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
@@ -53,16 +53,12 @@ import com.sun.javafx.incubator.scene.control.rich.util.RichUtils;
  * CodeArea is a text component which supports styling (a.k.a. "syntax highlighting") of monospaced text.
  */
 public class CodeArea extends RichTextArea {
-    static final StyleAttribute<Font> FONT = new StyleAttribute<>("CodeArea.FONT", Font.class, false);
-    static final StyleAttribute<Integer> TAB_SIZE = new StyleAttribute<>("CodeArea.TAB_SIZE", Integer.class, true);
     private static final int DEFAULT_TAB_SIZE = 8;
     private BooleanProperty lineNumbers;
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
     private StyleableDoubleProperty lineSpacing;
     private String fontStyle;
-    /** The style handler registry instance. */
-    protected static final StyleHandlerRegistry styleHandlerRegistry = initStyleHandlerRegistry();
 
     /**
      * The constructor.
@@ -92,6 +88,11 @@ public class CodeArea extends RichTextArea {
      */
     public CodeArea() {
         this(new CodeTextModel());
+    }
+
+    @Override
+    protected RichTextAreaSkin createDefaultSkin() {
+        return new CodeAreaSkin(this, config);
     }
 
     /**
@@ -182,12 +183,6 @@ public class CodeArea extends RichTextArea {
                 public CssMetaData getCssMetaData() {
                     return StyleableProperties.TAB_SIZE;
                 }
-
-                @Override
-                protected void invalidated() {
-                    updateTabSize(get());
-                    requestLayout();
-                }
             };
         }
         return tabSize;
@@ -239,22 +234,6 @@ public class CodeArea extends RichTextArea {
                 }
 
                 @Override
-                protected void invalidated() {
-                    updateFont(get());
-                    /** FIX reapplyCSS should be public
-                    // RT-20727 JDK-8127428
-                    // if font is changed by calling setFont, then
-                    // css might need to be reapplied since font size affects
-                    // calculated values for styles with relative values
-                    if (fontSetByCss == false) {
-                        NodeHelper.reapplyCSS(RichTextArea.this);
-                    }
-                    */
-                    // don't know whether this is ok
-                    requestLayout();
-                }
-
-                @Override
                 public CssMetaData<CodeArea, Font> getCssMetaData() {
                     return StyleableProperties.FONT;
                 }
@@ -303,12 +282,6 @@ public class CodeArea extends RichTextArea {
                 @Override
                 public CssMetaData<CodeArea, Number> getCssMetaData() {
                     return StyleableProperties.LINE_SPACING;
-                }
-
-                @Override
-                public void invalidated() {
-                    updateLineSpacing(get());
-                    requestLayout();
                 }
             };
         }
@@ -386,31 +359,6 @@ public class CodeArea extends RichTextArea {
     public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() {
         return StyleableProperties.STYLEABLES;
     }
-    
-    @Override
-    public StyleHandlerRegistry getStyleHandlerRegistry() {
-        return styleHandlerRegistry;
-    }
-
-    private static StyleHandlerRegistry initStyleHandlerRegistry() {
-        StyleHandlerRegistry.Builder b = StyleHandlerRegistry.builder(RichTextArea.styleHandlerRegistry);
-
-        // this paragraph attribute affects each segment
-        b.setSegHandler(CodeArea.FONT, (c, cx, v) -> {
-            String family = v.getFamily();
-            double size = v.getSize();
-            cx.addStyle("-fx-font-family:'" + family + "';");
-            cx.addStyle("-fx-font-size:" + size + ";");
-        });
-
-        b.setParHandler(CodeArea.TAB_SIZE, (c, cx, v) -> {
-            if (v > 0) {
-                cx.addStyle("-fx-tab-size:" + v + ";");
-            }
-        });
-
-        return b.build();
-    }
 
     /**
      * Returns plain text.
@@ -442,17 +390,5 @@ public class CodeArea extends RichTextArea {
 
     private CodeTextModel codeModel() {
         return (CodeTextModel)getModel();
-    }
-
-    private void updateFont(Font f) {
-        setDefaultAttribute(FONT, f);
-    }
-
-    private void updateTabSize(int size) {
-        setDefaultAttribute(TAB_SIZE, size);
-    }
-
-    private void updateLineSpacing(double spacing) {
-        setDefaultAttribute(StyleAttrs.LINE_SPACING, spacing);
     }
 }

@@ -51,7 +51,6 @@ import javafx.geometry.Point2D;
 import javafx.incubator.scene.control.input.FunctionTag;
 import javafx.incubator.scene.control.input.InputMap;
 import javafx.incubator.scene.control.rich.model.EditableRichTextModel;
-import javafx.incubator.scene.control.rich.model.StyleAttribute;
 import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledInput;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
@@ -161,13 +160,13 @@ public class RichTextArea extends Control {
         private Tags() { }
     }
 
-    private final ConfigurationParameters config;
+    /** The instance configuration parameters */
+    protected final ConfigurationParameters config;
     private SimpleObjectProperty<StyledTextModel> model;
     private final SimpleBooleanProperty displayCaretProperty = new SimpleBooleanProperty(this, "displayCaret", true);
-    private final SimpleObjectProperty<StyleAttrs> defaultAttributes;
-    private SimpleBooleanProperty editableProperty;
     private final SimpleObjectProperty<Duration> caretBlinkPeriod = new SimpleObjectProperty<>(this, "caretBlinkPeriod");
     private final SelectionModel selectionModel = new SingleSelectionModel();
+    private SimpleBooleanProperty editableProperty;
     private SimpleObjectProperty<SideDecorator> leftDecorator;
     private SimpleObjectProperty<SideDecorator> rightDecorator;
     private SimpleStyleableObjectProperty<Insets> contentPadding;
@@ -202,8 +201,6 @@ public class RichTextArea extends Control {
      */
     public RichTextArea(ConfigurationParameters c, StyledTextModel m) {
         this.config = c;
-
-        defaultAttributes = new SimpleObjectProperty<>(this, "defaultParagraphAttributes");
 
         setFocusTraversable(true);
         getStyleClass().add("rich-text-area");
@@ -1099,6 +1096,7 @@ public class RichTextArea extends Control {
     
     /**
      * The property describes if it's currently possible to undo the latest change of the content that was done.
+     * @return the read-only property
      * @defaultValue false
      */
     public final ReadOnlyBooleanProperty undoableProperty() {
@@ -1118,6 +1116,7 @@ public class RichTextArea extends Control {
 
     /**
      * The property describes if it's currently possible to redo the latest change of the content that was undone.
+     * @return the read-only property
      * @defaultValue false
      */
     public final ReadOnlyBooleanProperty redoableProperty() {
@@ -1235,13 +1234,7 @@ public class RichTextArea extends Control {
      */
     public final StyleAttrs getActiveStyleAttrs() {
         StyleResolver r = resolver();
-        StyleAttrs a = getModelStyleAttrs(r);
-
-        StyleAttrs pa = getDefaultAttributes();
-        if ((pa == null) || pa.isEmpty()) {
-            return a;
-        }
-        return pa.combine(a);
+        return getModelStyleAttrs(r);
     }
 
     /**
@@ -1340,40 +1333,6 @@ public class RichTextArea extends Control {
             return Insets.EMPTY;
         }
         return contentPadding.get();
-    }
-
-    /**
-     * Specifies the default attributes.
-     * This property can be used by a subclass to specify the default attribute values for every paragraph in the model.
-     * The value can be null.
-     * @return the default attributes property
-     */
-    public final ObjectProperty<StyleAttrs> defaultAttributesProperty() {
-        return defaultAttributes;
-    }
-
-    public final void setDefaultAttributes(StyleAttrs a) {
-        defaultAttributes.set(a);
-    }
-
-    public final StyleAttrs getDefaultAttributes() {
-        return defaultAttributes.get();
-    }
-
-    /**
-     * Sets a single default attribute by updating the {@code defaultAttributesProperty}.
-     *
-     * @param <T> the attribute type
-     * @param attr the attribute
-     * @param value the attribute value
-     */
-    public final <T> void setDefaultAttribute(StyleAttribute<T> attr, T value) {
-        StyleAttrs old = getDefaultAttributes();
-        StyleAttrs a = StyleAttrs.builder().
-            merge(old).
-            set(attr, value).
-            build();
-        setDefaultAttributes(a);
     }
 
     // TODO to be moved to Control JDK-8314968

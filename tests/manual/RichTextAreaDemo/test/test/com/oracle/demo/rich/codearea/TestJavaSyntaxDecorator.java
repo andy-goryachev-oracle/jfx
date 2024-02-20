@@ -67,6 +67,7 @@ public class TestJavaSyntaxDecorator {
     @Test
     public void tests() {
         // FIX these fail
+        // "FX.checkItem(m, "1", new Insets(1).equals(t.getContentPadding()), (on) -> {"
         //t(O, "tempState.point.y = ");
         //t(O, "import javafx.geometry.BoundingBox;");
         //t(O, "new StringPropertyBase(", S, "\"\"", O, ") {");

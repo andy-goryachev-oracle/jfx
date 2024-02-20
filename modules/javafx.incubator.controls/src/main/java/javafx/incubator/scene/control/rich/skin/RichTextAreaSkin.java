@@ -32,10 +32,14 @@ import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.VPos;
+import javafx.incubator.scene.control.rich.CellContext;
 import javafx.incubator.scene.control.rich.ConfigurationParameters;
 import javafx.incubator.scene.control.rich.RichTextArea;
+import javafx.incubator.scene.control.rich.StyleHandlerRegistry;
 import javafx.incubator.scene.control.rich.StyleResolver;
 import javafx.incubator.scene.control.rich.TextPos;
+import javafx.incubator.scene.control.rich.model.StyleAttribute;
+import javafx.incubator.scene.control.rich.model.StyleAttrs;
 import javafx.incubator.scene.control.rich.model.StyledTextModel;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.Skin;
@@ -77,6 +81,11 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
                     return s.getVFlow();
                 }
                 return null;
+            }
+
+            @Override
+            public ListenerHelper getListenerHelper(Skin<?> skin) {
+                return ((RichTextAreaSkin)skin).listenerHelper;
             }
         });
     }
@@ -184,7 +193,6 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
         listenerHelper.addInvalidationListener(vflow::updateRateRestartBlink, true, control.caretBlinkPeriodProperty());
         listenerHelper.addInvalidationListener(vflow::updateCaretAndSelection, control.highlightCurrentParagraphProperty());
         listenerHelper.addInvalidationListener(vflow::handleContentPadding, true, control.contentPaddingProperty());
-        listenerHelper.addInvalidationListener(vflow::handleDefaultParagraphAttributes, true, control.defaultAttributesProperty());
         listenerHelper.addInvalidationListener(vflow::handleDecoratorChange,
             control.leftDecoratorProperty(),
             control.rightDecoratorProperty()
@@ -270,5 +278,37 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
      */
     public void paste(DataFormat format) {
         behavior.paste(format);
+    }
+
+    /**
+     * Applies styles based on supplied attribute set to either the whole paragraph or the text segment.
+     * This method can be overriden by other skin implementations to provide additional styling.
+     * The overriding method must call super implementation.
+     *
+     * @param context the cell context
+     * @param attrs the attributes
+     * @param forParagraph determines whether the styles are applied to the paragraph (true), or text segment (false)
+     */
+    public void applyStyles(CellContext context, StyleAttrs attrs, boolean forParagraph) {
+        if (attrs != null) {
+            RichTextArea c = (RichTextArea)getSkinnable();
+            StyleHandlerRegistry r = c.getStyleHandlerRegistry();
+            for (StyleAttribute a : attrs.getAttributes()) {
+                Object v = attrs.get(a);
+                if (v != null) {
+                    r.process(c, forParagraph, context, a, v);
+                }
+            }
+        }
+    }
+
+    /**
+     * Discards any cached layout information and calls
+     * {@code requestLayout()}.
+     */
+    // TODO alternative: simply override requestLayout() ?
+    public void refreshLayout() {
+        vflow.invalidateLayout();
+        getSkinnable().requestLayout();
     }
 }

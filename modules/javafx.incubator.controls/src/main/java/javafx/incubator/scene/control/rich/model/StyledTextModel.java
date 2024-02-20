@@ -794,6 +794,7 @@ public abstract class StyledTextModel {
 
     /**
      * The property describes if it's currently possible to undo the latest change of the content that was done.
+     * @return the read-only property
      * @defaultValue false
      */
     public final ReadOnlyBooleanProperty undoableProperty() {
@@ -810,6 +811,7 @@ public abstract class StyledTextModel {
 
     /**
      * The property describes if it's currently possible to redo the latest change of the content that was undone.
+     * @return the read-only property
      * @defaultValue false
      */
     public final ReadOnlyBooleanProperty redoableProperty() {
