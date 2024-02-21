@@ -150,6 +150,9 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
                 }
                 updateCaretOff();
             }
+            // restart caret blinking animation
+            setCaretAnimating(false);
+            setCaretAnimating(true);
         });
 
         forwardBiasProperty().addListener(observable -> {

@@ -297,7 +297,6 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
         }
     }
 
-
     /**************************************************************************
      * Disposal methods                                                       *
      *************************************************************************/
