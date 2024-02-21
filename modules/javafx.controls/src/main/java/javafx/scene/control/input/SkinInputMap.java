@@ -44,9 +44,6 @@ import com.sun.javafx.scene.control.input.PHList;
  * @param <C> the control type
  */
 public class SkinInputMap<C extends Skinnable> {
-    // TODO remove after JDK-8322748
-    private static final Object ON_KEY_ENTER = new Object();
-    private static final Object ON_KEY_EXIT = new Object();
     // KeyBinding -> FunctionTag
     // FunctionTag -> FunctionHandler
     // ON_KEY_ENTER/ON_KEY_EXIT -> Runnable
@@ -266,22 +263,6 @@ public class SkinInputMap<C extends Skinnable> {
         }
         return null;
     }
-    
-    /**
-     * Sets the code to be executed just before handling of the key events.
-     * @param function the function or null
-     */
-    public final void setOnKeyEventEnter(Runnable function) {
-        map.put(ON_KEY_ENTER, function);
-    }
-
-    /**
-     * Sets the code to be executed just after handling of the key events.
-     * @param function the function or null
-     */
-    public final void setOnKeyEventExit(Runnable function) {
-        map.put(ON_KEY_EXIT, function);
-    }
 
     /**
      * Collects the key bindings mapped by the skin.
@@ -344,20 +325,6 @@ public class SkinInputMap<C extends Skinnable> {
                 // the entry must be KeyBinding -> FunctionTag
                 it.remove();
             }
-        }
-    }
-    
-    void handleKeyFunctionEnter() {
-        Object x = map.get(ON_KEY_ENTER);
-        if (x instanceof Runnable r) {
-            r.run();
-        }
-    }
-
-    void handleKeyFunctionExit() {
-        Object x = map.get(ON_KEY_EXIT);
-        if (x instanceof Runnable r) {
-            r.run();
         }
     }
 

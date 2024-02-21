@@ -167,29 +167,11 @@ public final class InputMap {
         if (k.isEnabled()) {
             FunctionHandler f = getFunction(k);
             if (f != null) {
-                handleKeyFunctionEnter();
-                try {
-                    f.handleFunction(control);
-                    if (k.isConsume()) {
-                        ev.consume();
-                    }
-                } finally {
-                    handleKeyFunctionExit();
+                f.handleFunction(control);
+                if (k.isConsume()) {
+                    ev.consume();
                 }
-                return;
             }
-        }
-    }
-
-    private void handleKeyFunctionEnter() {
-        if (skinInputMap != null) {
-            skinInputMap.handleKeyFunctionEnter();
-        }
-    }
-
-    private void handleKeyFunctionExit() {
-        if (skinInputMap != null) {
-            skinInputMap.handleKeyFunctionExit();
         }
     }
 

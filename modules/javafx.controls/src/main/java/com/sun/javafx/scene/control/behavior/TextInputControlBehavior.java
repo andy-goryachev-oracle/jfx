@@ -98,10 +98,6 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
     public void install() {
         getControl().textProperty().addListener(textListener);
 
-        // TODO to be replaced by a caret position listener JDK-8322748
-        setOnKeyEventEnter(() -> setCaretAnimating(false));
-        setOnKeyEventExit(() -> setCaretAnimating(true));
-
         registerFunction(TextInputControl.COPY, this::copy);
         registerFunction(TextInputControl.CUT, this::cut);
         registerFunction(TextInputControl.DELETE_FROM_LINE_START, this::deleteFromLineStart);
