@@ -30,6 +30,7 @@ import javafx.event.EventType;
 /**
  * Determines whether an event passes certain criteria.
  *
+ * @param <T> the type of the event
  * @since 22
  */
 public interface EventCriteria<T extends Event> {
