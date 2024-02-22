@@ -28,14 +28,17 @@ import javafx.scene.control.Skinnable;
 
 /**
  * A functional interface which denotes code associated with a {@code FunctionTag} or a key binding.
+ * Unlike {@link FunctionHandler}, this handler allows for controlling whether the matching KeyEvent
+ * will be consumed or not.
  *
  * @param <C> the type of the skinnable
  */
 @FunctionalInterface
-public interface FunctionHandler<C extends Skinnable> {
+public interface FunctionHandlerConditional<C extends Skinnable> {
     /**
      * Handles the event associated with a function tag or a key binding.
      * @param control the control instance
+     * @return true to consume the key event, false otherwise
      */
-    public void handle(C control);
+    public boolean handle(C control);
 }

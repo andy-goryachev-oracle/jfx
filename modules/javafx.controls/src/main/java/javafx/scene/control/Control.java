@@ -487,7 +487,7 @@ public abstract class Control extends Region implements Skinnable {
     protected final void execute(FunctionTag tag) {
         FunctionHandler<Control> f = getInputMap().getFunction(tag);
         if (f != null) {
-            f.handleFunction(this);
+            f.handle(this);
         }
     }
 

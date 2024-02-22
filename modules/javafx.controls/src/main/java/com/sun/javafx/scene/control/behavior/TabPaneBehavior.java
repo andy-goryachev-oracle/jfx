@@ -54,8 +54,8 @@ public class TabPaneBehavior {
     private static SkinInputMap<TabPane> createInputMap() {
         SkinInputMap<TabPane> m = new SkinInputMap<>();
 
-        m.registerFunction(TabPane.Tag.SELECT_FIRST_TAB, TabPaneBehavior::selectFirstTab);
-        m.registerFunction(TabPane.Tag.SELECT_LAST_TAB, TabPaneBehavior::selectLastTab);
+        m.registerFunction(TabPane.Tag.SELECT_FIRST_TAB, TabPaneBehavior::selectFirstTab); // TODO consume conditionally
+        m.registerFunction(TabPane.Tag.SELECT_LAST_TAB, TabPaneBehavior::selectLastTab); // TODO consume conditionally
         m.registerFunction(TabPane.Tag.SELECT_LEFT_TAB, TabPaneBehavior::selectLeftTab);
         m.registerFunction(TabPane.Tag.SELECT_NEXT_TAB, TabPaneBehavior::selectNextTab);
         m.registerFunction(TabPane.Tag.SELECT_PREV_TAB, TabPaneBehavior::selectPreviousTab);

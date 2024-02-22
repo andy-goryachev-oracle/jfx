@@ -167,7 +167,8 @@ public final class InputMap {
         if (k.isEnabled()) {
             FunctionHandler f = getFunction(k);
             if (f != null) {
-                f.handleFunction(control);
+                f.handle(control);
+                // FIX delegate to internal implementation which consumes based on ConditionalFunctionHandler
                 if (k.isConsume()) {
                     ev.consume();
                 }
@@ -290,7 +291,8 @@ public final class InputMap {
     }
 
     /**
-     * Resets all key bindings set by user to the values set by the behavior, if any.
+     * Reverts all the key bindings set by user.
+     * This method restores key bindings set by the skin which were overwritten by the user.
      */
     public void resetKeyBindings() {
         Iterator<Map.Entry<Object, Object>> it = map.entrySet().iterator();
