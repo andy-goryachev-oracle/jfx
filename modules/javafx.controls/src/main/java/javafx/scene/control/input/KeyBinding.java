@@ -99,8 +99,8 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     /**
      * Utility method creates a KeyBinding corresponding to a key press.
      *
-     * @param code key code
-     * @return KeyBinding
+     * @param code the key code
+     * @return the KeyBinding
      */
     public static KeyBinding of(KeyCode code) {
         return create(code, KCondition.KEY_PRESS);
@@ -109,8 +109,8 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     /**
      * Utility method creates a KeyBinding corresponding to a command-code key press.
      *
-     * @param code key code
-     * @return KeyBinding
+     * @param code the key code
+     * @return the KeyBinding
      */
     public static KeyBinding command(KeyCode code) {
         return create(code, KCondition.KEY_PRESS, KCondition.COMMAND);
@@ -119,8 +119,8 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     /**
      * Utility method creates a KeyBinding corresponding to a alt-code key press.
      *
-     * @param code key code
-     * @return KeyBinding
+     * @param code the key code
+     * @return the KeyBinding
      */
     public static KeyBinding alt(KeyCode code) {
         return create(code, KCondition.KEY_PRESS, KCondition.ALT);
@@ -129,18 +129,28 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     /**
      * Utility method creates a KeyBinding corresponding to a ctrl-code key press.
      *
-     * @param code key code
-     * @return KeyBinding
+     * @param code the key code
+     * @return the KeyBinding
      */
     public static KeyBinding ctrl(KeyCode code) {
         return create(code, KCondition.KEY_PRESS, KCondition.CTRL);
     }
 
     /**
+     * Utility method creates a KeyBinding corresponding to a ctrl-shift-code key press.
+     *
+     * @param code the key code
+     * @return the KeyBinding
+     */
+    public static KeyBinding ctrlShift(KeyCode code) {
+        return create(code, KCondition.KEY_PRESS, KCondition.CTRL, KCondition.SHIFT);
+    }
+
+    /**
      * Utility method creates a KeyBinding corresponding to a shift-code key press.
      *
-     * @param code key code
-     * @return KeyBinding
+     * @param code the key code
+     * @return the KeyBinding
      */
     public static KeyBinding shift(KeyCode code) {
         return create(code, KCondition.KEY_PRESS, KCondition.SHIFT);
@@ -149,8 +159,8 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     /**
      * Utility method creates a KeyBinding corresponding to a shortcut-code key press.
      *
-     * @param code key code
-     * @return KeyBinding
+     * @param code the key code
+     * @return the KeyBinding
      */
     public static KeyBinding shortcut(KeyCode code) {
         return create(code, KCondition.KEY_PRESS, KCondition.SHORTCUT);
