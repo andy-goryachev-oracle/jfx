@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -239,21 +239,23 @@ public class ControlSkinFactory {
 
     /** list of control classes that have no behavior, or use BehaviorBase2 */
     static List<Class<? extends Control>> withoutBehaviors = List.of(
-            ButtonBar.class,
-            Label.class,
-            MenuBar.class,
-            ProgressBar.class,
-            ProgressIndicator.class,
-            Separator.class,
-            SplitPane.class,
-            // these use BehaviorBase2
-            ColorPicker.class,
-            ComboBox.class,
-            DatePicker.class,
-            PasswordField.class,
-            TextArea.class,
-            TextField.class
-            );
+        ButtonBar.class,
+        Label.class,
+        MenuBar.class,
+        ProgressBar.class,
+        ProgressIndicator.class,
+        Separator.class,
+        SplitPane.class,
+        // stateless behavior
+        TabPane.class,
+        // these use BehaviorBase2
+        ColorPicker.class,
+        ComboBox.class,
+        DatePicker.class,
+        PasswordField.class,
+        TextArea.class,
+        TextField.class
+    );
 
 ///---------------- misc
 
