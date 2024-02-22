@@ -224,6 +224,17 @@ public class SkinInputMap<C extends Skinnable> {
     public final void registerFunction(FunctionTag tag, FunctionHandler<C> function) {
         map.put(tag, function);
     }
+
+    /**
+     * Maps a function to the specified function tag.
+     * This method allows for controlling whether the matching event will be consumed or not.
+     *
+     * @param tag the function tag
+     * @param function the function
+     */
+    public final void registerFunction(FunctionTag tag, FunctionHandlerConditional<C> function) {
+        map.put(tag, InputMap.toFunctionHandler(function));
+    }
     
     /**
      * This convenience method maps the function tag to the specified function, and at the same time

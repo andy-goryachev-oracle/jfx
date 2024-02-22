@@ -32,7 +32,6 @@ import javafx.scene.Node;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.input.FunctionTag;
 import javafx.scene.control.input.KeyBinding;
 import javafx.scene.control.input.SkinInputMap;
 import javafx.scene.input.KeyCode;
@@ -54,8 +53,8 @@ public class TabPaneBehavior {
     private static SkinInputMap<TabPane> createInputMap() {
         SkinInputMap<TabPane> m = new SkinInputMap<>();
 
-        m.registerFunction(TabPane.Tag.SELECT_FIRST_TAB, TabPaneBehavior::selectFirstTab); // TODO consume conditionally
-        m.registerFunction(TabPane.Tag.SELECT_LAST_TAB, TabPaneBehavior::selectLastTab); // TODO consume conditionally
+        m.registerFunction(TabPane.Tag.SELECT_FIRST_TAB, TabPaneBehavior::selectFirstTab);
+        m.registerFunction(TabPane.Tag.SELECT_LAST_TAB, TabPaneBehavior::selectLastTab);
         m.registerFunction(TabPane.Tag.SELECT_LEFT_TAB, TabPaneBehavior::selectLeftTab);
         m.registerFunction(TabPane.Tag.SELECT_NEXT_TAB, TabPaneBehavior::selectNextTab);
         m.registerFunction(TabPane.Tag.SELECT_PREV_TAB, TabPaneBehavior::selectPreviousTab);

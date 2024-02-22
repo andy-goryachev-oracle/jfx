@@ -167,13 +167,26 @@ public final class InputMap {
         if (k.isEnabled()) {
             FunctionHandler f = getFunction(k);
             if (f != null) {
-                f.handle(control);
-                // FIX delegate to internal implementation which consumes based on ConditionalFunctionHandler
-                if (k.isConsume()) {
+                f.handleKeyBinding(ev, control);
+            }
+        }
+    }
+
+    static <C extends Skinnable> FunctionHandler<C> toFunctionHandler(FunctionHandlerConditional<C> h) {
+        return new FunctionHandler<C>() {
+            @Override
+            public void handle(C control) {
+                boolean consume = h.handle(control);
+            }
+
+            @Override
+            public void handleKeyBinding(Event ev, C control) {
+                boolean consume = h.handle(control);
+                if (consume) {
                     ev.consume();
                 }
             }
-        }
+        };
     }
 
     /**
@@ -188,6 +201,21 @@ public final class InputMap {
         Objects.requireNonNull(tag, "function tag must not be null");
         Objects.requireNonNull(function, "function must not be null");
         map.put(tag, function);
+    }
+
+    /**
+     * Adds (or overrides) a user-specified function under the given function tag.
+     * This function will take precedence over any function set by the skin.
+     * This method allows for controlling whether the matching event will be consumed or not.
+     *
+     * @param <C> the skinnable type
+     * @param tag the function tag
+     * @param function the function
+     */
+    public <C extends Skinnable> void registerFunction(FunctionTag tag, FunctionHandlerConditional<C> function) {
+        Objects.requireNonNull(tag, "function tag must not be null");
+        Objects.requireNonNull(function, "function must not be null");
+        map.put(tag, toFunctionHandler(function));
     }
 
     /**

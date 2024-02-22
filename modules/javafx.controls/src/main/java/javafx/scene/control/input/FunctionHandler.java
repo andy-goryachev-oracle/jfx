@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
  */
 package javafx.scene.control.input;
 
+import javafx.event.Event;
 import javafx.scene.control.Skinnable;
 
 /**
@@ -38,4 +39,15 @@ public interface FunctionHandler<C extends Skinnable> {
      * @param control the control instance
      */
     public void handle(C control);
+
+    /**
+     * This method is called by the InputMap when handling the corresponding KeyEvent.
+     * Implementors may override this method to conditionally consume the event.
+     * @param ev the event
+     * @param control the control instance
+     */
+    public default void handleKeyBinding(Event ev, C control) {
+        handle(control);
+        ev.consume();
+    }
 }

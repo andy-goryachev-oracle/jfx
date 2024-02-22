@@ -270,10 +270,6 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
         return true;
     }
 
-    boolean isConsume() {
-        return true;
-    }
-
     /**
      * Creates a {@link Builder}.
      * @return the Builder instance
