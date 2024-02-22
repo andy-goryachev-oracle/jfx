@@ -122,23 +122,23 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
 
         if (isMac()) {
             // macOS specific mappings
-            registerKey(KeyBinding.with(KeyCode.DOWN).alt().build(), TextArea.PARAGRAPH_DOWN);
+            registerKey(KeyBinding.alt(KeyCode.DOWN), TextArea.PARAGRAPH_DOWN);
             registerKey(KeyBinding.with(KeyCode.DOWN).alt().shift().build(), TextArea.SELECT_PARAGRAPH_DOWN);
-            registerKey(KeyBinding.with(KeyCode.DOWN).shortcut().build(), TextArea.DOCUMENT_END);
+            registerKey(KeyBinding.shortcut(KeyCode.DOWN), TextArea.DOCUMENT_END);
             registerKey(KeyBinding.with(KeyCode.DOWN).shortcut().shift().build(), TextArea.SELECT_END_EXTEND);
-            registerKey(KeyBinding.with(KeyCode.LEFT).shortcut().build(), TextArea.LINE_START);
+            registerKey(KeyBinding.shortcut(KeyCode.LEFT), TextArea.LINE_START);
             registerKey(KeyBinding.with(KeyCode.LEFT).shortcut().shift().build(), TextArea.SELECT_LINE_START);
-            registerKey(KeyBinding.with(KeyCode.RIGHT).shortcut().build(), TextArea.LINE_END);
+            registerKey(KeyBinding.shortcut(KeyCode.RIGHT), TextArea.LINE_END);
             registerKey(KeyBinding.with(KeyCode.RIGHT).shortcut().shift().build(), TextArea.SELECT_LINE_END);
-            registerKey(KeyBinding.with(KeyCode.UP).alt().build(), TextArea.PARAGRAPH_UP);
+            registerKey(KeyBinding.alt(KeyCode.UP), TextArea.PARAGRAPH_UP);
             registerKey(KeyBinding.with(KeyCode.UP).alt().shift().build(), TextArea.SELECT_PARAGRAPH_UP);
-            registerKey(KeyBinding.with(KeyCode.UP).shortcut().build(), TextArea.DOCUMENT_START);
+            registerKey(KeyBinding.shortcut(KeyCode.UP), TextArea.DOCUMENT_START);
             registerKey(KeyBinding.with(KeyCode.UP).shortcut().shift().build(), TextArea.SELECT_HOME_EXTEND);
         } else {
             // non-macOS specific mappings
-            registerKey(KeyBinding.with(KeyCode.DOWN).control().build(), TextArea.PARAGRAPH_DOWN);
+            registerKey(KeyBinding.ctrl(KeyCode.DOWN), TextArea.PARAGRAPH_DOWN);
             registerKey(KeyBinding.with(KeyCode.DOWN).control().shift().build(), TextArea.SELECT_PARAGRAPH_DOWN);
-            registerKey(KeyBinding.with(KeyCode.UP).control().build(), TextArea.PARAGRAPH_UP);
+            registerKey(KeyBinding.ctrl(KeyCode.UP), TextArea.PARAGRAPH_UP);
             registerKey(KeyBinding.with(KeyCode.UP).control().shift().build(), TextArea.SELECT_PARAGRAPH_UP);
         }
 

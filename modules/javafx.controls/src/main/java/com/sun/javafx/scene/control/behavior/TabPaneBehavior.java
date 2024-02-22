@@ -133,21 +133,21 @@ public class TabPaneBehavior {
         return c.getEffectiveNodeOrientation() == NodeOrientation.RIGHT_TO_LEFT;
     }
 
-    private static boolean selectFirstTab(TabPane c) {
+    // TODO a bit of controversy: should this method return boolean to avoid consuming the key event
+    // when the control is not focused?
+    private static void selectFirstTab(TabPane c) {
         if (c.isFocused()) {
             moveSelection(c, -1, 1);
-            return true;
         }
-        return false;
     }
 
-    private static boolean selectLastTab(TabPane c) {
+    // TODO a bit of controversy: should this method return boolean to avoid consuming the key event
+    // when the control is not focused?
+    private static void selectLastTab(TabPane c) {
         if (c.isFocused()) {
             int sz = c.getTabs().size();
             moveSelection(c, sz, -1);
-            return true;
         }
-        return false;
     }
 
     private static void moveSelection(TabPane c, int delta) {
@@ -193,10 +193,6 @@ public class TabPaneBehavior {
             r = r + max - min;
         }
         return r;
-    }
-
-    private static void requestFocus() {
-        
     }
 
     private static void requestFocus(MouseEvent ev) {

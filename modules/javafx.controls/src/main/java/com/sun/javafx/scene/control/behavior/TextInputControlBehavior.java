@@ -135,13 +135,13 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
         registerKey(KeyBinding.shortcut(KeyCode.X), TextInputControl.CUT);
         registerKey(KeyBinding.of(KeyCode.DELETE), TextInputControl.DELETE_NEXT_CHAR);
         registerKey(KeyBinding.of(KeyCode.BACK_SPACE), TextInputControl.DELETE_PREVIOUS_CHAR);
-        registerKey(KeyBinding.with(KeyCode.BACK_SPACE).shift().build(), TextInputControl.DELETE_PREVIOUS_CHAR);
+        registerKey(KeyBinding.shift(KeyCode.BACK_SPACE), TextInputControl.DELETE_PREVIOUS_CHAR);
         registerKey(KeyBinding.of(KeyCode.HOME), TextInputControl.DOCUMENT_START);
-        registerKey(KeyBinding.with(KeyCode.HOME).shortcut().build(), TextInputControl.DOCUMENT_START);
+        registerKey(KeyBinding.shortcut(KeyCode.HOME), TextInputControl.DOCUMENT_START);
         registerKey(KeyBinding.of(KeyCode.UP), TextInputControl.DOCUMENT_START);
         registerKey(KeyBinding.of(KeyCode.DOWN), TextInputControl.DOCUMENT_END);
         registerKey(KeyBinding.of(KeyCode.END), TextInputControl.DOCUMENT_END);
-        registerKey(KeyBinding.with(KeyCode.END).shortcut().build(), TextInputControl.DOCUMENT_END);
+        registerKey(KeyBinding.shortcut(KeyCode.END), TextInputControl.DOCUMENT_END);
         registerKey(KeyBinding.of(KeyCode.LEFT), TextInputControl.LEFT);
         registerKey(KeyBinding.of(KeyCode.PASTE), TextInputControl.PASTE);
         registerKey(KeyBinding.shift(KeyCode.INSERT), TextInputControl.PASTE);
@@ -162,37 +162,37 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
 
         if (isMac()) {
             // macOS key bindings
-            registerKey(KeyBinding.with(KeyCode.BACK_SPACE).shortcut().build(), TextInputControl.DELETE_FROM_LINE_START);
-            registerKey(KeyBinding.with(KeyCode.DELETE).alt().build(), TextInputControl.DELETE_NEXT_WORD);
-            registerKey(KeyBinding.with(KeyCode.BACK_SPACE).alt().build(), TextInputControl.DELETE_PREVIOUS_WORD);
-            registerKey(KeyBinding.with(KeyCode.HOME).shift().build(), TextInputControl.SELECT_HOME_EXTEND);
-            registerKey(KeyBinding.with(KeyCode.LEFT).shortcut().build(), TextInputControl.DOCUMENT_START);
-            registerKey(KeyBinding.with(KeyCode.RIGHT).shortcut().build(), TextInputControl.DOCUMENT_END);
-            registerKey(KeyBinding.with(KeyCode.LEFT).alt().build(), TextInputControl.LEFT_WORD);
+            registerKey(KeyBinding.shortcut(KeyCode.BACK_SPACE), TextInputControl.DELETE_FROM_LINE_START);
+            registerKey(KeyBinding.alt(KeyCode.DELETE), TextInputControl.DELETE_NEXT_WORD);
+            registerKey(KeyBinding.alt(KeyCode.BACK_SPACE), TextInputControl.DELETE_PREVIOUS_WORD);
+            registerKey(KeyBinding.shift(KeyCode.HOME), TextInputControl.SELECT_HOME_EXTEND);
+            registerKey(KeyBinding.shortcut(KeyCode.LEFT), TextInputControl.DOCUMENT_START);
+            registerKey(KeyBinding.shortcut(KeyCode.RIGHT), TextInputControl.DOCUMENT_END);
+            registerKey(KeyBinding.alt(KeyCode.LEFT), TextInputControl.LEFT_WORD);
             registerKey(KeyBinding.with(KeyCode.Z).shortcut().shift().build(), TextInputControl.REDO);
-            registerKey(KeyBinding.with(KeyCode.RIGHT).alt().build(), TextInputControl.RIGHT_WORD);
+            registerKey(KeyBinding.alt(KeyCode.RIGHT), TextInputControl.RIGHT_WORD);
             registerKey(KeyBinding.with(KeyCode.LEFT).shortcut().shift().build(), TextInputControl.SELECT_HOME_EXTEND);
             registerKey(KeyBinding.with(KeyCode.RIGHT).shortcut().shift().build(), TextInputControl.SELECT_END_EXTEND);
-            registerKey(KeyBinding.with(KeyCode.END).shift().build(), TextInputControl.SELECT_END_EXTEND);
+            registerKey(KeyBinding.shift(KeyCode.END), TextInputControl.SELECT_END_EXTEND);
             registerKey(KeyBinding.with(KeyCode.LEFT).shift().alt().build(), TextInputControl.SELECT_LEFT_WORD);
             registerKey(KeyBinding.with(KeyCode.RIGHT).shift().alt().build(), TextInputControl.SELECT_RIGHT_WORD);
         } else {
             // not-mac key bindings
-            registerKey(KeyBinding.with(KeyCode.DELETE).control().build(), TextInputControl.DELETE_NEXT_WORD);
-            registerKey(KeyBinding.with(KeyCode.H).control().build(), TextInputControl.DELETE_PREVIOUS_CHAR);
-            registerKey(KeyBinding.with(KeyCode.BACK_SPACE).control().build(), TextInputControl.DELETE_PREVIOUS_WORD);
-            registerKey(KeyBinding.with(KeyCode.BACK_SLASH).control().build(), TextInputControl.DESELECT);
-            registerKey(KeyBinding.with(KeyCode.LEFT).control().build(), TextInputControl.LEFT_WORD);
-            registerKey(KeyBinding.with(KeyCode.RIGHT).control().build(), TextInputControl.RIGHT_WORD);
-            registerKey(KeyBinding.with(KeyCode.HOME).shift().build(), TextInputControl.SELECT_HOME);
-            registerKey(KeyBinding.with(KeyCode.END).shift().build(), TextInputControl.SELECT_END);
+            registerKey(KeyBinding.ctrl(KeyCode.DELETE), TextInputControl.DELETE_NEXT_WORD);
+            registerKey(KeyBinding.ctrl(KeyCode.H), TextInputControl.DELETE_PREVIOUS_CHAR);
+            registerKey(KeyBinding.ctrl(KeyCode.BACK_SPACE), TextInputControl.DELETE_PREVIOUS_WORD);
+            registerKey(KeyBinding.ctrl(KeyCode.BACK_SLASH), TextInputControl.DESELECT);
+            registerKey(KeyBinding.ctrl(KeyCode.LEFT), TextInputControl.LEFT_WORD);
+            registerKey(KeyBinding.ctrl(KeyCode.RIGHT), TextInputControl.RIGHT_WORD);
+            registerKey(KeyBinding.shift(KeyCode.HOME), TextInputControl.SELECT_HOME);
+            registerKey(KeyBinding.shift(KeyCode.END), TextInputControl.SELECT_END);
             registerKey(KeyBinding.with(KeyCode.LEFT).control().shift().build(), TextInputControl.SELECT_LEFT_WORD);
             registerKey(KeyBinding.with(KeyCode.RIGHT).control().shift().build(), TextInputControl.SELECT_RIGHT_WORD);
         }
 
         // windows key bindings
         if (isWindows()) {
-            registerKey(KeyBinding.with(KeyCode.Y).control().build(), TextInputControl.REDO);
+            registerKey(KeyBinding.ctrl(KeyCode.Y), TextInputControl.REDO);
         }
 
         // linux key bindings

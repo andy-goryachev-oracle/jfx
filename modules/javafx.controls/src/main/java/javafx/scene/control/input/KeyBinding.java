@@ -475,7 +475,6 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
     public static class Builder {
         private Object key; // KeyCode or String
         private BooleanSupplier condition;
-        private Boolean consume = true;
         private final EnumSet<KCondition> m = EnumSet.noneOf(KCondition.class);
 
         /** Constructs a Builder */
@@ -679,18 +678,6 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
          */
         public Builder when(BooleanSupplier condition) {
             this.condition = condition;
-            return this;
-        }
-
-        /**
-         * Sets whether the key mapping will consume the event when matched.
-         * The default value is {@code true}.
-         *
-         * @param on whether to consume the matching event
-         * @return this Builder
-         */
-        public Builder autoConsume(boolean on) {
-            consume = on;
             return this;
         }
 
