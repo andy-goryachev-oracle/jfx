@@ -39,9 +39,10 @@ import com.sun.javafx.scene.control.input.KeyEventMapper;
 import com.sun.javafx.scene.control.input.PHList;
 
 /**
- * Input Map for use by the Skin.
+ * The Input Map for use by the Skin.
  *
  * @param <C> the control type
+ * @since 999 TODO
  */
 public class SkinInputMap<C extends Skinnable> {
     // KeyBinding -> FunctionTag
@@ -282,7 +283,7 @@ public class SkinInputMap<C extends Skinnable> {
      * @param tag the function tag
      * @return the set of KeyBindings
      */
-    public Set<KeyBinding> getKeyBindingFor(FunctionTag tag) {
+    public Set<KeyBinding> getKeyBindingsFor(FunctionTag tag) {
         return collectKeyBindings(null, tag);
     }
 

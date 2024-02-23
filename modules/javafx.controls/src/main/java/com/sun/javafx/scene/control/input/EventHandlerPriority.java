@@ -38,7 +38,7 @@ public enum EventHandlerPriority {
     USER_LOW(1000);
 
     /** set of priorities associated with a {@code Skin} */
-    public static final Set<EventHandlerPriority> SKIN = Set.of(
+    public static final Set<EventHandlerPriority> ALL_SKIN = Set.of(
         SKIN_KB,
         SKIN_HIGH,
         SKIN_LOW

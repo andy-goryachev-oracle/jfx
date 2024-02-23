@@ -31,6 +31,7 @@ import javafx.scene.control.Skinnable;
  * A functional interface which denotes code associated with a {@code FunctionTag} or a key binding.
  *
  * @param <C> the type of the skinnable
+ * @since 999 TODO
  */
 @FunctionalInterface
 public interface FunctionHandler<C extends Skinnable> {

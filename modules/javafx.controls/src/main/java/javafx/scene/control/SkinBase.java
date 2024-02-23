@@ -184,7 +184,6 @@ public abstract class SkinBase<C extends Control> implements Skin<C> {
      * @param map the skin input map
      */
     protected final void setSkinInputMap(SkinInputMap<C> map) {
-        // TODO use a helper?
         if (control != null) {
             control.getInputMap().setSkinInputMap(map);
         }

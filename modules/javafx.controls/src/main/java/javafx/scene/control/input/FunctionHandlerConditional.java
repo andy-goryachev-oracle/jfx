@@ -32,6 +32,7 @@ import javafx.scene.control.Skinnable;
  * will be consumed or not.
  *
  * @param <C> the type of the skinnable
+ * @since 999 TODO
  */
 @FunctionalInterface
 public interface FunctionHandlerConditional<C extends Skinnable> {

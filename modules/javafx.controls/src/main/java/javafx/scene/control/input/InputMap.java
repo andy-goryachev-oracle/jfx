@@ -365,9 +365,9 @@ public final class InputMap {
     /**
      * Returns the set of key bindings mapped to the specified function tag.
      * @param tag the function tag
-     * @return the set of KeyBindings
+     * @return the set of KeyBindings, non-null
      */
-    public Set<KeyBinding> getKeyBindingFor(FunctionTag tag) {
+    public Set<KeyBinding> getKeyBindingsFor(FunctionTag tag) {
         return collectKeyBindings(tag);
     }
 
@@ -410,12 +410,11 @@ public final class InputMap {
     /**
      * Sets the skin input map, adding necessary event handlers to the control instance when required.
      * This method must be called by the skin only from its {@link Skin#install()} or
-     * {@link SkinBase#setSkinInputMap(SkinInputMap)} method. 
+     * {@link SkinBase#setSkinInputMap(SkinInputMap)} method.
+     * <p>
      * This method removes all the mappings from the previous skin input map, if any.
      * @param m the skin input map
      */
-    // TODO hide behind a helper (if the caller is moved to some base class)
-    // or keep it public and call in every leaf skin class install().
     public void setSkinInputMap(SkinInputMap m) {
         if (skinInputMap != null) {
             // uninstall all handlers with SKIN_* priority
@@ -424,7 +423,7 @@ public final class InputMap {
                 Map.Entry<Object, Object> en = it.next();
                 if (en.getKey() instanceof EventType t) {
                     PHList hs = (PHList)en.getValue();
-                    if (hs.removeHandlers(EventHandlerPriority.SKIN)) {
+                    if (hs.removeHandlers(EventHandlerPriority.ALL_SKIN)) {
                         it.remove();
                         control.removeEventHandler(t, eventHandler);
                     }

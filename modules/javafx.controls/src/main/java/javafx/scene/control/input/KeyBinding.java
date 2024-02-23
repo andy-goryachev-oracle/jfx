@@ -35,10 +35,8 @@ import com.sun.javafx.PlatformUtil;
 
 /**
  * Key binding provides a way to map key event to a hash table key for easy matching.
- * Also it allows for encoding platform-specific keys without resorting to nested and/or
- * multiple key maps.
  *
- * @since 22
+ * @since 999 TODO
  */
 public class KeyBinding implements EventCriteria<KeyEvent> {
     /**

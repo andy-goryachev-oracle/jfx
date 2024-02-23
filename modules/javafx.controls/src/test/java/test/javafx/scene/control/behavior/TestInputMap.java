@@ -71,8 +71,8 @@ public class TestInputMap {
             KB2, TAG1
         );
 
-        Assertions.assertEquals(Set.of(KB1, KB2), m.getKeyBindingFor(TAG1));
-        Assertions.assertEquals(Set.of(), m.getKeyBindingFor(TAG2));
+        Assertions.assertEquals(Set.of(KB1, KB2), m.getKeyBindingsFor(TAG1));
+        Assertions.assertEquals(Set.of(), m.getKeyBindingsFor(TAG2));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class TestInputMap {
         );
 
         m.unbind(TAG1);
-        Assertions.assertEquals(Set.of(), m.getKeyBindingFor(TAG1));
+        Assertions.assertEquals(Set.of(), m.getKeyBindingsFor(TAG1));
     }
 
     @Test
