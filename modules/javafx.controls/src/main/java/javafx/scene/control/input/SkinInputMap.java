@@ -77,7 +77,6 @@ public class SkinInputMap<C extends Skinnable> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
-    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
         addHandler(type, consume, EventHandlerPriority.SKIN_HIGH, handler);
     }
@@ -104,7 +103,6 @@ public class SkinInputMap<C extends Skinnable> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
-    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
         addHandler(type, consume, EventHandlerPriority.SKIN_LOW, handler);
     }
@@ -118,7 +116,6 @@ public class SkinInputMap<C extends Skinnable> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
-    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
         addHandler(criteria, consume, EventHandlerPriority.SKIN_HIGH, handler);
     }
@@ -132,20 +129,17 @@ public class SkinInputMap<C extends Skinnable> {
      * @param consume determines whether the matching event is consumed or not
      * @param h the event handler
      */
-    @Deprecated // handler must explicitly consume the event
     public <T extends Event> void addHandlerLast(EventCriteria<T> criteria, boolean consume, EventHandler<T> h) {
         addHandler(criteria, consume, EventHandlerPriority.SKIN_LOW, h);
     }
 
-    // FIX replace with adding a PHList
     private <T extends Event> void addHandler(
         EventType<T> type,
-        boolean consume, // FIX remove consume flag
+        boolean consume,
         EventHandlerPriority pri,
         EventHandler<T> handler)
     {
         if (consume) {
-            // FIX remove
             putHandler(type, pri, new EventHandler<T>() {
                 @Override
                 public void handle(T ev) {
@@ -158,10 +152,9 @@ public class SkinInputMap<C extends Skinnable> {
         }
     }
 
-    // FIX replace with adding a PHList
     private <T extends Event> void addHandler(
         EventCriteria<T> criteria,
-        boolean consume, // FIX remove consume flag
+        boolean consume,
         EventHandlerPriority pri,
         EventHandler<T> handler
     ) {

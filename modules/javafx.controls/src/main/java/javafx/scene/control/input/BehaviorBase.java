@@ -188,7 +188,6 @@ public abstract class BehaviorBase<C extends Control> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
-    @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
         skinInputMap.addHandler(type, consume, handler);
     }
@@ -217,7 +216,6 @@ public abstract class BehaviorBase<C extends Control> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
-    @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
         skinInputMap.addHandler(type, consume, handler);
     }
@@ -232,7 +230,6 @@ public abstract class BehaviorBase<C extends Control> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
-    @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
         skinInputMap.addHandler(criteria, consume, handler);
     }
@@ -241,6 +238,7 @@ public abstract class BehaviorBase<C extends Control> {
      * Adds an event handler for the specific event criteria, in the context of this Behavior.
      * This is a more specific version of {@link #addHandler(EventType,EventHandler)} method.
      * The handler will get removed in {@link#dispose()} method.
+     * This mapping always consumes the matching event.
      *
      * @param <T> the actual event type
      * @param criteria the matching criteria
@@ -260,7 +258,6 @@ public abstract class BehaviorBase<C extends Control> {
      * @param consume determines whether the matching event is consumed or not
      * @param handler the event handler
      */
-    @Deprecated // FIX remove, must consume event in the handler
     protected <T extends Event> void addHandlerLast(
         EventCriteria<T> criteria,
         boolean consume,
@@ -273,6 +270,7 @@ public abstract class BehaviorBase<C extends Control> {
      * Adds an event handler for the specific event criteria, in the context of this Behavior.
      * This event handler will get invoked after all handlers added via map() methods.
      * The handler will get removed in {@link#dispose()} method.
+     * This mapping always consumes the matching event.
      *
      * @param <T> the actual event type
      * @param criteria the matching criteria
