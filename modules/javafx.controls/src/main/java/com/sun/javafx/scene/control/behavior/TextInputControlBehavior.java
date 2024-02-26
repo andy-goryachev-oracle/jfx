@@ -95,7 +95,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
     }
 
     @Override
-    public void install() {
+    public void populateSkinInputMap() {
         getControl().textProperty().addListener(textListener);
 
         registerFunction(TextInputControl.COPY, this::copy);
@@ -297,10 +297,8 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
      * Disposal methods                                                       *
      *************************************************************************/
 
-    @Override
     public void dispose() {
         getControl().textProperty().removeListener(textListener);
-        super.dispose();
     }
 
     /**************************************************************************

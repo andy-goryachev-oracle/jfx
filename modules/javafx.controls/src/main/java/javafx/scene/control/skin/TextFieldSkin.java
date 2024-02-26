@@ -388,7 +388,7 @@ public class TextFieldSkin extends TextInputControlSkin<TextField> {
         behavior = (c instanceof PasswordField f) ?
             new PasswordFieldBehavior(f, this) :
             new TextFieldBehavior(c, this);
-        behavior.install();
+        behavior.populateSkinInputMap();
         setSkinInputMap(behavior.getSkinInputMap());
     }
 

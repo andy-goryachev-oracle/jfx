@@ -85,7 +85,7 @@ public class SkinInputMap<C extends Skinnable> {
 
     /**
      * Adds an event handler for the specific event criteria, in the context of this skin.
-     * This is a more specific version of {@link #addHandler(EventType,EventHandler)} method.
+     * This is a more specific version of {@link #addHandler(EventType,boolean,EventHandler)} method.
      *
      * @param <T> the actual event type
      * @param criteria the matching criteria

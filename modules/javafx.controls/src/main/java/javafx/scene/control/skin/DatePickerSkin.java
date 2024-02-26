@@ -162,7 +162,7 @@ public class DatePickerSkin extends ComboBoxPopupControl<LocalDate> {
     public void install() {
         super.install();
 
-        behavior.install();
+        behavior.populateSkinInputMap();
         setSkinInputMap(behavior.getSkinInputMap());
     }
 

@@ -62,7 +62,7 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
     }
 
     @Override
-    public void install() {
+    public void populateSkinInputMap() {
         // ComboBoxBase also cares about focus
         getControl().focusedProperty().addListener(focusListener);
 
@@ -93,10 +93,11 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         addHandler(MouseEvent.MOUSE_EXITED, true, this::mouseExited);
     }
 
-    @Override public void dispose() {
-        if (tlFocus != null) tlFocus.dispose();
+    public void dispose() {
+        if (tlFocus != null) {
+            tlFocus.dispose();
+        }
         getControl().focusedProperty().removeListener(focusListener);
-        super.dispose();
     }
 
     /***************************************************************************

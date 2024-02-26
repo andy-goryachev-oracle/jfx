@@ -234,7 +234,7 @@ public class ComboBoxListViewSkin<T> extends ComboBoxPopupControl<T> {
     @Override
     public void install() {
         super.install();
-        behavior.install();
+        behavior.populateSkinInputMap();
         setSkinInputMap(behavior.getSkinInputMap());
     }
 
