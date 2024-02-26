@@ -203,7 +203,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
         // key pad mappings
         addKeyPadMappings();
 
-        addHandlerLast(KeyEvent.KEY_TYPED, this::defaultKeyTyped);
+        addHandlerLast(KeyEvent.KEY_TYPED, true, this::defaultKeyTyped);
 
         // However, we want to consume other key press / release events too, for
         // things that would have been handled by the InputCharacter normally
@@ -242,11 +242,11 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
         }
 
         // mouse and context menu mappings
-        addHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
-        addHandler(MouseEvent.MOUSE_DRAGGED, this::mouseDragged);
-        addHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
+        addHandler(MouseEvent.MOUSE_PRESSED, true, this::mousePressed);
+        addHandler(MouseEvent.MOUSE_DRAGGED, true, this::mouseDragged);
+        addHandler(MouseEvent.MOUSE_RELEASED, true, this::mouseReleased);
 
-        addHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, this::contextMenuRequested);
+        addHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, true, this::contextMenuRequested);
     }
 
     /**

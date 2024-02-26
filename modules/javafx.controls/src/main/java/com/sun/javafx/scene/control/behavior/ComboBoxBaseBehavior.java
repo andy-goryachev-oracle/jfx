@@ -87,10 +87,10 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         addHandler(KeyBinding.of(KeyCode.ESCAPE), true, this::cancelEdit);
         addHandler(KeyBinding.of(KeyCode.F10), true, this::forwardToParent);
 
-        addHandler(MouseEvent.MOUSE_PRESSED, this::mousePressed);
-        addHandler(MouseEvent.MOUSE_RELEASED, this::mouseReleased);
-        addHandler(MouseEvent.MOUSE_ENTERED, this::mouseEntered);
-        addHandler(MouseEvent.MOUSE_EXITED, this::mouseExited);
+        addHandler(MouseEvent.MOUSE_PRESSED, true, this::mousePressed);
+        addHandler(MouseEvent.MOUSE_RELEASED, true, this::mouseReleased);
+        addHandler(MouseEvent.MOUSE_ENTERED, true, this::mouseEntered);
+        addHandler(MouseEvent.MOUSE_EXITED, true, this::mouseExited);
     }
 
     @Override public void dispose() {

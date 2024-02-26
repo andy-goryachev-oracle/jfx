@@ -60,18 +60,6 @@ public class SkinInputMap<C extends Skinnable> {
     
     /**
      * Adds an event handler for the specified event type, in the context of this skin.
-     * This mapping always consumes the matching event.
-     *
-     * @param <T> the actual event type
-     * @param type the event type
-     * @param handler the event handler
-     */
-    public <T extends Event> void addHandler(EventType<T> type, EventHandler<T> handler) {
-        addHandler(type, true, EventHandlerPriority.SKIN_HIGH, handler);
-    }
-
-    /**
-     * Adds an event handler for the specified event type, in the context of this skin.
      *
      * @param <T> the actual event type
      * @param type the event type
@@ -80,19 +68,6 @@ public class SkinInputMap<C extends Skinnable> {
      */
     public <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
         addHandler(type, consume, EventHandlerPriority.SKIN_HIGH, handler);
-    }
-
-    /**
-     * Adds an event handler for the specified event type, in the context of this skin.
-     * This event handler will get invoked after all handlers added via map() methods.
-     * This mapping always consumes the matching event.
-     *
-     * @param <T> the actual event type
-     * @param type the event type
-     * @param handler the event handler
-     */
-    public <T extends Event> void addHandlerLast(EventType<T> type, EventHandler<T> handler) {
-        addHandler(type, true, EventHandlerPriority.SKIN_LOW, handler);
     }
 
     /**

@@ -72,7 +72,7 @@ public class TabPaneBehavior {
         m.registerKey(KeyBinding.ctrl(KeyCode.TAB), TabPane.Tag.SELECT_NEXT_TAB);
         m.registerKey(KeyBinding.ctrlShift(KeyCode.TAB), TabPane.Tag.SELECT_PREV_TAB);
 
-        m.addHandler(MouseEvent.MOUSE_PRESSED, TabPaneBehavior::requestFocus);
+        m.addHandler(MouseEvent.MOUSE_PRESSED, true, TabPaneBehavior::requestFocus);
 
         return m;
     }
