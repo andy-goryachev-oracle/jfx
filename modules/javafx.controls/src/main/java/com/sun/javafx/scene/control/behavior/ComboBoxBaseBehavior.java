@@ -81,8 +81,8 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
         addHandler(KeyBinding.with(KeyCode.SPACE).onKeyReleased().build(), true, this::keyReleased);
 
         // these two should not consume the event
-        addHandler(KeyBinding.of(KeyCode.ENTER), this::keyPressed);
-        addHandler(KeyBinding.with(KeyCode.ENTER).onKeyReleased().build(), this::keyReleased);
+        addHandler(KeyBinding.of(KeyCode.ENTER), false, this::keyPressed);
+        addHandler(KeyBinding.with(KeyCode.ENTER).onKeyReleased().build(), false, this::keyReleased);
 
         addHandler(KeyBinding.of(KeyCode.ESCAPE), true, this::cancelEdit);
         addHandler(KeyBinding.of(KeyCode.F10), true, this::forwardToParent);

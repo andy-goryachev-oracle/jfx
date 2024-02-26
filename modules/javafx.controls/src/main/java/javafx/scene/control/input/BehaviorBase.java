@@ -198,48 +198,15 @@ public abstract class BehaviorBase<C extends Control> {
 
     /**
      * Adds an event handler for the specific event criteria, in the context of this Behavior.
-     * This is a more specific version of {@link #addHandler(EventType,boolean,EventHandler)} method.
-     * This mapping always consumes the matching event.
-     *
-     * @param <T> the actual event type
-     * @param criteria the matching criteria
-     * @param handler the event handler
-     */
-    protected <T extends Event> void addHandler(EventCriteria<T> criteria, EventHandler<T> handler) {
-        skinInputMap.addHandler(criteria, false, handler);
-    }
-
-    /**
-     * Adds an event handler for the specific event criteria, in the context of this Behavior.
      * This event handler will get invoked after all handlers added via map() methods.
      *
      * @param <T> the actual event type
      * @param criteria the matching criteria
      * @param consume determines whether the matching event is consumed or not
-     * @param handler the event handler
+     * @param h the event handler
      */
-    protected <T extends Event> void addHandlerLast(
-        EventCriteria<T> criteria,
-        boolean consume,
-        EventHandler<T> handler
-    ) {
-        skinInputMap.addHandler(criteria, consume, handler);
-    }
-
-    /**
-     * Adds an event handler for the specific event criteria, in the context of this Behavior.
-     * This event handler will get invoked after all handlers added via map() methods.
-     * This mapping always consumes the matching event.
-     *
-     * @param <T> the actual event type
-     * @param criteria the matching criteria
-     * @param handler the event handler
-     */
-    protected <T extends Event> void addHandlerLast(
-        EventCriteria<T> criteria,
-        EventHandler<T> handler
-    ) {
-        skinInputMap.addHandlerLast(criteria, false, handler);
+    protected <T extends Event> void addHandlerLast(EventCriteria<T> criteria, boolean consume, EventHandler<T> h) {
+        skinInputMap.addHandler(criteria, consume, h);
     }
 
     /**

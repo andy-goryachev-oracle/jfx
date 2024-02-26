@@ -105,6 +105,8 @@ public class TabPane extends Control {
         public static final FunctionTag SELECT_PREV_TAB = new FunctionTag();
         /** Selects the right tab: next in LTR mode, previous in RTL mode. */
         public static final FunctionTag SELECT_RIGHT_TAB = new FunctionTag();
+
+        private Tag() { }
     }
 
     private static final double DEFAULT_TAB_MIN_WIDTH = 0;
