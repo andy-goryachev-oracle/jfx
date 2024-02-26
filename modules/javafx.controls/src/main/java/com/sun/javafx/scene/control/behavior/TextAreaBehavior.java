@@ -137,9 +137,9 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
         } else {
             // non-macOS specific mappings
             registerKey(KeyBinding.ctrl(KeyCode.DOWN), TextArea.PARAGRAPH_DOWN);
-            registerKey(KeyBinding.with(KeyCode.DOWN).control().shift().build(), TextArea.SELECT_PARAGRAPH_DOWN);
+            registerKey(KeyBinding.ctrlShift(KeyCode.DOWN), TextArea.SELECT_PARAGRAPH_DOWN);
             registerKey(KeyBinding.ctrl(KeyCode.UP), TextArea.PARAGRAPH_UP);
-            registerKey(KeyBinding.with(KeyCode.UP).control().shift().build(), TextArea.SELECT_PARAGRAPH_UP);
+            registerKey(KeyBinding.ctrlShift(KeyCode.UP), TextArea.SELECT_PARAGRAPH_UP);
         }
 
         addKeyPadMappings();

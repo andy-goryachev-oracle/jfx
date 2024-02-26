@@ -27,7 +27,6 @@ package javafx.scene.control.input;
 
 import java.util.EnumSet;
 import java.util.Objects;
-import java.util.function.BooleanSupplier;
 import javafx.event.EventType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -78,10 +77,10 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
         WINDOWS,
 
         // event types
-        /** a key press event */
-        KEY_PRESS,
-        /** a key release event */
-        KEY_RELEASE,
+        /** a key pressed event */
+        KEY_PRESSED,
+        /** a key released event */
+        KEY_RELEASED,
         /** a key typed event */
         KEY_TYPED,
     }
@@ -101,7 +100,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return the KeyBinding
      */
     public static KeyBinding of(KeyCode code) {
-        return create(code, KCondition.KEY_PRESS);
+        return create(code, KCondition.KEY_PRESSED);
     }
 
     /**
@@ -111,7 +110,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return the KeyBinding
      */
     public static KeyBinding command(KeyCode code) {
-        return create(code, KCondition.KEY_PRESS, KCondition.COMMAND);
+        return create(code, KCondition.KEY_PRESSED, KCondition.COMMAND);
     }
 
     /**
@@ -121,7 +120,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return the KeyBinding
      */
     public static KeyBinding alt(KeyCode code) {
-        return create(code, KCondition.KEY_PRESS, KCondition.ALT);
+        return create(code, KCondition.KEY_PRESSED, KCondition.ALT);
     }
 
     /**
@@ -131,7 +130,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return the KeyBinding
      */
     public static KeyBinding ctrl(KeyCode code) {
-        return create(code, KCondition.KEY_PRESS, KCondition.CTRL);
+        return create(code, KCondition.KEY_PRESSED, KCondition.CTRL);
     }
 
     /**
@@ -141,7 +140,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return the KeyBinding
      */
     public static KeyBinding ctrlShift(KeyCode code) {
-        return create(code, KCondition.KEY_PRESS, KCondition.CTRL, KCondition.SHIFT);
+        return create(code, KCondition.KEY_PRESSED, KCondition.CTRL, KCondition.SHIFT);
     }
 
     /**
@@ -151,7 +150,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return the KeyBinding
      */
     public static KeyBinding shift(KeyCode code) {
-        return create(code, KCondition.KEY_PRESS, KCondition.SHIFT);
+        return create(code, KCondition.KEY_PRESSED, KCondition.SHIFT);
     }
 
     /**
@@ -161,27 +160,27 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return the KeyBinding
      */
     public static KeyBinding shortcut(KeyCode code) {
-        return create(code, KCondition.KEY_PRESS, KCondition.SHORTCUT);
+        return create(code, KCondition.KEY_PRESSED, KCondition.SHORTCUT);
     }
 
     private static KeyBinding create(Object key, KCondition... mods) {
-        return builder().init(key, mods).build();
+        return new Builder(key).init(mods).build();
     }
 
     /**
-     * Determines whether this key binding if for the key press event.
+     * Determines whether this key binding if for the key pressed event.
      * @return true if this key binding if for the key press event
      */
-    public boolean isKeyPress() {
-        return modifiers.contains(KCondition.KEY_PRESS);
+    public boolean isKeyPressed() {
+        return modifiers.contains(KCondition.KEY_PRESSED);
     }
 
     /**
-     * Determines whether this key binding if for the key release event.
+     * Determines whether this key binding if for the key released event.
      * @return true if this key binding if for the key release event
      */
-    public boolean isKeyRelease() {
-        return modifiers.contains(KCondition.KEY_RELEASE);
+    public boolean isKeyReleased() {
+        return modifiers.contains(KCondition.KEY_RELEASED);
     }
 
     /**
@@ -215,7 +214,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * Determines whether {@code control} key is down in this key binding.
      * @return true if {@code control} key is down in this key binding
      */
-    public boolean isControl() {
+    public boolean isCtrl() {
         return modifiers.contains(KCondition.CTRL);
     }
 
@@ -264,16 +263,22 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
         return null;
     }
 
-    boolean isEnabled() {
-        return true;
+    /**
+     * Creates a {@link Builder} with the specified KeyCode.
+     * @param code the key code
+     * @return the Builder instance
+     */
+    public static Builder builder(KeyCode code) {
+        return new Builder(code);
     }
 
     /**
-     * Creates a {@link Builder}.
+     * Creates a {@link Builder} with the specified KeyCode.
+     * @param character the character
      * @return the Builder instance
      */
-    public static Builder builder() {
-        return new Builder();
+    public static Builder builder(String character) {
+        return new Builder(character);
     }
 
     @Override
@@ -302,16 +307,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return Builder instance
      */
     public static Builder with(KeyCode c) {
-        return builder().with(c);
-    }
-
-    /**
-     * Creates a Builder with a key released event.
-     * @param c key code
-     * @return Builder instance
-     */
-    public static Builder withRelease(KeyCode c) {
-        return builder().withRelease(c);
+        return builder(c);
     }
 
     /**
@@ -320,24 +316,23 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      * @return Builder instance
      */
     public static Builder with(String c) {
-        return builder().with(c);
+        return new Builder(c);
     }
 
     /**
-     * Creates a KeyBinding from a KeyEvent.  This call drops multiple key modifiers, performing
-     * translation when necessary.  May return null if the event does not correspond to a valid KeyBinding.
-     * @param ev key event
-     * @return the key binding
+     * Creates a KeyBinding from a KeyEvent, or a null if the event does not correspond to a valid KeyBinding.
+     * @param ev the key event
+     * @return the key binding, or null
      */
-    public static KeyBinding from(KeyEvent ev) {
+    static KeyBinding from(KeyEvent ev) {
         Object key;
         EnumSet<KCondition> m = EnumSet.noneOf(KCondition.class);
         EventType<KeyEvent> t = ev.getEventType();
         if(t == KeyEvent.KEY_PRESSED) {
-            m.add(KCondition.KEY_PRESS);
+            m.add(KCondition.KEY_PRESSED);
             key = ev.getCode();
         } else if(t == KeyEvent.KEY_RELEASED) {
-            m.add(KCondition.KEY_RELEASE);
+            m.add(KCondition.KEY_RELEASED);
             key = ev.getCode();
         } else if(t == KeyEvent.KEY_TYPED) {
             m.add(KCondition.KEY_TYPED);
@@ -455,9 +450,9 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
      */
     @Override
     public EventType<KeyEvent> getEventType() {
-        if (isKeyPress()) {
+        if (isKeyPressed()) {
             return KeyEvent.KEY_PRESSED;
-        } else if (isKeyRelease()) {
+        } else if (isKeyReleased()) {
             return KeyEvent.KEY_RELEASED;
         } else {
             return KeyEvent.KEY_TYPED;
@@ -466,61 +461,43 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
 
     @Override
     public boolean isEventAcceptable(KeyEvent ev) {
-        return KeyBinding.from(ev).equals(this);
+        return equals(KeyBinding.from(ev));
     }
 
     /** Key bindings builder */
     public static class Builder {
-        private Object key; // KeyCode or String
-        private BooleanSupplier condition;
+        private final Object key; // KeyCode or String
         private final EnumSet<KCondition> m = EnumSet.noneOf(KCondition.class);
 
         /** Constructs a Builder */
-        public Builder() {
+        Builder(Object key) {
+            this.key = key;
         }
 
         /**
-         * Creates a Builder with key pressed event.
-         * @param c key code
+         * Sets on KEY_RELEASED condition.
          * @return the Builder instance
          */
-        public Builder with(KeyCode c) {
-            if (key != null) {
-                throw new IllegalArgumentException("only one KeyCode or character can be set");
-            }
-            key = c;
+        public Builder onKeyReleased() {
+            m.remove(KCondition.KEY_PRESSED);
+            m.remove(KCondition.KEY_TYPED);
+            m.add(KCondition.KEY_RELEASED);
             return this;
         }
 
         /**
-         * Creates a Builder with key released event.
-         * @param c key code
+         * Sets on KEY_TYPED condition.
          * @return the Builder instance
          */
-        public Builder withRelease(KeyCode c) {
-            if (key != null) {
-                throw new IllegalArgumentException("only one KeyCode or character can be set");
-            }
-            key = c;
-            m.add(KCondition.KEY_RELEASE);
+        public Builder onKeyTyped() {
+            m.remove(KCondition.KEY_PRESSED);
+            m.add(KCondition.KEY_TYPED);
+            m.remove(KCondition.KEY_RELEASED);
             return this;
         }
 
         /**
-         * Creates a Builder with a key pressed event.
-         * @param c key character
-         * @return the Builder instance
-         */
-        public Builder with(String c) {
-            if (key != null) {
-                throw new IllegalArgumentException("only one KeyCode or character can be set");
-            }
-            key = c;
-            return this;
-        }
-
-        /**
-         * Sets {@code alt} key down condition.
+         * Sets the {@code alt} key down condition (the {@code Option} key on macOS).
          * @return this Builder
          */
         public Builder alt() {
@@ -529,7 +506,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
         }
 
         /**
-         * Sets {@code alt} key down condition.
+         * Sets the {@code alt} key down condition (the {@code Option} key on macOS).
          * @param on condition
          * @return this Builder
          */
@@ -565,7 +542,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
          * Sets {@code control} key down condition.
          * @return this Builder
          */
-        public Builder control() {
+        public Builder ctrl() {
             m.add(KCondition.CTRL);
             return this;
         }
@@ -575,7 +552,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
          * @param on condition
          * @return this Builder
          */
-        public Builder control(boolean on) {
+        public Builder ctrl(boolean on) {
             if (on) {
                 m.add(KCondition.CTRL);
             }
@@ -666,21 +643,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
             return this;
         }
 
-        /**
-         * Sets the condition when this KeyBinding is active.
-         * When condition resolves to {@code false}, the key mapping is ignored and the matching event is not
-         * consumed.
-         *
-         * @param condition the condition which activates the key binding
-         * @return this Builder
-         */
-        public Builder when(BooleanSupplier condition) {
-            this.condition = condition;
-            return this;
-        }
-
-        private Builder init(Object key, KCondition... mods) {
-            this.key = key;
+        private Builder init(KCondition... mods) {
             for (KCondition c : mods) {
                 m.add(c);
             }
@@ -723,19 +686,19 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
                 replace(KCondition.WINDOWS, KCondition.META);
             }
 
-            boolean pressed = m.contains(KCondition.KEY_PRESS);
-            boolean released = m.contains(KCondition.KEY_RELEASE);
+            boolean pressed = m.contains(KCondition.KEY_PRESSED);
+            boolean released = m.contains(KCondition.KEY_RELEASED);
             boolean typed = m.contains(KCondition.KEY_TYPED);
 
             int ct = 0;
             KCondition t = null;
             if (pressed) {
                 ct++;
-                t = KCondition.KEY_PRESS;
+                t = KCondition.KEY_PRESSED;
             }
             if (released) {
                 ct++;
-                t = KCondition.KEY_RELEASE;
+                t = KCondition.KEY_RELEASED;
             }
             if (typed) {
                 ct++;
@@ -748,7 +711,7 @@ public class KeyBinding implements EventCriteria<KeyEvent> {
             }
 
             if (t == null) {
-                t = KCondition.KEY_PRESS;
+                t = KCondition.KEY_PRESSED;
             }
             m.add(t);
 

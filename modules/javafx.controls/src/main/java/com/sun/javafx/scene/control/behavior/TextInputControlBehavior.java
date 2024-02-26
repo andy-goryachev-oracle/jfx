@@ -156,7 +156,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
         registerKey(KeyBinding.of(KeyCode.TAB), TextInputControl.TRAVERSE_NEXT);
         registerKey(KeyBinding.ctrl(KeyCode.TAB), TextInputControl.TRAVERSE_NEXT);
         registerKey(KeyBinding.shift(KeyCode.TAB), TextInputControl.TRAVERSE_PREVIOUS);
-        registerKey(KeyBinding.with(KeyCode.TAB).control().shift().build(), TextInputControl.TRAVERSE_PREVIOUS);
+        registerKey(KeyBinding.ctrlShift(KeyCode.TAB), TextInputControl.TRAVERSE_PREVIOUS);
         registerKey(KeyBinding.shortcut(KeyCode.A), TextInputControl.SELECT_ALL);
         registerKey(KeyBinding.shortcut(KeyCode.Z), TextInputControl.UNDO);
 
@@ -186,8 +186,8 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
             registerKey(KeyBinding.ctrl(KeyCode.RIGHT), TextInputControl.RIGHT_WORD);
             registerKey(KeyBinding.shift(KeyCode.HOME), TextInputControl.SELECT_HOME);
             registerKey(KeyBinding.shift(KeyCode.END), TextInputControl.SELECT_END);
-            registerKey(KeyBinding.with(KeyCode.LEFT).control().shift().build(), TextInputControl.SELECT_LEFT_WORD);
-            registerKey(KeyBinding.with(KeyCode.RIGHT).control().shift().build(), TextInputControl.SELECT_RIGHT_WORD);
+            registerKey(KeyBinding.ctrlShift(KeyCode.LEFT), TextInputControl.SELECT_LEFT_WORD);
+            registerKey(KeyBinding.ctrlShift(KeyCode.RIGHT), TextInputControl.SELECT_RIGHT_WORD);
         }
 
         // windows key bindings
@@ -197,7 +197,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
 
         // linux key bindings
         if (isLinux()) {
-            registerKey(KeyBinding.with(KeyCode.Z).control().shift().build(), TextInputControl.REDO);
+            registerKey(KeyBinding.ctrlShift(KeyCode.Z), TextInputControl.REDO);
         }
 
         // key pad mappings
@@ -235,7 +235,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
         // VK
         // TODO can PlatformImpl.isSupported(ConditionalFeature) change at runtime?
         if (PlatformImpl.isSupported(ConditionalFeature.VIRTUAL_KEYBOARD)) {
-            addHandler(KeyBinding.builder().with(KeyCode.DIGIT9).control().shift().build(), (ev) -> {
+            addHandler(KeyBinding.ctrlShift(KeyCode.DIGIT9), (ev) -> {
                 FXVK.toggleUseVK(getControl());
                 ev.consume();
             });
@@ -282,7 +282,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
                         with(newCode).
                         alt(k.isAlt()).
                         command(k.isCommand()).
-                        control(k.isControl()).
+                        ctrl(k.isCtrl()).
                         meta(k.isMeta()).
                         option(k.isOption()).
                         shift(k.isShift()).

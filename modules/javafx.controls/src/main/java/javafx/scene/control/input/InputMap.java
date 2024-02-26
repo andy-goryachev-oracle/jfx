@@ -164,7 +164,7 @@ public final class InputMap {
         }
 
         KeyBinding k = KeyBinding.from((KeyEvent)ev);
-        if (k.isEnabled()) {
+        if (k != null) {
             FunctionHandler f = getFunction(k);
             if (f != null) {
                 f.handleKeyBinding(ev, control);

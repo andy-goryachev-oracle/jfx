@@ -73,16 +73,16 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
 
         registerFunction(ComboBoxBase.TOGGLE_POPUP, this::togglePopup);
 
-        registerKey(KeyBinding.withRelease(KeyCode.F4).build(), ComboBoxBase.TOGGLE_POPUP);
+        registerKey(KeyBinding.with(KeyCode.F4).onKeyReleased().build(), ComboBoxBase.TOGGLE_POPUP);
         registerKey(KeyBinding.alt(KeyCode.DOWN), ComboBoxBase.TOGGLE_POPUP);
         registerKey(KeyBinding.alt(KeyCode.UP), ComboBoxBase.TOGGLE_POPUP);
 
         addHandler(KeyBinding.of(KeyCode.SPACE), true, this::keyPressed);
-        addHandler(KeyBinding.withRelease(KeyCode.SPACE).build(), true, this::keyReleased);
+        addHandler(KeyBinding.with(KeyCode.SPACE).onKeyReleased().build(), true, this::keyReleased);
 
         // these two should not consume the event
         addHandler(KeyBinding.of(KeyCode.ENTER), this::keyPressed);
-        addHandler(KeyBinding.withRelease(KeyCode.ENTER).build(), this::keyReleased);
+        addHandler(KeyBinding.with(KeyCode.ENTER).onKeyReleased().build(), this::keyReleased);
 
         addHandler(KeyBinding.of(KeyCode.ESCAPE), true, this::cancelEdit);
         addHandler(KeyBinding.of(KeyCode.F10), true, this::forwardToParent);
