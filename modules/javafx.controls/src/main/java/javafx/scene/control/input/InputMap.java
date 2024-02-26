@@ -212,7 +212,7 @@ public final class InputMap {
      * @param tag the function tag
      * @param function the function
      */
-    public <C extends Skinnable> void registerFunction(FunctionTag tag, FunctionHandlerConditional<C> function) {
+    public <C extends Skinnable> void registerFunctionCond(FunctionTag tag, FunctionHandlerConditional<C> function) {
         Objects.requireNonNull(tag, "function tag must not be null");
         Objects.requireNonNull(function, "function must not be null");
         map.put(tag, toFunctionHandler(function));
