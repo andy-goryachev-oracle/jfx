@@ -50,10 +50,8 @@ import com.sun.javafx.PlatformUtil;
  * @since 999 TODO
  */
 public abstract class BehaviorBase<C extends Control> {
-    /** the instance of Control associated with this behavior */
-    protected final C control;
-    /** the skin input map for this behavior */
-    protected final SkinInputMap<C> skinInputMap;
+    private final C control;
+    private final SkinInputMap<C> skinInputMap;
 
     /**
      * The constructor.
