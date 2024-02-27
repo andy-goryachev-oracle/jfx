@@ -229,19 +229,8 @@ public class SkinInputMap<C extends Skinnable> {
         registerKey(KeyBinding.of(code), tag);
     }
     
-    /**
-     * Returns a {@code FunctionTag} mapped to the specified {@link KeyBinding},
-     * or null if no such mapping exists.
-     *
-     * @param k the key binding
-     * @return the function tag, or null
-     */
-    public FunctionTag getFunctionTag(KeyBinding k) {
-        Object x = map.get(k);
-        if (x instanceof FunctionTag t) {
-            return t;
-        }
-        return null;
+    Object resolve(KeyBinding k) {
+        return map.get(k);
     }
 
     /**

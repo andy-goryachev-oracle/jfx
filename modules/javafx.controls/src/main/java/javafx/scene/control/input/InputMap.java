@@ -54,7 +54,7 @@ import com.sun.javafx.scene.control.input.PHList;
 public final class InputMap {
     private static final Object NULL = new Object();
     private final Control control;
-    // KeyBinding -> FunctionTag
+    // KeyBinding -> FunctionTag or FunctionHandler
     // FunctionTag -> FunctionHandler
     // EventType -> PHList
     private final HashMap<Object,Object> map = new HashMap<>();
@@ -190,6 +190,19 @@ public final class InputMap {
     }
 
     /**
+     * Registers a function for the given key binding.  This mapping will  take precedence
+     * over any such mapping set by the skin.
+     * @param <C> the skinnable type
+     * @param k the key binding
+     * @param function the function
+     */
+    public <C extends Skinnable> void register(KeyBinding k, FunctionHandler<C> function) {
+        Objects.requireNonNull(k, "key binding must not be null");
+        Objects.requireNonNull(function, "function must not be null");
+        map.put(k, function);
+    }
+
+    /**
      * Adds (or overrides) a user-specified function under the given function tag.
      * This function will take precedence over any function set by the skin.
      *
@@ -275,36 +288,27 @@ public final class InputMap {
      * Returns a {@code FunctionHandler} mapped to the specified {@link KeyBinding},
      * or null if no such mapping exists.
      *
-     * @implNote
-     * This method is a functional equivalent of calling {@link #getFunctionTag(KeyBinding)}
-     * followed by {@link #getFunction(FunctionTag)} (if the tag is not null).
-     *
      * @param <C> the skinnable type
      * @param k the key binding
      * @return the function, or null
      */
     public <C extends Skinnable> FunctionHandler<C> getFunction(KeyBinding k) {
-        FunctionTag tag = getFunctionTag(k);
-        if (tag != null) {
+        Object x = resolve(k);
+        if (x instanceof FunctionTag tag) {
             return getFunction(tag);
+        } else if (x instanceof FunctionHandler h) {
+            return h;
         }
         return null;
     }
 
-    /**
-     * Returns a {@code FunctionTag} mapped to the specified {@link KeyBinding},
-     * or null if no such mapping exists.
-     *
-     * @param k the key binding
-     * @return the function tag, or null
-     */
-    public FunctionTag getFunctionTag(KeyBinding k) {
+    public Object resolve(KeyBinding k) {
         Object x = map.get(k);
-        if (x instanceof FunctionTag tag) {
-            return tag;
+        if (x != null) {
+            return x;
         }
         if (skinInputMap != null) {
-            return skinInputMap.getFunctionTag(k);
+            return skinInputMap.resolve(k);
         }
         return null;
     }
