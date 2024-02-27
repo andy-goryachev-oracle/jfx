@@ -302,7 +302,7 @@ public final class InputMap {
         return null;
     }
 
-    public Object resolve(KeyBinding k) {
+    private Object resolve(KeyBinding k) {
         Object x = map.get(k);
         if (x != null) {
             return x;
