@@ -61,6 +61,7 @@ import com.sun.javafx.scene.control.behavior.ComboBoxListViewBehavior;
 /**
  * Default skin implementation for the {@link ComboBox} control.
  *
+ * @param <T> the type of the ComboBox control
  * @see ComboBox
  * @since 9
  */
