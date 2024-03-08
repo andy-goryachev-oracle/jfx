@@ -32,26 +32,34 @@ import javafx.scene.input.KeyCode;
 import com.sun.javafx.PlatformUtil;
 
 /**
- * Class provides a convenient foundation for stateful behaviors.
+ * Class provides a convenient foundation for the stateful behaviors.
  * <p>
  * A concrete behavior implementation should do the following:
- * 1. provide default behavior methods (one for each function tag)
- * 2. in install() method, called from Skin.install(), map control's function tags to
- *    behavior methods, map key bindings to function tags, and add additional event handlers,
- *    using regFunc(), regKey(), and addHandler() methods correspondingly.
- *    Important: no mapping should be made in the behavior constructor, only in install().
- *    TODO reword, as this is not a requirement anymore, since only setSkinInputMap() needs to be called
- *    from Skin.install()
- * <p>
- * The base class adds a dispose() method (called from Skin.dispose()),
- * which undoes the mappings done in install().
- *
+ * <ol>
+ * <li> provide default behavior methods (one for each function tag)
+ * <li> implement {@link #populateSkinInputMap()} method, in which map control's function tags to
+ *      the behavior methods, map key bindings to the function tags, add additional event handlers, using
+ *      {@link #registerFunction(FunctionTag, FunctionHandler)},
+ *      {@link #registerKey(KeyBinding, FunctionTag)},
+ *      {@link #registerKey(KeyCode, FunctionTag)},
+ *      and
+ *      {@code addHandler()} methods correspondingly.
+ * <li> in the corresponding skin's {code Skin.install()}, set the skin input map to the control's input map.
+ * </ol>
+ * Example (in the actual skin class):
+ * <pre>{@code
+ *     @Override
+ *     public void install() {
+ *         super.install();
+ *         setSkinInputMap(behavior.getSkinInputMap());
+ *   }
+ * }</pre>
  * @param <C> the type of the control
  * @since 999 TODO
  */
 public abstract class BehaviorBase<C extends Control> {
     private final C control;
-    private final SkinInputMap<C> skinInputMap;
+    private SkinInputMap<C> skinInputMap;
 
     /**
      * The constructor.
@@ -59,7 +67,6 @@ public abstract class BehaviorBase<C extends Control> {
      */
     public BehaviorBase(C c) {
         this.control = c;
-        this.skinInputMap = new SkinInputMap<>();
     }
 
     /**
@@ -69,7 +76,7 @@ public abstract class BehaviorBase<C extends Control> {
      * <p>
      * If a subclass overrides this method, it is important to call the superclass implementation.
      */
-    public abstract void populateSkinInputMap();
+    protected abstract void populateSkinInputMap();
 
     /**
      * Returns the associated Control instance.
@@ -84,6 +91,10 @@ public abstract class BehaviorBase<C extends Control> {
      * @return the input map
      */
     public final SkinInputMap<C> getSkinInputMap() {
+        if (skinInputMap == null) {
+            this.skinInputMap = new SkinInputMap<>();
+            populateSkinInputMap();
+        }
         return skinInputMap;
     }
 
@@ -96,7 +107,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param function the function
      */
     protected void registerFunction(FunctionTag tag, FunctionHandler<C> function) {
-        skinInputMap.registerFunction(tag, function);
+        getSkinInputMap().registerFunction(tag, function);
     }
 
     /**
@@ -108,7 +119,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      */
     protected void registerKey(KeyBinding k, FunctionTag tag) {
-        skinInputMap.registerKey(k, tag);
+        getSkinInputMap().registerKey(k, tag);
     }
 
     /**
@@ -119,7 +130,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param tag the function tag
      */
     protected void registerKey(KeyCode code, FunctionTag tag) {
-        skinInputMap.registerKey(code, tag);
+        getSkinInputMap().registerKey(code, tag);
     }
 
     /**
@@ -130,8 +141,8 @@ public abstract class BehaviorBase<C extends Control> {
      * @param func the function
      */
     protected void register(FunctionTag tag, KeyBinding k, FunctionHandler<C> func) {
-        skinInputMap.registerFunction(tag, func);
-        skinInputMap.registerKey(k, tag);
+        getSkinInputMap().registerFunction(tag, func);
+        getSkinInputMap().registerKey(k, tag);
     }
 
     /**
@@ -142,8 +153,8 @@ public abstract class BehaviorBase<C extends Control> {
      * @param func the function
      */
     protected void register(FunctionTag tag, KeyCode code, FunctionHandler<C> func) {
-        skinInputMap.registerFunction(tag, func);
-        skinInputMap.registerKey(KeyBinding.of(code), tag);
+        getSkinInputMap().registerFunction(tag, func);
+        getSkinInputMap().registerKey(KeyBinding.of(code), tag);
     }
 
     /**
@@ -153,7 +164,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param newk the new key binding
      */
     protected void duplicateMapping(KeyBinding existing, KeyBinding newk) {
-        skinInputMap.duplicateMapping(existing, newk);
+        getSkinInputMap().duplicateMapping(existing, newk);
     }
 
     /**
@@ -165,7 +176,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        skinInputMap.addHandler(type, consume, handler);
+        getSkinInputMap().addHandler(type, consume, handler);
     }
 
     /**
@@ -178,7 +189,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandlerLast(EventType<T> type, boolean consume, EventHandler<T> handler) {
-        skinInputMap.addHandler(type, consume, handler);
+        getSkinInputMap().addHandler(type, consume, handler);
     }
 
     /**
@@ -191,7 +202,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param handler the event handler
      */
     protected <T extends Event> void addHandler(EventCriteria<T> criteria, boolean consume, EventHandler<T> handler) {
-        skinInputMap.addHandler(criteria, consume, handler);
+        getSkinInputMap().addHandler(criteria, consume, handler);
     }
 
     /**
@@ -204,7 +215,7 @@ public abstract class BehaviorBase<C extends Control> {
      * @param h the event handler
      */
     protected <T extends Event> void addHandlerLast(EventCriteria<T> criteria, boolean consume, EventHandler<T> h) {
-        skinInputMap.addHandler(criteria, consume, h);
+        getSkinInputMap().addHandler(criteria, consume, h);
     }
 
     /**

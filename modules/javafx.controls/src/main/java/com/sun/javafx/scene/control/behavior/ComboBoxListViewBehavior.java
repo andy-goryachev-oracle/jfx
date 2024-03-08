@@ -46,7 +46,7 @@ public class ComboBoxListViewBehavior<T> extends ComboBoxBaseBehavior<T> {
     }
 
     @Override
-    public void populateSkinInputMap() {
+    protected void populateSkinInputMap() {
         super.populateSkinInputMap();
 
         registerFunction(ComboBox.SELECT_PREV, this::selectPrevious);

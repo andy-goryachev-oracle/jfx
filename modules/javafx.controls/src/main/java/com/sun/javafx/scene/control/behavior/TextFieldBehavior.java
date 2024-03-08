@@ -74,7 +74,7 @@ public class TextFieldBehavior extends TextInputControlBehavior<TextField> {
     }
 
     @Override
-    public void populateSkinInputMap() {
+    protected void populateSkinInputMap() {
         super.populateSkinInputMap();
 
         TextField textField = getControl();

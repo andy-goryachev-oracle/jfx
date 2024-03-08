@@ -62,7 +62,7 @@ public class ComboBoxBaseBehavior<T> extends BehaviorBase<ComboBoxBase<T>> {
     }
 
     @Override
-    public void populateSkinInputMap() {
+    protected void populateSkinInputMap() {
         // ComboBoxBase also cares about focus
         getControl().focusedProperty().addListener(focusListener);
 

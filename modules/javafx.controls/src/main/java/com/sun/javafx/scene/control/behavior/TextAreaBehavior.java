@@ -67,7 +67,7 @@ public class TextAreaBehavior extends TextInputControlBehavior<TextArea> {
     }
 
     @Override
-    public void populateSkinInputMap() {
+    protected void populateSkinInputMap() {
         super.populateSkinInputMap();
 
         focusListener = (src, ov, nv) -> handleFocusChange();

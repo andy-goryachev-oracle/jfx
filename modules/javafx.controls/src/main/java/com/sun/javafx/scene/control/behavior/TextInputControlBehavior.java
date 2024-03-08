@@ -95,7 +95,7 @@ public abstract class TextInputControlBehavior<T extends TextInputControl> exten
     }
 
     @Override
-    public void populateSkinInputMap() {
+    protected void populateSkinInputMap() {
         getControl().textProperty().addListener(textListener);
 
         registerFunction(TextInputControl.COPY, this::copy);
