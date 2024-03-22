@@ -28,10 +28,13 @@ import javafx.scene.control.IndexRange;
 import javafx.scene.control.TextInputControl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import test.util.ScreenCaptureTestWatcher;
 
 /**
  * Base class for Robot testing TextInputControl descendants' behavior.
  */
+@ExtendWith(ScreenCaptureTestWatcher.class)
 public abstract class TextInputBehaviorRobotTest<C extends TextInputControl> extends BehaviorRobotTestBase<C> {
 
     protected TextInputBehaviorRobotTest(C control) {

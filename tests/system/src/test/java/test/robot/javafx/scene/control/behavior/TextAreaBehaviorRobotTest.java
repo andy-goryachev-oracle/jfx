@@ -27,6 +27,7 @@ package test.robot.javafx.scene.control.behavior;
 
 import static javafx.scene.input.KeyCode.*;
 import javafx.scene.control.TextArea;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -53,6 +54,7 @@ public class TextAreaBehaviorRobotTest extends TextInputBehaviorRobotTest<TextAr
 
     @Test
     public void testTyping() throws Exception {
+        Assertions.assertTrue(false);
         execute(
             //addKeyListener(),
             checkText("", 0),

@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.imageio.ImageIO;
 import javafx.embed.swing.SwingFXUtils;
@@ -85,10 +86,14 @@ public class ScreenCaptureTestWatcher implements TestWatcher {
         System.err.println(generateScreenshot());
         System.err.println("}");
     }
-
+    private static final AtomicInteger seq = new AtomicInteger();
+    
     @Override
     public void testSuccessful(ExtensionContext cx) {
-        //System.out.println("Test Successful: " + cx.getDisplayName());
+        System.out.println("--ag Successful: " + cx.getDisplayName() +
+            " seq=" + seq.incrementAndGet() +
+            " th=" + Thread.currentThread() + " " + Thread.currentThread().hashCode() +
+            " tg=" + Thread.currentThread().getThreadGroup() + " " + Thread.currentThread().getThreadGroup().hashCode());
     }
 
     private String generateScreenshot() {
