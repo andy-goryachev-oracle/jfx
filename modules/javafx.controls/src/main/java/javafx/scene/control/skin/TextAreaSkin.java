@@ -182,6 +182,9 @@ public class TextAreaSkin extends TextInputControlSkin<TextArea> {
             if (control.getWidth() > 0) {
                 setForwardBias(true);
             }
+            // restart caret blinking animation
+            setCaretAnimating(false);
+            setCaretAnimating(true);
         });
 
         forwardBiasProperty().addListener(observable -> {
