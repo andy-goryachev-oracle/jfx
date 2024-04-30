@@ -66,7 +66,7 @@ public class TextAreaCursorMovementTest {
 
     @AfterAll
     public static void exit() {
-        Util.shutdown(stage);
+        Util.shutdown();
     }
 
     private void moveCursor(boolean forward, boolean isRtl) {
