@@ -255,7 +255,7 @@ public class ControlSkinFactory {
             TextField.class
             );
 
-///---------------- misc
+//---------------- misc
 
     /**
      * Tries to let the weakRef be gc'ed.
