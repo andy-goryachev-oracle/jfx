@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package javafx.scene.traversal;
+package javafx.scene.incubator.traversal;
 
 import javafx.scene.Node;
 import com.sun.javafx.scene.NodeHelper;
@@ -34,7 +34,7 @@ import com.sun.javafx.scene.traversal.TraversalMethod;
  *
  * Provides a centralized facility to control the focus traversal in the JavaFX application.
  *
- * @since 999 // TODO
+ * @since 999 TODO
  */
 public final class FocusTraversal {
     /**
@@ -54,7 +54,7 @@ public final class FocusTraversal {
      * @param direction the direction of traversal
      * @param byKeyboard true if traversal was initiated by pressing a key, false if traversal
      *        was initiated programmatically or by clicking
-     * @return
+     * @return true if traversal was successful
      */
     public static boolean traverse(Node node, TraversalDirection direction, boolean byKeyboard) {
         if(node != null) {
@@ -83,5 +83,8 @@ public final class FocusTraversal {
         default:
             throw new Error("?" + direction);
         }
+    }
+
+    private FocusTraversal() {
     }
 }
