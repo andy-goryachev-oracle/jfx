@@ -38,13 +38,74 @@ import com.sun.javafx.scene.traversal.TraversalMethod;
  */
 public final class FocusTraversal {
     /**
-     * Traverse focus to the next Node as a response to pressing a key.
+     * Traverse focus downward as a response to pressing a key.
+     *
+     * @param node the origin node
+     * @return true if traversal was successful
+     */
+    public static boolean traverseDown(Node node) {
+        return traverse(node, TraversalDirection.DOWN, true);
+    }
+
+    /**
+     * Traverse focus left as a response to pressing a key.
+     *
+     * @param node the origin node
+     * @return true if traversal was successful
+     */
+    public static boolean traverseLeft(Node node) {
+        return traverse(node, TraversalDirection.LEFT, true);
+    }
+
+    /**
+     * Traverse focus to the next focuseable Node as a response to pressing a key.
      *
      * @param node the origin node
      * @return true if traversal was successful
      */
     public static boolean traverseNext(Node node) {
         return traverse(node, TraversalDirection.NEXT, true);
+    }
+
+    /**
+     * Traverse focus tothe next focuseable Node as a response to pressing a key.
+     * This method does not traverse into the current parent.
+     *
+     * @param node the origin node
+     * @return true if traversal was successful
+     */
+    public static boolean traverseNextInLine(Node node) {
+        return traverse(node, TraversalDirection.NEXT_IN_LINE, true);
+    }
+
+    /**
+     * Traverse focus to the previous focusable Node as a response to pressing a key.
+     *
+     * @param node the origin node
+     * @return true if traversal was successful
+     */
+    public static boolean traversePrevious(Node node) {
+        return traverse(node, TraversalDirection.PREVIOUS, true);
+    }
+
+    /**
+     * Traverse focus right as a response to pressing a key.
+     *
+     * @param node the origin node
+     * @return true if traversal was successful
+     */
+    public static boolean traverseRight(Node node) {
+        return traverse(node, TraversalDirection.RIGHT, true);
+    }
+
+    /**
+     * Traverse focus upward as a response to pressing a key.
+     *
+     * @param node the origin node
+     * @return true if traversal was successful
+     */
+    public static boolean traverseUp(Node node) {
+        return traverse(node, TraversalDirection.UP, true);
     }
 
     /**
@@ -57,17 +118,24 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traverse(Node node, TraversalDirection direction, boolean byKeyboard) {
-        if(node != null) {
+        if (node != null) {
             Direction dir = translateDirection(direction);
             TraversalMethod m = byKeyboard ? TraversalMethod.KEY : TraversalMethod.DEFAULT;
+            // the (private) method Node.traverse() should be static, or removed altogether
             return NodeHelper.traverse(node, dir, m);
         }
         return false;
     }
 
-    // will become unnecessary once Direction is replaced with TraversalDirection
+    // TODO static get/setTraversalPolicy(Parent, TraversalPolicy)
+    
+    // TODO static focusOwnerProperty
+
+    // TODO static focusedWindow/SceneProperty
+
+    // becomes unnecessary once Direction is replaced with TraversalDirection
     private static Direction translateDirection(TraversalDirection direction) {
-        switch(direction) {
+        switch (direction) {
         case DOWN:
             return Direction.DOWN;
         case LEFT:

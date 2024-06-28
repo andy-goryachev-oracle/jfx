@@ -32,20 +32,20 @@ import javafx.geometry.NodeOrientation;
  * @since 999 TODO
  */
 public enum TraversalDirection {
-    /** Moving focus upward. */ 
-    UP,
     /** Moving focus downward. */
     DOWN,
     /** Moving focus left. */
     LEFT,
-    /** Moving focus right. */
-    RIGHT,
     /** Moving focus to the next focusable Node. */
     NEXT,
     /** Like NEXT, but does not traverse into the current parent. */
     NEXT_IN_LINE,
     /** Moving focus to the previous focusable Node. */
-    PREVIOUS;
+    PREVIOUS,
+    /** Moving focus right. */
+    RIGHT,
+    /** Moving focus upward. */ 
+    UP;
 
     /**
      * Returns true if the traversal is considered a forward movement.
