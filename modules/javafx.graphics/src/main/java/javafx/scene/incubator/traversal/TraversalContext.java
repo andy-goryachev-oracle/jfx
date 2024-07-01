@@ -31,13 +31,13 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 
 /**
- * The traversal context provides contextual information to implementations of {@link TraversalAlgorithm}, such that the
+ * The traversal context provides contextual information to implementations of {@link TraversalPolicy}, such that the
  * traversal algorithm can appropriately select the correct scenegraph element to traverse to. There is no expectation
  * that this interface be implemented by developers - the specific implementation details are handled by JavaFX, and the
- * relevant implementation is based to {@link TraversalAlgorithm} implementations.
+ * relevant implementation is based to {@link TraversalPolicy} implementations.
  *
- * @see TraversalAlgorithm
  * @see TraversalDirection
+ * @see TraversalPolicy
  * @since 999 TODO
  */
 public interface TraversalContext {
@@ -52,7 +52,7 @@ public interface TraversalContext {
      * Returns layout bounds of the Node in the relevant (Sub)Scene. Note that these bounds are the most important for
      * traversal as they define the final position within the scene.
      *
-     * @param the Node
+     * @param node the Node
      * @return the layout bounds of the Node in the relevant (Sub)Scene
      */
     Bounds getSceneLayoutBounds(Node node);

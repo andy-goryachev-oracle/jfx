@@ -30,6 +30,8 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 
 /**
  * An event for representing node traversals that occur within the scenegraph. Traversal events, like all
@@ -45,7 +47,7 @@ import javafx.scene.Node;
  */
 public class TraversalEvent extends Event {
 
-    private static final long serialVersionUID = 20170405L;
+    private static final long serialVersionUID = 202407011641L;
 
     /**
      * Common supertype for all traversal event types.
@@ -57,6 +59,9 @@ public class TraversalEvent extends Event {
      */
     public static final EventType<TraversalEvent> NODE_TRAVERSED = new EventType<> (ANY, "NODE_TRAVERSED");
 
+    /**
+     * The layout bounds of the node, transformed into the coordinates of the root element.
+     */
     private final Bounds bounds;
 
     /**
@@ -82,7 +87,7 @@ public class TraversalEvent extends Event {
      * The layout bounds of the node, transformed into the coordinates of the root element in the
      * traversal engine being used (i.e. the {@link Scene} or the root {@link Parent}).
      *
-     * @return The layout bounds of the node, transformed into the coordinates of the root element.
+     * @return the layout bounds of the node, transformed into the coordinates of the root element.
      */
     public final Bounds getBounds() {
         return bounds;
