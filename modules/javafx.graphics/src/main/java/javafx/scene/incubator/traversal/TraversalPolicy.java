@@ -26,7 +26,6 @@
 package javafx.scene.incubator.traversal;
 
 import javafx.scene.Node;
-import com.sun.javafx.scene.traversal.TraversalContext;
 
 /**
  * TraversalPolicy represents the specific algorithm to be used to traverse between
