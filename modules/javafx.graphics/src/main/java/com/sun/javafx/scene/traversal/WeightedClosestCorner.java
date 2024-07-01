@@ -30,7 +30,7 @@ import java.util.List;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.incubator.traversal.TraversalAlgorithm;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.incubator.traversal.TraversalDirection;
 
 /**
@@ -56,7 +56,7 @@ import javafx.scene.incubator.traversal.TraversalDirection;
  * somehow, possibly empirically (filed as RT-19471).
  */
 
-public class WeightedClosestCorner implements TraversalAlgorithm {
+public class WeightedClosestCorner implements TraversalPolicy {
 
 
     WeightedClosestCorner() {

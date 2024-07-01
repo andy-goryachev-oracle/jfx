@@ -36,7 +36,7 @@ import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.incubator.traversal.TraversalAlgorithm;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -237,7 +237,7 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
         // issue initially identified in RT-36902, but specifically (for Spinner)
         // identified in RT-40625
         ParentHelper.setTraversalEngine(control,
-                new ParentTraversalEngine(control, new TraversalAlgorithm() {
+                new ParentTraversalEngine(control, new TraversalPolicy() {
 
             @Override public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 return null;

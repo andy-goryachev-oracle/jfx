@@ -50,7 +50,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.incubator.traversal.TraversalAlgorithm;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -299,7 +299,7 @@ class ColorPalette extends Region {
             }
         });
 
-        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalAlgorithm() {
+        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalPolicy() {
             @Override
             public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 final Node subsequentNode = context.selectInSubtree(context.getRoot(), owner, dir);

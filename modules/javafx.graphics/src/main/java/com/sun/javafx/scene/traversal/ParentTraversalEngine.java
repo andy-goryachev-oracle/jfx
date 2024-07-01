@@ -26,7 +26,7 @@
 package com.sun.javafx.scene.traversal;
 
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalAlgorithm;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 
 /**
  * This traversal engine can be used to change algorithm for some specific parent/control that needs different traversal.
@@ -40,7 +40,7 @@ public final class ParentTraversalEngine extends TraversalEngine{
     private final Parent root;
     private Boolean overridenTraversability;
 
-    public ParentTraversalEngine(Parent root, TraversalAlgorithm algorithm) {
+    public ParentTraversalEngine(Parent root, TraversalPolicy algorithm) {
         super(algorithm);
         this.root = root;
     }

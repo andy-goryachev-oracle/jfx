@@ -31,7 +31,7 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalAlgorithm;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +48,12 @@ public abstract class TraversalEngine{
     /**
      * This is the default algorithm for the running platform. It's the algorithm that's used in TopMostTraversalEngine
      */
-    static final TraversalAlgorithm DEFAULT_ALGORITHM = PlatformImpl.isContextual2DNavigation() ? new Hueristic2D() : new ContainerTabOrder();
+    static final TraversalPolicy DEFAULT_ALGORITHM = PlatformImpl.isContextual2DNavigation() ? new Hueristic2D() : new ContainerTabOrder();
 
     private final TraversalContext context = new EngineContext(); // This is the context used in calls to this engine's algorithm
     // This is a special context that's used when invoking select "callbacks" to default algorithm in other contexts
     private final TempEngineContext tempEngineContext = new TempEngineContext();
-    protected final TraversalAlgorithm algorithm;
+    protected final TraversalPolicy algorithm;
 
     private final Bounds initialBounds =  new BoundingBox(0, 0, 1, 1);
     private final ArrayList<TraverseListener> listeners = new ArrayList<>();
@@ -62,7 +62,7 @@ public abstract class TraversalEngine{
      * Creates engine with the specified algorithm
      * @param algorithm
      */
-    protected TraversalEngine(TraversalAlgorithm algorithm) {
+    protected TraversalEngine(TraversalPolicy algorithm) {
         this.algorithm = algorithm;
     }
 

@@ -27,10 +27,9 @@ package javafx.scene.incubator.traversal;
 
 import javafx.scene.Node;
 import com.sun.javafx.scene.traversal.TraversalContext;
-import com.sun.javafx.scene.traversal.TraversalEngine;
 
 /**
- * TraversalAlgorithm represents the specific algorithm to be used by a {@link TraversalEngine} to traverse between
+ * TraversalPolicy represents the specific algorithm to be used to traverse between
  * elements in the JavaFX scenegraph.
  *
  * <p>Note that in order to avoid cycles or dead-ends in traversal the algorithms should respect the following order:
@@ -47,17 +46,16 @@ import com.sun.javafx.scene.traversal.TraversalEngine;
  *
  * @see TraversalContext
  * @see TraversalDirection
- * @see TraversalEngine
  * @since 999 TODO
  */
-public interface TraversalAlgorithm {
+public interface TraversalPolicy {
     /**
      * Traverse from owner, in direction dir.
      * Return a the new target Node or null if no suitable target is found.
      *
-     * Typically, the implementation of override traversalAlgorithm handles only parent's direct children and looks like this:
+     * Typically, the implementation of override TraversalPolicy handles only parent's direct children and looks like this:
      * <ol>
-     * <li>Find the nearest parent of the "owner" that is handled by this traversalAlgorithm (i.e. it's a direct child of the root).
+     * <li>Find the nearest parent of the "owner" that is handled by this TraversalPolicy (i.e. it's a direct child of the root).
      * <li>select the next node within this direct child using the context.selectInSubtree() and return it
      * <li>if no such node exists, move to the next direct child in the direction (this is where the different order of direct children is defined)
      *     or if direct children are not traversable, the select the first node in the next direct child

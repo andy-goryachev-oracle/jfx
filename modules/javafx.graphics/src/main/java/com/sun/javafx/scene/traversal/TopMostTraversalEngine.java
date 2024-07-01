@@ -29,7 +29,7 @@ import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.ParentHelper;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalAlgorithm;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.incubator.traversal.TraversalDirection;
 
 /**
@@ -58,7 +58,7 @@ public abstract class TopMostTraversalEngine extends TraversalEngine{
     /**
      * For testing purposes only!
      */
-    TopMostTraversalEngine(TraversalAlgorithm algorithm) {
+    TopMostTraversalEngine(TraversalPolicy algorithm) {
         super(algorithm);
     }
 
