@@ -30,7 +30,6 @@ import com.sun.javafx.scene.control.Logging;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.VirtualScrollBar;
 import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalContext;
 import javafx.animation.KeyFrame;
@@ -59,6 +58,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Cell;
 import javafx.scene.control.IndexedCell;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.incubator.traversal.TraversalAlgorithm;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -630,7 +630,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
             startSBReleasedAnimation();
         });
 
-        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new Algorithm() {
+        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalAlgorithm() {
 
             Node selectNextAfterIndex(int index, TraversalContext context) {
                 T nextCell;

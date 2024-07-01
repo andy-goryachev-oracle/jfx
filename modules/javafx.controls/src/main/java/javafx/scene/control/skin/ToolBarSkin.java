@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.sun.javafx.scene.control.behavior.BehaviorBase;
-import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalContext;
 
@@ -62,6 +61,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.ToolBar;
+import javafx.scene.incubator.traversal.TraversalAlgorithm;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
@@ -138,7 +138,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
         initialize();
         registerChangeListener(control.orientationProperty(), e -> initialize());
 
-        engine = new ParentTraversalEngine(getSkinnable(), new Algorithm() {
+        engine = new ParentTraversalEngine(getSkinnable(), new TraversalAlgorithm() {
 
             private Node selectPrev(int from, TraversalContext context) {
                 for (int i = from; i >= 0; --i) {

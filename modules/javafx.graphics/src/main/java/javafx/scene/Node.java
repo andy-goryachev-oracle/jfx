@@ -8512,6 +8512,8 @@ public abstract class Node implements EventTarget, Styleable {
      * However, the node must be part of a scene, otherwise this request
      * is ignored.
      */
+    // TODO this method is unnecesary, perhaps it should be moved to FocusTraversal,
+    // which would call Scene.traverse() via Scene helper.
     final boolean traverse(TraversalDirection dir, TraversalMethod method) {
         if (getScene() == null) {
             return false;

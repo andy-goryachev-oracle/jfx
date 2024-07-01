@@ -32,11 +32,12 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.incubator.traversal.TraversalAlgorithm;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.function.Function;
 
-
-public class Hueristic2D implements Algorithm {
+// TODO rename Heuristic2D
+public class Hueristic2D implements TraversalAlgorithm {
 
     Hueristic2D() {
     }

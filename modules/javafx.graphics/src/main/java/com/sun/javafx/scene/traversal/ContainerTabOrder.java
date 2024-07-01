@@ -29,9 +29,10 @@ import static javafx.scene.incubator.traversal.TraversalDirection.*;
 import java.util.List;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.incubator.traversal.TraversalAlgorithm;
 import javafx.scene.incubator.traversal.TraversalDirection;
 
-public class ContainerTabOrder implements Algorithm {
+public class ContainerTabOrder implements TraversalAlgorithm {
 
     ContainerTabOrder() {
     }

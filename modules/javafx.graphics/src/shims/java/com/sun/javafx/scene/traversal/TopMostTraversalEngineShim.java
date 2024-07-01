@@ -25,9 +25,11 @@
 
 package com.sun.javafx.scene.traversal;
 
+import javafx.scene.incubator.traversal.TraversalAlgorithm;
+
 public abstract class TopMostTraversalEngineShim extends TopMostTraversalEngine {
 
-    public TopMostTraversalEngineShim(Algorithm algorithm) {
+    public TopMostTraversalEngineShim(TraversalAlgorithm algorithm) {
         super(algorithm);
     }
 
