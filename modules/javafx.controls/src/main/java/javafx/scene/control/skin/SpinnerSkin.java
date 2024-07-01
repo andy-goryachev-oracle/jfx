@@ -36,6 +36,9 @@ import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
@@ -45,10 +48,7 @@ import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.FakeFocusTextField;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.behavior.SpinnerBehavior;
-import com.sun.javafx.scene.traversal.Algorithm;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalContext;
 
 /**
  * Default skin implementation for the {@link Spinner} control.
@@ -237,9 +237,9 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
         // issue initially identified in RT-36902, but specifically (for Spinner)
         // identified in RT-40625
         ParentHelper.setTraversalEngine(control,
-                new ParentTraversalEngine(control, new Algorithm() {
+                new ParentTraversalEngine(control, new TraversalPolicy() {
 
-            @Override public Node select(Node owner, Direction dir, TraversalContext context) {
+            @Override public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 return null;
             }
 

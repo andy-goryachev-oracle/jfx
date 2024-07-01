@@ -63,6 +63,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Skin;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -75,7 +76,6 @@ import javafx.util.Duration;
 import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.control.behavior.TwoLevelFocusPopupBehavior;
 import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.traversal.Direction;
 
 /**
  * This is a the SkinBase for ContextMenu based controls so that the CSS parts
@@ -540,12 +540,12 @@ public class ContextMenuContent extends Region {
                         break;
                     case DOWN:
                         // move to the next sibling
-                        move(Direction.NEXT);
+                        move(TraversalDirection.NEXT);
                         ke.consume();
                         break;
                     case UP:
                         // move to previous sibling
-                        move(Direction.PREVIOUS);
+                        move(TraversalDirection.PREVIOUS);
                         ke.consume();
                         break;
                     case SPACE:
@@ -707,12 +707,12 @@ public class ContextMenuContent extends Region {
         });
     }
 
-    private void move(Direction dir) {
+    private void move(TraversalDirection dir) {
         int startIndex = currentFocusedIndex != -1 ? currentFocusedIndex : itemsContainer.getChildren().size();
         requestFocusOnIndex(findSibling(dir, startIndex));
     }
 
-    private int findSibling(final Direction dir, final int startIndex) {
+    private int findSibling(final TraversalDirection dir, final int startIndex) {
         final int childCount = itemsContainer.getChildren().size();
         int i = startIndex;
         do {

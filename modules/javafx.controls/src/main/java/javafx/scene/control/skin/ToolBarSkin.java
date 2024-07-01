@@ -32,10 +32,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.sun.javafx.scene.control.behavior.BehaviorBase;
-import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalContext;
-
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.DoubleProperty;
@@ -62,6 +59,9 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.ToolBar;
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -75,8 +75,6 @@ import javafx.css.CssMetaData;
 import javafx.css.converter.EnumConverter;
 import javafx.css.converter.SizeConverter;
 import com.sun.javafx.scene.control.behavior.ToolBarBehavior;
-import com.sun.javafx.scene.traversal.Direction;
-
 import javafx.css.Styleable;
 import javafx.stage.WindowEvent;
 
@@ -139,7 +137,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
         initialize();
         registerChangeListener(control.orientationProperty(), e -> initialize());
 
-        engine = new ParentTraversalEngine(getSkinnable(), new Algorithm() {
+        engine = new ParentTraversalEngine(getSkinnable(), new TraversalPolicy() {
 
             private Node selectPrev(int from, TraversalContext context) {
                 for (int i = from; i >= 0; --i) {
@@ -172,7 +170,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
             }
 
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
 
                 dir = dir.getDirectionForNodeOrientation(control.getEffectiveNodeOrientation());
 
@@ -197,7 +195,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                     Node selected = context.selectInSubtree(item, owner, dir);
                     if (selected != null) return selected;
                     idx = boxChildren.indexOf(item);
-                    if (dir == Direction.NEXT) dir = Direction.NEXT_IN_LINE;
+                    if (dir == TraversalDirection.NEXT) dir = TraversalDirection.NEXT_IN_LINE;
                 }
 
                 if (idx >= 0) {

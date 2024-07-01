@@ -32,7 +32,6 @@ import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.PickRay;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.javafx.scene.input.PickResultChooser;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 import com.sun.javafx.sg.prism.NGNode;
 import com.sun.javafx.util.Utils;
@@ -48,6 +47,7 @@ import javafx.css.StyleableProperty;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.SubScene;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.text.Font;
@@ -237,7 +237,7 @@ public abstract class NodeHelper {
         return nodeAccessor.showMnemonicsProperty(node);
     }
 
-    public static boolean traverse(Node node, Direction direction, TraversalMethod method) {
+    public static boolean traverse(Node node, TraversalDirection direction, TraversalMethod method) {
         return nodeAccessor.traverse(node, direction, method);
     }
 
@@ -374,7 +374,7 @@ public abstract class NodeHelper {
         void setShowMnemonics(Node node, boolean value);
         boolean isShowMnemonics(Node node);
         BooleanProperty showMnemonicsProperty(Node node);
-        boolean traverse(Node node, Direction direction, TraversalMethod method);
+        boolean traverse(Node node, TraversalDirection direction, TraversalMethod method);
         double getPivotX(Node node);
         double getPivotY(Node node);
         double getPivotZ(Node node);

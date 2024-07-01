@@ -30,10 +30,7 @@ import com.sun.javafx.scene.control.Logging;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.VirtualScrollBar;
 import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.traversal.Algorithm;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalContext;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.InvalidationListener;
@@ -60,6 +57,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Cell;
 import javafx.scene.control.IndexedCell;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
@@ -630,7 +630,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
             startSBReleasedAnimation();
         });
 
-        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new Algorithm() {
+        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalPolicy() {
 
             Node selectNextAfterIndex(int index, TraversalContext context) {
                 T nextCell;
@@ -661,7 +661,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
             }
 
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 T cell;
                 if (cells.isEmpty()) return null;
                 if (cells.contains(owner)) {
@@ -672,7 +672,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
                     if (next != null) {
                         return next;
                     }
-                    if (dir == Direction.NEXT) dir = Direction.NEXT_IN_LINE;
+                    if (dir == TraversalDirection.NEXT) dir = TraversalDirection.NEXT_IN_LINE;
                 }
                 int cellIndex = cell.getIndex();
                 switch(dir) {

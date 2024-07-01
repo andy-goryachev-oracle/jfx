@@ -31,7 +31,9 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,12 +49,12 @@ public abstract class TraversalEngine{
     /**
      * This is the default algorithm for the running platform. It's the algorithm that's used in TopMostTraversalEngine
      */
-    static final Algorithm DEFAULT_ALGORITHM = PlatformImpl.isContextual2DNavigation() ? new Hueristic2D() : new ContainerTabOrder();
+    static final TraversalPolicy DEFAULT_ALGORITHM = PlatformImpl.isContextual2DNavigation() ? new Hueristic2D() : new ContainerTabOrder();
 
     private final TraversalContext context = new EngineContext(); // This is the context used in calls to this engine's algorithm
     // This is a special context that's used when invoking select "callbacks" to default algorithm in other contexts
     private final TempEngineContext tempEngineContext = new TempEngineContext();
-    protected final Algorithm algorithm;
+    protected final TraversalPolicy algorithm;
 
     private final Bounds initialBounds =  new BoundingBox(0, 0, 1, 1);
     private final ArrayList<TraverseListener> listeners = new ArrayList<>();
@@ -61,7 +63,7 @@ public abstract class TraversalEngine{
      * Creates engine with the specified algorithm
      * @param algorithm
      */
-    protected TraversalEngine(Algorithm algorithm) {
+    protected TraversalEngine(TraversalPolicy algorithm) {
         this.algorithm = algorithm;
     }
 
@@ -100,7 +102,7 @@ public abstract class TraversalEngine{
      * @return the subsequent node in the specified direction or null if none
      * @throws java.lang.NullPointerException if there is no algorithm
      */
-    public final Node select(Node from, Direction dir) {
+    public final Node select(Node from, TraversalDirection dir) {
         return algorithm.select(from, dir, context);
     }
 
@@ -231,7 +233,7 @@ public abstract class TraversalEngine{
         }
 
         @Override
-        public Node selectInSubtree(Parent subTreeRoot, Node from, Direction dir) {
+        public Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
             tempEngineContext.setRoot(subTreeRoot);
             return DEFAULT_ALGORITHM.select(from, dir, tempEngineContext);
         }

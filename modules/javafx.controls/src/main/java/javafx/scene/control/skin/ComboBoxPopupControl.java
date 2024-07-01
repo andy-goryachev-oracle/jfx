@@ -39,6 +39,9 @@ import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.control.TextField;
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyCode;
@@ -53,10 +56,7 @@ import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.behavior.TextInputControlBehavior;
 import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
-import com.sun.javafx.scene.traversal.Algorithm;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalContext;
 
 /**
  * An abstract class that extends the functionality of {@link ComboBoxBaseSkin}
@@ -192,9 +192,9 @@ public abstract class ComboBoxPopupControl<T> extends ComboBoxBaseSkin<T> {
 
         // Fix for RT-36902, where focus traversal was getting stuck inside the ComboBox
         ParentHelper.setTraversalEngine(comboBoxBase,
-                new ParentTraversalEngine(comboBoxBase, new Algorithm() {
+                new ParentTraversalEngine(comboBoxBase, new TraversalPolicy() {
 
-            @Override public Node select(Node owner, Direction dir, TraversalContext context) {
+            @Override public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 return null;
             }
 

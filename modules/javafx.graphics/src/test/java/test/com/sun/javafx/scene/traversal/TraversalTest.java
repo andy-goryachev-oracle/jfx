@@ -25,7 +25,6 @@
 
 package test.com.sun.javafx.scene.traversal;
 
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.SceneTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalMethod;
@@ -41,6 +40,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -59,7 +59,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public final class TraversalTest {
     private final int fromNumber;
-    private final Direction direction;
+    private final TraversalDirection direction;
     private final int toNumber;
     private final int toNumberTransformed;
 
@@ -92,24 +92,24 @@ public final class TraversalTest {
     public static Collection data() {
         return Arrays.asList(new Object[][] {
             /* traversal from center */
-            { 5, Direction.LEFT, 4, 8 },
-            { 5, Direction.RIGHT, 6, 2 },
-            { 5, Direction.UP, 2, 4 },
-            { 5, Direction.DOWN, 8, 6 },
+            { 5, TraversalDirection.LEFT, 4, 8 },
+            { 5, TraversalDirection.RIGHT, 6, 2 },
+            { 5, TraversalDirection.UP, 2, 4 },
+            { 5, TraversalDirection.DOWN, 8, 6 },
 
             // using WeightedClosestCorner, target varies according to transform
             //{ 5, Direction.PREVIOUS, 4, 8 },
             //{ 5, Direction.NEXT, 6, 2 },
 
             // using ContainerTabOrder, target is always the same
-            { 5, Direction.PREVIOUS, 4, 4 },
-            { 5, Direction.NEXT, 6, 6 },
+            { 5, TraversalDirection.PREVIOUS, 4, 4 },
+            { 5, TraversalDirection.NEXT, 6, 6 },
 
             /* traversal from borders (untransformed) */
-            { 4, Direction.LEFT, 4, 7 },
-            { 6, Direction.RIGHT, 6, 3 },
-            { 2, Direction.UP, 2, 1 },
-            { 8, Direction.DOWN, 8, 9 },
+            { 4, TraversalDirection.LEFT, 4, 7 },
+            { 6, TraversalDirection.RIGHT, 6, 3 },
+            { 2, TraversalDirection.UP, 2, 1 },
+            { 8, TraversalDirection.DOWN, 8, 9 },
 
             // using WeightedClosestCorner, target varies according to transform
             //{ 4, Direction.PREVIOUS, 3, 7 },
@@ -118,16 +118,16 @@ public final class TraversalTest {
             //{ 9, Direction.NEXT, 1, 6 },
 
             // using ContainerTabOrder, target always the same
-            { 4, Direction.PREVIOUS, 3, 3 },
-            { 1, Direction.PREVIOUS, 9, 9 },
-            { 6, Direction.NEXT, 7, 7 },
-            { 9, Direction.NEXT, 1, 1 },
+            { 4, TraversalDirection.PREVIOUS, 3, 3 },
+            { 1, TraversalDirection.PREVIOUS, 9, 9 },
+            { 6, TraversalDirection.NEXT, 7, 7 },
+            { 9, TraversalDirection.NEXT, 1, 1 },
 
             /* traversal from borders (transformed) */
-            { 2, Direction.RIGHT, 3, 2 },
-            { 8, Direction.LEFT, 7, 8 },
-            { 4, Direction.UP, 1, 4 },
-            { 6, Direction.DOWN, 9, 6 },
+            { 2, TraversalDirection.RIGHT, 3, 2 },
+            { 8, TraversalDirection.LEFT, 7, 8 },
+            { 4, TraversalDirection.UP, 1, 4 },
+            { 6, TraversalDirection.DOWN, 9, 6 },
 
             // using WeightedClosestCorner, target varies according to transform
             //{ 8, Direction.PREVIOUS, 7, 1 },
@@ -136,15 +136,15 @@ public final class TraversalTest {
             //{ 3, Direction.NEXT, 4, 7 }
 
             // using ContainerTabOrder, target always the same
-            { 8, Direction.PREVIOUS, 7, 7 },
-            { 7, Direction.PREVIOUS, 6, 6 },
-            { 2, Direction.NEXT, 3, 3 },
-            { 3, Direction.NEXT, 4, 4 }
+            { 8, TraversalDirection.PREVIOUS, 7, 7 },
+            { 7, TraversalDirection.PREVIOUS, 6, 6 },
+            { 2, TraversalDirection.NEXT, 3, 3 },
+            { 3, TraversalDirection.NEXT, 4, 4 }
         });
     }
 
     public TraversalTest(final int fromNumber,
-                         final Direction direction,
+                         final TraversalDirection direction,
                          final int toNumber,
                          final int toNumberTransformed) {
         this.fromNumber = fromNumber;

@@ -29,10 +29,7 @@ import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.CustomColorDialog;
 import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.traversal.Algorithm;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalContext;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -52,6 +49,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -299,9 +299,9 @@ class ColorPalette extends Region {
             }
         });
 
-        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new Algorithm() {
+        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 final Node subsequentNode = context.selectInSubtree(context.getRoot(), owner, dir);
                 switch (dir) {
                     case NEXT:
@@ -326,7 +326,7 @@ class ColorPalette extends Region {
                 return null;
             }
 
-            private Node processArrow(ColorSquare owner, Direction dir) {
+            private Node processArrow(ColorSquare owner, TraversalDirection dir) {
                 int row = 0;
                 int column = 0;
 
@@ -355,15 +355,15 @@ class ColorPalette extends Region {
                             // might have different number of columns
                             if (owner.colorType == ColorType.STANDARD) {
                                 subsequentRow = 0;
-                                subsequentColumn = (dir == Direction.LEFT)? NUM_OF_COLUMNS - 1 : 0;
+                                subsequentColumn = (dir == TraversalDirection.LEFT)? NUM_OF_COLUMNS - 1 : 0;
                             }
                             else if (owner.colorType == ColorType.CUSTOM) {
-                                subsequentRow = Math.floorMod(dir == Direction.LEFT ? row - 1 : row + 1, customColorRows);
-                                subsequentColumn = dir == Direction.LEFT ? subsequentRow == customColorRows - 1 ?
+                                subsequentRow = Math.floorMod(dir == TraversalDirection.LEFT ? row - 1 : row + 1, customColorRows);
+                                subsequentColumn = dir == TraversalDirection.LEFT ? subsequentRow == customColorRows - 1 ?
                                         customColorLastRowLength - 1 : NUM_OF_COLUMNS - 1 : 0;
                             } else {
-                                subsequentRow = Math.floorMod(dir == Direction.LEFT ? row - 1 : row + 1, NUM_OF_ROWS);
-                                subsequentColumn = dir == Direction.LEFT ? NUM_OF_COLUMNS - 1 : 0;
+                                subsequentRow = Math.floorMod(dir == TraversalDirection.LEFT ? row - 1 : row + 1, NUM_OF_ROWS);
+                                subsequentColumn = dir == TraversalDirection.LEFT ? NUM_OF_COLUMNS - 1 : 0;
                             }
                             break;
                         case UP: // custom color are not handled here
@@ -393,7 +393,7 @@ class ColorPalette extends Region {
                 return null;
             }
 
-            private boolean isAtBorder(Direction dir, int row, int column, boolean custom) {
+            private boolean isAtBorder(TraversalDirection dir, int row, int column, boolean custom) {
                 switch (dir) {
                     case LEFT:
                         return column == 0;

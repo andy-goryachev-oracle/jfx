@@ -26,7 +26,6 @@
 package javafx.scene;
 
 import com.sun.javafx.css.StyleManager;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.SubSceneTraversalEngine;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalMethod;
@@ -37,6 +36,7 @@ import javafx.beans.property.*;
 import javafx.css.Stylesheet;
 import javafx.geometry.NodeOrientation;
 import javafx.geometry.Point3D;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.PickResult;
 import javafx.scene.paint.Paint;
 
@@ -770,7 +770,7 @@ public class SubScene extends Node {
 
     private TopMostTraversalEngine traversalEngine = new SubSceneTraversalEngine(this);
 
-    boolean traverse(Node node, Direction dir, TraversalMethod method) {
+    boolean traverse(Node node, TraversalDirection dir, TraversalMethod method) {
         return traversalEngine.trav(node, dir, method) != null;
     }
 

@@ -25,7 +25,6 @@
 
 package test.com.sun.javafx.scene.traversal;
 
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.SceneTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalMethod;
@@ -39,6 +38,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
@@ -55,7 +55,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public final class TraverseInvisibleTest {
     private final int fromNumber;
-    private final Direction direction;
+    private final TraversalDirection direction;
     private final int invisibleNumber;
     private final int toNumber;
 
@@ -75,17 +75,17 @@ public final class TraverseInvisibleTest {
     @Parameters
     public static Collection data() {
         return Arrays.asList(new Object[][] {
-            { 3, Direction.RIGHT, 4, 5},
-            { 5, Direction.LEFT, 4, 3},
-            { 4, Direction.NEXT, 5, 6},
-            { 6, Direction.PREVIOUS, 5, 4},
-            { 8, Direction.UP, 5, 2 },
-            { 2, Direction.DOWN, 5, 8 }
+            { 3, TraversalDirection.RIGHT, 4, 5},
+            { 5, TraversalDirection.LEFT, 4, 3},
+            { 4, TraversalDirection.NEXT, 5, 6},
+            { 6, TraversalDirection.PREVIOUS, 5, 4},
+            { 8, TraversalDirection.UP, 5, 2 },
+            { 2, TraversalDirection.DOWN, 5, 8 }
         });
     }
 
     public TraverseInvisibleTest(final int fromNumber,
-                         final Direction direction,
+                         final TraversalDirection direction,
                          final int invisibleNumber,
                          final int toNumber) {
         this.fromNumber = fromNumber;
