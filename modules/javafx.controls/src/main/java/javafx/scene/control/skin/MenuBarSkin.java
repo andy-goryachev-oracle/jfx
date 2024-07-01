@@ -72,6 +72,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -89,7 +90,6 @@ import com.sun.javafx.scene.control.GlobalMenuAdapter;
 import com.sun.javafx.scene.control.IDisconnectable;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.MenuBarButton;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.tk.Toolkit;
 
@@ -300,17 +300,17 @@ public class MenuBarSkin extends SkinBase<MenuBar> {
                             if (control.getScene().getWindow().isFocused()) {
                                 if (openMenu != null && !openMenu.isShowing()) {
                                     if (isRTL) {
-                                        moveToMenu(Direction.NEXT, false); // just move the selection bar
+                                        moveToMenu(TraversalDirection.NEXT, false); // just move the selection bar
                                     } else {
-                                        moveToMenu(Direction.PREVIOUS, false); // just move the selection bar
+                                        moveToMenu(TraversalDirection.PREVIOUS, false); // just move the selection bar
                                     }
                                     ev.consume();
                                     return;
                                 }
                                 if (isRTL) {
-                                    moveToMenu(Direction.NEXT, true);
+                                    moveToMenu(TraversalDirection.NEXT, true);
                                 } else {
-                                    moveToMenu(Direction.PREVIOUS, true);
+                                    moveToMenu(TraversalDirection.PREVIOUS, true);
                                 }
                             }
                             ev.consume();
@@ -321,17 +321,17 @@ public class MenuBarSkin extends SkinBase<MenuBar> {
                             if (control.getScene().getWindow().isFocused()) {
                                 if (openMenu != null && !openMenu.isShowing()) {
                                     if (isRTL) {
-                                        moveToMenu(Direction.PREVIOUS, false); // just move the selection bar
+                                        moveToMenu(TraversalDirection.PREVIOUS, false); // just move the selection bar
                                     } else {
-                                        moveToMenu(Direction.NEXT, false); // just move the selection bar
+                                        moveToMenu(TraversalDirection.NEXT, false); // just move the selection bar
                                     }
                                     ev.consume();
                                     return;
                                 }
                                 if (isRTL) {
-                                    moveToMenu(Direction.PREVIOUS, true);
+                                    moveToMenu(TraversalDirection.PREVIOUS, true);
                                 } else {
-                                    moveToMenu(Direction.NEXT, true);
+                                    moveToMenu(TraversalDirection.NEXT, true);
                                 }
                             }
                             ev.consume();
@@ -1076,7 +1076,7 @@ public class MenuBarSkin extends SkinBase<MenuBar> {
         setFocusedMenuIndex(-1);
     }
 
-    private void moveToMenu(Direction dir, boolean doShow) {
+    private void moveToMenu(TraversalDirection dir, boolean doShow) {
         Menu focusedMenu = menuBarButtonAt(focusedMenuIndex).menu;
         boolean showNextMenu = doShow && focusedMenu.isShowing();
         findSibling(dir, focusedMenuIndex).ifPresent(p -> {
@@ -1089,7 +1089,7 @@ public class MenuBarSkin extends SkinBase<MenuBar> {
         });
     }
 
-    private Optional<Pair<Menu,Integer>> findSibling(Direction dir, int startIndex) {
+    private Optional<Pair<Menu,Integer>> findSibling(TraversalDirection dir, int startIndex) {
         if (startIndex == -1) {
             return Optional.empty();
         }

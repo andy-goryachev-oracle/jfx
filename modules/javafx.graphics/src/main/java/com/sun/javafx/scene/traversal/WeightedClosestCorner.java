@@ -25,12 +25,12 @@
 
 package com.sun.javafx.scene.traversal;
 
+import static javafx.scene.incubator.traversal.TraversalDirection.*;
 import java.util.List;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-
-import static com.sun.javafx.scene.traversal.Direction.*;
+import javafx.scene.incubator.traversal.TraversalDirection;
 
 /**
  * First search for on-axis nodes. A node is on-axis if any part of its
@@ -61,7 +61,7 @@ public class WeightedClosestCorner implements Algorithm {
     WeightedClosestCorner() {
     }
 
-    private boolean isOnAxis(Direction dir, Bounds cur, Bounds tgt) {
+    private boolean isOnAxis(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double cmin, cmax, tmin, tmax;
 
@@ -85,7 +85,7 @@ public class WeightedClosestCorner implements Algorithm {
      * Compute the out-distance to the near edge of the target in the
      * traversal direction. Negative means the near edge is "behind".
      */
-    private double outDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double outDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double distance;
 
@@ -109,7 +109,7 @@ public class WeightedClosestCorner implements Algorithm {
      * Computes the side distance from current center to target center.
      * Always positive. This is only used for on-axis nodes.
      */
-    private double centerSideDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double centerSideDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double cc; // current center
         final double tc; // target center
@@ -131,7 +131,7 @@ public class WeightedClosestCorner implements Algorithm {
      * Computes the side distance between the closest corners of the current
      * and target. Always positive. This is only used for off-axis nodes.
      */
-    private double cornerSideDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double cornerSideDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double distance;
 
@@ -161,7 +161,7 @@ public class WeightedClosestCorner implements Algorithm {
     }
 
     @Override
-    public Node select(Node node, Direction dir, TraversalContext context) {
+    public Node select(Node node, TraversalDirection dir, TraversalContext context) {
         Node newNode = null;
         List<Node> nodes = context.getAllTargetNodes();
 
@@ -203,7 +203,7 @@ public class WeightedClosestCorner implements Algorithm {
         return null;
     }
 
-    public int traverse(Bounds origin, Direction dir, List<Node> targets, TraversalContext context) {
+    public int traverse(Bounds origin, TraversalDirection dir, List<Node> targets, TraversalContext context) {
 
         final int target;
 
@@ -216,7 +216,7 @@ public class WeightedClosestCorner implements Algorithm {
         return target;
     }
 
-    private int trav2D(Bounds origin, Direction dir, List<Node> targets, TraversalContext context) {
+    private int trav2D(Bounds origin, TraversalDirection dir, List<Node> targets, TraversalContext context) {
 
         Bounds bestBounds = null;
         double bestMetric = 0.0;
@@ -288,11 +288,11 @@ public class WeightedClosestCorner implements Algorithm {
     }
 
 
-    private int compare1D(Bounds a, Bounds b, Direction dir) {
+    private int compare1D(Bounds a, Bounds b, TraversalDirection dir) {
         return (dir != PREVIOUS) ? -compare1D(a, b) : compare1D(a, b);
     }
 
-    private int trav1D(Bounds origin, Direction dir, List<Node> targets, TraversalContext context) {
+    private int trav1D(Bounds origin, TraversalDirection dir, List<Node> targets, TraversalContext context) {
         int bestSoFar = -1;
         int leastSoFar = -1;
 

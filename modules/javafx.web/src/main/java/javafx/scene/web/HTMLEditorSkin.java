@@ -30,7 +30,6 @@ import java.util.ResourceBundle;
 import com.sun.javafx.application.PlatformImpl;
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.traversal.Algorithm;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalContext;
 import javafx.css.PseudoClass;
@@ -57,6 +56,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -464,7 +464,7 @@ public class HTMLEditorSkin extends SkinBase<HTMLEditor> {
 
         engine = new ParentTraversalEngine(getSkinnable(), new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 return cutButton;
             }
 

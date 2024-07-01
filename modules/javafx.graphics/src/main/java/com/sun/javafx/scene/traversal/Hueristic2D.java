@@ -25,14 +25,14 @@
 
 package com.sun.javafx.scene.traversal;
 
+import static javafx.scene.incubator.traversal.TraversalDirection.*;
 import java.util.List;
 import java.util.Stack;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-
-import static com.sun.javafx.scene.traversal.Direction.*;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.function.Function;
 
 
@@ -42,7 +42,7 @@ public class Hueristic2D implements Algorithm {
     }
 
     @Override
-    public Node select(Node node, Direction dir, TraversalContext context) {
+    public Node select(Node node, TraversalDirection dir, TraversalContext context) {
         Node newNode = null;
 
         cacheTraversal(node, dir);
@@ -110,7 +110,7 @@ public class Hueristic2D implements Algorithm {
         return TabOrderHelper.getLastTargetNode(context.getRoot());
     }
 
-    private boolean isOnAxis(Direction dir, Bounds cur, Bounds tgt) {
+    private boolean isOnAxis(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double cmin, cmax, tmin, tmax;
 
@@ -134,7 +134,7 @@ public class Hueristic2D implements Algorithm {
      * Compute the out-distance to the near edge of the target in the
      * traversal direction. Negative means the near edge is "behind".
      */
-    private double outDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double outDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double distance;
         if (dir == UP) {
@@ -156,7 +156,7 @@ public class Hueristic2D implements Algorithm {
      * Computes the side distance from current center to target center.
      * Always positive. This is only used for on-axis nodes.
      */
-    private double centerSideDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double centerSideDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
         final double cc; // current center
         final double tc; // target center
 
@@ -175,7 +175,7 @@ public class Hueristic2D implements Algorithm {
      * Computes the side distance between the closest corners of the current
      * and target. Always positive. This is only used for off-axis nodes.
      */
-    private double cornerSideDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double cornerSideDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double distance;
 
@@ -204,12 +204,12 @@ public class Hueristic2D implements Algorithm {
     }
 
     protected Node cacheStartTraversalNode = null;
-    protected Direction cacheStartTraversalDirection = null;
+    protected TraversalDirection cacheStartTraversalDirection = null;
     protected boolean reverseDirection = false;
     protected Node cacheLastTraversalNode = null;
     protected Stack<Node> traversalNodeStack = new Stack();
 
-    private void cacheTraversal(Node node, Direction dir) {
+    private void cacheTraversal(Node node, TraversalDirection dir) {
         if (!traversalNodeStack.empty() && node != cacheLastTraversalNode) {
             /*
             ** we didn't get here by arrow key,
@@ -220,7 +220,7 @@ public class Hueristic2D implements Algorithm {
         /*
         ** Next or Previous cancels the row caching
         */
-        if (dir == Direction.NEXT || dir == Direction.PREVIOUS) {
+        if (dir == TraversalDirection.NEXT || dir == TraversalDirection.PREVIOUS) {
             traversalNodeStack.clear();
             reverseDirection = false;
         } else {
@@ -256,7 +256,7 @@ public class Hueristic2D implements Algorithm {
 
     private static final Function<Bounds, Double> BOUNDS_BOTTOM_SIDE = t -> t.getMaxY();
 
-    protected Node getNearestNodeUpOrDown(Bounds currentB, Bounds originB, TraversalContext context, Direction dir) {
+    protected Node getNearestNodeUpOrDown(Bounds currentB, Bounds originB, TraversalContext context, TraversalDirection dir) {
 
         List<Node> nodes = context.getAllTargetNodes();
 
@@ -550,7 +550,7 @@ public class Hueristic2D implements Algorithm {
 
     private static final Function<Bounds, Double> BOUNDS_RIGHT_SIDE = t -> t.getMaxX();
 
-    protected Node getNearestNodeLeftOrRight(Bounds currentB, Bounds originB, TraversalContext context, Direction dir) {
+    protected Node getNearestNodeLeftOrRight(Bounds currentB, Bounds originB, TraversalContext context, TraversalDirection dir) {
 
         List<Node> nodes = context.getAllTargetNodes();
 

@@ -62,6 +62,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.ToolBar;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -75,8 +76,6 @@ import javafx.css.CssMetaData;
 import javafx.css.converter.EnumConverter;
 import javafx.css.converter.SizeConverter;
 import com.sun.javafx.scene.control.behavior.ToolBarBehavior;
-import com.sun.javafx.scene.traversal.Direction;
-
 import javafx.css.Styleable;
 import javafx.stage.WindowEvent;
 
@@ -172,7 +171,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
             }
 
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
 
                 dir = dir.getDirectionForNodeOrientation(control.getEffectiveNodeOrientation());
 
@@ -197,7 +196,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                     Node selected = context.selectInSubtree(item, owner, dir);
                     if (selected != null) return selected;
                     idx = boxChildren.indexOf(item);
-                    if (dir == Direction.NEXT) dir = Direction.NEXT_IN_LINE;
+                    if (dir == TraversalDirection.NEXT) dir = TraversalDirection.NEXT_IN_LINE;
                 }
 
                 if (idx >= 0) {

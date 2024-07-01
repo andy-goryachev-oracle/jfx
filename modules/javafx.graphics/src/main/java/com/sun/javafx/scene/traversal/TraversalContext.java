@@ -28,7 +28,7 @@ package com.sun.javafx.scene.traversal;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-
+import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.List;
 
 public interface TraversalContext {
@@ -67,5 +67,5 @@ public interface TraversalContext {
      * @param  subTreeRoot this will be used as a root of the traversal. Should be a Node that is still handled by the current TraversalEngine,
      *                     but it's content is not.
      */
-    Node selectInSubtree(Parent subTreeRoot, Node from, Direction dir);
+    Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir);
 }

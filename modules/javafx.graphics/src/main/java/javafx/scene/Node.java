@@ -82,6 +82,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.effect.BlendMode;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.WritableImage;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -160,7 +161,6 @@ import com.sun.javafx.scene.SceneUtils;
 import com.sun.javafx.scene.input.PickResultChooser;
 import com.sun.javafx.scene.transform.TransformHelper;
 import com.sun.javafx.scene.transform.TransformUtils;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.sg.prism.NGNode;
 import com.sun.javafx.tk.Toolkit;
 import com.sun.prism.impl.PrismSettings;
@@ -529,7 +529,7 @@ public abstract class Node implements EventTarget, Styleable {
             }
 
             @Override
-            public boolean traverse(Node node, Direction direction, TraversalMethod method) {
+            public boolean traverse(Node node, TraversalDirection direction, TraversalMethod method) {
                 return node.traverse(direction, method);
             }
 
@@ -8512,7 +8512,7 @@ public abstract class Node implements EventTarget, Styleable {
      * However, the node must be part of a scene, otherwise this request
      * is ignored.
      */
-    final boolean traverse(Direction dir, TraversalMethod method) {
+    final boolean traverse(TraversalDirection dir, TraversalMethod method) {
         if (getScene() == null) {
             return false;
         }

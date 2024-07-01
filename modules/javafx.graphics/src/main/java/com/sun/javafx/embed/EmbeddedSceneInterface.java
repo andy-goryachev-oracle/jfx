@@ -26,11 +26,10 @@
 package com.sun.javafx.embed;
 
 import java.nio.IntBuffer;
-
-import com.sun.javafx.scene.traversal.Direction;
 import javafx.collections.ObservableList;
 import javafx.event.EventType;
 import javafx.scene.image.PixelFormat;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.InputMethodRequests;
 import javafx.scene.input.InputMethodTextRun;
@@ -112,7 +111,7 @@ public interface EmbeddedSceneInterface {
      */
     public void menuEvent(int x, int y, int xAbs, int yAbs, boolean isKeyboardTrigger);
 
-    public boolean traverseOut(Direction dir);
+    public boolean traverseOut(TraversalDirection dir);
 
     public void setDragStartListener(HostDragStartListener l);
 

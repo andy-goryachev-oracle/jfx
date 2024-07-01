@@ -29,12 +29,13 @@ import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.ParentHelper;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.incubator.traversal.TraversalDirection;
 
 /**
  * This is the class for all top-level traversal engines in scenes and subscenes.
  * These traversal engines are created automatically and can only have the default algorithm.
  *
- * These engines should be used by calling {@link #trav(javafx.scene.Node, Direction)}, {@link #traverseToFirst()} and
+ * These engines should be used by calling {@link #trav(javafx.scene.Node, TraversalDirection)}, {@link #traverseToFirst()} and
  * {@link #traverseToLast()} methods. These methods do the actual traversal - selecting the Node that's should be focused next and
  * focusing it. Also, listener calls are handled by top-most traversal engines.
  * select* methods can be used as well, but will *not* transfer the focus to the result, they are just query methods.
@@ -68,7 +69,7 @@ public abstract class TopMostTraversalEngine extends TraversalEngine{
      * @param method the traversal method
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
-    public final Node trav(Node node, Direction dir, TraversalMethod method) {
+    public final Node trav(Node node, TraversalDirection dir, TraversalMethod method) {
         Node newNode = null;
         Parent p = node.getParent();
         Node traverseNode = node;
@@ -84,8 +85,8 @@ public abstract class TopMostTraversalEngine extends TraversalEngine{
                     // So now we try to traverse from the whole parent (associated with that traversal engine)
                     // by a traversal engine that's higher in the hierarchy
                     traverseNode = p;
-                    if (dir == Direction.NEXT) {
-                        dir = Direction.NEXT_IN_LINE;
+                    if (dir == TraversalDirection.NEXT) {
+                        dir = TraversalDirection.NEXT_IN_LINE;
                     }
                 }
             }
@@ -96,9 +97,9 @@ public abstract class TopMostTraversalEngine extends TraversalEngine{
             newNode = select(traverseNode, dir);
         }
         if (newNode == null) {
-            if (dir == Direction.NEXT || dir == Direction.NEXT_IN_LINE) {
+            if (dir == TraversalDirection.NEXT || dir == TraversalDirection.NEXT_IN_LINE) {
                 newNode = selectFirst();
-            } else if (dir == Direction.PREVIOUS) {
+            } else if (dir == TraversalDirection.PREVIOUS) {
                 newNode = selectLast();
             }
         }

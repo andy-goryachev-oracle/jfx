@@ -25,11 +25,11 @@
 
 package com.sun.javafx.scene.traversal;
 
+import static javafx.scene.incubator.traversal.TraversalDirection.*;
 import java.util.List;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
-
-import static com.sun.javafx.scene.traversal.Direction.*;
+import javafx.scene.incubator.traversal.TraversalDirection;
 
 public class ContainerTabOrder implements Algorithm {
 
@@ -37,7 +37,7 @@ public class ContainerTabOrder implements Algorithm {
     }
 
     @Override
-    public Node select(Node node, Direction dir, TraversalContext context) {
+    public Node select(Node node, TraversalDirection dir, TraversalContext context) {
         switch (dir) {
             case NEXT:
             case NEXT_IN_LINE:
@@ -68,7 +68,7 @@ public class ContainerTabOrder implements Algorithm {
         return TabOrderHelper.getLastTargetNode(context.getRoot());
     }
 
-    private int trav2D(Bounds origin, Direction dir, List<Node> peers, TraversalContext context) {
+    private int trav2D(Bounds origin, TraversalDirection dir, List<Node> peers, TraversalContext context) {
 
         Bounds bestBounds = null;
         double bestMetric = 0.0;
@@ -101,7 +101,7 @@ public class ContainerTabOrder implements Algorithm {
         return bestIndex;
     }
 
-    private boolean isOnAxis(Direction dir, Bounds cur, Bounds tgt) {
+    private boolean isOnAxis(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double cmin, cmax, tmin, tmax;
 
@@ -125,7 +125,7 @@ public class ContainerTabOrder implements Algorithm {
      * Compute the out-distance to the near edge of the target in the
      * traversal direction. Negative means the near edge is "behind".
      */
-    private double outDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double outDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double distance;
 
@@ -149,7 +149,7 @@ public class ContainerTabOrder implements Algorithm {
      * Computes the side distance from current center to target center.
      * Always positive. This is only used for on-axis nodes.
      */
-    private double centerSideDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double centerSideDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double cc; // current center
         final double tc; // target center
@@ -171,7 +171,7 @@ public class ContainerTabOrder implements Algorithm {
      * Computes the side distance between the closest corners of the current
      * and target. Always positive. This is only used for off-axis nodes.
      */
-    private double cornerSideDistance(Direction dir, Bounds cur, Bounds tgt) {
+    private double cornerSideDistance(TraversalDirection dir, Bounds cur, Bounds tgt) {
 
         final double distance;
 

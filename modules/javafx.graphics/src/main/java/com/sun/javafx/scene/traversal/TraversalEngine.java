@@ -31,7 +31,7 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-
+import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,7 +100,7 @@ public abstract class TraversalEngine{
      * @return the subsequent node in the specified direction or null if none
      * @throws java.lang.NullPointerException if there is no algorithm
      */
-    public final Node select(Node from, Direction dir) {
+    public final Node select(Node from, TraversalDirection dir) {
         return algorithm.select(from, dir, context);
     }
 
@@ -231,7 +231,7 @@ public abstract class TraversalEngine{
         }
 
         @Override
-        public Node selectInSubtree(Parent subTreeRoot, Node from, Direction dir) {
+        public Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
             tempEngineContext.setRoot(subTreeRoot);
             return DEFAULT_ALGORITHM.select(from, dir, tempEngineContext);
         }

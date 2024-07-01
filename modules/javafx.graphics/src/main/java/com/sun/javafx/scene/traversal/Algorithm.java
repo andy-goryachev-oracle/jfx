@@ -26,6 +26,7 @@
 package com.sun.javafx.scene.traversal;
 
 import javafx.scene.Node;
+import javafx.scene.incubator.traversal.TraversalDirection;
 
 /**
  * An algorithm to be used in a traversal engine.
@@ -50,7 +51,7 @@ public interface Algorithm {
      * 2a) if no such node exists, move to the next direct child in the direction (this is where the different order of direct children is defined)
      *     or if direct children are not traversable, the select the first node in the next direct child
      */
-    public Node select(Node owner, Direction dir, TraversalContext context);
+    public Node select(Node owner, TraversalDirection dir, TraversalContext context);
 
     /**
      * Return the first traversable node for the specified context (root).

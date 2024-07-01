@@ -47,7 +47,6 @@ import com.sun.javafx.scene.input.DragboardHelper;
 import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
 import com.sun.javafx.scene.input.InputEventUtils;
 import com.sun.javafx.scene.input.PickResultChooser;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.SceneTraversalEngine;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import com.sun.javafx.stage.EmbeddedWindow;
@@ -74,6 +73,7 @@ import javafx.css.Stylesheet;
 import javafx.event.*;
 import javafx.geometry.*;
 import javafx.scene.image.WritableImage;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -2155,7 +2155,7 @@ public class Scene implements EventTarget {
     /**
      * Traverses focus from the given node in the given direction.
      */
-    boolean traverse(Node node, Direction dir, TraversalMethod method) {
+    boolean traverse(Node node, TraversalDirection dir, TraversalMethod method) {
         if (node.getSubScene() != null) {
             return node.getSubScene().traverse(node, dir, method);
         }
@@ -2178,7 +2178,7 @@ public class Scene implements EventTarget {
      * function assumes that it is still a member of the same scene.
      */
     private void focusIneligible(Node node) {
-        traverse(node, Direction.NEXT, TraversalMethod.DEFAULT);
+        traverse(node, TraversalDirection.NEXT, TraversalMethod.DEFAULT);
     }
 
     void processKeyEvent(KeyEvent e) {

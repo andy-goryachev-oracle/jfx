@@ -28,7 +28,6 @@ package test.com.sun.javafx.scene.traversal;
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.traversal.Algorithm;
 import com.sun.javafx.scene.traversal.ContainerTabOrderShim;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngineShim;
 import com.sun.javafx.scene.traversal.TraversalContext;
@@ -37,6 +36,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.ParentShim;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.shape.Rectangle;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +82,7 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 return null;
             }
 
@@ -103,7 +103,7 @@ public class TopMostTraversalEngineTest {
         g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 fail();
                 return null;
             }
@@ -172,7 +172,7 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 fail();
                 return null;
             }
@@ -195,7 +195,7 @@ public class TopMostTraversalEngineTest {
         g = new Group(createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
                 return null;
             }
 
@@ -258,7 +258,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -270,7 +270,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(g);
 
-        assertEquals(ng1, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(ng1, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -281,7 +281,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -292,7 +292,7 @@ public class TopMostTraversalEngineTest {
         ParentShim.getChildren(root).addAll(createFocusableNode(), new Group(new Group(n1, createFocusableDisabledNode(), createFocusableDisabledNode()),
                 new Group(createFocusableDisabledNode())), new Group(n2));
 
-        assertEquals(n2, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -303,7 +303,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(new Group(createFocusableNode(), n1, createFocusableDisabledNode(), g));
 
-        assertEquals(g, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(g, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -313,8 +313,8 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(n1, createFocusableNode(), n2);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
-                assertEquals(Direction.NEXT, dir);
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+                assertEquals(TraversalDirection.NEXT, dir);
                 return n2;
             }
 
@@ -333,7 +333,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).add(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
 
@@ -345,8 +345,8 @@ public class TopMostTraversalEngineTest {
         g.setFocusTraversable(true);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
-                assertEquals(Direction.NEXT, dir);
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+                assertEquals(TraversalDirection.NEXT, dir);
                 return null;
             }
 
@@ -366,7 +366,7 @@ public class TopMostTraversalEngineTest {
         final Node n3 = createFocusableNode();
         ParentShim.getChildren(root).addAll(g, n3);
 
-        assertEquals(n3, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(n3, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -378,7 +378,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.NEXT_IN_LINE, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.NEXT_IN_LINE, TraversalMethod.DEFAULT));
     }
 
 
@@ -390,7 +390,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -402,7 +402,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -413,7 +413,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -425,7 +425,7 @@ public class TopMostTraversalEngineTest {
                 new Group(new Group(createFocusableDisabledNode(), n1, createFocusableDisabledNode())),
                  createFocusableNode());
 
-        assertEquals(n2, engine.trav(n1, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -437,7 +437,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(new Group(createFocusableNode(), g, n1, createFocusableDisabledNode()));
 
-        assertEquals(n2, engine.trav(n1, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -449,7 +449,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(new Group(createFocusableNode(), n1, g, createFocusableDisabledNode()));
 
-        assertEquals(g, engine.trav(n2, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(g, engine.trav(n2, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
     @Test
@@ -459,7 +459,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(new Group(n2), new Group(createFocusableNode(), n1));
 
-        assertEquals(n2, engine.trav(n1, Direction.NEXT, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.NEXT, TraversalMethod.DEFAULT));
     }
 
 
@@ -470,7 +470,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).addAll(new Group(n1, createFocusableNode()), new Group(n2));
 
-        assertEquals(n2, engine.trav(n1, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
 
@@ -481,8 +481,8 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(n2, createFocusableNode(), n1);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new Algorithm() {
             @Override
-            public Node select(Node owner, Direction dir, TraversalContext context) {
-                assertEquals(Direction.PREVIOUS, dir);
+            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+                assertEquals(TraversalDirection.PREVIOUS, dir);
                 return n2;
             }
 
@@ -501,7 +501,7 @@ public class TopMostTraversalEngineTest {
 
         ParentShim.getChildren(root).add(g);
 
-        assertEquals(n2, engine.trav(n1, Direction.PREVIOUS, TraversalMethod.DEFAULT));
+        assertEquals(n2, engine.trav(n1, TraversalDirection.PREVIOUS, TraversalMethod.DEFAULT));
     }
 
     private Node createFocusableNode() {

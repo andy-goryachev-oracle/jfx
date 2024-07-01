@@ -26,7 +26,6 @@ package javafx.scene.incubator.traversal;
 
 import javafx.scene.Node;
 import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
@@ -119,10 +118,9 @@ public final class FocusTraversal {
      */
     public static boolean traverse(Node node, TraversalDirection direction, boolean byKeyboard) {
         if (node != null) {
-            Direction dir = translateDirection(direction);
             TraversalMethod m = byKeyboard ? TraversalMethod.KEY : TraversalMethod.DEFAULT;
             // the (private) method Node.traverse() should be static, or removed altogether
-            return NodeHelper.traverse(node, dir, m);
+            return NodeHelper.traverse(node, direction, m);
         }
         return false;
     }
@@ -132,26 +130,6 @@ public final class FocusTraversal {
     // TODO static focusOwnerProperty
 
     // TODO static focusedWindow/SceneProperty
-
-    // becomes unnecessary once Direction is replaced with TraversalDirection
-    private static Direction translateDirection(TraversalDirection direction) {
-        switch (direction) {
-        case DOWN:
-            return Direction.DOWN;
-        case LEFT:
-            return Direction.LEFT;
-        case NEXT:
-            return Direction.NEXT;
-        case NEXT_IN_LINE:
-            return Direction.NEXT_IN_LINE;
-        case PREVIOUS:
-            return Direction.PREVIOUS;
-        case RIGHT:
-            return Direction.RIGHT;
-        default:
-            throw new Error("?" + direction);
-        }
-    }
 
     private FocusTraversal() {
     }
