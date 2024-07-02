@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,23 +24,21 @@
  */
 package com.sun.javafx.scene.control.behavior;
 
-import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.traversal.TraversalMethod;
-import javafx.event.EventTarget;
-import javafx.scene.Node;
-import javafx.scene.incubator.traversal.TraversalDirection;
-import com.sun.javafx.scene.control.inputmap.InputMap;
-import com.sun.javafx.scene.control.inputmap.KeyBinding;
-import javafx.scene.input.KeyEvent;
-
-import java.util.List;
-
-import static com.sun.javafx.scene.control.inputmap.InputMap.*;
 import static javafx.scene.input.KeyCode.DOWN;
 import static javafx.scene.input.KeyCode.LEFT;
 import static javafx.scene.input.KeyCode.RIGHT;
 import static javafx.scene.input.KeyCode.TAB;
 import static javafx.scene.input.KeyCode.UP;
+import java.util.List;
+import javafx.event.EventTarget;
+import javafx.scene.Node;
+import javafx.scene.incubator.traversal.FocusTraversal;
+import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.input.KeyEvent;
+import com.sun.javafx.scene.control.inputmap.InputMap;
+import com.sun.javafx.scene.control.inputmap.InputMap.KeyMapping;
+import com.sun.javafx.scene.control.inputmap.KeyBinding;
+import com.sun.javafx.scene.traversal.TraversalMethod;
 
 public class FocusTraversalInputMap {
 
@@ -94,7 +92,7 @@ public class FocusTraversalInputMap {
             throw new IllegalArgumentException("Attempting to traverse on a null Node. " +
                     "Most probably a KeyEvent has been fired with a null target specified.");
         }
-        NodeHelper.traverse(node, dir, method);
+        FocusTraversal.traverse(node, dir, method);
     }
 
     /**

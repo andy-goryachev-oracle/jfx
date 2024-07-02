@@ -25,16 +25,6 @@
 
 package com.sun.javafx.scene;
 
-import com.sun.glass.ui.Accessible;
-import com.sun.javafx.css.TransitionDefinition;
-import com.sun.javafx.css.TransitionTimer;
-import com.sun.javafx.geom.BaseBounds;
-import com.sun.javafx.geom.PickRay;
-import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.javafx.scene.input.PickResultChooser;
-import com.sun.javafx.scene.traversal.TraversalMethod;
-import com.sun.javafx.sg.prism.NGNode;
-import com.sun.javafx.util.Utils;
 import java.util.List;
 import java.util.Map;
 import javafx.beans.binding.BooleanExpression;
@@ -47,10 +37,18 @@ import javafx.css.StyleableProperty;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.SubScene;
-import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.shape.Shape;
 import javafx.scene.shape.Shape3D;
 import javafx.scene.text.Font;
+import com.sun.glass.ui.Accessible;
+import com.sun.javafx.css.TransitionDefinition;
+import com.sun.javafx.css.TransitionTimer;
+import com.sun.javafx.geom.BaseBounds;
+import com.sun.javafx.geom.PickRay;
+import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.javafx.scene.input.PickResultChooser;
+import com.sun.javafx.sg.prism.NGNode;
+import com.sun.javafx.util.Utils;
 
 /**
  * Used to access internal methods of Node.
@@ -237,10 +235,6 @@ public abstract class NodeHelper {
         return nodeAccessor.showMnemonicsProperty(node);
     }
 
-    public static boolean traverse(Node node, TraversalDirection direction, TraversalMethod method) {
-        return nodeAccessor.traverse(node, direction, method);
-    }
-
     public static double getPivotX(Node node) {
         return nodeAccessor.getPivotX(node);
     }
@@ -374,7 +368,6 @@ public abstract class NodeHelper {
         void setShowMnemonics(Node node, boolean value);
         boolean isShowMnemonics(Node node);
         BooleanProperty showMnemonicsProperty(Node node);
-        boolean traverse(Node node, TraversalDirection direction, TraversalMethod method);
         double getPivotX(Node node);
         double getPivotY(Node node);
         double getPivotZ(Node node);

@@ -25,8 +25,7 @@
 package javafx.scene.incubator.traversal;
 
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.SceneHelper;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
@@ -44,7 +43,7 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traverseDown(Node node) {
-        return traverse(node, TraversalDirection.DOWN, true);
+        return traverse(node, TraversalDirection.DOWN, TraversalMethod.KEY);
     }
 
     /**
@@ -54,7 +53,7 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traverseLeft(Node node) {
-        return traverse(node, TraversalDirection.LEFT, true);
+        return traverse(node, TraversalDirection.LEFT, TraversalMethod.KEY);
     }
 
     /**
@@ -64,7 +63,7 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traverseNext(Node node) {
-        return traverse(node, TraversalDirection.NEXT, true);
+        return traverse(node, TraversalDirection.NEXT, TraversalMethod.KEY);
     }
 
     /**
@@ -75,7 +74,7 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traverseNextInLine(Node node) {
-        return traverse(node, TraversalDirection.NEXT_IN_LINE, true);
+        return traverse(node, TraversalDirection.NEXT_IN_LINE, TraversalMethod.KEY);
     }
 
     /**
@@ -85,7 +84,7 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traversePrevious(Node node) {
-        return traverse(node, TraversalDirection.PREVIOUS, true);
+        return traverse(node, TraversalDirection.PREVIOUS, TraversalMethod.KEY);
     }
 
     /**
@@ -95,7 +94,7 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traverseRight(Node node) {
-        return traverse(node, TraversalDirection.RIGHT, true);
+        return traverse(node, TraversalDirection.RIGHT, TraversalMethod.KEY);
     }
 
     /**
@@ -105,7 +104,7 @@ public final class FocusTraversal {
      * @return true if traversal was successful
      */
     public static boolean traverseUp(Node node) {
-        return traverse(node, TraversalDirection.UP, true);
+        return traverse(node, TraversalDirection.UP, TraversalMethod.KEY);
     }
 
     /**
@@ -113,15 +112,12 @@ public final class FocusTraversal {
      *
      * @param node the node to traverse focus from
      * @param direction the direction of traversal
-     * @param byKeyboard true if traversal was initiated by pressing a key, false if traversal
-     *        was initiated programmatically or by clicking
+     * @param method the method which initiated the traversal
      * @return true if traversal was successful
      */
-    public static boolean traverse(Node node, TraversalDirection direction, boolean byKeyboard) {
+    public static boolean traverse(Node node, TraversalDirection direction, TraversalMethod method) {
         if (node != null) {
-            TraversalMethod m = byKeyboard ? TraversalMethod.KEY : TraversalMethod.DEFAULT;
-            // the (private) method Node.traverse() should be static, or removed altogether
-            return NodeHelper.traverse(node, direction, m);
+            return SceneHelper.traverse(node, direction, method);
         }
         return false;
     }
