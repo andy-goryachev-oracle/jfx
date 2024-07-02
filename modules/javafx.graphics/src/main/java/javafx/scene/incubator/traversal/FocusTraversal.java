@@ -128,14 +128,15 @@ public final class FocusTraversal {
 
     // TODO these two methods can be moved to Parent... or not
 
-    public static void setTraversalPolicy(Parent parent, TraversalPolicy policy) {
-        // TODO
-    }
-    
-    public static TraversalPolicy getTraversalPolicy(Parent parent, TraversalPolicy policy) {
-        // TODO
-        return null;
-    }
+    // TODO or make Parent.traversalPolicyProperty public
+//    public static void setTraversalPolicy(Parent parent, TraversalPolicy policy) {
+//        // TODO
+//    }
+//    
+//    public static TraversalPolicy getTraversalPolicy(Parent parent, TraversalPolicy policy) {
+//        // TODO
+//        return null;
+//    }
     
     // TODO static focusOwnerProperty
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@
 package javafx.scene.control.skin;
 
 import static com.sun.javafx.scene.control.skin.Utils.boundedSize;
-
 import javafx.animation.Animation.Status;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -53,13 +52,13 @@ import javafx.scene.control.ScrollBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SkinBase;
+import javafx.scene.incubator.traversal.TraversalEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
 import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.ListenerHelper;
@@ -632,10 +631,6 @@ public class ScrollPaneSkin extends SkinBase<ScrollPane> {
         scrollNode = control.getContent();
 
         ParentTraversalEngine traversalEngine = new ParentTraversalEngine(getSkinnable());
-        traversalEngine.addTraverseListener((node, bounds) -> {
-            // auto-scroll so node is within (0,0),(contentWidth,contentHeight)
-            scrollBoundsIntoView(bounds);
-        });
         ParentHelper.setTraversalEngine(getSkinnable(), traversalEngine);
 
         if (scrollNode != null) {
@@ -668,6 +663,11 @@ public class ScrollPaneSkin extends SkinBase<ScrollPane> {
         };
 
         ListenerHelper lh = ListenerHelper.get(this);
+
+        lh.addEventFilter(control, TraversalEvent.NODE_TRAVERSED, (ev) -> {
+            // auto-scroll so node is within (0,0),(contentWidth,contentHeight)
+            scrollBoundsIntoView(ev.getBounds());
+        });
 
         lh.addEventFilter(hsb, MouseEvent.MOUSE_PRESSED, barHandler);
         lh.addEventFilter(vsb, MouseEvent.MOUSE_PRESSED, barHandler);

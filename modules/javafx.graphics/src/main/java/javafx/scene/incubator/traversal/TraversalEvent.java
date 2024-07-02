@@ -92,4 +92,12 @@ public class TraversalEvent extends Event {
     public final Bounds getBounds() {
         return bounds;
     }
+
+    /**
+     * Returns the {@link Node} which received the traversal event.
+     * @return the Node
+     */
+    public Node getNode() {
+        return (Node)getSource();
+    }
 }

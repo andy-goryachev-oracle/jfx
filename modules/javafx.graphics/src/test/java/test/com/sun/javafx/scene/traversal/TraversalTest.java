@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,35 +25,33 @@
 
 package test.com.sun.javafx.scene.traversal;
 
-import com.sun.javafx.scene.traversal.SceneTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalMethod;
-import com.sun.javafx.scene.traversal.TraverseListener;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collection;
-
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import com.sun.javafx.scene.traversal.SceneTraversalEngine;
+import com.sun.javafx.scene.traversal.TraversalEngine;
+import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
- * Tests for TraversalEngine with the default ContainerTabOrder algorithm,
- * tests if using the WeightedClosestCorner algorithm have been
+ * Tests for TraversalEngine with the default ContainerTabOrder policy,
+ * tests if using the WeightedClosestCorner policy have been
  * left in comments.
  */
 @RunWith(Parameterized.class)
@@ -86,7 +84,7 @@ public final class TraversalTest {
     private SceneTraversalEngine traversalEngine;
 
     /*
-     * Parameters: [fromNumber], [direction], [toNumber], [toNumberTransformed]
+     * Parameters: [fromNumber], [traversalDirection], [toNumber], [toNumberTransformed]
      */
     @Parameters
     public static Collection data() {
@@ -98,8 +96,8 @@ public final class TraversalTest {
             { 5, TraversalDirection.DOWN, 8, 6 },
 
             // using WeightedClosestCorner, target varies according to transform
-            //{ 5, Direction.PREVIOUS, 4, 8 },
-            //{ 5, Direction.NEXT, 6, 2 },
+            //{ 5, TraversalDirection.PREVIOUS, 4, 8 },
+            //{ 5, TraversalDirection.NEXT, 6, 2 },
 
             // using ContainerTabOrder, target is always the same
             { 5, TraversalDirection.PREVIOUS, 4, 4 },
@@ -112,10 +110,10 @@ public final class TraversalTest {
             { 8, TraversalDirection.DOWN, 8, 9 },
 
             // using WeightedClosestCorner, target varies according to transform
-            //{ 4, Direction.PREVIOUS, 3, 7 },
-            //{ 1, Direction.PREVIOUS, 9, 4 },
-            //{ 6, Direction.NEXT, 7, 3 },
-            //{ 9, Direction.NEXT, 1, 6 },
+            //{ 4, TraversalDirection.PREVIOUS, 3, 7 },
+            //{ 1, TraversalDirection.PREVIOUS, 9, 4 },
+            //{ 6, TraversalDirection.NEXT, 7, 3 },
+            //{ 9, TraversalDirection.NEXT, 1, 6 },
 
             // using ContainerTabOrder, target always the same
             { 4, TraversalDirection.PREVIOUS, 3, 3 },
@@ -130,10 +128,10 @@ public final class TraversalTest {
             { 6, TraversalDirection.DOWN, 9, 6 },
 
             // using WeightedClosestCorner, target varies according to transform
-            //{ 8, Direction.PREVIOUS, 7, 1 },
-            //{ 7, Direction.PREVIOUS, 6, 3 },
-            //{ 2, Direction.NEXT, 3, 9 },
-            //{ 3, Direction.NEXT, 4, 7 }
+            //{ 8, TraversalDirection.PREVIOUS, 7, 1 },
+            //{ 7, TraversalDirection.PREVIOUS, 6, 3 },
+            //{ 2, TraversalDirection.NEXT, 3, 9 },
+            //{ 3, TraversalDirection.NEXT, 4, 7 }
 
             // using ContainerTabOrder, target always the same
             { 8, TraversalDirection.PREVIOUS, 7, 7 },
@@ -192,17 +190,15 @@ public final class TraversalTest {
 
     @Test
     public void traverseListenerTest() {
-        final TraverseListenerImpl traverseListener =
-                new TraverseListenerImpl();
-        traversalEngine.addTraverseListener(traverseListener);
+        final TraverseListenerImpl h = new TraverseListenerImpl();
+        scene.addEventHandler(TraversalEvent.ANY, h);
         keypadNodes[fromNumber - 1].requestFocus();
         traversalEngine.trav(keypadNodes[fromNumber - 1], direction, TraversalMethod.DEFAULT);
         if (fromNumber != toNumber) {
-            assertEquals(1, traverseListener.getCallCounter());
-            assertSame(keypadNodes[toNumber - 1],
-                       traverseListener.getLastNode());
+            assertEquals(1, h.getCallCounter());
+            assertSame(keypadNodes[toNumber - 1], h.getLastNode());
         } else {
-            assertEquals(0, traverseListener.getCallCounter());
+            assertEquals(0, h.getCallCounter());
         }
     }
 
@@ -227,8 +223,7 @@ public final class TraversalTest {
         return keypad;
     }
 
-    private static final class TraverseListenerImpl
-            implements TraverseListener {
+    private static final class TraverseListenerImpl implements EventHandler<TraversalEvent> {
         private int callCounter;
         private Node lastNode;
 
@@ -241,9 +236,9 @@ public final class TraversalTest {
         }
 
         @Override
-        public void onTraverse(final Node node, final Bounds bounds) {
+        public void handle(TraversalEvent ev) {
             ++callCounter;
-            lastNode = node;
+            lastNode = ev.getNode();
         }
     }
 }

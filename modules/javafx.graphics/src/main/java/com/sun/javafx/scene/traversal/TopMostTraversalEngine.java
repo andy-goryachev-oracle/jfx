@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,12 +25,13 @@
 
 package com.sun.javafx.scene.traversal;
 
-import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalEvent;
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.ParentHelper;
 
 /**
  * This is the class for all top-level traversal engines in scenes and subscenes.
@@ -110,26 +111,14 @@ public abstract class TopMostTraversalEngine extends TraversalEngine{
         return newNode;
     }
 
-    private void focusAndNotify(Node newNode, TraversalMethod method) {
+    private void focusAndNotify(Node n, TraversalMethod method) {
         if (method == TraversalMethod.KEY) {
-            NodeHelper.requestFocusVisible(newNode);
+            NodeHelper.requestFocusVisible(n);
         } else {
-            newNode.requestFocus();
+            n.requestFocus();
         }
 
-        notifyTreeTraversedTo(newNode);
-    }
-
-    private void notifyTreeTraversedTo(Node newNode) {
-        Parent p = newNode.getParent();
-        while (p != null) {
-            final ParentTraversalEngine traversalEngine = ParentHelper.getTraversalEngine(p);
-            if (traversalEngine != null) {
-                traversalEngine.notifyTraversedTo(newNode);
-            }
-            p = p.getParent();
-        }
-        notifyTraversedTo(newNode);
+        n.fireEvent(new TraversalEvent(n, TraversalUtils.getLayoutBounds(n, getRoot()), TraversalEvent.NODE_TRAVERSED));
     }
 
     /**

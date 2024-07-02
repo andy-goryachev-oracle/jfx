@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,29 +25,24 @@
 
 package test.com.sun.javafx.scene.traversal;
 
-import com.sun.javafx.scene.traversal.SceneTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalMethod;
-import com.sun.javafx.scene.traversal.TraverseListener;
 import static org.junit.Assert.assertTrue;
-
 import java.util.Arrays;
 import java.util.Collection;
-
-import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import com.sun.javafx.scene.traversal.SceneTraversalEngine;
+import com.sun.javafx.scene.traversal.TraversalEngine;
+import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
  * Tests TraversalEngine with invisible nodes, using the default ContainerTabOrder algorithm,
@@ -126,8 +121,6 @@ public final class TraverseInvisibleTest {
         keypadNodes[invisibleNumber - 1].setVisible(true);
     }
 
-
-
     private static Node[] createKeypadNodesInScene(
             final Scene scene,
             final TraversalEngine traversalEngine) {
@@ -147,25 +140,5 @@ public final class TraverseInvisibleTest {
         }
 
         return keypad;
-    }
-
-    private static final class TraverseListenerImpl
-            implements TraverseListener {
-        private int callCounter;
-        private Node lastNode;
-
-        public int getCallCounter() {
-            return callCounter;
-        }
-
-        public Node getLastNode() {
-            return lastNode;
-        }
-
-        @Override
-        public void onTraverse(final Node node, final Bounds bounds) {
-            ++callCounter;
-            lastNode = node;
-        }
     }
 }

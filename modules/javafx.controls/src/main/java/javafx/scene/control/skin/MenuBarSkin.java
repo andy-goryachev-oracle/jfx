@@ -38,7 +38,6 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -73,6 +72,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -81,7 +81,6 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
-
 import com.sun.javafx.FXPermissions;
 import com.sun.javafx.menu.MenuBase;
 import com.sun.javafx.scene.ParentHelper;
@@ -275,11 +274,14 @@ public class MenuBarSkin extends SkinBase<MenuBar> {
         }
 
         ParentTraversalEngine engine = new ParentTraversalEngine(getSkinnable());
-        engine.addTraverseListener((node, bounds) -> {
-            if (openMenu != null) openMenu.hide();
+        ParentHelper.setTraversalEngine(getSkinnable(), engine);
+        
+        lh.addEventHandler(control, TraversalEvent.NODE_TRAVERSED, (ev) -> {
+            if (openMenu != null) {
+                openMenu.hide();
+            }
             setFocusedMenuIndex(0);
         });
-        ParentHelper.setTraversalEngine(getSkinnable(), engine);
 
         lh.addChangeListener(control.sceneProperty(), true, (scene) -> {
             if (sceneListenerHelper != null) {
