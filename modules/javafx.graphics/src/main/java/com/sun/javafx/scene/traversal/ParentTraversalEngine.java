@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -33,9 +33,10 @@ import javafx.scene.incubator.traversal.TraversalPolicy;
  * This can be achieved by setting such engine using {@link Parent#setImpl_traversalEngine(ParentTraversalEngine)}
  * and providing a special Algorithm implementation.
  *
- * Alternatively, the traversal engine can be w/o an algorithm and used just for listening to focus changes inside the specified parent.
+ * Alternatively, the traversal engine can be w/o an algorithm and used just for listening to focus changes
+ * inside the specified parent.
  */
-public final class ParentTraversalEngine extends TraversalEngine{
+public final class ParentTraversalEngine extends TraversalEngine {
 
     private final Parent root;
     private Boolean overridenTraversability;
@@ -46,7 +47,6 @@ public final class ParentTraversalEngine extends TraversalEngine{
     }
 
     public ParentTraversalEngine(Parent root) {
-        super();
         this.root = root;
     }
 
@@ -65,7 +65,8 @@ public final class ParentTraversalEngine extends TraversalEngine{
     public boolean isParentTraversable() {
         // This means the traversability can be overriden only for traversable root.
         // If user explicitly disabled traversability, we don't set it back to true
-        return overridenTraversability != null ? root.isFocusTraversable() && overridenTraversability : root.isFocusTraversable();
+        return overridenTraversability != null ?
+            root.isFocusTraversable() && overridenTraversability :
+            root.isFocusTraversable();
     }
-
 }

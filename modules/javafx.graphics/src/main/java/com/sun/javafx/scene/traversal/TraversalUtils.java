@@ -32,12 +32,6 @@ import javafx.scene.incubator.traversal.TraversalPolicy;
 import com.sun.javafx.application.PlatformImpl;
 
 public final class TraversalUtils {
-    /**
-     * This is the default traversal policy for the running platform.
-     * It's the traversal policy that's used in TopMostTraversalEngine
-     */
-    public static final TraversalPolicy DEFAULT_TRAVERSAL_ALGORITHM = createDefaultTraversalAlgorithm();
-
     private static final Bounds INITIAL_BOUNDS = new BoundingBox(0, 0, 1, 1);
 
     private TraversalUtils() {

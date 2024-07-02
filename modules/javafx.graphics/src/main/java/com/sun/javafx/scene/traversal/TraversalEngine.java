@@ -47,7 +47,7 @@ public abstract class TraversalEngine {
     /**
      * This is the default algorithm for the running platform. It's the algorithm that's used in TopMostTraversalEngine
      */
-    static final TraversalPolicy DEFAULT_POLICY = PlatformImpl.isContextual2DNavigation() ? new Heuristic2D() : new ContainerTabOrder();
+    protected static final TraversalPolicy DEFAULT_POLICY = PlatformImpl.isContextual2DNavigation() ? new Heuristic2D() : new ContainerTabOrder();
 
     /** This is the context used in calls to this engine's algorithm */
     private final TraversalContext context = new EngineContext();
