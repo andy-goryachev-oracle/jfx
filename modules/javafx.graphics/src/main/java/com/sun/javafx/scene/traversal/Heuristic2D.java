@@ -37,10 +37,9 @@ import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.function.Function;
 
-// TODO rename Heuristic2D
-public class Hueristic2D implements TraversalPolicy {
+public class Heuristic2D implements TraversalPolicy {
 
-    Hueristic2D() {
+    Heuristic2D() {
     }
 
     @Override

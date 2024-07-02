@@ -25,6 +25,7 @@
 package javafx.scene.incubator.traversal;
 
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 
@@ -125,7 +126,16 @@ public final class FocusTraversal {
         return false;
     }
 
-    // TODO static get/setTraversalPolicy(Parent, TraversalPolicy)
+    // TODO these two methods can be moved to Parent... or not
+
+    public static void setTraversalPolicy(Parent parent, TraversalPolicy policy) {
+        // TODO
+    }
+    
+    public static TraversalPolicy getTraversalPolicy(Parent parent, TraversalPolicy policy) {
+        // TODO
+        return null;
+    }
     
     // TODO static focusOwnerProperty
 

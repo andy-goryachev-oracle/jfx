@@ -49,7 +49,7 @@ public abstract class TraversalEngine{
     /**
      * This is the default algorithm for the running platform. It's the algorithm that's used in TopMostTraversalEngine
      */
-    static final TraversalPolicy DEFAULT_ALGORITHM = PlatformImpl.isContextual2DNavigation() ? new Hueristic2D() : new ContainerTabOrder();
+    static final TraversalPolicy DEFAULT_POLICY = PlatformImpl.isContextual2DNavigation() ? new Heuristic2D() : new ContainerTabOrder();
 
     private final TraversalContext context = new EngineContext(); // This is the context used in calls to this engine's algorithm
     // This is a special context that's used when invoking select "callbacks" to default algorithm in other contexts
@@ -223,19 +223,19 @@ public abstract class TraversalEngine{
         @Override
         public Node selectFirstInParent(Parent parent) {
             tempEngineContext.setRoot(parent);
-            return DEFAULT_ALGORITHM.selectFirst(tempEngineContext);
+            return DEFAULT_POLICY.selectFirst(tempEngineContext);
         }
 
         @Override
         public Node selectLastInParent(Parent parent) {
             tempEngineContext.setRoot(parent);
-            return DEFAULT_ALGORITHM.selectLast(tempEngineContext);
+            return DEFAULT_POLICY.selectLast(tempEngineContext);
         }
 
         @Override
         public Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
             tempEngineContext.setRoot(subTreeRoot);
-            return DEFAULT_ALGORITHM.select(from, dir, tempEngineContext);
+            return DEFAULT_POLICY.select(from, dir, tempEngineContext);
         }
     }
 }
