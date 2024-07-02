@@ -94,10 +94,10 @@ public class TraversalEvent extends Event {
     }
 
     /**
-     * Returns the {@link Node} which received the traversal event.
+     * Returns the {@link Node} which received the traversal event (same object as {@link Event#getTarget()}).
      * @return the Node
      */
     public Node getNode() {
-        return (Node)getSource();
+        return (Node)getTarget();
     }
 }
