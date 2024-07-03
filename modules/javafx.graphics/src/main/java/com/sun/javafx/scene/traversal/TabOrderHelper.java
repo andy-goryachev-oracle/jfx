@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2016, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,13 +25,12 @@
 
 package com.sun.javafx.scene.traversal;
 
-import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
+import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-
-import java.util.List;
+import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.ParentHelper;
 
 final class TabOrderHelper {
     private static Node findPreviousFocusableInList(List<Node> nodeList, int startIndex) {
@@ -39,16 +38,16 @@ final class TabOrderHelper {
             Node prevNode = nodeList.get(i);
             // ParentTraverEngine can override traversability, so we need to check it first
             if (isDisabledOrInvisible(prevNode)) continue;
-            final ParentTraversalEngine traversalEngine = prevNode instanceof Parent
-                    ? ParentHelper.getTraversalEngine((Parent) prevNode) : null;
-            if (prevNode instanceof Parent) {
+            final ParentTraversalEngine traversalEngine = prevNode instanceof Parent p
+                    ? ParentHelper.getTraversalEngine(p) : null;
+            if (prevNode instanceof Parent p) {
                 if (traversalEngine != null && traversalEngine.canTraverse()) {
                     Node selected = traversalEngine.selectLast();
                     if (selected != null) {
                         return selected;
                     }
                 } else {
-                    List<Node> prevNodesList = ((Parent) prevNode).getChildrenUnmodifiable();
+                    List<Node> prevNodesList = p.getChildrenUnmodifiable();
                     if (prevNodesList.size() > 0) {
                         Node newNode = findPreviousFocusableInList(prevNodesList, prevNodesList.size() - 1);
                         if (newNode != null) {
@@ -131,15 +130,15 @@ final class TabOrderHelper {
         for (int i = startIndex ; i < nodeList.size() ; i++) {
             Node nextNode = nodeList.get(i);
             if (isDisabledOrInvisible(nextNode)) continue;
-            final ParentTraversalEngine traversalEngine = nextNode instanceof Parent
-                    ? ParentHelper.getTraversalEngine((Parent) nextNode) : null;
+            final ParentTraversalEngine traversalEngine = nextNode instanceof Parent p
+                    ? ParentHelper.getTraversalEngine(p) : null;
             // ParentTraverEngine can override traversability, so we need to check it first
             if (traversalEngine != null
                     ? traversalEngine.isParentTraversable()
                     : nextNode.isFocusTraversable()) {
                 return nextNode;
             }
-            else if (nextNode instanceof Parent) {
+            else if (nextNode instanceof Parent p) {
                 if (traversalEngine!= null && traversalEngine.canTraverse()) {
                     Node selected = traversalEngine.selectFirst();
                     if (selected != null) {
@@ -149,7 +148,7 @@ final class TabOrderHelper {
                         continue;
                     }
                 }
-                List<Node> nextNodesList = ((Parent)nextNode).getChildrenUnmodifiable();
+                List<Node> nextNodesList = p.getChildrenUnmodifiable();
                 if (nextNodesList.size() > 0) {
                     Node newNode = findNextFocusableInList(nextNodesList, 0);
                     if (newNode != null) {
@@ -166,8 +165,8 @@ final class TabOrderHelper {
         Node newNode = null;
 
         // First, try to find next peer among the node children
-        if (traverseIntoCurrent && node instanceof Parent) {
-            newNode = findNextFocusableInList(((Parent)node).getChildrenUnmodifiable(), 0);
+        if (traverseIntoCurrent && node instanceof Parent p) {
+            newNode = findNextFocusableInList(p.getChildrenUnmodifiable(), 0);
         }
 
         // Next step is to select the siblings "to the right"
@@ -204,53 +203,52 @@ final class TabOrderHelper {
         return newNode;
     }
 
-    public static Node getFirstTargetNode(Parent p) {
-        if (p == null || isDisabledOrInvisible(p)) return null;
+    public static Node getFirstTargetNode(Parent parent) {
+        if (parent == null || isDisabledOrInvisible(parent)) return null;
         final ParentTraversalEngine traversalEngine
-                = ParentHelper.getTraversalEngine(p);
+                = ParentHelper.getTraversalEngine(parent);
         if (traversalEngine!= null && traversalEngine.canTraverse()) {
             Node selected = traversalEngine.selectFirst();
             if (selected != null) {
                 return selected;
             }
         }
-        List<Node> parentsNodes = p.getChildrenUnmodifiable();
+        List<Node> parentsNodes = parent.getChildrenUnmodifiable();
         for (Node n : parentsNodes) {
             if (isDisabledOrInvisible(n)) continue;
-            final ParentTraversalEngine parentEngine = n instanceof Parent
-                    ? ParentHelper.getTraversalEngine((Parent)n) : null;
+            final ParentTraversalEngine parentEngine = n instanceof Parent p
+                    ? ParentHelper.getTraversalEngine(p) : null;
             if (parentEngine != null ? parentEngine.isParentTraversable() : n.isFocusTraversable()) {
                 return n;
             }
-            if (n instanceof Parent) {
-                Node result = getFirstTargetNode((Parent)n);
+            if (n instanceof Parent p) {
+                Node result = getFirstTargetNode(p);
                 if (result != null) return result;
             }
         }
         return null;
     }
 
-    public static Node getLastTargetNode(Parent p) {
-        if (p == null || isDisabledOrInvisible(p)) return null;
-        final ParentTraversalEngine traversalEngine
-                = ParentHelper.getTraversalEngine(p);
+    public static Node getLastTargetNode(Parent parent) {
+        if (parent == null || isDisabledOrInvisible(parent)) return null;
+        ParentTraversalEngine traversalEngine = ParentHelper.getTraversalEngine(parent);
         if (traversalEngine!= null && traversalEngine.canTraverse()) {
             Node selected = traversalEngine.selectLast();
             if (selected != null) {
                 return selected;
             }
         }
-        List<Node> parentsNodes = p.getChildrenUnmodifiable();
+        List<Node> parentsNodes = parent.getChildrenUnmodifiable();
         for (int i = parentsNodes.size() - 1; i >= 0; --i) {
             Node n = parentsNodes.get(i);
-            if (isDisabledOrInvisible(n)) continue;
-
-            if (n instanceof Parent) {
-                Node result = getLastTargetNode((Parent) n);
+            if (isDisabledOrInvisible(n)) {
+                continue;
+            }
+            if (n instanceof Parent p) {
+                Node result = getLastTargetNode(p);
                 if (result != null) return result;
             }
-            final ParentTraversalEngine parentEngine = n instanceof Parent
-                    ? ParentHelper.getTraversalEngine((Parent) n) : null;
+            ParentTraversalEngine parentEngine = n instanceof Parent p ? ParentHelper.getTraversalEngine(p) : null;
             if (parentEngine != null ? parentEngine.isParentTraversable() : n.isFocusTraversable()) {
                 return n;
             }

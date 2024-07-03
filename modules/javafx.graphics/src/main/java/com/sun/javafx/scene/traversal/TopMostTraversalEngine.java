@@ -45,14 +45,6 @@ import com.sun.javafx.scene.ParentHelper;
 public abstract class TopMostTraversalEngine extends TraversalEngine {
 
     protected TopMostTraversalEngine() {
-        /*
-         * for 2d behaviour from TAB use :
-         *    algorithm = new WeightedClosestCorner();
-         * for Container sequence TAB behaviour and 2d arrow behaviour use :
-         *    algorithm = new ContainerTabOrder();
-         * for 2D arrow behaviour with a target bias and a stack use :
-         *    algorithm = new Biased2DWithStack();
-         */
         super(TraversalPolicy.getDefault());
     }
 
