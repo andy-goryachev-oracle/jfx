@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,17 +25,23 @@
 
 package com.sun.javafx.scene.traversal;
 
-import static javafx.scene.incubator.traversal.TraversalDirection.*;
+import static javafx.scene.incubator.traversal.TraversalDirection.DOWN;
+import static javafx.scene.incubator.traversal.TraversalDirection.LEFT;
+import static javafx.scene.incubator.traversal.TraversalDirection.NEXT;
+import static javafx.scene.incubator.traversal.TraversalDirection.NEXT_IN_LINE;
+import static javafx.scene.incubator.traversal.TraversalDirection.PREVIOUS;
+import static javafx.scene.incubator.traversal.TraversalDirection.RIGHT;
+import static javafx.scene.incubator.traversal.TraversalDirection.UP;
 import java.util.List;
 import java.util.Stack;
+import java.util.function.Function;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.Parent;
 import javafx.scene.incubator.traversal.TraversalDirection;
-import java.util.function.Function;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 
 public class Heuristic2D extends TraversalPolicy {
 
@@ -43,16 +49,16 @@ public class Heuristic2D extends TraversalPolicy {
     }
 
     @Override
-    public Node select(Node node, TraversalDirection dir, TraversalContext context) {
+    public Node select(Node node, TraversalDirection dir, Parent root) {
         Node newNode = null;
 
         cacheTraversal(node, dir);
 
         if (NEXT.equals(dir) || NEXT_IN_LINE.equals(dir)) {
-            newNode = TabOrderHelper.findNextFocusablePeer(node, context.getRoot(), dir == NEXT);
+            newNode = TabOrderHelper.findNextFocusablePeer(node, root, dir == NEXT);
         }
         else if (PREVIOUS.equals(dir)) {
-            newNode = TabOrderHelper.findPreviousFocusablePeer(node, context.getRoot());
+            newNode = TabOrderHelper.findPreviousFocusablePeer(node, root);
         }
         else if (UP.equals(dir) || DOWN.equals(dir) || LEFT.equals(dir) || RIGHT.equals(dir) ) {
             /*
@@ -74,11 +80,11 @@ public class Heuristic2D extends TraversalPolicy {
                     switch (dir) {
                         case UP:
                         case DOWN:
-                            newNode = getNearestNodeUpOrDown(currentB, cachedB, context, dir);
+                            newNode = getNearestNodeUpOrDown(currentB, cachedB, root, dir);
                             break;
                         case LEFT:
                         case RIGHT:
-                            newNode = getNearestNodeLeftOrRight(currentB, cachedB, context, dir);
+                            newNode = getNearestNodeLeftOrRight(currentB, cachedB, root, dir);
                             break;
                         default:
                             break;
@@ -102,13 +108,13 @@ public class Heuristic2D extends TraversalPolicy {
     }
 
     @Override
-    public Node selectFirst(TraversalContext context) {
-        return TabOrderHelper.getFirstTargetNode(context.getRoot());
+    public Node selectFirst(Parent root) {
+        return TabOrderHelper.getFirstTargetNode(root);
     }
 
     @Override
-    public Node selectLast(TraversalContext context) {
-        return TabOrderHelper.getLastTargetNode(context.getRoot());
+    public Node selectLast(Parent root) {
+        return TabOrderHelper.getLastTargetNode(root);
     }
 
     private boolean isOnAxis(TraversalDirection dir, Bounds cur, Bounds tgt) {
@@ -257,9 +263,9 @@ public class Heuristic2D extends TraversalPolicy {
 
     private static final Function<Bounds, Double> BOUNDS_BOTTOM_SIDE = t -> t.getMaxY();
 
-    protected Node getNearestNodeUpOrDown(Bounds currentB, Bounds originB, TraversalContext context, TraversalDirection dir) {
+    protected Node getNearestNodeUpOrDown(Bounds currentB, Bounds originB, Parent root, TraversalDirection dir) {
 
-        List<Node> nodes = context.getAllTargetNodes();
+        List<Node> nodes = getAllTargetNodes(root);
 
         Function<Bounds, Double> ySideInDirection = dir == DOWN ? BOUNDS_BOTTOM_SIDE : BOUNDS_TOP_SIDE;
         Function<Bounds, Double> ySideInOpositeDirection = dir == DOWN ? BOUNDS_TOP_SIDE : BOUNDS_BOTTOM_SIDE;
@@ -551,9 +557,9 @@ public class Heuristic2D extends TraversalPolicy {
 
     private static final Function<Bounds, Double> BOUNDS_RIGHT_SIDE = t -> t.getMaxX();
 
-    protected Node getNearestNodeLeftOrRight(Bounds currentB, Bounds originB, TraversalContext context, TraversalDirection dir) {
+    protected Node getNearestNodeLeftOrRight(Bounds currentB, Bounds originB, Parent root, TraversalDirection dir) {
 
-        List<Node> nodes = context.getAllTargetNodes();
+        List<Node> nodes = getAllTargetNodes(root);
 
         Function<Bounds, Double> xSideInDirection = dir == LEFT ? BOUNDS_LEFT_SIDE : BOUNDS_RIGHT_SIDE;
         Function<Bounds, Double> xSideInOpositeDirection = dir == LEFT ? BOUNDS_RIGHT_SIDE : BOUNDS_LEFT_SIDE;

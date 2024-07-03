@@ -53,7 +53,7 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
          * for 2D arrow behaviour with a target bias and a stack use :
          *    algorithm = new Biased2DWithStack();
          */
-        super(DEFAULT_POLICY);
+        super(TraversalUtils.DEFAULT_POLICY);
     }
 
     /**

@@ -34,14 +34,14 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.control.TextField;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyCode;
@@ -194,15 +194,15 @@ public abstract class ComboBoxPopupControl<T> extends ComboBoxBaseSkin<T> {
         ParentHelper.setTraversalEngine(comboBoxBase,
                 new ParentTraversalEngine(comboBoxBase, new TraversalPolicy() {
 
-            @Override public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            @Override public Node select(Node owner, TraversalDirection dir, Parent root) {
                 return null;
             }
 
-            @Override public Node selectFirst(TraversalContext context) {
+            @Override public Node selectFirst(Parent root) {
                 return null;
             }
 
-            @Override public Node selectLast(TraversalContext context) {
+            @Override public Node selectLast(Parent root) {
                 return null;
             }
         }));

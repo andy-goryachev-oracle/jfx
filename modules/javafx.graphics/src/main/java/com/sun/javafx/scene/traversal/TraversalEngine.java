@@ -25,16 +25,10 @@
 
 package com.sun.javafx.scene.traversal;
 
-import java.util.ArrayList;
-import java.util.List;
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalPolicy;
-import com.sun.javafx.application.PlatformImpl;
-import com.sun.javafx.scene.NodeHelper;
 
 /**
  * This is abstract class for a traversal engine. There are 2 types : {@link com.sun.javafx.scene.traversal.ParentTraversalEngine}
@@ -43,16 +37,8 @@ import com.sun.javafx.scene.NodeHelper;
  *
  * Every engine is basically a wrapper of an algorithm + some specific parent (or scene/subscene), which define engine's root.
  */
+@Deprecated // FIX remove
 public abstract class TraversalEngine {
-    /**
-     * This is the default algorithm for the running platform. It's the algorithm that's used in TopMostTraversalEngine
-     */
-    protected static final TraversalPolicy DEFAULT_POLICY = PlatformImpl.isContextual2DNavigation() ? new Heuristic2D() : new ContainerTabOrder();
-
-    /** This is the context used in calls to this engine's algorithm */
-    private final TraversalContext context = new EngineContext();
-    /** This is a special context that's used when invoking select "callbacks" to default algorithm in other contexts */
-    private final TempEngineContext tempEngineContext = new TempEngineContext();
     protected final TraversalPolicy policy;
     
     /**
@@ -85,7 +71,7 @@ public abstract class TraversalEngine {
      * @return the subsequent node in the specified direction or null if none
      */
     public final Node select(Node from, TraversalDirection dir) {
-        return policy.select(from, dir, context);
+        return policy.select(from, dir, getRoot());
     }
 
     /**
@@ -94,7 +80,7 @@ public abstract class TraversalEngine {
      * @return The first node or null if none exists
      */
     public final Node selectFirst() {
-        return policy.selectFirst(context);
+        return policy.selectFirst(getRoot());
     }
 
     /**
@@ -103,7 +89,7 @@ public abstract class TraversalEngine {
      * @return The last node or null if none exists
      */
     public final Node selectLast() {
-        return policy.selectLast(context);
+        return policy.selectLast(getRoot());
     }
 
     /**
@@ -113,83 +99,5 @@ public abstract class TraversalEngine {
      */
     public final boolean canTraverse() {
         return policy != null;
-    }
-
-    // This is the engine context passed algorithm on select calls
-    private final class EngineContext extends BaseEngineContext {
-        @Override
-        public Parent getRoot() {
-            return TraversalEngine.this.getRoot();
-        }
-    }
-
-    // This is the engine context passed to algorithm on select callbacks from other contexts.
-    // It can change the root to the node defined in "selectFirstInParent", "selectLastInParent" or
-    // "selectInSubtree" methods
-    private final class TempEngineContext extends BaseEngineContext {
-        private Parent root;
-
-        @Override
-        public Parent getRoot() {
-            return root;
-        }
-
-        public void setRoot(Parent root) {
-            this.root = root;
-        }
-    }
-
-    /**
-     * The base class for all engine contexts
-     */
-    private abstract class BaseEngineContext implements TraversalContext {
-        /**
-         * Returns all traversable nodes in the context's (engine's) root
-         */
-        @Override
-        public List<Node> getAllTargetNodes() {
-            final List<Node> targetNodes = new ArrayList<>();
-            addFocusableChildrenToList(targetNodes, getRoot());
-            return targetNodes;
-        }
-
-        @Override
-        public Bounds getSceneLayoutBounds(Node n) {
-            return TraversalUtils.getLayoutBounds(n, null);
-        }
-
-        private void addFocusableChildrenToList(List<Node> list, Parent parent) {
-            List<Node> parentsNodes = parent.getChildrenUnmodifiable();
-            for (Node n : parentsNodes) {
-                if (n.isFocusTraversable() && !n.isFocused() && NodeHelper.isTreeVisible(n) && !n.isDisabled()) {
-                    list.add(n);
-                }
-                if (n instanceof Parent) {
-                    addFocusableChildrenToList(list, (Parent)n);
-                }
-            }
-        }
-
-        // All of the methods below are callbacks from traversal context to the default algorithm.
-        // They can be used to obtain "default" result for the specified subtree.
-        // This is useful when there is some algorithm that overrides behavior for a Parent but parent's children
-        // should be again traversed by default algorithm.
-        @Override
-        public Node selectFirstInParent(Parent parent) {
-            tempEngineContext.setRoot(parent);
-            return DEFAULT_POLICY.selectFirst(tempEngineContext);
-        }
-
-        @Override
-        public Node selectLastInParent(Parent parent) {
-            tempEngineContext.setRoot(parent);
-            return DEFAULT_POLICY.selectLast(tempEngineContext);
-        }
-
-        @Override
-        public Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
-            tempEngineContext.setRoot(subTreeRoot);
-            return DEFAULT_POLICY.select(from, dir, tempEngineContext);
-        }
     }
 }

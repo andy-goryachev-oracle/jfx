@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,28 +25,35 @@
 
 package javafx.scene.web;
 
+import static javafx.geometry.NodeOrientation.RIGHT_TO_LEFT;
+import static javafx.scene.web.HTMLEditorSkin.Command.*;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
-
-import com.sun.javafx.application.PlatformImpl;
-import com.sun.javafx.scene.ParentHelper;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
-import javafx.css.PseudoClass;
-import javafx.geometry.Orientation;
-import org.w3c.dom.html.HTMLDocument;
-import org.w3c.dom.html.HTMLElement;
-
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.css.StyleableProperty;
 import javafx.geometry.NodeOrientation;
+import javafx.geometry.Orientation;
+import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Separator;
+import javafx.scene.control.SkinBase;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
@@ -54,39 +61,27 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.util.Callback;
-
+import org.w3c.dom.html.HTMLDocument;
+import org.w3c.dom.html.HTMLElement;
+import com.sun.javafx.application.PlatformImpl;
+import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.skin.FXVK;
+import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.web.behavior.HTMLEditorBehavior;
-import com.sun.webkit.WebPage;
 import com.sun.javafx.webkit.Accessor;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
-import javafx.collections.ListChangeListener;
-
-import static javafx.geometry.NodeOrientation.*;
-import javafx.print.PrinterJob;
-
-import static javafx.scene.web.HTMLEditorSkin.Command.*;
+import com.sun.webkit.WebPage;
 
 /**
  * HTML editor skin.
@@ -464,17 +459,17 @@ public class HTMLEditorSkin extends SkinBase<HTMLEditor> {
 
         engine = new ParentTraversalEngine(getSkinnable(), new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 return cutButton;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 return cutButton;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 return cutButton;
             }
         });

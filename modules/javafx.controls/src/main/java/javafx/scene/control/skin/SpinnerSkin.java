@@ -25,25 +25,23 @@
 package javafx.scene.control.skin;
 
 import java.util.List;
-
 import javafx.css.PseudoClass;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.FakeFocusTextField;
 import com.sun.javafx.scene.control.ListenerHelper;
@@ -239,15 +237,15 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
         ParentHelper.setTraversalEngine(control,
                 new ParentTraversalEngine(control, new TraversalPolicy() {
 
-            @Override public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            @Override public Node select(Node owner, TraversalDirection dir, Parent root) {
                 return null;
             }
 
-            @Override public Node selectFirst(TraversalContext context) {
+            @Override public Node selectFirst(Parent root) {
                 return null;
             }
 
-            @Override public Node selectLast(TraversalContext context) {
+            @Override public Node selectLast(Parent root) {
                 return null;
             }
         }));

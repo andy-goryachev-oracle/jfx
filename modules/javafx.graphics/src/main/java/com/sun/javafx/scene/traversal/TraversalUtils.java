@@ -32,6 +32,11 @@ import javafx.scene.incubator.traversal.TraversalPolicy;
 import com.sun.javafx.application.PlatformImpl;
 
 public final class TraversalUtils {
+    /**
+     * This is the default algorithm for the running platform. It's the algorithm that's used in TopMostTraversalEngine
+     */
+    public static final TraversalPolicy DEFAULT_POLICY = PlatformImpl.isContextual2DNavigation() ? new Heuristic2D() : new ContainerTabOrder();
+
     private static final Bounds INITIAL_BOUNDS = new BoundingBox(0, 0, 1, 1);
 
     private TraversalUtils() {

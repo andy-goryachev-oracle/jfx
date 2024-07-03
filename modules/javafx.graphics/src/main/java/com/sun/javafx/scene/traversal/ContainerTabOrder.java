@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,13 +25,12 @@
 
 package com.sun.javafx.scene.traversal;
 
-import static javafx.scene.incubator.traversal.TraversalDirection.*;
 import java.util.List;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
+import javafx.scene.Parent;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 
 public class ContainerTabOrder extends TraversalPolicy {
 
@@ -39,20 +38,19 @@ public class ContainerTabOrder extends TraversalPolicy {
     }
 
     @Override
-    public Node select(Node node, TraversalDirection dir, TraversalContext context) {
+    public Node select(Node node, TraversalDirection dir, Parent root) {
         switch (dir) {
             case NEXT:
             case NEXT_IN_LINE:
-                return TabOrderHelper.findNextFocusablePeer(node, context.getRoot(), dir == NEXT);
+                return TabOrderHelper.findNextFocusablePeer(node, root, dir == TraversalDirection.NEXT);
             case PREVIOUS:
-                return TabOrderHelper.findPreviousFocusablePeer(node, context.getRoot());
+                return TabOrderHelper.findPreviousFocusablePeer(node, root);
             case UP:
             case DOWN:
             case LEFT:
             case RIGHT:
-                List<Node> nodes = context.getAllTargetNodes();
-
-                int target = trav2D(context.getSceneLayoutBounds(node), dir, nodes, context);
+                List<Node> nodes = getAllTargetNodes(root);
+                int target = trav2D(getSceneLayoutBounds(node), dir, nodes, root);
                 if (target != -1) {
                     return nodes.get(target);
                 }
@@ -61,23 +59,23 @@ public class ContainerTabOrder extends TraversalPolicy {
     }
 
     @Override
-    public Node selectFirst(TraversalContext context) {
-        return TabOrderHelper.getFirstTargetNode(context.getRoot());
+    public Node selectFirst(Parent root) {
+        return TabOrderHelper.getFirstTargetNode(root);
     }
 
     @Override
-    public Node selectLast(TraversalContext context) {
-        return TabOrderHelper.getLastTargetNode(context.getRoot());
+    public Node selectLast(Parent root) {
+        return TabOrderHelper.getLastTargetNode(root);
     }
 
-    private int trav2D(Bounds origin, TraversalDirection dir, List<Node> peers, TraversalContext context) {
+    private int trav2D(Bounds origin, TraversalDirection dir, List<Node> peers, Parent root) {
 
         Bounds bestBounds = null;
         double bestMetric = 0.0;
         int bestIndex = -1;
 
         for (int i = 0; i < peers.size(); i++) {
-            final Bounds targetBounds = context.getSceneLayoutBounds(peers.get(i));
+            final Bounds targetBounds = getSceneLayoutBounds(peers.get(i));
             final double outd = outDistance(dir, origin, targetBounds);
             final double metric;
 
@@ -107,7 +105,7 @@ public class ContainerTabOrder extends TraversalPolicy {
 
         final double cmin, cmax, tmin, tmax;
 
-        if (dir == UP || dir == DOWN) {
+        if (dir == TraversalDirection.UP || dir == TraversalDirection.DOWN) {
             cmin = cur.getMinX();
             cmax = cur.getMaxX();
             tmin = tgt.getMinX();
@@ -131,13 +129,13 @@ public class ContainerTabOrder extends TraversalPolicy {
 
         final double distance;
 
-        if (dir == UP) {
+        if (dir == TraversalDirection.UP) {
             distance = cur.getMinY() - tgt.getMaxY();
         }
-        else if (dir == DOWN) {
+        else if (dir == TraversalDirection.DOWN) {
             distance = tgt.getMinY() - cur.getMaxY();
         }
-        else if (dir == LEFT) {
+        else if (dir == TraversalDirection.LEFT) {
             distance = cur.getMinX() - tgt.getMaxX();
         }
         else { // dir == RIGHT
@@ -156,7 +154,7 @@ public class ContainerTabOrder extends TraversalPolicy {
         final double cc; // current center
         final double tc; // target center
 
-        if (dir == UP || dir == DOWN) {
+        if (dir == TraversalDirection.UP || dir == TraversalDirection.DOWN) {
             cc = cur.getMinX() + cur.getWidth() / 2.0f;
             tc = tgt.getMinX() + tgt.getWidth() / 2.0f;
         }
@@ -177,7 +175,7 @@ public class ContainerTabOrder extends TraversalPolicy {
 
         final double distance;
 
-        if (dir == UP || dir == DOWN) {
+        if (dir == TraversalDirection.UP || dir == TraversalDirection.DOWN) {
 
             if (tgt.getMinX() > cur.getMaxX()) {
                 // on the right

@@ -25,11 +25,8 @@
 
 package javafx.scene.control.skin;
 
-import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
-import com.sun.javafx.scene.control.CustomColorDialog;
-import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
+import static com.sun.javafx.scene.control.Properties.getColorPickerString;
+import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -41,6 +38,7 @@ import javafx.geometry.NodeOrientation;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Hyperlink;
@@ -49,9 +47,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -63,10 +60,11 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
-
-import java.util.List;
-
-import static com.sun.javafx.scene.control.Properties.getColorPickerString;
+import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.ParentHelper;
+import com.sun.javafx.scene.control.CustomColorDialog;
+import com.sun.javafx.scene.control.skin.Utils;
+import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 
 // Not public API - this is (presently) an implementation detail only
 class ColorPalette extends Region {
@@ -301,8 +299,8 @@ class ColorPalette extends Region {
 
         ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
-                final Node subsequentNode = context.selectInSubtree(context.getRoot(), owner, dir);
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
+                final Node subsequentNode = selectInSubtree(root, owner, dir);
                 switch (dir) {
                     case NEXT:
                     case NEXT_IN_LINE:
@@ -409,12 +407,12 @@ class ColorPalette extends Region {
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 return standardColorGrid.getChildren().get(0);
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 return customColorLink;
             }
         }));

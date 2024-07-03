@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,22 +25,25 @@
 
 package javafx.scene.control.skin;
 
-import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
+import static com.sun.javafx.scene.control.skin.resources.ControlResources.getString;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import com.sun.javafx.scene.control.behavior.BehaviorBase;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.WritableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.SetChangeListener;
+import javafx.css.CssMetaData;
 import javafx.css.PseudoClass;
+import javafx.css.Styleable;
+import javafx.css.StyleableDoubleProperty;
+import javafx.css.StyleableObjectProperty;
+import javafx.css.StyleableProperty;
+import javafx.css.converter.EnumConverter;
+import javafx.css.converter.SizeConverter;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -53,32 +56,25 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Control;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.ToolBar;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.css.StyleableDoubleProperty;
-import javafx.css.StyleableObjectProperty;
-import javafx.css.StyleableProperty;
-import javafx.css.CssMetaData;
-
-import javafx.css.converter.EnumConverter;
-import javafx.css.converter.SizeConverter;
-import com.sun.javafx.scene.control.behavior.ToolBarBehavior;
-import javafx.css.Styleable;
 import javafx.stage.WindowEvent;
-
-import static com.sun.javafx.scene.control.skin.resources.ControlResources.getString;
+import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.ParentHelper;
+import com.sun.javafx.scene.control.behavior.BehaviorBase;
+import com.sun.javafx.scene.control.behavior.ToolBarBehavior;
+import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 
 /**
  * Default skin implementation for the {@link ToolBar} control.
@@ -139,12 +135,12 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
 
         engine = new ParentTraversalEngine(getSkinnable(), new TraversalPolicy() {
 
-            private Node selectPrev(int from, TraversalContext context) {
+            private Node selectPrev(int from, Parent root) {
                 for (int i = from; i >= 0; --i) {
                     Node n = box.getChildren().get(i);
                     if (n.isDisabled() || !NodeHelper.isTreeShowing(n)) continue;
-                    if (n instanceof Parent) {
-                        Node selected = context.selectLastInParent((Parent)n);
+                    if (n instanceof Parent p) {
+                        Node selected = selectLastInParent(p);
                         if (selected != null) return selected;
                     }
                     if (n.isFocusTraversable() ) {
@@ -154,15 +150,15 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                 return null;
             }
 
-            private Node selectNext(int from, TraversalContext context) {
+            private Node selectNext(int from, Parent root) {
                 for (int i = from, max = box.getChildren().size(); i < max; ++i) {
                     Node n = box.getChildren().get(i);
                     if (n.isDisabled() || !NodeHelper.isTreeShowing(n)) continue;
                     if (n.isFocusTraversable()) {
                         return n;
                     }
-                    if (n instanceof Parent) {
-                        Node selected = context.selectFirstInParent((Parent)n);
+                    if (n instanceof Parent p) {
+                        Node selected = selectFirstInParent(p);
                         if (selected != null) return selected;
                     }
                 }
@@ -170,7 +166,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
             }
 
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
 
                 dir = dir.getDirectionForNodeOrientation(control.getEffectiveNodeOrientation());
 
@@ -179,7 +175,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                     if (dir.isForward()) {
                         return null;
                     } else {
-                        Node selected = selectPrev(boxChildren.size() - 1, context);
+                        Node selected = selectPrev(boxChildren.size() - 1, root);
                         if (selected != null) return selected;
                     }
                 }
@@ -192,7 +188,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                     while (!boxChildren.contains(item)) {
                         item = item.getParent();
                     }
-                    Node selected = context.selectInSubtree(item, owner, dir);
+                    Node selected = selectInSubtree(item, owner, dir);
                     if (selected != null) return selected;
                     idx = boxChildren.indexOf(item);
                     if (dir == TraversalDirection.NEXT) dir = TraversalDirection.NEXT_IN_LINE;
@@ -200,14 +196,14 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
 
                 if (idx >= 0) {
                     if (dir.isForward()) {
-                        Node selected = selectNext(idx + 1, context);
+                        Node selected = selectNext(idx + 1, root);
                         if (selected != null) return selected;
                         if (overflow) {
                             overflowMenu.requestFocus();
                             return overflowMenu;
                         }
                     } else {
-                        Node selected = selectPrev(idx - 1, context);
+                        Node selected = selectPrev(idx - 1, root);
                         if (selected != null) return selected;
                     }
                 }
@@ -215,8 +211,8 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
-                Node selected = selectNext(0, context);
+            public Node selectFirst(Parent root) {
+                Node selected = selectNext(0, root);
                 if (selected != null) return selected;
                 if (overflow) {
                     return overflowMenu;
@@ -225,11 +221,11 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 if (overflow) {
                     return overflowMenu;
                 }
-                return selectPrev(box.getChildren().size() - 1, context);
+                return selectPrev(box.getChildren().size() - 1, root);
             }
         });
         ParentHelper.setTraversalEngine(getSkinnable(), engine);

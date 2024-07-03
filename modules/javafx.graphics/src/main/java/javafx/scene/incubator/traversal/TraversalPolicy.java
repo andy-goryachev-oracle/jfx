@@ -25,7 +25,13 @@
 
 package javafx.scene.incubator.traversal;
 
+import java.util.ArrayList;
+import java.util.List;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.traversal.TraversalUtils;
 
 /**
  * TraversalPolicy represents the specific algorithm to be used to traverse between
@@ -43,11 +49,9 @@ import javafx.scene.Node;
  *
  * <p>This ensures that the next direction will traverse the same nodes as previous (in the opposite order).</p>
  *
- * @see TraversalContext
  * @see TraversalDirection
  * @since 999 TODO
  */
-// TODO make abstract class
 public abstract class TraversalPolicy {
     /**
      * Traverse from owner, in direction dir.
@@ -63,24 +67,101 @@ public abstract class TraversalPolicy {
      *
      * @param owner the owner Node
      * @param dir the traversal direction
-     * @param context the context that contains the root
+     * @param root the traversal root
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
-    public abstract Node select(Node owner, TraversalDirection dir, TraversalContext context);
+    public abstract Node select(Node owner, TraversalDirection dir, Parent root);
 
     /**
      * Return the first traversable node for the specified context (root).
      *
-     * @param context the context that contains the root
+     * @param root the traversal root
      * @return the first node
      */
-    public abstract Node selectFirst(TraversalContext context);
+    public abstract Node selectFirst(Parent root);
 
     /**
      * Return the last traversable node for the specified context (root).
      *
-     * @param context the context that contains the root
+     * @param root the traversal root
      * @return the last node
      */
-    public abstract Node selectLast(TraversalContext context);
+    public abstract Node selectLast(Parent root);
+
+    /**
+     * The constructor.
+     */
+    public TraversalPolicy() {
+    }
+
+    /**
+     * Returns all possible targets within the traversal root.
+     *
+     * @param root the traversal root
+     * @return the List of all possible targets within the traversal root
+     */
+    // TODO move to utils?
+    protected List<Node> getAllTargetNodes(Parent root) {
+        final List<Node> targetNodes = new ArrayList<>();
+        addFocusableChildrenToList(targetNodes, root);
+        return targetNodes;
+    }
+
+    /**
+     * Returns layout bounds of the Node in the relevant (Sub)Scene. Note that these bounds are the most important for
+     * traversal as they define the final position within the scene.
+     *
+     * @param node the Node
+     * @return the layout bounds of the Node in the relevant (Sub)Scene
+     */
+    // TODO can be moved to the only caller
+    protected Bounds getSceneLayoutBounds(Node node) {
+        return TraversalUtils.getLayoutBounds(node, null);
+    }
+
+    private void addFocusableChildrenToList(List<Node> list, Parent parent) {
+        List<Node> parentsNodes = parent.getChildrenUnmodifiable();
+        for (Node n : parentsNodes) {
+            if (n.isFocusTraversable() && !n.isFocused() && NodeHelper.isTreeVisible(n) && !n.isDisabled()) {
+                list.add(n);
+            }
+            if (n instanceof Parent p) {
+                addFocusableChildrenToList(list, p);
+            }
+        }
+    }
+
+    /**
+     * Returns the first {@link Node} that is traversable from the given Parent node.
+     *
+     * @param parent the Parent
+     * @return the first {@link Node} that is traversable from the given Parent node
+     */
+    public Node selectFirstInParent(Parent parent) {
+        return TraversalUtils.DEFAULT_POLICY.selectFirst(parent);
+    }
+
+    /**
+     * Returns the last {@link Node} that is traversable from the given Parent node.
+     *
+     * @param parent the Parent
+     * @return the last {@link Node} that is traversable from the given Parent node
+     */
+    public Node selectLastInParent(Parent parent) {
+        return TraversalUtils.DEFAULT_POLICY.selectLast(parent);
+    }
+
+    /**
+     * Returns the next suitable {@link Node} that is traversable from the given Parent node, in the direction
+     * represented by the provided {@link TraversalDirection}, or null if there is no valid result.
+     *
+     * @param subTreeRoot this will be used as a root of the traversal. This will be a Node that is handled by the
+     *        current TraversalEngine, but its content is not
+     * @param from a descendant of the given root node, from which traversal should commence in the given direction
+     * @param dir the direction of the traversal
+     * @return the next suitable {@link Node} that is traversable, or null if there is no valid result
+     */
+    public Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
+        return TraversalUtils.DEFAULT_POLICY.select(from, dir, subTreeRoot);
+    }
 }

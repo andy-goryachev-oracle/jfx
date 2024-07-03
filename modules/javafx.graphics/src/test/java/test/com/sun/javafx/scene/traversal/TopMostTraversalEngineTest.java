@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,24 +25,22 @@
 
 package test.com.sun.javafx.scene.traversal;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import javafx.scene.Group;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.ParentShim;
+import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.shape.Rectangle;
+import org.junit.Before;
+import org.junit.Test;
 import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.traversal.ContainerTabOrderShim;
 import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngineShim;
 import com.sun.javafx.scene.traversal.TraversalMethod;
-import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.ParentShim;
-import javafx.scene.incubator.traversal.TraversalPolicy;
-import javafx.scene.incubator.traversal.TraversalContext;
-import javafx.scene.incubator.traversal.TraversalDirection;
-import javafx.scene.shape.Rectangle;
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 public class TopMostTraversalEngineTest {
     private TopMostTraversalEngineShim engine;
@@ -82,17 +80,17 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 return null;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 return null;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 return null;
             }
         }));
@@ -103,18 +101,18 @@ public class TopMostTraversalEngineTest {
         g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 fail();
                 return null;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 return focusableNode;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 fail();
                 return null;
             }
@@ -172,19 +170,19 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 fail();
                 return null;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 fail();
                 return null;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 return focusableNode;
             }
         }));
@@ -195,17 +193,17 @@ public class TopMostTraversalEngineTest {
         g = new Group(createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 return null;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 return null;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 return null;
             }
         }));
@@ -313,19 +311,19 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(n1, createFocusableNode(), n2);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 assertEquals(TraversalDirection.NEXT, dir);
                 return n2;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 fail();
                 return null;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 fail();
                 return null;
             }
@@ -345,19 +343,19 @@ public class TopMostTraversalEngineTest {
         g.setFocusTraversable(true);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 assertEquals(TraversalDirection.NEXT, dir);
                 return null;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 fail();
                 return null;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 fail();
                 return null;
             }
@@ -481,19 +479,19 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(n2, createFocusableNode(), n1);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, TraversalContext context) {
+            public Node select(Node owner, TraversalDirection dir, Parent root) {
                 assertEquals(TraversalDirection.PREVIOUS, dir);
                 return n2;
             }
 
             @Override
-            public Node selectFirst(TraversalContext context) {
+            public Node selectFirst(Parent root) {
                 fail();
                 return null;
             }
 
             @Override
-            public Node selectLast(TraversalContext context) {
+            public Node selectLast(Parent root) {
                 fail();
                 return null;
             }
