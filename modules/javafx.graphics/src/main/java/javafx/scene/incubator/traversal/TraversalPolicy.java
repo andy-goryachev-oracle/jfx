@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -100,8 +100,8 @@ public abstract class TraversalPolicy {
      * @param root the traversal root
      * @return the List of all possible targets within the traversal root
      */
-    // TODO move to utils?
-    protected List<Node> getAllTargetNodes(Parent root) {
+    // TODO move to utils? make static?
+    protected static final List<Node> getAllTargetNodes(Parent root) {
         final List<Node> targetNodes = new ArrayList<>();
         addFocusableChildrenToList(targetNodes, root);
         return targetNodes;
@@ -114,12 +114,12 @@ public abstract class TraversalPolicy {
      * @param node the Node
      * @return the layout bounds of the Node in the relevant (Sub)Scene
      */
-    // TODO can be moved to the only caller
-    protected Bounds getSceneLayoutBounds(Node node) {
+    // TODO can be moved to the only caller? make static?
+    protected static final Bounds getSceneLayoutBounds(Node node) {
         return TraversalUtils.getLayoutBounds(node, null);
     }
 
-    private void addFocusableChildrenToList(List<Node> list, Parent parent) {
+    private static final void addFocusableChildrenToList(List<Node> list, Parent parent) {
         List<Node> parentsNodes = parent.getChildrenUnmodifiable();
         for (Node n : parentsNodes) {
             if (n.isFocusTraversable() && !n.isFocused() && NodeHelper.isTreeVisible(n) && !n.isDisabled()) {
@@ -137,8 +137,8 @@ public abstract class TraversalPolicy {
      * @param parent the Parent
      * @return the first {@link Node} that is traversable from the given Parent node
      */
-    public Node selectFirstInParent(Parent parent) {
-        return TraversalUtils.DEFAULT_POLICY.selectFirst(parent);
+    protected final Node selectFirstInParent(Parent parent) {
+        return getDefault().selectFirst(parent);
     }
 
     /**
@@ -147,8 +147,8 @@ public abstract class TraversalPolicy {
      * @param parent the Parent
      * @return the last {@link Node} that is traversable from the given Parent node
      */
-    public Node selectLastInParent(Parent parent) {
-        return TraversalUtils.DEFAULT_POLICY.selectLast(parent);
+    protected final Node selectLastInParent(Parent parent) {
+        return getDefault().selectLast(parent);
     }
 
     /**
@@ -161,7 +161,16 @@ public abstract class TraversalPolicy {
      * @param dir the direction of the traversal
      * @return the next suitable {@link Node} that is traversable, or null if there is no valid result
      */
-    public Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
-        return TraversalUtils.DEFAULT_POLICY.select(from, dir, subTreeRoot);
+    protected final Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
+        return getDefault().select(from, dir, subTreeRoot);
+    }
+
+    /**
+     * Returns the platform's default traversal policy.
+     *
+     * @return the default traversal policy
+     */
+    public static TraversalPolicy getDefault() {
+        return TraversalUtils.DEFAULT_POLICY;
     }
 }
