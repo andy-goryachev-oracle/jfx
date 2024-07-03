@@ -47,7 +47,8 @@ import javafx.scene.Node;
  * @see TraversalDirection
  * @since 999 TODO
  */
-public interface TraversalPolicy {
+// TODO make abstract class
+public abstract class TraversalPolicy {
     /**
      * Traverse from owner, in direction dir.
      * Return a the new target Node or null if no suitable target is found.
@@ -65,7 +66,7 @@ public interface TraversalPolicy {
      * @param context the context that contains the root
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
-    public Node select(Node owner, TraversalDirection dir, TraversalContext context);
+    public abstract Node select(Node owner, TraversalDirection dir, TraversalContext context);
 
     /**
      * Return the first traversable node for the specified context (root).
@@ -73,7 +74,7 @@ public interface TraversalPolicy {
      * @param context the context that contains the root
      * @return the first node
      */
-    public Node selectFirst(TraversalContext context);
+    public abstract Node selectFirst(TraversalContext context);
 
     /**
      * Return the last traversable node for the specified context (root).
@@ -81,5 +82,5 @@ public interface TraversalPolicy {
      * @param context the context that contains the root
      * @return the last node
      */
-    public Node selectLast(TraversalContext context);
+    public abstract Node selectLast(TraversalContext context);
 }

@@ -2219,8 +2219,7 @@ public class Scene implements EventTarget {
     static boolean traverse(Node node, TraversalDirection dir, TraversalMethod method) {
         if (node.getSubScene() != null) {
             return node.getSubScene().traverse(node, dir, method);
-        }
-        else if(node.getScene() != null) {
+        } else if (node.getScene() != null) {
             return node.getScene().traversalEngine.trav(node, dir, method) != null;
         }
         return false;

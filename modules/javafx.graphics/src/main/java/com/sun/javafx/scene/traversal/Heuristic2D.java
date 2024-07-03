@@ -37,7 +37,7 @@ import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import java.util.function.Function;
 
-public class Heuristic2D implements TraversalPolicy {
+public class Heuristic2D extends TraversalPolicy {
 
     Heuristic2D() {
     }

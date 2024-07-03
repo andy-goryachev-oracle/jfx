@@ -33,7 +33,7 @@ import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.incubator.traversal.TraversalContext;
 import javafx.scene.incubator.traversal.TraversalDirection;
 
-public class ContainerTabOrder implements TraversalPolicy {
+public class ContainerTabOrder extends TraversalPolicy {
 
     ContainerTabOrder() {
     }

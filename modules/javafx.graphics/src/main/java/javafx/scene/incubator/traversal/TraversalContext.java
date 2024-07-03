@@ -40,6 +40,7 @@ import javafx.scene.Parent;
  * @see TraversalPolicy
  * @since 999 TODO
  */
+@Deprecated // FIX replace by moving all methods to traversal policy and only passing the root
 public interface TraversalContext {
     /**
      * Returns all possible targets within the context.
