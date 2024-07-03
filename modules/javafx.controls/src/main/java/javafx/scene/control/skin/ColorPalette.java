@@ -299,7 +299,7 @@ class ColorPalette extends Region {
 
         ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 final Node subsequentNode = selectInSubtree(root, owner, dir);
                 switch (dir) {
                     case NEXT:

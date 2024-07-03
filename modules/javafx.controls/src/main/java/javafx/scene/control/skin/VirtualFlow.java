@@ -659,7 +659,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
             }
 
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 T cell;
                 if (cells.isEmpty()) return null;
                 if (cells.contains(owner)) {

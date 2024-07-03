@@ -49,7 +49,7 @@ public class Heuristic2D extends TraversalPolicy {
     }
 
     @Override
-    public Node select(Node node, TraversalDirection dir, Parent root) {
+    public Node select(Parent root, Node node, TraversalDirection dir) {
         Node newNode = null;
 
         cacheTraversal(node, dir);

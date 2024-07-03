@@ -65,12 +65,12 @@ public abstract class TraversalPolicy {
      *     or if direct children are not traversable, the select the first node in the next direct child
      * </ol>
      *
+     * @param root the traversal root
      * @param owner the owner Node
      * @param dir the traversal direction
-     * @param root the traversal root
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
-    public abstract Node select(Node owner, TraversalDirection dir, Parent root);
+    public abstract Node select(Parent root, Node owner, TraversalDirection dir);
 
     /**
      * Return the first traversable node for the specified context (root).
@@ -162,7 +162,7 @@ public abstract class TraversalPolicy {
      * @return the next suitable {@link Node} that is traversable, or null if there is no valid result
      */
     protected final Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
-        return getDefault().select(from, dir, subTreeRoot);
+        return getDefault().select(subTreeRoot, from, dir);
     }
 
     /**

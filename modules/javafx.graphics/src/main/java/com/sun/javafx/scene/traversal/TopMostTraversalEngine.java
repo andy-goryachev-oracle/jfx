@@ -42,6 +42,8 @@ import com.sun.javafx.scene.ParentHelper;
  * focusing it. Also, listener calls are handled by top-most traversal engines.
  * select* methods can be used as well, but will *not* transfer the focus to the result, they are just query methods.
  */
+// TODO make static
+// TODO pass root
 public abstract class TopMostTraversalEngine extends TraversalEngine {
 
     protected TopMostTraversalEngine() {

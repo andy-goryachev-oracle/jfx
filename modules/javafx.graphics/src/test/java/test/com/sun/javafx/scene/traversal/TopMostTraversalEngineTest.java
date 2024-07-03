@@ -80,7 +80,7 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 return null;
             }
 
@@ -101,7 +101,7 @@ public class TopMostTraversalEngineTest {
         g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 fail();
                 return null;
             }
@@ -170,7 +170,7 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 fail();
                 return null;
             }
@@ -193,7 +193,7 @@ public class TopMostTraversalEngineTest {
         g = new Group(createFocusableNode());
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 return null;
             }
 
@@ -311,7 +311,7 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(n1, createFocusableNode(), n2);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 assertEquals(TraversalDirection.NEXT, dir);
                 return n2;
             }
@@ -343,7 +343,7 @@ public class TopMostTraversalEngineTest {
         g.setFocusTraversable(true);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 assertEquals(TraversalDirection.NEXT, dir);
                 return null;
             }
@@ -479,7 +479,7 @@ public class TopMostTraversalEngineTest {
         Group g = new Group(n2, createFocusableNode(), n1);
         ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 assertEquals(TraversalDirection.PREVIOUS, dir);
                 return n2;
             }

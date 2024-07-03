@@ -71,7 +71,7 @@ public abstract class TraversalEngine {
      * @return the subsequent node in the specified direction or null if none
      */
     public final Node select(Node from, TraversalDirection dir) {
-        return policy.select(from, dir, getRoot());
+        return policy.select(getRoot(), from, dir);
     }
 
     /**

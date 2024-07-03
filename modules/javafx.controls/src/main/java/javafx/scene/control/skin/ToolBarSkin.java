@@ -166,7 +166,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
             }
 
             @Override
-            public Node select(Node owner, TraversalDirection dir, Parent root) {
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
 
                 dir = dir.getDirectionForNodeOrientation(control.getEffectiveNodeOrientation());
 

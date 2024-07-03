@@ -191,21 +191,22 @@ public abstract class ComboBoxPopupControl<T> extends ComboBoxBaseSkin<T> {
         }
 
         // Fix for RT-36902, where focus traversal was getting stuck inside the ComboBox
-        ParentHelper.setTraversalEngine(comboBoxBase,
-                new ParentTraversalEngine(comboBoxBase, new TraversalPolicy() {
+        ParentHelper.setTraversalEngine(comboBoxBase, new ParentTraversalEngine(comboBoxBase, new TraversalPolicy() {
+                @Override
+                public Node select(Parent root, Node owner, TraversalDirection dir) {
+                    return null;
+                }
 
-            @Override public Node select(Node owner, TraversalDirection dir, Parent root) {
-                return null;
-            }
+                @Override
+                public Node selectFirst(Parent root) {
+                    return null;
+                }
 
-            @Override public Node selectFirst(Parent root) {
-                return null;
-            }
-
-            @Override public Node selectLast(Parent root) {
-                return null;
-            }
-        }));
+                @Override
+                public Node selectLast(Parent root) {
+                    return null;
+                }
+            }));
 
         updateEditable();
     }

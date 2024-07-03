@@ -234,18 +234,19 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
         // Following code borrowed from ComboBoxPopupControl, to resolve the
         // issue initially identified in RT-36902, but specifically (for Spinner)
         // identified in RT-40625
-        ParentHelper.setTraversalEngine(control,
-                new ParentTraversalEngine(control, new TraversalPolicy() {
-
-            @Override public Node select(Node owner, TraversalDirection dir, Parent root) {
+        ParentHelper.setTraversalEngine(control, new ParentTraversalEngine(control, new TraversalPolicy() {
+            @Override
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
                 return null;
             }
 
-            @Override public Node selectFirst(Parent root) {
+            @Override
+            public Node selectFirst(Parent root) {
                 return null;
             }
 
-            @Override public Node selectLast(Parent root) {
+            @Override
+            public Node selectLast(Parent root) {
                 return null;
             }
         }));
