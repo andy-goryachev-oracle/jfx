@@ -57,10 +57,10 @@ public final class ParentTraversalEngine extends TraversalEngine {
         overridenTraversability = value;
     }
 
-    @Override
-    protected Parent getRoot() {
-        return root;
-    }
+//    @Override
+//    protected Parent getRoot() {
+//        return root;
+//    }
 
     public boolean isParentTraversable() {
         // This means the traversability can be overriden only for traversable root.

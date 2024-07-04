@@ -42,7 +42,7 @@ final class TabOrderHelper {
                     ? ParentHelper.getTraversalEngine(p) : null;
             if (prevNode instanceof Parent p) {
                 if (traversalEngine != null && traversalEngine.canTraverse()) {
-                    Node selected = traversalEngine.selectLast();
+                    Node selected = traversalEngine.selectLast(p);
                     if (selected != null) {
                         return selected;
                     }
@@ -140,7 +140,7 @@ final class TabOrderHelper {
             }
             else if (nextNode instanceof Parent p) {
                 if (traversalEngine!= null && traversalEngine.canTraverse()) {
-                    Node selected = traversalEngine.selectFirst();
+                    Node selected = traversalEngine.selectFirst(p);
                     if (selected != null) {
                         return selected;
                     } else {
@@ -208,7 +208,7 @@ final class TabOrderHelper {
         final ParentTraversalEngine traversalEngine
                 = ParentHelper.getTraversalEngine(parent);
         if (traversalEngine!= null && traversalEngine.canTraverse()) {
-            Node selected = traversalEngine.selectFirst();
+            Node selected = traversalEngine.selectFirst(parent);
             if (selected != null) {
                 return selected;
             }
@@ -233,7 +233,7 @@ final class TabOrderHelper {
         if (parent == null || isDisabledOrInvisible(parent)) return null;
         ParentTraversalEngine traversalEngine = ParentHelper.getTraversalEngine(parent);
         if (traversalEngine!= null && traversalEngine.canTraverse()) {
-            Node selected = traversalEngine.selectLast();
+            Node selected = traversalEngine.selectLast(parent);
             if (selected != null) {
                 return selected;
             }

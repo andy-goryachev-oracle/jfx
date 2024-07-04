@@ -39,8 +39,8 @@ public final class SceneTraversalEngine extends TopMostTraversalEngine{
         this.scene = scene;
     }
 
-    @Override
-    protected Parent getRoot() {
-        return scene.getRoot();
-    }
+//    @Override
+//    protected Parent getRoot() {
+//        return scene.getRoot();
+//    }
 }

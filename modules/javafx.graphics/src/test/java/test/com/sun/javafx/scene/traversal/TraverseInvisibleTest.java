@@ -114,7 +114,7 @@ public final class TraverseInvisibleTest {
     public void traverseOverInvisible() {
         keypadNodes[fromNumber].requestFocus();
         keypadNodes[invisibleNumber].setVisible(false);
-        traversalEngine.trav(keypadNodes[fromNumber], direction, TraversalMethod.DEFAULT);
+        traversalEngine.trav(scene.getRoot(), keypadNodes[fromNumber], direction, TraversalMethod.DEFAULT);
 
         assertTrue(keypadNodes[toNumber].isFocused());
 

@@ -771,7 +771,7 @@ public class SubScene extends Node {
     private TopMostTraversalEngine traversalEngine = new SubSceneTraversalEngine(this);
 
     boolean traverse(Node node, TraversalDirection dir, TraversalMethod method) {
-        return traversalEngine.trav(node, dir, method) != null;
+        return traversalEngine.trav(getRoot(), node, dir, method) != null;
     }
 
     private enum SubSceneDirtyBits {

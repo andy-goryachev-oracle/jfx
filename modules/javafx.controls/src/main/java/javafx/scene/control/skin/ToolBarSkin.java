@@ -630,7 +630,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                 overflowBox.getChildren().add(node);
                 if (node.isFocused()) {
                     if (!box.getChildren().isEmpty()) {
-                        Node last = engine.selectLast();
+                        Node last = engine.selectLast(getSkinnable());
                         if (last != null) {
                             last.requestFocus();
                         }
@@ -645,7 +645,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
         overflow = !overflowBox.getChildren().isEmpty();
         overflowNodeIndex = newOverflowNodeIndex;
         if (!overflow && overflowMenu.isFocused()) {
-            Node last = engine.selectLast();
+            Node last = engine.selectLast(getSkinnable());
             if (last != null) {
                 last.requestFocus();
             }

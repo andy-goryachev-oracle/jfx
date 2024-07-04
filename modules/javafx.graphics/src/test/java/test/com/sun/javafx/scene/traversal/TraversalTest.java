@@ -176,7 +176,7 @@ public final class TraversalTest {
     @Test
     public void untransformedTraversalTest() {
         keypadNodes[fromNumber - 1].requestFocus();
-        traversalEngine.trav(keypadNodes[fromNumber - 1], direction, TraversalMethod.DEFAULT);
+        traversalEngine.trav(scene.getRoot(), keypadNodes[fromNumber - 1], direction, TraversalMethod.DEFAULT);
         assertTrue(keypadNodes[toNumber - 1].isFocused());
     }
 
@@ -184,7 +184,7 @@ public final class TraversalTest {
     public void transformedTraversalTest() {
         scene.getRoot().setRotate(90);
         keypadNodes[fromNumber - 1].requestFocus();
-        traversalEngine.trav(keypadNodes[fromNumber - 1], direction, TraversalMethod.DEFAULT);
+        traversalEngine.trav(scene.getRoot(), keypadNodes[fromNumber - 1], direction, TraversalMethod.DEFAULT);
         assertTrue(keypadNodes[toNumberTransformed - 1].isFocused());
     }
 
@@ -193,7 +193,7 @@ public final class TraversalTest {
         final TraverseListenerImpl h = new TraverseListenerImpl();
         scene.addEventHandler(TraversalEvent.ANY, h);
         keypadNodes[fromNumber - 1].requestFocus();
-        traversalEngine.trav(keypadNodes[fromNumber - 1], direction, TraversalMethod.DEFAULT);
+        traversalEngine.trav(scene.getRoot(), keypadNodes[fromNumber - 1], direction, TraversalMethod.DEFAULT);
         if (fromNumber != toNumber) {
             assertEquals(1, h.getCallCounter());
             assertSame(keypadNodes[toNumber - 1], h.getLastNode());

@@ -65,7 +65,7 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
      * @param method the traversal method
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
-    public final Node trav(Node node, TraversalDirection dir, TraversalMethod method) {
+    public final Node trav(Parent root, Node node, TraversalDirection dir, TraversalMethod method) {
         Node newNode = null;
         Parent p = node.getParent();
         Node traverseNode = node;
@@ -73,7 +73,7 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
             // First find the nearest traversal engine override (i.e. a ParentTraversalEngine that is traversable)
             ParentTraversalEngine engine = ParentHelper.getTraversalEngine(p);
             if (engine != null && engine.canTraverse()) {
-                newNode = engine.select(node, dir);
+                newNode = engine.select(p, node, dir);
                 if (newNode != null) {
                     break;
                 } else {
@@ -90,39 +90,39 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
         }
         // No engine override was able to find the Node in the specified direction, so
         if (newNode == null) {
-            newNode = select(traverseNode, dir);
+            newNode = select(root, traverseNode, dir);
         }
         if (newNode == null) {
             if (dir == TraversalDirection.NEXT || dir == TraversalDirection.NEXT_IN_LINE) {
-                newNode = selectFirst();
+                newNode = selectFirst(root);
             } else if (dir == TraversalDirection.PREVIOUS) {
-                newNode = selectLast();
+                newNode = selectLast(root);
             }
         }
         if (newNode != null) {
-            focusAndNotify(newNode, method);
+            focusAndNotify(root, newNode, method);
         }
         return newNode;
     }
 
-    private void focusAndNotify(Node n, TraversalMethod method) {
+    private void focusAndNotify(Parent root, Node n, TraversalMethod method) {
         if (method == TraversalMethod.KEY) {
             NodeHelper.requestFocusVisible(n);
         } else {
             n.requestFocus();
         }
 
-        n.fireEvent(new TraversalEvent(n, TraversalUtils.getLayoutBounds(n, getRoot()), TraversalEvent.NODE_TRAVERSED));
+        n.fireEvent(new TraversalEvent(n, TraversalUtils.getLayoutBounds(n, root), TraversalEvent.NODE_TRAVERSED));
     }
 
     /**
      * Set focus on the first Node in this context (if any)
      * @return the first node or null if there's none
      */
-    public final Node traverseToFirst() {
-        Node n = selectFirst();
+    public final Node traverseToFirst(Parent root) {
+        Node n = selectFirst(root);
         if (n != null) {
-            focusAndNotify(n, TraversalMethod.DEFAULT);
+            focusAndNotify(root, n, TraversalMethod.DEFAULT);
         }
         return n;
     }
@@ -131,10 +131,10 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
      * Set focus on the last Node in this context (if any)
      * @return the last node or null if there's none
      */
-    public final Node traverseToLast() {
-        Node n = selectLast();
+    public final Node traverseToLast(Parent root) {
+        Node n = selectLast(root);
         if (n != null) {
-            focusAndNotify(n, TraversalMethod.DEFAULT);
+            focusAndNotify(root, n, TraversalMethod.DEFAULT);
         }
         return n;
     }

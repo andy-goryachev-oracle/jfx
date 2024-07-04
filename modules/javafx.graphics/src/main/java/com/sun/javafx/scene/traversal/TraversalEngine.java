@@ -42,12 +42,6 @@ public abstract class TraversalEngine {
     protected final TraversalPolicy policy;
     
     /**
-     * The root of this engine's context. This is the node that is the root of the tree that is traversed by this engine.
-     * @return This engine's root
-     */
-    protected abstract Parent getRoot();
-
-    /**
      * Creates engine with the specified algorithm
      * @param p
      */
@@ -70,8 +64,8 @@ public abstract class TraversalEngine {
      * @param dir the direction of traversal
      * @return the subsequent node in the specified direction or null if none
      */
-    public final Node select(Node from, TraversalDirection dir) {
-        return policy.select(getRoot(), from, dir);
+    public final Node select(Parent root, Node from, TraversalDirection dir) {
+        return policy.select(root, from, dir);
     }
 
     /**
@@ -79,8 +73,8 @@ public abstract class TraversalEngine {
      * This can be null only if there are no traversable nodes
      * @return The first node or null if none exists
      */
-    public final Node selectFirst() {
-        return policy.selectFirst(getRoot());
+    public final Node selectFirst(Parent root) {
+        return policy.selectFirst(root);
     }
 
     /**
@@ -88,8 +82,8 @@ public abstract class TraversalEngine {
      * This can be null only if there are no traversable nodes
      * @return The last node or null if none exists
      */
-    public final Node selectLast() {
-        return policy.selectLast(getRoot());
+    public final Node selectLast(Parent root) {
+        return policy.selectLast(root);
     }
 
     /**

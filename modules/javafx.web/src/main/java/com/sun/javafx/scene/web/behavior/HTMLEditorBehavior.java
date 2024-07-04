@@ -34,6 +34,7 @@ import javafx.scene.web.HTMLEditorSkin;
 import com.sun.javafx.scene.control.behavior.FocusTraversalInputMap;
 
 import static javafx.scene.input.KeyCode.*;
+import javafx.scene.Parent;
 import static com.sun.javafx.scene.control.inputmap.InputMap.KeyMapping;
 
 /**
@@ -51,7 +52,7 @@ public class HTMLEditorBehavior extends BehaviorBase<HTMLEditor> {
             new KeyMapping(new KeyBinding(I).shortcut(), e -> keyboardShortcuts(HTMLEditorSkin.Command.ITALIC)),
             new KeyMapping(new KeyBinding(U).shortcut(), e -> keyboardShortcuts(HTMLEditorSkin.Command.UNDERLINE)),
 
-            new KeyMapping(new KeyBinding(F12), e -> ParentHelper.getTraversalEngine(getNode()).selectFirst().requestFocus()),
+            new KeyMapping(new KeyBinding(F12), e -> ParentHelper.getTraversalEngine(getNode()).selectFirst(getNode()).requestFocus()),
             new KeyMapping(new KeyBinding(TAB).ctrl(), FocusTraversalInputMap::traverseNext),
             new KeyMapping(new KeyBinding(TAB).ctrl().shift(), FocusTraversalInputMap::traversePrevious)
         );

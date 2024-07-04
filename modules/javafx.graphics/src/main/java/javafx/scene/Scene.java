@@ -2220,7 +2220,7 @@ public class Scene implements EventTarget {
         if (node.getSubScene() != null) {
             return node.getSubScene().traverse(node, dir, method);
         } else if (node.getScene() != null) {
-            return node.getScene().traversalEngine.trav(node, dir, method) != null;
+            return node.getScene().traversalEngine.trav(node.getScene().getRoot(), node, dir, method) != null;
         }
         return false;
     }
@@ -2231,7 +2231,7 @@ public class Scene implements EventTarget {
      * removed from the scene.
      */
     private void focusInitial() {
-        traversalEngine.traverseToFirst();
+        traversalEngine.traverseToFirst(getRoot());
     }
 
     /**
