@@ -39,7 +39,6 @@ import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.control.TextField;
-import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyCode;
@@ -53,6 +52,7 @@ import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.behavior.TextInputControlBehavior;
 import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
+import com.sun.javafx.scene.traversal.TraversalUtils;
 
 /**
  * An abstract class that extends the functionality of {@link ComboBoxBaseSkin}
@@ -187,7 +187,7 @@ public abstract class ComboBoxPopupControl<T> extends ComboBoxBaseSkin<T> {
         }
 
         // Fix for RT-36902, where focus traversal was getting stuck inside the ComboBox
-        comboBoxBase.setTraversalPolicy(TraversalPolicy.none());
+        comboBoxBase.setTraversalPolicy(TraversalUtils.EMPTY_POLICY);
 
         updateEditable();
     }

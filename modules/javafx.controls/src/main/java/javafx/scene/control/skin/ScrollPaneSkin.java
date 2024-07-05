@@ -53,7 +53,6 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SkinBase;
 import javafx.scene.incubator.traversal.TraversalEvent;
-import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TouchEvent;
@@ -628,8 +627,6 @@ public class ScrollPaneSkin extends SkinBase<ScrollPane> {
 
         ScrollPane control = getSkinnable();
         scrollNode = control.getContent();
-
-        getSkinnable().setTraversalPolicy(TraversalPolicy.none());
 
         if (scrollNode != null) {
             scrollNode.layoutBoundsProperty().addListener(weakNodeListener);

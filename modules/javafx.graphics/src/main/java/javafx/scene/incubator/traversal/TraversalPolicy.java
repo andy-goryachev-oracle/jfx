@@ -131,13 +131,14 @@ public abstract class TraversalPolicy {
         }
     }
 
+    // TODO perhaps the next 3 methods can be replaced by calls to TraversalPolicy.getDefault(). ...
     /**
      * Returns the first {@link Node} that is traversable from the given Parent node.
      *
      * @param parent the Parent
      * @return the first {@link Node} that is traversable from the given Parent node
      */
-    protected final Node selectFirstInParent(Parent parent) {
+    public final Node selectFirstInParent(Parent parent) {
         return getDefault().selectFirst(parent);
     }
 
@@ -147,7 +148,7 @@ public abstract class TraversalPolicy {
      * @param parent the Parent
      * @return the last {@link Node} that is traversable from the given Parent node
      */
-    protected final Node selectLastInParent(Parent parent) {
+    public final Node selectLastInParent(Parent parent) {
         return getDefault().selectLast(parent);
     }
 
@@ -161,7 +162,7 @@ public abstract class TraversalPolicy {
      * @param dir the direction of the traversal
      * @return the next suitable {@link Node} that is traversable, or null if there is no valid result
      */
-    protected final Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
+    public final Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
         return getDefault().select(subTreeRoot, from, dir);
     }
 
@@ -172,14 +173,6 @@ public abstract class TraversalPolicy {
      */
     public static TraversalPolicy getDefault() {
         return TraversalUtils.DEFAULT_POLICY;
-    }
-
-    /**
-     * Returns the singleton {@code TraversalPolicy} that does not permit focus traversal.
-     * @return the singleton policy
-     */
-    public static TraversalPolicy none() {
-        return TraversalUtils.NO_TRAVERSAL_POLICY;
     }
 
     /**

@@ -34,7 +34,6 @@ import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
@@ -42,6 +41,7 @@ import javafx.scene.layout.StackPane;
 import com.sun.javafx.scene.control.FakeFocusTextField;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.behavior.SpinnerBehavior;
+import com.sun.javafx.scene.traversal.TraversalUtils;
 
 /**
  * Default skin implementation for the {@link Spinner} control.
@@ -252,7 +252,7 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
         // Following code borrowed from ComboBoxPopupControl, to resolve the
         // issue initially identified in RT-36902, but specifically (for Spinner)
         // identified in RT-40625
-        getSkinnable().setTraversalPolicy(TraversalPolicy.none());
+        getSkinnable().setTraversalPolicy(TraversalUtils.EMPTY_POLICY);
     }
 
     /** {@inheritDoc} */

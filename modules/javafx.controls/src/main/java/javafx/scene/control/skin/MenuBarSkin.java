@@ -73,7 +73,6 @@ import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalEvent;
-import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -272,8 +271,6 @@ public class MenuBarSkin extends SkinBase<MenuBar> {
            acceleratorKeyCombo = KeyCombination.keyCombination("F10");
         }
 
-        getSkinnable().setTraversalPolicy(TraversalPolicy.none());
-        
         lh.addEventHandler(control, TraversalEvent.NODE_TRAVERSED, (ev) -> {
             if (openMenu != null) {
                 openMenu.hide();
