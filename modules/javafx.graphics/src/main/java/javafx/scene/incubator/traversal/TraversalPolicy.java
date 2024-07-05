@@ -25,12 +25,8 @@
 
 package javafx.scene.incubator.traversal;
 
-import java.util.ArrayList;
-import java.util.List;
-import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.traversal.TraversalUtils;
 
 /**
@@ -95,75 +91,12 @@ public abstract class TraversalPolicy {
     }
 
     /**
-     * Returns all possible targets within the traversal root.
-     *
-     * @param root the traversal root
-     * @return the List of all possible targets within the traversal root
+     * Determines whether the root is traversable.
+     * @param root the root
+     * @return true if the root is traversable
      */
-    // TODO move to utils? make static?
-    protected static final List<Node> getAllTargetNodes(Parent root) {
-        final List<Node> targetNodes = new ArrayList<>();
-        addFocusableChildrenToList(targetNodes, root);
-        return targetNodes;
-    }
-
-    /**
-     * Returns layout bounds of the Node in the relevant (Sub)Scene. Note that these bounds are the most important for
-     * traversal as they define the final position within the scene.
-     *
-     * @param node the Node
-     * @return the layout bounds of the Node in the relevant (Sub)Scene
-     */
-    // TODO can be moved to the only caller? make static?
-    protected static final Bounds getSceneLayoutBounds(Node node) {
-        return TraversalUtils.getLayoutBounds(node, null);
-    }
-
-    private static final void addFocusableChildrenToList(List<Node> list, Parent parent) {
-        List<Node> parentsNodes = parent.getChildrenUnmodifiable();
-        for (Node n : parentsNodes) {
-            if (n.isFocusTraversable() && !n.isFocused() && NodeHelper.isTreeVisible(n) && !n.isDisabled()) {
-                list.add(n);
-            }
-            if (n instanceof Parent p) {
-                addFocusableChildrenToList(list, p);
-            }
-        }
-    }
-
-    // TODO perhaps the next 3 methods can be replaced by calls to TraversalPolicy.getDefault(). ...
-    /**
-     * Returns the first {@link Node} that is traversable from the given Parent node.
-     *
-     * @param parent the Parent
-     * @return the first {@link Node} that is traversable from the given Parent node
-     */
-    public final Node selectFirstInParent(Parent parent) {
-        return getDefault().selectFirst(parent);
-    }
-
-    /**
-     * Returns the last {@link Node} that is traversable from the given Parent node.
-     *
-     * @param parent the Parent
-     * @return the last {@link Node} that is traversable from the given Parent node
-     */
-    public final Node selectLastInParent(Parent parent) {
-        return getDefault().selectLast(parent);
-    }
-
-    /**
-     * Returns the next suitable {@link Node} that is traversable from the given Parent node, in the direction
-     * represented by the provided {@link TraversalDirection}, or null if there is no valid result.
-     *
-     * @param subTreeRoot this will be used as a root of the traversal. This will be a Node that is handled by the
-     *        current TraversalEngine, but its content is not
-     * @param from a descendant of the given root node, from which traversal should commence in the given direction
-     * @param dir the direction of the traversal
-     * @return the next suitable {@link Node} that is traversable, or null if there is no valid result
-     */
-    public final Node selectInSubtree(Parent subTreeRoot, Node from, TraversalDirection dir) {
-        return getDefault().select(subTreeRoot, from, dir);
+    public boolean isParentTraversable(Parent root) {
+        return root.isFocusTraversable();
     }
 
     /**
@@ -173,14 +106,5 @@ public abstract class TraversalPolicy {
      */
     public static TraversalPolicy getDefault() {
         return TraversalUtils.DEFAULT_POLICY;
-    }
-
-    /**
-     * Determines whether the root is traversable.
-     * @param root the root
-     * @return true if the root is traversable
-     */
-    public boolean isParentTraversable(Parent root) {
-        return root.isFocusTraversable();
     }
 }

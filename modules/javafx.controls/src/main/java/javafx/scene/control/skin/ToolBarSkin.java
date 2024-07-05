@@ -136,7 +136,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                     Node n = box.getChildren().get(i);
                     if (n.isDisabled() || !NodeHelper.isTreeShowing(n)) continue;
                     if (n instanceof Parent p) {
-                        Node selected = selectLastInParent(p);
+                        Node selected = TraversalPolicy.getDefault().selectLast(p);
                         if (selected != null) return selected;
                     }
                     if (n.isFocusTraversable() ) {
@@ -154,7 +154,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                         return n;
                     }
                     if (n instanceof Parent p) {
-                        Node selected = selectFirstInParent(p);
+                        Node selected = TraversalPolicy.getDefault().selectFirst(p);
                         if (selected != null) return selected;
                     }
                 }
@@ -184,7 +184,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                     while (!boxChildren.contains(item)) {
                         item = item.getParent();
                     }
-                    Node selected = selectInSubtree(item, owner, dir);
+                    Node selected = TraversalPolicy.getDefault().select(item, owner, dir);
                     if (selected != null) return selected;
                     idx = boxChildren.indexOf(item);
                     if (dir == TraversalDirection.NEXT) dir = TraversalDirection.NEXT_IN_LINE;

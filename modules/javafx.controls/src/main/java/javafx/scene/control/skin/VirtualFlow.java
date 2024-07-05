@@ -633,7 +633,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
                     if (nextCell.isFocusTraversable()) {
                         return nextCell;
                     }
-                    Node n = selectFirstInParent(nextCell);
+                    Node n = TraversalPolicy.getDefault().selectFirst(nextCell);
                     if (n != null) {
                         return n;
                     }
@@ -644,7 +644,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
             Node selectPreviousBeforeIndex(int index, Parent root) {
                 T prevCell;
                 while ((prevCell = getVisibleCell(--index)) != null) {
-                    Node prev = selectLastInParent(prevCell);
+                    Node prev = TraversalPolicy.getDefault().selectLast(prevCell);
                     if (prev != null) {
                         return prev;
                     }
@@ -663,7 +663,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
                     cell = (T) owner;
                 } else {
                     cell = findOwnerCell(owner);
-                    Node next = selectInSubtree(cell, owner, dir);
+                    Node next = TraversalPolicy.getDefault().select(cell, owner, dir);
                     if (next != null) {
                         return next;
                     }
@@ -674,7 +674,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
                     case PREVIOUS:
                         return selectPreviousBeforeIndex(cellIndex, root);
                     case NEXT:
-                        Node n = selectFirstInParent(cell);
+                        Node n = TraversalPolicy.getDefault().selectFirst(cell);
                         if (n != null) {
                             return n;
                         }
@@ -698,7 +698,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
                 T firstCell = cells.getFirst();
                 if (firstCell == null) return null;
                 if (firstCell.isFocusTraversable()) return firstCell;
-                Node n = selectFirstInParent(firstCell);
+                Node n = TraversalPolicy.getDefault().selectFirst(firstCell);
                 if (n != null) {
                     return n;
                 }
@@ -709,7 +709,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
             public Node selectLast(Parent root) {
                 T lastCell = cells.getLast();
                 if (lastCell == null) return null;
-                Node p = selectLastInParent(lastCell);
+                Node p = TraversalPolicy.getDefault().selectLast(lastCell);
                 if (p != null) {
                     return p;
                 }

@@ -24,6 +24,8 @@
  */
 package com.sun.javafx.scene.traversal;
 
+import java.util.ArrayList;
+import java.util.List;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
@@ -31,6 +33,7 @@ import javafx.scene.Parent;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalPolicy;
 import com.sun.javafx.application.PlatformImpl;
+import com.sun.javafx.scene.NodeHelper;
 
 public final class TraversalUtils {
     public static final TraversalPolicy DEFAULT_POLICY = PlatformImpl.isContextual2DNavigation() ? new Heuristic2D() : new ContainerTabOrder();
@@ -81,5 +84,29 @@ public final class TraversalUtils {
                 return null;
             }
         };
+    }
+
+    /**
+     * Returns all possible targets within the traversal root.
+     *
+     * @param root the traversal root
+     * @return the List of all possible targets within the traversal root
+     */
+    public static final List<Node> getAllTargetNodes(Parent root) {
+        final List<Node> targetNodes = new ArrayList<>();
+        addFocusableChildrenToList(targetNodes, root);
+        return targetNodes;
+    }
+
+    private static final void addFocusableChildrenToList(List<Node> list, Parent parent) {
+        List<Node> parentsNodes = parent.getChildrenUnmodifiable();
+        for (Node n : parentsNodes) {
+            if (n.isFocusTraversable() && !n.isFocused() && NodeHelper.isTreeVisible(n) && !n.isDisabled()) {
+                list.add(n);
+            }
+            if (n instanceof Parent p) {
+                addFocusableChildrenToList(list, p);
+            }
+        }
     }
 }

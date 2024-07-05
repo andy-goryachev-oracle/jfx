@@ -298,7 +298,7 @@ class ColorPalette extends Region {
         setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
-                final Node subsequentNode = selectInSubtree(root, owner, dir);
+                final Node subsequentNode = TraversalPolicy.getDefault().select(root, owner, dir);
                 switch (dir) {
                     case NEXT:
                     case NEXT_IN_LINE:

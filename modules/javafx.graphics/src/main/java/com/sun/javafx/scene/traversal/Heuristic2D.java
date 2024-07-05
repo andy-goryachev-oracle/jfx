@@ -265,7 +265,7 @@ public class Heuristic2D extends TraversalPolicy {
 
     protected Node getNearestNodeUpOrDown(Bounds currentB, Bounds originB, Parent root, TraversalDirection dir) {
 
-        List<Node> nodes = getAllTargetNodes(root);
+        List<Node> nodes = TraversalUtils.getAllTargetNodes(root);
 
         Function<Bounds, Double> ySideInDirection = dir == DOWN ? BOUNDS_BOTTOM_SIDE : BOUNDS_TOP_SIDE;
         Function<Bounds, Double> ySideInOpositeDirection = dir == DOWN ? BOUNDS_TOP_SIDE : BOUNDS_BOTTOM_SIDE;
@@ -559,7 +559,7 @@ public class Heuristic2D extends TraversalPolicy {
 
     protected Node getNearestNodeLeftOrRight(Bounds currentB, Bounds originB, Parent root, TraversalDirection dir) {
 
-        List<Node> nodes = getAllTargetNodes(root);
+        List<Node> nodes = TraversalUtils.getAllTargetNodes(root);
 
         Function<Bounds, Double> xSideInDirection = dir == LEFT ? BOUNDS_LEFT_SIDE : BOUNDS_RIGHT_SIDE;
         Function<Bounds, Double> xSideInOpositeDirection = dir == LEFT ? BOUNDS_RIGHT_SIDE : BOUNDS_LEFT_SIDE;
