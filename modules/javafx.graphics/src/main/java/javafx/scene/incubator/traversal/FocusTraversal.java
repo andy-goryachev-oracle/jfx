@@ -29,7 +29,6 @@ import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
  * To be moved to an incubating module javafx.incubator.scene.traversal.

@@ -32,6 +32,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.junit.After;
@@ -41,7 +42,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
  * Tests TraversalEngine with invisible nodes, using the default ContainerTabOrder algorithm,

@@ -58,6 +58,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.incubator.traversal.FocusTraversal;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -69,7 +70,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import com.sun.javafx.scene.control.skin.Utils;
 import com.sun.javafx.scene.control.skin.resources.ControlResources;
-import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
  * The full content for the DatePicker popup. This class could

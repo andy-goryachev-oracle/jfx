@@ -29,6 +29,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalEvent;
+import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.incubator.traversal.TraversalPolicy;
 import com.sun.javafx.scene.NodeHelper;
 

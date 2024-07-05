@@ -34,11 +34,11 @@ import javafx.event.EventTarget;
 import javafx.scene.Node;
 import javafx.scene.incubator.traversal.FocusTraversal;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.input.KeyEvent;
 import com.sun.javafx.scene.control.inputmap.InputMap;
 import com.sun.javafx.scene.control.inputmap.InputMap.KeyMapping;
 import com.sun.javafx.scene.control.inputmap.KeyBinding;
-import com.sun.javafx.scene.traversal.TraversalMethod;
 
 public class FocusTraversalInputMap {
 

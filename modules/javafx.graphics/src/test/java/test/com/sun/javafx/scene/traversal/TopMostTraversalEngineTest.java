@@ -32,6 +32,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.ParentShim;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.shape.Rectangle;
 import org.junit.Before;
@@ -39,7 +40,6 @@ import org.junit.Test;
 import com.sun.javafx.scene.traversal.ContainerTabOrderShim;
 import com.sun.javafx.scene.traversal.OverridableTraversalPolicy;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalMethod;
 
 public class TopMostTraversalEngineTest {
     private TraversalPolicy engine;

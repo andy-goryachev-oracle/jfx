@@ -35,9 +35,9 @@ import javafx.scene.Scene;
 import javafx.scene.control.Control;
 import javafx.scene.control.PopupControl;
 import javafx.scene.incubator.traversal.FocusTraversal;
+import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
  * A two level focus handler allows a Control to behave as if it

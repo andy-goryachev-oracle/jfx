@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.sun.javafx.scene.traversal;
+package javafx.scene.incubator.traversal;
 
 /**
  * Specifies the traversal method.
