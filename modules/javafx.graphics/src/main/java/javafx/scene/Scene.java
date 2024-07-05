@@ -2214,9 +2214,10 @@ public class Scene implements EventTarget {
      * However, the node must be part of a scene, otherwise this request
      * is ignored.
      */
+    // TODO move somewhere
     static boolean traverse(Node node, TraversalDirection dir, TraversalMethod method) {
         if (node.getSubScene() != null) {
-            return node.getSubScene().traverse(node, dir, method);
+            return TopMostTraversalEngine.trav(node.getSubScene().getRoot(), node, dir, method) != null;
         } else if (node.getScene() != null) {
             return TopMostTraversalEngine.trav(node.getScene().getRoot(), node, dir, method) != null;
         }
