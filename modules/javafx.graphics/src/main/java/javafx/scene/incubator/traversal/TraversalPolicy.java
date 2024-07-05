@@ -166,11 +166,28 @@ public abstract class TraversalPolicy {
     }
 
     /**
-     * Returns the platform's default traversal policy.
+     * Returns the platform's default traversal policy singleton.
      *
      * @return the default traversal policy
      */
     public static TraversalPolicy getDefault() {
         return TraversalUtils.DEFAULT_POLICY;
+    }
+
+    /**
+     * Returns the singleton {@code TraversalPolicy} that does not permit focus traversal.
+     * @return the singleton policy
+     */
+    public static TraversalPolicy none() {
+        return TraversalUtils.NO_TRAVERSAL_POLICY;
+    }
+
+    /**
+     * Determines whether the root is traversable.
+     * @param root the root
+     * @return true if the root is traversable
+     */
+    public boolean isParentTraversable(Parent root) {
+        return root.isFocusTraversable();
     }
 }

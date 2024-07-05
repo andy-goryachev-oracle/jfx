@@ -71,10 +71,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.WindowEvent;
 import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.behavior.BehaviorBase;
 import com.sun.javafx.scene.control.behavior.ToolBarBehavior;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 
 /**
  * Default skin implementation for the {@link ToolBar} control.
@@ -105,7 +103,6 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
     private double savedPrefWidth = 0;
     private double savedPrefHeight = 0;
     private boolean needsUpdate = false;
-    private final ParentTraversalEngine engine;
     private final BehaviorBase<ToolBar> behavior;
 
     private ListChangeListener<Node> itemsListener;
@@ -133,8 +130,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
         initialize();
         registerChangeListener(control.orientationProperty(), e -> initialize());
 
-        engine = new ParentTraversalEngine(getSkinnable(), new TraversalPolicy() {
-
+        getSkinnable().setTraversalPolicy(new TraversalPolicy() {
             private Node selectPrev(int from, Parent root) {
                 for (int i = from; i >= 0; --i) {
                     Node n = box.getChildren().get(i);
@@ -228,7 +224,6 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                 return selectPrev(box.getChildren().size() - 1, root);
             }
         });
-        ParentHelper.setTraversalEngine(getSkinnable(), engine);
 
         registerChangeListener(control.focusedProperty(), ov -> {
             if (getSkinnable().isFocused()) {
@@ -630,7 +625,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                 overflowBox.getChildren().add(node);
                 if (node.isFocused()) {
                     if (!box.getChildren().isEmpty()) {
-                        Node last = engine.selectLast(getSkinnable());
+                        Node last = getSkinnable().getTraversalPolicy().selectLast(getSkinnable());
                         if (last != null) {
                             last.requestFocus();
                         }
@@ -645,7 +640,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
         overflow = !overflowBox.getChildren().isEmpty();
         overflowNodeIndex = newOverflowNodeIndex;
         if (!overflow && overflowMenu.isFocused()) {
-            Node last = engine.selectLast(getSkinnable());
+            Node last = getSkinnable().getTraversalPolicy().selectLast(getSkinnable());
             if (last != null) {
                 last.requestFocus();
             }

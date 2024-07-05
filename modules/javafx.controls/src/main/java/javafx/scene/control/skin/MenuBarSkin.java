@@ -73,6 +73,7 @@ import javafx.scene.control.Skin;
 import javafx.scene.control.SkinBase;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalEvent;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
@@ -83,13 +84,11 @@ import javafx.stage.Window;
 import javafx.util.Pair;
 import com.sun.javafx.FXPermissions;
 import com.sun.javafx.menu.MenuBase;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.SceneHelper;
 import com.sun.javafx.scene.control.GlobalMenuAdapter;
 import com.sun.javafx.scene.control.IDisconnectable;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.MenuBarButton;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.tk.Toolkit;
 
 /**
@@ -273,8 +272,7 @@ public class MenuBarSkin extends SkinBase<MenuBar> {
            acceleratorKeyCombo = KeyCombination.keyCombination("F10");
         }
 
-        ParentTraversalEngine engine = new ParentTraversalEngine(getSkinnable());
-        ParentHelper.setTraversalEngine(getSkinnable(), engine);
+        getSkinnable().setTraversalPolicy(TraversalPolicy.none());
         
         lh.addEventHandler(control, TraversalEvent.NODE_TRAVERSED, (ev) -> {
             if (openMenu != null) {

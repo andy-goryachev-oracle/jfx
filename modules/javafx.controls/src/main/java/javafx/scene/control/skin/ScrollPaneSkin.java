@@ -53,6 +53,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SkinBase;
 import javafx.scene.incubator.traversal.TraversalEvent;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.TouchEvent;
@@ -60,12 +61,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.behavior.BehaviorBase;
 import com.sun.javafx.scene.control.behavior.ScrollPaneBehavior;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 import com.sun.javafx.util.Utils;
 
 /**
@@ -630,8 +629,7 @@ public class ScrollPaneSkin extends SkinBase<ScrollPane> {
         ScrollPane control = getSkinnable();
         scrollNode = control.getContent();
 
-        ParentTraversalEngine traversalEngine = new ParentTraversalEngine(getSkinnable());
-        ParentHelper.setTraversalEngine(getSkinnable(), traversalEngine);
+        getSkinnable().setTraversalPolicy(TraversalPolicy.none());
 
         if (scrollNode != null) {
             scrollNode.layoutBoundsProperty().addListener(weakNodeListener);

@@ -36,9 +36,8 @@ import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.shape.Rectangle;
 import org.junit.Before;
 import org.junit.Test;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.traversal.ContainerTabOrderShim;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
+import com.sun.javafx.scene.traversal.OverridableTraversalPolicy;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 
@@ -73,7 +72,7 @@ public class TopMostTraversalEngineTest {
     @Test
     public void selectFirstUseParentEngine() {
         Group g = new Group(createFocusableNode());
-        ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
+        g.setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 return null;
@@ -88,13 +87,13 @@ public class TopMostTraversalEngineTest {
             public Node selectLast(Parent root) {
                 return null;
             }
-        }));
+        });
         g.setDisable(true);
         ParentShim.getChildren(root).add(g);
 
         final Node focusableNode = createFocusableNode();
         g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
-        ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
+        g.setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 fail();
@@ -111,7 +110,7 @@ public class TopMostTraversalEngineTest {
                 fail();
                 return null;
             }
-        }));
+        });
 
         ParentShim.getChildren(root).add(g);
 
@@ -131,9 +130,9 @@ public class TopMostTraversalEngineTest {
     public void selectFirstTraverseOverride() {
         Group g = new Group(createFocusableNode(), createFocusableNode());
         g.setFocusTraversable(true);
-        final ParentTraversalEngine pEngine = new ParentTraversalEngine(g);
-        pEngine.setOverriddenFocusTraversability(false);
-        ParentHelper.setTraversalEngine(g, pEngine);
+        OverridableTraversalPolicy policy = new OverridableTraversalPolicy();
+        policy.setOverriddenFocusTraversability(false);
+        g.setTraversalPolicy(policy);
 
         ParentShim.getChildren(root).add(g);
 
@@ -163,7 +162,7 @@ public class TopMostTraversalEngineTest {
     public void selectLastUseParentEngine() {
         final Node focusableNode = createFocusableNode();
         Group g = new Group(createFocusableNode(), focusableNode, createFocusableNode());
-        ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
+        g.setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 fail();
@@ -180,13 +179,13 @@ public class TopMostTraversalEngineTest {
             public Node selectLast(Parent root) {
                 return focusableNode;
             }
-        }));
+        });
 
         ParentShim.getChildren(root).add(g);
 
 
         g = new Group(createFocusableNode());
-        ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
+        g.setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 return null;
@@ -201,7 +200,7 @@ public class TopMostTraversalEngineTest {
             public Node selectLast(Parent root) {
                 return null;
             }
-        }));
+        });
         g.setDisable(true);
         ParentShim.getChildren(root).add(g);
 
@@ -232,9 +231,9 @@ public class TopMostTraversalEngineTest {
     public void selectLastTraverseOverride() {
         Group g = new Group();
         g.setFocusTraversable(true);
-        final ParentTraversalEngine pEngine = new ParentTraversalEngine(g);
-        pEngine.setOverriddenFocusTraversability(false);
-        ParentHelper.setTraversalEngine(g, pEngine);
+        OverridableTraversalPolicy policy = new OverridableTraversalPolicy();
+        policy.setOverriddenFocusTraversability(false);
+        g.setTraversalPolicy(policy);
 
         Node focusableNode = createFocusableNode();
 
@@ -304,7 +303,7 @@ public class TopMostTraversalEngineTest {
         Node n1 = createFocusableNode();
         Node n2 = createFocusableNode();
         Group g = new Group(n1, createFocusableNode(), n2);
-        ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
+        g.setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 assertEquals(TraversalDirection.NEXT, dir);
@@ -322,7 +321,7 @@ public class TopMostTraversalEngineTest {
                 fail();
                 return null;
             }
-        }));
+        });
 
         ParentShim.getChildren(root).add(g);
 
@@ -336,7 +335,7 @@ public class TopMostTraversalEngineTest {
         Node n2 = createFocusableNode();
         Group g = new Group(n1, createFocusableNode(), n2);
         g.setFocusTraversable(true);
-        ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
+        g.setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 assertEquals(TraversalDirection.NEXT, dir);
@@ -354,7 +353,7 @@ public class TopMostTraversalEngineTest {
                 fail();
                 return null;
             }
-        }));
+        });
 
         final Node n3 = createFocusableNode();
         ParentShim.getChildren(root).addAll(g, n3);
@@ -472,7 +471,7 @@ public class TopMostTraversalEngineTest {
         Node n1 = createFocusableNode();
         Node n2 = createFocusableNode();
         Group g = new Group(n2, createFocusableNode(), n1);
-        ParentHelper.setTraversalEngine(g, new ParentTraversalEngine(g, new TraversalPolicy() {
+        g.setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 assertEquals(TraversalDirection.PREVIOUS, dir);
@@ -490,7 +489,7 @@ public class TopMostTraversalEngineTest {
                 fail();
                 return null;
             }
-        }));
+        });
 
         ParentShim.getChildren(root).add(g);
 

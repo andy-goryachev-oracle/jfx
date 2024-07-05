@@ -628,8 +628,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
             startSBReleasedAnimation();
         });
 
-        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalPolicy() {
-
+        setTraversalPolicy(new TraversalPolicy() {
             Node selectNextAfterIndex(int index, Parent root) {
                 T nextCell;
                 while ((nextCell = getVisibleCell(++index)) != null) {
@@ -719,7 +718,7 @@ public class VirtualFlow<T extends IndexedCell> extends Region {
                 if (lastCell.isFocusTraversable()) return lastCell;
                 return selectPreviousBeforeIndex(lastCell.getIndex(), root);
             }
-        }));
+        });
     }
 
 

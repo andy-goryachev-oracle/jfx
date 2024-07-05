@@ -231,26 +231,6 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
 
         textField.focusTraversableProperty().bind(control.editableProperty());
 
-        // Following code borrowed from ComboBoxPopupControl, to resolve the
-        // issue initially identified in RT-36902, but specifically (for Spinner)
-        // identified in RT-40625
-        ParentHelper.setTraversalEngine(control, new ParentTraversalEngine(control, new TraversalPolicy() {
-            @Override
-            public Node select(Parent root, Node owner, TraversalDirection dir) {
-                return null;
-            }
-
-            @Override
-            public Node selectFirst(Parent root) {
-                return null;
-            }
-
-            @Override
-            public Node selectLast(Parent root) {
-                return null;
-            }
-        }));
-
         lh.addChangeListener(control.sceneProperty(), (op) -> {
             // Stop spinning when sceneProperty is modified
             behavior.stopSpinning();
@@ -273,6 +253,11 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
         // when replacing the skin, the textField (which comes from the control), must first be uninstalled
         // by the old skin in its dispose(), followed by (re-)adding it here.
         getChildren().add(textField);
+        
+        // Following code borrowed from ComboBoxPopupControl, to resolve the
+        // issue initially identified in RT-36902, but specifically (for Spinner)
+        // identified in RT-40625
+        getSkinnable().setTraversalPolicy(TraversalPolicy.none());
     }
 
     /** {@inheritDoc} */

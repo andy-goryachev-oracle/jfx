@@ -61,10 +61,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.CustomColorDialog;
 import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 
 // Not public API - this is (presently) an implementation detail only
 class ColorPalette extends Region {
@@ -297,7 +295,7 @@ class ColorPalette extends Region {
             }
         });
 
-        ParentHelper.setTraversalEngine(this, new ParentTraversalEngine(this, new TraversalPolicy() {
+        setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 final Node subsequentNode = selectInSubtree(root, owner, dir);
@@ -415,7 +413,7 @@ class ColorPalette extends Region {
             public Node selectLast(Parent root) {
                 return customColorLink;
             }
-        }));
+        });
     }
 
     private void processSelectKey(KeyEvent ke) {

@@ -144,8 +144,6 @@ public class HTMLEditorSkin extends SkinBase<HTMLEditor> {
     private WebView webView;
     private WebPage webPage;
 
-    private ParentTraversalEngine engine;
-
     private boolean resetToolbarState = false;
     private String cachedHTMLText = "<html><head></head><body contenteditable=\"true\"></body></html>";
     private ResourceBundle resources;
@@ -457,7 +455,7 @@ public class HTMLEditorSkin extends SkinBase<HTMLEditor> {
         enableToolbar(true);
         setHTMLText(cachedHTMLText);
 
-        engine = new ParentTraversalEngine(getSkinnable(), new TraversalPolicy() {
+        getSkinnable().setTraversalPolicy(new TraversalPolicy() {
             @Override
             public Node select(Parent root, Node owner, TraversalDirection dir) {
                 return cutButton;
@@ -473,7 +471,6 @@ public class HTMLEditorSkin extends SkinBase<HTMLEditor> {
                 return cutButton;
             }
         });
-        ParentHelper.setTraversalEngine(getSkinnable(), engine);
         webView.setFocusTraversable(true);
         gridPane.getChildren().addListener(itemsListener);
     }

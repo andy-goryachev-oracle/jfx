@@ -31,7 +31,6 @@ import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalEvent;
 import javafx.scene.incubator.traversal.TraversalPolicy;
 import com.sun.javafx.scene.NodeHelper;
-import com.sun.javafx.scene.ParentHelper;
 
 /**
  * This is the class for all top-level traversal engines in scenes and subscenes.
@@ -57,10 +56,10 @@ public final class TopMostTraversalEngine {
         Parent p = node.getParent();
         Node traverseNode = node;
         while (p != null) {
-            // First find the nearest traversal engine override (i.e. a ParentTraversalEngine that is traversable)
-            ParentTraversalEngine engine = ParentHelper.getTraversalEngine(p);
-            if (engine != null && engine.canTraverse()) {
-                newNode = engine.select(p, node, dir);
+            // First find the nearest traversal policy override
+            TraversalPolicy policy = p.getTraversalPolicy();
+            if (policy != null) {
+                newNode = policy.select(p, node, dir);
                 if (newNode != null) {
                     break;
                 } else {

@@ -34,13 +34,11 @@ import javafx.geometry.Point2D;
 import javafx.geometry.VPos;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.control.TextField;
-import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.InputMethodEvent;
@@ -50,13 +48,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.FakeFocusTextField;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.behavior.TextInputControlBehavior;
 import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 
 /**
  * An abstract class that extends the functionality of {@link ComboBoxBaseSkin}
@@ -191,22 +187,7 @@ public abstract class ComboBoxPopupControl<T> extends ComboBoxBaseSkin<T> {
         }
 
         // Fix for RT-36902, where focus traversal was getting stuck inside the ComboBox
-        ParentHelper.setTraversalEngine(comboBoxBase, new ParentTraversalEngine(comboBoxBase, new TraversalPolicy() {
-                @Override
-                public Node select(Parent root, Node owner, TraversalDirection dir) {
-                    return null;
-                }
-
-                @Override
-                public Node selectFirst(Parent root) {
-                    return null;
-                }
-
-                @Override
-                public Node selectLast(Parent root) {
-                    return null;
-                }
-            }));
+        comboBoxBase.setTraversalPolicy(TraversalPolicy.none());
 
         updateEditable();
     }

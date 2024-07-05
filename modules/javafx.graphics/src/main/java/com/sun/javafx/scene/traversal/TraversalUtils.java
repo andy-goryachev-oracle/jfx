@@ -28,14 +28,19 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalPolicy;
 import com.sun.javafx.application.PlatformImpl;
 
 public final class TraversalUtils {
     /**
-     * This is the default algorithm for the running platform. It's the algorithm that's used in TopMostTraversalEngine
+     * This is the default algorithm for the running platform.
      */
     public static final TraversalPolicy DEFAULT_POLICY = PlatformImpl.isContextual2DNavigation() ? new Heuristic2D() : new ContainerTabOrder();
+    /**
+     * This traversal policy disables focus traversal.
+     */
+    public static final TraversalPolicy NO_TRAVERSAL_POLICY = initNoTraversalPolicy();
 
     private static final Bounds INITIAL_BOUNDS = new BoundingBox(0, 0, 1, 1);
 
@@ -63,5 +68,24 @@ public final class TraversalUtils {
             bounds = INITIAL_BOUNDS;
         }
         return bounds;
+    }
+
+    private static TraversalPolicy initNoTraversalPolicy() {
+        return new TraversalPolicy() {
+            @Override
+            public Node select(Parent root, Node owner, TraversalDirection dir) {
+                return null;
+            }
+
+            @Override
+            public Node selectFirst(Parent root) {
+                return null;
+            }
+
+            @Override
+            public Node selectLast(Parent root) {
+                return null;
+            }
+        };
     }
 }
