@@ -41,7 +41,7 @@ import com.sun.javafx.scene.NodeHelper;
  * focusing it. Also, listener calls are handled by top-most traversal engines.
  * select* methods can be used as well, but will *not* transfer the focus to the result, they are just query methods.
  */
-// TODO move to FocusTraversal?
+// TODO move to FocusTraversal? also remove from SceneHelper!
 public final class TopMostTraversalEngine {
     /**
      * Traverse the focus to the next node in the specified direction.
@@ -58,7 +58,7 @@ public final class TopMostTraversalEngine {
         while (p != null) {
             // First find the nearest traversal policy override
             TraversalPolicy policy = p.getTraversalPolicy();
-            if ((policy != null) && policy.canTraverse()) {
+            if (policy != null) {
                 newNode = policy.select(p, node, dir);
                 if (newNode != null) {
                     break;
@@ -107,18 +107,6 @@ public final class TopMostTraversalEngine {
      */
     public static final Node traverseToFirst(Parent root) {
         Node n = TraversalPolicy.getDefault().selectFirst(root);
-        if (n != null) {
-            focusAndNotify(root, n, TraversalMethod.DEFAULT);
-        }
-        return n;
-    }
-
-    /**
-     * Set focus on the last Node in this context (if any)
-     * @return the last node or null if there's none
-     */
-    public static final Node traverseToLast2(Parent root) {
-        Node n = TraversalPolicy.getDefault().selectLast(root);
         if (n != null) {
             focusAndNotify(root, n, TraversalMethod.DEFAULT);
         }
