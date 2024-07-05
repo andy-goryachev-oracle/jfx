@@ -29,12 +29,10 @@ import javafx.scene.Camera;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Window;
 import com.sun.glass.ui.Accessible;
-import com.sun.javafx.scene.traversal.TraversalMethod;
 import com.sun.javafx.tk.TKScene;
 import com.sun.javafx.util.Utils;
 
@@ -112,10 +110,6 @@ public final class SceneHelper {
         sceneAccessor = newAccessor;
     }
 
-    public static boolean traverse(Node node, TraversalDirection direction, TraversalMethod method) {
-        return sceneAccessor.traverse(node, direction, method);
-    }
-
     public static SceneAccessor getSceneAccessor() {
         if (sceneAccessor == null) throw new IllegalStateException();
         return sceneAccessor;
@@ -149,7 +143,5 @@ public final class SceneHelper {
         void setTransientFocusContainer(Scene scene, Node node);
 
         Accessible getAccessible(Scene scene);
-        
-        boolean traverse(Node node, TraversalDirection direction, TraversalMethod method);
     }
 }

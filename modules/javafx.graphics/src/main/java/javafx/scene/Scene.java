@@ -78,8 +78,8 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.image.WritableImage;
+import javafx.scene.incubator.traversal.FocusTraversal;
 import javafx.scene.incubator.traversal.TraversalDirection;
-import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -530,11 +530,6 @@ public class Scene implements EventTarget {
                         @Override
                         public Accessible getAccessible(Scene scene) {
                             return scene.getAccessible();
-                        }
-
-                        @Override
-                        public boolean traverse(Node node, TraversalDirection direction, TraversalMethod method) {
-                            return Scene.traverse(node, direction, method);
                         }
                     });
         }
@@ -2209,22 +2204,6 @@ public class Scene implements EventTarget {
     }
 
     /**
-     * Traverses from this node in the direction indicated. Note that this
-     * node need not actually have the focus, nor need it be focusTraversable.
-     * However, the node must be part of a scene, otherwise this request
-     * is ignored.
-     */
-    // TODO move somewhere
-    static boolean traverse(Node node, TraversalDirection dir, TraversalMethod method) {
-        if (node.getSubScene() != null) {
-            return TopMostTraversalEngine.trav(node.getSubScene().getRoot(), node, dir, method) != null;
-        } else if (node.getScene() != null) {
-            return TopMostTraversalEngine.trav(node.getScene().getRoot(), node, dir, method) != null;
-        }
-        return false;
-    }
-
-    /**
      * Moves the focus to a reasonable initial location. Called when a scene's
      * focus is dirty and there's no current owner, or if the owner has been
      * removed from the scene.
@@ -2240,7 +2219,7 @@ public class Scene implements EventTarget {
      * function assumes that it is still a member of the same scene.
      */
     private void focusIneligible(Node node) {
-        traverse(node, TraversalDirection.NEXT, TraversalMethod.DEFAULT);
+        FocusTraversal.traverse(node, TraversalDirection.NEXT, TraversalMethod.DEFAULT);
     }
 
     void processKeyEvent(KeyEvent e) {

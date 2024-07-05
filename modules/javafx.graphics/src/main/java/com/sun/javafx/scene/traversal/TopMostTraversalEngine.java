@@ -41,7 +41,6 @@ import com.sun.javafx.scene.NodeHelper;
  * focusing it. Also, listener calls are handled by top-most traversal engines.
  * select* methods can be used as well, but will *not* transfer the focus to the result, they are just query methods.
  */
-// TODO move to FocusTraversal? also remove from SceneHelper!
 public final class TopMostTraversalEngine {
     /**
      * Traverse the focus to the next node in the specified direction.

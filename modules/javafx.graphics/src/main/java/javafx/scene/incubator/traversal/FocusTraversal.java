@@ -25,7 +25,10 @@
 package javafx.scene.incubator.traversal;
 
 import javafx.scene.Node;
-import com.sun.javafx.scene.SceneHelper;
+import javafx.scene.Scene;
+import javafx.scene.SubScene;
+import com.sun.javafx.scene.NodeHelper;
+import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
@@ -111,29 +114,25 @@ public final class FocusTraversal {
      * Traverses focus to the adjacent node as specified by the direction.
      *
      * @param node the node to traverse focus from
-     * @param direction the direction of traversal
+     * @param dir the direction of traversal
      * @param method the method which initiated the traversal
      * @return true if traversal was successful
      */
-    public static boolean traverse(Node node, TraversalDirection direction, TraversalMethod method) {
+    public static boolean traverse(Node node, TraversalDirection dir, TraversalMethod method) {
         if (node != null) {
-            return SceneHelper.traverse(node, direction, method);
+            SubScene ss = NodeHelper.getSubScene(node);
+            if (ss != null) {
+                return TopMostTraversalEngine.trav(ss.getRoot(), node, dir, method) != null;
+            }
+
+            Scene sc = node.getScene();
+            if (sc != null) {
+                return TopMostTraversalEngine.trav(sc.getRoot(), node, dir, method) != null;
+            }
         }
         return false;
     }
 
-    // TODO these two methods can be moved to Parent... or not
-
-    // TODO or make Parent.traversalPolicyProperty public
-//    public static void setTraversalPolicy(Parent parent, TraversalPolicy policy) {
-//        // TODO
-//    }
-//    
-//    public static TraversalPolicy getTraversalPolicy(Parent parent, TraversalPolicy policy) {
-//        // TODO
-//        return null;
-//    }
-    
     // TODO static focusOwnerProperty
 
     // TODO static focusedWindow/SceneProperty
