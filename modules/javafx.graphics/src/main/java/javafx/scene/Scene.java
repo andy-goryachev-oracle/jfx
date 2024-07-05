@@ -79,6 +79,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.scene.image.WritableImage;
 import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -135,7 +136,6 @@ import com.sun.javafx.scene.input.ExtendedInputMethodRequests;
 import com.sun.javafx.scene.input.InputEventUtils;
 import com.sun.javafx.scene.input.PickResultChooser;
 import com.sun.javafx.scene.input.TouchPointHelper;
-import com.sun.javafx.scene.traversal.SceneTraversalEngine;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 import com.sun.javafx.sg.prism.NGCamera;
@@ -2208,8 +2208,6 @@ public class Scene implements EventTarget {
         return focusDirty;
     }
 
-    private TopMostTraversalEngine traversalEngine = new SceneTraversalEngine(this);
-
     /**
      * Traverses from this node in the direction indicated. Note that this
      * node need not actually have the focus, nor need it be focusTraversable.
@@ -2220,7 +2218,7 @@ public class Scene implements EventTarget {
         if (node.getSubScene() != null) {
             return node.getSubScene().traverse(node, dir, method);
         } else if (node.getScene() != null) {
-            return node.getScene().traversalEngine.trav(node.getScene().getRoot(), node, dir, method) != null;
+            return TopMostTraversalEngine.trav(node.getScene().getRoot(), node, dir, method) != null;
         }
         return false;
     }
@@ -2231,7 +2229,7 @@ public class Scene implements EventTarget {
      * removed from the scene.
      */
     private void focusInitial() {
-        traversalEngine.traverseToFirst(getRoot());
+        TopMostTraversalEngine.traverseToFirst(getRoot());
     }
 
     /**

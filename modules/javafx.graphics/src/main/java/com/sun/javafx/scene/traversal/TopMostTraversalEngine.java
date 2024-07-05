@@ -65,7 +65,7 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
      * @param method the traversal method
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
-    public final Node trav(Parent root, Node node, TraversalDirection dir, TraversalMethod method) {
+    public static final Node trav(Parent root, Node node, TraversalDirection dir, TraversalMethod method) {
         Node newNode = null;
         Parent p = node.getParent();
         Node traverseNode = node;
@@ -90,13 +90,13 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
         }
         // No engine override was able to find the Node in the specified direction, so
         if (newNode == null) {
-            newNode = select(root, traverseNode, dir);
+            newNode = TraversalPolicy.getDefault().select(root, traverseNode, dir);
         }
         if (newNode == null) {
             if (dir == TraversalDirection.NEXT || dir == TraversalDirection.NEXT_IN_LINE) {
-                newNode = selectFirst(root);
+                newNode = TraversalPolicy.getDefault().selectFirst(root);
             } else if (dir == TraversalDirection.PREVIOUS) {
-                newNode = selectLast(root);
+                newNode = TraversalPolicy.getDefault().selectLast(root);
             }
         }
         if (newNode != null) {
@@ -105,7 +105,7 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
         return newNode;
     }
 
-    private void focusAndNotify(Parent root, Node n, TraversalMethod method) {
+    private static void focusAndNotify(Parent root, Node n, TraversalMethod method) {
         if (method == TraversalMethod.KEY) {
             NodeHelper.requestFocusVisible(n);
         } else {
@@ -119,8 +119,8 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
      * Set focus on the first Node in this context (if any)
      * @return the first node or null if there's none
      */
-    public final Node traverseToFirst(Parent root) {
-        Node n = selectFirst(root);
+    public static final Node traverseToFirst(Parent root) {
+        Node n = TraversalPolicy.getDefault().selectFirst(root);
         if (n != null) {
             focusAndNotify(root, n, TraversalMethod.DEFAULT);
         }
@@ -131,8 +131,8 @@ public abstract class TopMostTraversalEngine extends TraversalEngine {
      * Set focus on the last Node in this context (if any)
      * @return the last node or null if there's none
      */
-    public final Node traverseToLast(Parent root) {
-        Node n = selectLast(root);
+    public static final Node traverseToLast(Parent root) {
+        Node n = TraversalPolicy.getDefault().selectLast(root);
         if (n != null) {
             focusAndNotify(root, n, TraversalMethod.DEFAULT);
         }

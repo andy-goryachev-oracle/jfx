@@ -40,8 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import com.sun.javafx.scene.traversal.SceneTraversalEngine;
-import com.sun.javafx.scene.traversal.TraversalEngine;
+import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 
 /**
@@ -57,7 +56,6 @@ public final class TraverseInvisibleTest {
     private Stage stage;
     private Scene scene;
     private Node[] keypadNodes;
-    private SceneTraversalEngine traversalEngine;
 
     /*
     **
@@ -95,9 +93,7 @@ public final class TraverseInvisibleTest {
         scene = new Scene(new Group(), 500, 500);
         stage.setScene(scene);
 
-        traversalEngine = new SceneTraversalEngine(scene);
-
-        keypadNodes = createKeypadNodesInScene(scene, traversalEngine);
+        keypadNodes = createKeypadNodesInScene(scene);
         stage.show();
         stage.requestFocus();
     }
@@ -107,23 +103,20 @@ public final class TraverseInvisibleTest {
         stage = null;
         scene = null;
         keypadNodes = null;
-        traversalEngine = null;
     }
 
     @Test
     public void traverseOverInvisible() {
         keypadNodes[fromNumber].requestFocus();
         keypadNodes[invisibleNumber].setVisible(false);
-        traversalEngine.trav(scene.getRoot(), keypadNodes[fromNumber], direction, TraversalMethod.DEFAULT);
+        TopMostTraversalEngine.trav(scene.getRoot(), keypadNodes[fromNumber], direction, TraversalMethod.DEFAULT);
 
         assertTrue(keypadNodes[toNumber].isFocused());
 
         keypadNodes[invisibleNumber - 1].setVisible(true);
     }
 
-    private static Node[] createKeypadNodesInScene(
-            final Scene scene,
-            final TraversalEngine traversalEngine) {
+    private static Node[] createKeypadNodesInScene(final Scene scene) {
         final Node[] keypad = new Node[9];
 
         int index = 0;
