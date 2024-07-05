@@ -30,23 +30,18 @@ import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleRole;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Control;
 import javafx.scene.control.SkinBase;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.FakeFocusTextField;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.behavior.SpinnerBehavior;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 
 /**
  * Default skin implementation for the {@link Spinner} control.

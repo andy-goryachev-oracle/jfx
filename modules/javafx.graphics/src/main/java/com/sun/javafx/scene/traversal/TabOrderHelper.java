@@ -36,7 +36,7 @@ final class TabOrderHelper {
     private static Node findPreviousFocusableInList(List<Node> nodeList, int startIndex) {
         for (int i = startIndex ; i >= 0 ; i--) {
             Node prevNode = nodeList.get(i);
-            // ParentTraverEngine can override traversability, so we need to check it first
+            // TraversalPolicy can override traversability, so we need to check it first
             if (isDisabledOrInvisible(prevNode)) {
                 continue;
             }
@@ -133,7 +133,7 @@ final class TabOrderHelper {
             if (isDisabledOrInvisible(nextNode)) {
                 continue;
             }
-            // TraversePolicy can override traversability, so we need to check it first
+            // TraversalPolicy can override traversability, so we need to check it first
             if (isParentTraversable(nextNode)) {
                 return nextNode;
             } else if (nextNode instanceof Parent p) {

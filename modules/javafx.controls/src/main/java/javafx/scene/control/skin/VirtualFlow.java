@@ -65,12 +65,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import com.sun.javafx.logging.PlatformLogger;
-import com.sun.javafx.scene.ParentHelper;
 import com.sun.javafx.scene.control.Logging;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.VirtualScrollBar;
 import com.sun.javafx.scene.control.skin.Utils;
-import com.sun.javafx.scene.traversal.ParentTraversalEngine;
 
 /**
  * Implementation of a virtualized container using a cell based mechanism. This
