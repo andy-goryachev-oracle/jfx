@@ -100,7 +100,7 @@ public class FocusTraversalInputMap {
      * go the next focusTraversable Node above the current one.
      */
     public static final void traverseUp(KeyEvent e) {
-        traverse(getNode(e), javafx.scene.incubator.traversal.TraversalDirection.UP, TraversalMethod.KEY);
+        traverse(getNode(e), TraversalDirection.UP, TraversalMethod.KEY);
     }
 
     /**
@@ -108,7 +108,7 @@ public class FocusTraversalInputMap {
      * go the next focusTraversable Node below the current one.
      */
     public static final void traverseDown(KeyEvent e) {
-        traverse(getNode(e), javafx.scene.incubator.traversal.TraversalDirection.DOWN, TraversalMethod.KEY);
+        traverse(getNode(e), TraversalDirection.DOWN, TraversalMethod.KEY);
     }
 
     /**
@@ -116,7 +116,7 @@ public class FocusTraversalInputMap {
      * go the next focusTraversable Node left of the current one.
      */
     public static final void traverseLeft(KeyEvent e) {
-        traverse(getNode(e), javafx.scene.incubator.traversal.TraversalDirection.LEFT, TraversalMethod.KEY);
+        traverse(getNode(e), TraversalDirection.LEFT, TraversalMethod.KEY);
     }
 
     /**
@@ -124,7 +124,7 @@ public class FocusTraversalInputMap {
      * go the next focusTraversable Node right of the current one.
      */
     public static final void traverseRight(KeyEvent e) {
-        traverse(getNode(e), javafx.scene.incubator.traversal.TraversalDirection.RIGHT, TraversalMethod.KEY);
+        traverse(getNode(e), TraversalDirection.RIGHT, TraversalMethod.KEY);
     }
 
     /**
@@ -132,7 +132,7 @@ public class FocusTraversalInputMap {
      * go the next focusTraversable Node in the focus traversal cycle.
      */
     public static final void traverseNext(KeyEvent e) {
-        traverse(getNode(e), javafx.scene.incubator.traversal.TraversalDirection.NEXT, TraversalMethod.KEY);
+        traverse(getNode(e), TraversalDirection.NEXT, TraversalMethod.KEY);
     }
 
     /**
@@ -140,7 +140,7 @@ public class FocusTraversalInputMap {
      * go the previous focusTraversable Node in the focus traversal cycle.
      */
     public static final void traversePrevious(KeyEvent e) {
-        traverse(getNode(e), javafx.scene.incubator.traversal.TraversalDirection.PREVIOUS, TraversalMethod.KEY);
+        traverse(getNode(e), TraversalDirection.PREVIOUS, TraversalMethod.KEY);
     }
 
     private static Node getNode(KeyEvent e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -35,6 +35,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Control;
 import javafx.scene.control.PopupControl;
 import javafx.scene.incubator.traversal.FocusTraversal;
+import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -103,27 +104,27 @@ public class TwoLevelFocusBehavior {
                     switch (((KeyEvent)event).getCode()) {
                       case TAB :
                           if (((KeyEvent)event).isShiftDown()) {
-                              FocusTraversal.traverse((Node) obj, javafx.scene.incubator.traversal.TraversalDirection.PREVIOUS, TraversalMethod.KEY);
+                              FocusTraversal.traverse((Node) obj, TraversalDirection.PREVIOUS, TraversalMethod.KEY);
                           }
                           else {
-                              FocusTraversal.traverse((Node) obj, javafx.scene.incubator.traversal.TraversalDirection.NEXT, TraversalMethod.KEY);
+                              FocusTraversal.traverse((Node) obj, TraversalDirection.NEXT, TraversalMethod.KEY);
                           }
                           event.consume();
                           break;
                       case UP :
-                          FocusTraversal.traverse((Node) obj, javafx.scene.incubator.traversal.TraversalDirection.UP, TraversalMethod.KEY);
+                          FocusTraversal.traverse((Node) obj, TraversalDirection.UP, TraversalMethod.KEY);
                           event.consume();
                           break;
                       case DOWN :
-                          FocusTraversal.traverse((Node) obj, javafx.scene.incubator.traversal.TraversalDirection.DOWN, TraversalMethod.KEY);
+                          FocusTraversal.traverse((Node) obj, TraversalDirection.DOWN, TraversalMethod.KEY);
                           event.consume();
                           break;
                       case LEFT :
-                          FocusTraversal.traverse((Node) obj, javafx.scene.incubator.traversal.TraversalDirection.LEFT, TraversalMethod.KEY);
+                          FocusTraversal.traverse((Node) obj, TraversalDirection.LEFT, TraversalMethod.KEY);
                           event.consume();
                           break;
                       case RIGHT :
-                          FocusTraversal.traverse((Node) obj, javafx.scene.incubator.traversal.TraversalDirection.RIGHT, TraversalMethod.KEY);
+                          FocusTraversal.traverse((Node) obj, TraversalDirection.RIGHT, TraversalMethod.KEY);
                           event.consume();
                           break;
                       case ENTER :

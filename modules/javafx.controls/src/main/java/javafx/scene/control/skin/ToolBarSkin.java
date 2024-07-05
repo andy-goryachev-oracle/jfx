@@ -187,7 +187,9 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                     Node selected = TraversalPolicy.getDefault().select(item, owner, dir);
                     if (selected != null) return selected;
                     idx = boxChildren.indexOf(item);
-                    if (dir == TraversalDirection.NEXT) dir = TraversalDirection.NEXT_IN_LINE;
+                    if (dir == TraversalDirection.NEXT) {
+                        dir = TraversalDirection.NEXT_IN_LINE;
+                    }
                 }
 
                 if (idx >= 0) {
@@ -625,10 +627,7 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
                 overflowBox.getChildren().add(node);
                 if (node.isFocused()) {
                     if (!box.getChildren().isEmpty()) {
-                        Node last = getSkinnable().getTraversalPolicy().selectLast(getSkinnable());
-                        if (last != null) {
-                            last.requestFocus();
-                        }
+                        selectAndFocusLast();
                     } else {
                         overflowMenu.requestFocus();
                     }
@@ -640,13 +639,20 @@ public class ToolBarSkin extends SkinBase<ToolBar> {
         overflow = !overflowBox.getChildren().isEmpty();
         overflowNodeIndex = newOverflowNodeIndex;
         if (!overflow && overflowMenu.isFocused()) {
-            Node last = getSkinnable().getTraversalPolicy().selectLast(getSkinnable());
+            selectAndFocusLast();
+        }
+        overflowMenu.setVisible(overflow);
+        overflowMenu.setManaged(overflow);
+    }
+
+    private void selectAndFocusLast() {
+        TraversalPolicy p = getSkinnable().getTraversalPolicy();
+        if (p != null) {
+            Node last = p.selectLast(getSkinnable());
             if (last != null) {
                 last.requestFocus();
             }
         }
-        overflowMenu.setVisible(overflow);
-        overflowMenu.setManaged(overflow);
     }
 
     private void addNodesToToolBar() {

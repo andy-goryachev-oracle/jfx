@@ -71,9 +71,11 @@ public class TraversalEvent extends Event {
      *              traversal engine being used (i.e. the {@link Scene} or the root {@link Parent})
      * @param eventType Type of the event
      */
-    public TraversalEvent(final @NamedArg("node") Node node,
-                      final @NamedArg("bounds") Bounds bounds,
-                      final @NamedArg("eventType") EventType<? extends TraversalEvent> eventType) {
+    public TraversalEvent(
+        final @NamedArg("node") Node node,
+        final @NamedArg("bounds") Bounds bounds,
+        final @NamedArg("eventType") EventType<? extends TraversalEvent> eventType
+    ) {
         super(node, node, eventType);
         this.bounds = bounds;
     }
