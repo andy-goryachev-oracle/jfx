@@ -42,7 +42,7 @@ final class TabOrderHelper {
             }
             TraversalPolicy policy = prevNode instanceof Parent p ? p.getTraversalPolicy() : null;
             if (prevNode instanceof Parent p) {
-                if (policy != null) {
+                if ((policy != null) && policy.canTraverse()) {
                     Node selected = policy.selectLast(p);
                     if (selected != null) {
                         return selected;
@@ -138,7 +138,7 @@ final class TabOrderHelper {
                 return nextNode;
             } else if (nextNode instanceof Parent p) {
                 TraversalPolicy policy = p.getTraversalPolicy();
-                if (policy != null) {
+                if ((policy != null) && policy.canTraverse()) {
                     Node selected = policy.selectFirst(p);
                     if (selected != null) {
                         return selected;
@@ -208,7 +208,7 @@ final class TabOrderHelper {
         }
 
         TraversalPolicy policy = parent.getTraversalPolicy();
-        if (policy != null) {
+        if ((policy != null) && policy.canTraverse()) {
             Node selected = policy.selectFirst(parent);
             if (selected != null) {
                 return selected;
@@ -235,7 +235,7 @@ final class TabOrderHelper {
     public static Node getLastTargetNode(Parent parent) {
         if (parent == null || isDisabledOrInvisible(parent)) return null;
         TraversalPolicy policy = parent.getTraversalPolicy();
-        if (policy!= null) {
+        if ((policy != null) && policy.canTraverse()) {
             Node selected = policy.selectLast(parent);
             if (selected != null) {
                 return selected;

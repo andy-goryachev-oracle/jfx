@@ -86,6 +86,11 @@ public final class TraversalUtils {
             public Node selectLast(Parent root) {
                 return null;
             }
+
+            @Override
+            public final boolean canTraverse() {
+                return false;
+            }
         };
     }
 }

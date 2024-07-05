@@ -190,4 +190,13 @@ public abstract class TraversalPolicy {
     public boolean isParentTraversable(Parent root) {
         return root.isFocusTraversable();
     }
+
+    /**
+     * Returns true only if this policy allows for focus traversal.
+     * @return true if this policy allows for traversal
+     */
+    public boolean canTraverse() {
+        // TODO I wonder if this and TraversePolicy.none() should be removed altogether.
+        return true;
+    }
 }

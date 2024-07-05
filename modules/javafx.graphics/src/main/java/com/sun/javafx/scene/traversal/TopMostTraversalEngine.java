@@ -58,7 +58,7 @@ public final class TopMostTraversalEngine {
         while (p != null) {
             // First find the nearest traversal policy override
             TraversalPolicy policy = p.getTraversalPolicy();
-            if (policy != null) {
+            if ((policy != null) && policy.canTraverse()) {
                 newNode = policy.select(p, node, dir);
                 if (newNode != null) {
                     break;
