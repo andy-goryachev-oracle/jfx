@@ -26,8 +26,8 @@ package com.sun.javafx.scene.traversal;
 
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalDirection;
-import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.traversal.TraversalDirection;
+import javafx.scene.traversal.TraversalPolicy;
 
 /**
  * Non-traversable policy which allows for overriding of {@link #isParentTraversable(Parent)}.

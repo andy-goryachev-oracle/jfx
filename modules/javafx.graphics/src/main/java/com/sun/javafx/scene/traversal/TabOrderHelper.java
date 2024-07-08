@@ -29,7 +29,7 @@ import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.traversal.TraversalPolicy;
 import com.sun.javafx.scene.NodeHelper;
 
 final class TabOrderHelper {

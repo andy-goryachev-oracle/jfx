@@ -28,7 +28,7 @@ package com.sun.javafx.scene.control.behavior;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;
 import javafx.scene.control.DateCell;
-import javafx.scene.incubator.traversal.TraversalDirection;
+import javafx.scene.traversal.TraversalDirection;
 import com.sun.javafx.scene.control.DatePickerContent;
 import com.sun.javafx.scene.control.inputmap.InputMap;
 

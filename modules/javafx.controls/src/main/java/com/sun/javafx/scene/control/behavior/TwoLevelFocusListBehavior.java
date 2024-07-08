@@ -32,11 +32,11 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.incubator.traversal.FocusTraversal;
-import javafx.scene.incubator.traversal.TraversalDirection;
-import javafx.scene.incubator.traversal.TraversalMethod;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.traversal.FocusTraversal;
+import javafx.scene.traversal.TraversalDirection;
+import javafx.scene.traversal.TraversalMethod;
 import com.sun.javafx.scene.control.Properties;
 
 public class TwoLevelFocusListBehavior extends TwoLevelFocusBehavior {

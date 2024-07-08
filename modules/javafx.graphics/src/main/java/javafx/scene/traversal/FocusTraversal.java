@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package javafx.scene.incubator.traversal;
+package javafx.scene.traversal;
 
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.Node;

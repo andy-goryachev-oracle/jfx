@@ -23,7 +23,7 @@
  * questions.
  */
 
-package javafx.scene.incubator.traversal;
+package javafx.scene.traversal;
 
 import javafx.beans.NamedArg;
 import javafx.event.Event;

@@ -38,7 +38,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener.Change;
 import javafx.collections.ObservableList;
 import javafx.css.Selector;
-import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.traversal.TraversalPolicy;
 import javafx.stage.Window;
 import com.sun.javafx.collections.TrackableObservableList;
 import com.sun.javafx.collections.VetoableListDecorator;

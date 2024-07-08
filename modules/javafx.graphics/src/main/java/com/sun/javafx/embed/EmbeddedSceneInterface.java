@@ -29,10 +29,10 @@ import java.nio.IntBuffer;
 import javafx.collections.ObservableList;
 import javafx.event.EventType;
 import javafx.scene.image.PixelFormat;
-import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.InputMethodRequests;
 import javafx.scene.input.InputMethodTextRun;
+import javafx.scene.traversal.TraversalDirection;
 
 /**
  * An interface for embedded FX scene peer. It is used by HostInterface

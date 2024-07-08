@@ -25,13 +25,13 @@
 
 package com.sun.javafx.scene.traversal;
 
-import static javafx.scene.incubator.traversal.TraversalDirection.DOWN;
-import static javafx.scene.incubator.traversal.TraversalDirection.LEFT;
-import static javafx.scene.incubator.traversal.TraversalDirection.NEXT;
-import static javafx.scene.incubator.traversal.TraversalDirection.NEXT_IN_LINE;
-import static javafx.scene.incubator.traversal.TraversalDirection.PREVIOUS;
-import static javafx.scene.incubator.traversal.TraversalDirection.RIGHT;
-import static javafx.scene.incubator.traversal.TraversalDirection.UP;
+import static javafx.scene.traversal.TraversalDirection.DOWN;
+import static javafx.scene.traversal.TraversalDirection.LEFT;
+import static javafx.scene.traversal.TraversalDirection.NEXT;
+import static javafx.scene.traversal.TraversalDirection.NEXT_IN_LINE;
+import static javafx.scene.traversal.TraversalDirection.PREVIOUS;
+import static javafx.scene.traversal.TraversalDirection.RIGHT;
+import static javafx.scene.traversal.TraversalDirection.UP;
 import java.util.List;
 import java.util.Stack;
 import java.util.function.Function;
@@ -40,8 +40,8 @@ import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.incubator.traversal.TraversalDirection;
-import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.scene.traversal.TraversalDirection;
+import javafx.scene.traversal.TraversalPolicy;
 
 public class Heuristic2D extends TraversalPolicy {
 
