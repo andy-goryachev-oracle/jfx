@@ -38,8 +38,10 @@ import javafx.scene.Scene;
  * other events JavaFX, occur using the standard event filter / handling APIs. Therefore, to listen to
  * when a node is traversed, use code along the following lines:
  * <pre>{@code  Node node = ...;
- * node.addEventHandler(TraversalEvent.NODE_TRAVERSED, e -> {
+ * node.addEventHandler(TraversalEvent.NODE_TRAVERSED, (ev) -> {
  *   // Use properties of the TraversalEvent to appropriately react to this event
+ *   Node n = ev.getNode();
+ *   Bounds b = ev.getBounds();
  * });}</pre>
  *
  * @see TraversalPolicy
@@ -68,7 +70,7 @@ public class TraversalEvent extends Event {
      * Creates new instance of TraversalEvent.
      * @param node the {@link Node} which received the traversal event
      * @param bounds The layout bounds of the node, transformed into the coordinates of the root element in the
-     *              traversal engine being used (i.e. the {@link Scene} or the root {@link Parent})
+     *              traversal root being used (i.e. the {@link Scene} or the root {@link Parent})
      * @param eventType Type of the event
      */
     public TraversalEvent(
@@ -87,7 +89,7 @@ public class TraversalEvent extends Event {
 
     /**
      * The layout bounds of the node, transformed into the coordinates of the root element in the
-     * traversal engine being used (i.e. the {@link Scene} or the root {@link Parent}).
+     * traversal root being used (i.e. the {@link Scene} or the root {@link Parent}).
      *
      * @return the layout bounds of the node, transformed into the coordinates of the root element.
      */
@@ -101,5 +103,15 @@ public class TraversalEvent extends Event {
      */
     public Node getNode() {
         return (Node)getTarget();
+    }
+
+    @Override
+    public String toString() {
+        return 
+            getClass().getName() + 
+            "[node=" + getNode() +
+            ", bounds=" + getBounds() +
+            ", source=" + source +
+            "]";
     }
 }

@@ -24,16 +24,17 @@
  */
 package javafx.scene.incubator.traversal;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
+import javafx.stage.Window;
 import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
+import com.sun.javafx.scene.traversal.TraversalUtils;
 
 /**
- * To be moved to an incubating module javafx.incubator.scene.traversal.
- *
- * Provides a centralized facility to control the focus traversal in the JavaFX application.
+ * Provides the mechanism for focus traversal in the JavaFX application.
  *
  * @since 999 TODO
  */
@@ -132,9 +133,23 @@ public final class FocusTraversal {
         return false;
     }
 
-    // TODO static focusOwnerProperty
+    /**
+     * Returns the read-only property that tracks currently focused {@link Node}.
+     *
+     * @return the read-only property
+     */
+    public static final ReadOnlyObjectProperty<Node> focusedNodeProperty() {
+        return TraversalUtils.focusedNodeProperty();
+    }
 
-    // TODO static focusedWindow/SceneProperty
+    /**
+     * Returns the read-only property that tracks currently focused {@link Window}.
+     *
+     * @return the read-only property
+     */
+    public static final ReadOnlyObjectProperty<Window> focusedWindowProperty() {
+        return TraversalUtils.focusedWindowProperty();
+    }
 
     private FocusTraversal() {
     }

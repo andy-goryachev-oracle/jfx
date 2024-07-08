@@ -42,8 +42,8 @@ import com.sun.javafx.scene.traversal.TraversalUtils;
  *   <li>For {@link TraversalDirection#PREVIOUS PREVIOUS}:
  *       node -> node siblings ( ! first subtree then the node itself ! ) -> {@link TraversalDirection#PREVIOUS PREVIOUS} for node's parent</li>
  * </ul>
- *
- * <p>This ensures that the next direction will traverse the same nodes as previous (in the opposite order).</p>
+ * <p>
+ * This ensures that the next direction will traverse the same nodes as previous (in the opposite order).
  *
  * @see TraversalDirection
  * @since 999 TODO
@@ -92,6 +92,9 @@ public abstract class TraversalPolicy {
 
     /**
      * Determines whether the root is traversable.
+     * This method can be overridden by a subclass.  The base class simply returns the result of calling
+     * {@code root.isFocusTraversable();}
+     *
      * @param root the root
      * @return true if the root is traversable
      */
@@ -104,7 +107,7 @@ public abstract class TraversalPolicy {
      *
      * @return the default traversal policy
      */
-    public static TraversalPolicy getDefault() {
+    public static final TraversalPolicy getDefault() {
         return TraversalUtils.DEFAULT_POLICY;
     }
 }

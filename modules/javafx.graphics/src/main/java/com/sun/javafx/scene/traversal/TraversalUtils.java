@@ -26,12 +26,15 @@ package com.sun.javafx.scene.traversal;
 
 import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.incubator.traversal.TraversalDirection;
 import javafx.scene.incubator.traversal.TraversalPolicy;
+import javafx.stage.Window;
 import com.sun.javafx.application.PlatformImpl;
 import com.sun.javafx.scene.NodeHelper;
 
@@ -108,5 +111,25 @@ public final class TraversalUtils {
                 addFocusableChildrenToList(list, p);
             }
         }
+    }
+
+    private static final ReadOnlyObjectWrapper<Node> focusedNode = new ReadOnlyObjectWrapper<>();
+
+    public static ReadOnlyObjectProperty<Node> focusedNodeProperty() {
+        return focusedNode.getReadOnlyProperty();
+    }
+
+    public static void setFocusedNode(Node n) {
+        focusedNode.set(n);
+    }
+
+    private static final ReadOnlyObjectWrapper<Window> focusedWindow = new ReadOnlyObjectWrapper<>();
+
+    public static ReadOnlyObjectProperty<Window> focusedWindowProperty() {
+        return focusedWindow.getReadOnlyProperty();
+    }
+
+    public static void setFocusedWindow(Window w) {
+        focusedWindow.set(w);
     }
 }
