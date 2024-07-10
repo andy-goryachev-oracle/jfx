@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -36,6 +36,8 @@ public enum TraversalMethod {
 
     /**
      * Traversal was initiated by pressing a key on the keyboard.
+     * This method results in the {@code Node} visibly indicating focus by setting
+     * {@link javafx.scene.Node#focusVisibleProperty() Node.focusVisibleProperty}.
      */
     KEY
 }
