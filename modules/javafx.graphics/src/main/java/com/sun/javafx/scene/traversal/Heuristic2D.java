@@ -43,7 +43,7 @@ import javafx.scene.Parent;
 import javafx.scene.traversal.TraversalDirection;
 import javafx.scene.traversal.TraversalPolicy;
 
-public class Heuristic2D extends TraversalPolicy {
+public class Heuristic2D implements TraversalPolicy {
 
     Heuristic2D() {
     }

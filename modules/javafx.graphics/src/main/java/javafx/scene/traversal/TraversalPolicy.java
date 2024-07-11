@@ -48,7 +48,7 @@ import com.sun.javafx.scene.traversal.TraversalUtils;
  * @see TraversalDirection
  * @since 999 TODO
  */
-public abstract class TraversalPolicy {
+public interface TraversalPolicy {
     /**
      * Traverse from owner, in direction dir.
      * Return a the new target Node or null if no suitable target is found.
@@ -85,12 +85,6 @@ public abstract class TraversalPolicy {
     public abstract Node selectLast(Parent root);
 
     /**
-     * The constructor.
-     */
-    public TraversalPolicy() {
-    }
-
-    /**
      * Determines whether the root is traversable.
      * This method can be overridden by a subclass.  The base class simply returns the result of calling
      * {@code root.isFocusTraversable();}
@@ -98,7 +92,7 @@ public abstract class TraversalPolicy {
      * @param root the root
      * @return true if the root is traversable
      */
-    public boolean isParentTraversable(Parent root) {
+    public default boolean isParentTraversable(Parent root) {
         return root.isFocusTraversable();
     }
 
@@ -107,7 +101,7 @@ public abstract class TraversalPolicy {
      *
      * @return the default traversal policy
      */
-    public static final TraversalPolicy getDefault() {
+    public static TraversalPolicy getDefault() {
         return TraversalUtils.DEFAULT_POLICY;
     }
 }
