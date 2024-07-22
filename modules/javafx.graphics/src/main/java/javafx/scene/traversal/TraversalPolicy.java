@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -141,7 +141,7 @@ public abstract class TraversalPolicy {
         default:
             throw new IllegalArgumentException("Must specify either NEXT or NEXT_IN_LINE");
         }
-        return TraversalUtils.findNextFocusablePeer(root, node, dir);
+        return TraversalUtils.findNextFocusableNode(root, node, dir);
     }
 
     /**
@@ -162,6 +162,10 @@ public abstract class TraversalPolicy {
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
     protected final Node findPreviousFocusableNode(Parent root, Node node) {
-        return TraversalUtils.findPreviousFocusablePeer(root, node);
+        return TraversalUtils.findPreviousFocusableNode(root, node);
     }
+
+    // NOTE: similarly, we can add protected methods
+    // TabOrderHelper.getFirstTargetNode(root); and TabOrderHelper.getLastTargetNode(root);
+    // for use in selectFirst() and selectLast()
 }

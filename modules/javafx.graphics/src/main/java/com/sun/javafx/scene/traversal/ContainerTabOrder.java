@@ -42,11 +42,9 @@ public class ContainerTabOrder extends TraversalPolicy {
         switch (dir) {
             case NEXT:
             case NEXT_IN_LINE:
-                // TODO use instance method
-                return TabOrderHelper.findNextFocusablePeer(node, root, dir == TraversalDirection.NEXT);
+                return findNextFocusableNode(root, node, dir);
             case PREVIOUS:
-                // TODO use instance method
-                return TabOrderHelper.findPreviousFocusablePeer(node, root);
+                return findPreviousFocusableNode(root, node);
             case UP:
             case DOWN:
             case LEFT:

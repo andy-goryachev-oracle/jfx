@@ -55,12 +55,10 @@ public class Heuristic2D extends TraversalPolicy {
         cacheTraversal(node, dir);
 
         if (NEXT.equals(dir) || NEXT_IN_LINE.equals(dir)) {
-            // TODO use instance method
-            newNode = TabOrderHelper.findNextFocusablePeer(node, root, dir == NEXT);
+            newNode = findNextFocusableNode(root, node, dir);
         }
         else if (PREVIOUS.equals(dir)) {
-            // TODO use instance method
-            newNode = TabOrderHelper.findPreviousFocusablePeer(node, root);
+            newNode = findPreviousFocusableNode(root, node);
         }
         else if (UP.equals(dir) || DOWN.equals(dir) || LEFT.equals(dir) || RIGHT.equals(dir) ) {
             /*
