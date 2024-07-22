@@ -48,9 +48,7 @@ import org.junit.runners.Parameterized.Parameters;
 import com.sun.javafx.scene.traversal.TopMostTraversalEngine;
 
 /**
- * Tests for TraversalEngine with the default ContainerTabOrder policy,
- * tests if using the WeightedClosestCorner policy have been
- * left in comments.
+ * Tests for TraversalEngine with the default ContainerTabOrder policy.
  */
 @RunWith(Parameterized.class)
 public final class TraversalTest {
@@ -92,10 +90,6 @@ public final class TraversalTest {
             { 5, TraversalDirection.UP, 2, 4 },
             { 5, TraversalDirection.DOWN, 8, 6 },
 
-            // using WeightedClosestCorner, target varies according to transform
-            //{ 5, TraversalDirection.PREVIOUS, 4, 8 },
-            //{ 5, TraversalDirection.NEXT, 6, 2 },
-
             // using ContainerTabOrder, target is always the same
             { 5, TraversalDirection.PREVIOUS, 4, 4 },
             { 5, TraversalDirection.NEXT, 6, 6 },
@@ -105,12 +99,6 @@ public final class TraversalTest {
             { 6, TraversalDirection.RIGHT, 6, 3 },
             { 2, TraversalDirection.UP, 2, 1 },
             { 8, TraversalDirection.DOWN, 8, 9 },
-
-            // using WeightedClosestCorner, target varies according to transform
-            //{ 4, TraversalDirection.PREVIOUS, 3, 7 },
-            //{ 1, TraversalDirection.PREVIOUS, 9, 4 },
-            //{ 6, TraversalDirection.NEXT, 7, 3 },
-            //{ 9, TraversalDirection.NEXT, 1, 6 },
 
             // using ContainerTabOrder, target always the same
             { 4, TraversalDirection.PREVIOUS, 3, 3 },
@@ -123,12 +111,6 @@ public final class TraversalTest {
             { 8, TraversalDirection.LEFT, 7, 8 },
             { 4, TraversalDirection.UP, 1, 4 },
             { 6, TraversalDirection.DOWN, 9, 6 },
-
-            // using WeightedClosestCorner, target varies according to transform
-            //{ 8, TraversalDirection.PREVIOUS, 7, 1 },
-            //{ 7, TraversalDirection.PREVIOUS, 6, 3 },
-            //{ 2, TraversalDirection.NEXT, 3, 9 },
-            //{ 3, TraversalDirection.NEXT, 4, 7 }
 
             // using ContainerTabOrder, target always the same
             { 8, TraversalDirection.PREVIOUS, 7, 7 },
