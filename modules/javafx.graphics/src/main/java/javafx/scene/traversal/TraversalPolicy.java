@@ -48,7 +48,7 @@ import com.sun.javafx.scene.traversal.TraversalUtils;
  * @see TraversalDirection
  * @since 999 TODO
  */
-public interface TraversalPolicy {
+public abstract class TraversalPolicy {
     /**
      * Traverse from owner, in direction dir.
      * Return a the new target Node or null if no suitable target is found.
@@ -62,11 +62,11 @@ public interface TraversalPolicy {
      * </ol>
      *
      * @param root the traversal root
-     * @param owner the owner Node
+     * @param node the Node to traverse from
      * @param dir the traversal direction
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      */
-    public abstract Node select(Parent root, Node owner, TraversalDirection dir);
+    public abstract Node select(Parent root, Node node, TraversalDirection dir);
 
     /**
      * Return the first traversable node for the specified context (root).
@@ -85,14 +85,20 @@ public interface TraversalPolicy {
     public abstract Node selectLast(Parent root);
 
     /**
+     * The constructor.
+     */
+    public TraversalPolicy() {
+    }
+
+    /**
      * Determines whether the root is traversable.
      * This method can be overridden by a subclass.  The base class simply returns the result of calling
      * {@code root.isFocusTraversable();}
      *
-     * @param root the root
+     * @param root the traversal root
      * @return true if the root is traversable
      */
-    public default boolean isParentTraversable(Parent root) {
+    public boolean isParentTraversable(Parent root) {
         return root.isFocusTraversable();
     }
 
@@ -101,7 +107,61 @@ public interface TraversalPolicy {
      *
      * @return the default traversal policy
      */
-    public static TraversalPolicy getDefault() {
+    public static final TraversalPolicy getDefault() {
         return TraversalUtils.DEFAULT_POLICY;
+    }
+
+    /**
+     * Finds the next focusable peer, typically for use within
+     * {@link #select(Parent, Node, TraversalDirection)} for
+     * {@link TraversalDirection#NEXT} or
+     * {@link TraversalDirection#NEXT_IN_LINE} directions.
+     * <p>
+     * Example:<pre>     @Override
+     *     public Node select(Parent root, Node owner, TraversalDirection dir) {
+     *         switch(dir) {
+     *         case NEXT:
+     *         case NEXT_IN_LINE:
+     *             return findNextFocusableNode(root, owner, dir);
+     *         ...
+     * </pre>
+     *
+     * @param root the traversal root
+     * @param node the Node to traverse from
+     * @param dir the traversal direction
+     * @return the new focus owner or null if none found (in that case old focus owner is still valid)
+     * @throws IllegalArgumentException if the direction is other than {@code TraversalDirection.NEXT}
+     *         or {@code TraversalDirection.NEXT_IN_LINE}
+     */
+    protected final Node findNextFocusableNode(Parent root, Node node, TraversalDirection dir) {
+        switch (dir) {
+        case NEXT:
+        case NEXT_IN_LINE:
+            break;
+        default:
+            throw new IllegalArgumentException("Must specify either NEXT or NEXT_IN_LINE");
+        }
+        return TraversalUtils.findNextFocusablePeer(root, node, dir);
+    }
+
+    /**
+     * Finds the previous focusable peer, typically for use within
+     * {@link #select(Parent, Node, TraversalDirection)} for
+     * {@link TraversalDirection#PREVIOUS} directions.
+     * <p>
+     * Example:<pre>     @Override
+     *     public Node select(Parent root, Node owner, TraversalDirection dir) {
+     *         switch(dir) {
+     *         case PREVIOUS:
+     *             return findPreviousFocusableNode(root, owner);
+     *         ...
+     * </pre>
+     *
+     * @param root the traversal root
+     * @param node the Node to traverse from
+     * @return the new focus owner or null if none found (in that case old focus owner is still valid)
+     */
+    protected final Node findPreviousFocusableNode(Parent root, Node node) {
+        return TraversalUtils.findPreviousFocusablePeer(root, node);
     }
 }

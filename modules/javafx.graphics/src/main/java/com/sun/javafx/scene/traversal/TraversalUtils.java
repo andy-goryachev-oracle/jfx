@@ -109,4 +109,12 @@ public final class TraversalUtils {
             }
         }
     }
+
+    public static Node findNextFocusablePeer(Parent root, Node node, TraversalDirection dir) {
+        return TabOrderHelper.findNextFocusablePeer(node, root, dir == TraversalDirection.NEXT);
+    }
+
+    public static Node findPreviousFocusablePeer(Parent root, Node node) {
+        return TabOrderHelper.findPreviousFocusablePeer(node, root);
+    }
 }

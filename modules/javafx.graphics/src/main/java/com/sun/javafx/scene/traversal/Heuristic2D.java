@@ -43,7 +43,7 @@ import javafx.scene.Parent;
 import javafx.scene.traversal.TraversalDirection;
 import javafx.scene.traversal.TraversalPolicy;
 
-public class Heuristic2D implements TraversalPolicy {
+public class Heuristic2D extends TraversalPolicy {
 
     Heuristic2D() {
     }
@@ -55,9 +55,11 @@ public class Heuristic2D implements TraversalPolicy {
         cacheTraversal(node, dir);
 
         if (NEXT.equals(dir) || NEXT_IN_LINE.equals(dir)) {
+            // TODO use instance method
             newNode = TabOrderHelper.findNextFocusablePeer(node, root, dir == NEXT);
         }
         else if (PREVIOUS.equals(dir)) {
+            // TODO use instance method
             newNode = TabOrderHelper.findPreviousFocusablePeer(node, root);
         }
         else if (UP.equals(dir) || DOWN.equals(dir) || LEFT.equals(dir) || RIGHT.equals(dir) ) {

@@ -32,7 +32,7 @@ import javafx.scene.traversal.TraversalPolicy;
 /**
  * Non-traversable policy which allows for overriding of {@link #isParentTraversable(Parent)}.
  */
-public class OverridableTraversalPolicy implements TraversalPolicy {
+public class OverridableTraversalPolicy extends TraversalPolicy {
     private Boolean overridenTraversability;
 
     public OverridableTraversalPolicy() {

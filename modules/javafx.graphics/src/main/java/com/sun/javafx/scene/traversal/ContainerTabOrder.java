@@ -32,7 +32,7 @@ import javafx.scene.Parent;
 import javafx.scene.traversal.TraversalDirection;
 import javafx.scene.traversal.TraversalPolicy;
 
-public class ContainerTabOrder implements TraversalPolicy {
+public class ContainerTabOrder extends TraversalPolicy {
 
     ContainerTabOrder() {
     }
@@ -42,8 +42,10 @@ public class ContainerTabOrder implements TraversalPolicy {
         switch (dir) {
             case NEXT:
             case NEXT_IN_LINE:
+                // TODO use instance method
                 return TabOrderHelper.findNextFocusablePeer(node, root, dir == TraversalDirection.NEXT);
             case PREVIOUS:
+                // TODO use instance method
                 return TabOrderHelper.findPreviousFocusablePeer(node, root);
             case UP:
             case DOWN:
