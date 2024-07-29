@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Objects;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -58,6 +59,7 @@ import javafx.util.Duration;
 import com.sun.jfx.incubator.scene.control.input.InputMapHelper;
 import com.sun.jfx.incubator.scene.control.richtext.CssStyles;
 import com.sun.jfx.incubator.scene.control.richtext.Params;
+import com.sun.jfx.incubator.scene.control.richtext.RTAccessibilityHelper;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextAreaSkinHelper;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
@@ -292,6 +294,7 @@ public class RichTextArea extends Control {
     private StyleableBooleanProperty useContentHeight;
     private StyleableBooleanProperty useContentWidth;
     private StyleableBooleanProperty wrapText;
+    private RTAccessibilityHelper accessibilityHelper;
     // will be moved to Control JDK-8314968
     private final InputMap inputMap = new InputMap(this);
 
@@ -318,17 +321,25 @@ public class RichTextArea extends Control {
         setAccessibleRole(AccessibleRole.TEXT_AREA);
         setAccessibleRoleDescription("Rich Text Area");
 
-        selectionModel.selectionProperty().addListener((s, p, c) -> {
-            int c0 = p == null ? -1 : p.getCaret().index();
-            int c1 = c == null ? -1 : c.getCaret().index();
-            if (c0 != c1) {
-                // changing paragraph means we must update a11y TEXT
-                nas(AccessibleAttribute.TEXT);
+        selectionModel.selectionProperty().addListener((s, old, cur) -> {
+            TextPos min0 = old == null ? null : old.getMin();
+            TextPos max0 = old == null ? null : old.getMax();
+            TextPos min2 = cur == null ? null : cur.getMin();
+            TextPos max2 = cur == null ? null : cur.getMax();
+
+            if (accessibilityHelper != null) {
+                if (accessibilityHelper.handleSelectionChange(cur)) {
+                    nas(AccessibleAttribute.TEXT);
+                }
             }
-            // TODO should we actually check whether caret/anchor positions changed?
-            // TODO what is the correspondence between start/end and caret/anchor? 
-            //nas(AccessibleAttribute.SELECTION_END);
-            nas(AccessibleAttribute.SELECTION_START);
+
+            if (!Objects.equals(min0, min2)) {
+                nas(AccessibleAttribute.SELECTION_START);
+            }
+
+            if (!Objects.equals(max0, max2)) {
+                nas(AccessibleAttribute.SELECTION_END);
+            }
         });
 
         setModel(model);
@@ -611,10 +622,12 @@ public class RichTextArea extends Control {
                 // TODO does this create a memory leak?  should we bind or weak listen?
                 private final StyledTextModel.Listener li = (ch) -> {
                     if (ch.isEdit()) {
-                        // TODO this may not be correct: notify only when the current paragraph is getting changed
-                        // and only as a result of background change and not the user typing
-                        // (we may need to add a boolean to the event)
-                        nas(AccessibleAttribute.TEXT);
+                        if (accessibilityHelper != null) {
+                            if (accessibilityHelper.handleTextUpdate(ch.getStart(), ch.getEnd())) {
+                                // TODO check the timing, may be runLater?
+                                nas(AccessibleAttribute.TEXT);
+                            }
+                        }
                     }
                 };
                 private StyledTextModel old;
@@ -646,8 +659,11 @@ public class RichTextArea extends Control {
                     }
                     old = m;
 
-                    nas(AccessibleAttribute.TEXT);
+                    if (accessibilityHelper != null) {
+                        accessibilityHelper.handleModelChange();
+                    }
                     selectionModel.clear();
+                    nas(AccessibleAttribute.TEXT);
                 }
             };
         }
@@ -2271,6 +2287,13 @@ public class RichTextArea extends Control {
         return null;
     }
 
+    private RTAccessibilityHelper accessibilityHelper() {
+        if(accessibilityHelper == null) {
+            accessibilityHelper = new RTAccessibilityHelper(this);
+        }
+        return accessibilityHelper;
+    }
+
     @Override
     public void executeAccessibleAction(AccessibleAction action, Object... parameters) {
         //System.out.println("execute: " + action); // FIX
@@ -2313,27 +2336,14 @@ public class RichTextArea extends Control {
                 if (accText != null && !accText.isEmpty()) {
                     return accText;
                 }
-                // report paragraph text since unlike TextArea, we cannot report the whole text as it might be large
-                TextPos p = getCaretPosition();
-                return p == null ? null : getPlainText(p.index());
+                return accessibilityHelper().getText();
             }
         case SELECTION_START:
-            {
-                SelectionSegment ss = getSelection();
-                // TODO or min/max
-                return ss == null ? null : ss.getCaret().offset();
-            }
+            return accessibilityHelper().selectionStart();
         case SELECTION_END:
-            {
-                SelectionSegment ss = getSelection();
-                // TODO or min/max
-                return ss == null ? null : ss.getAnchor().offset();
-            }
+            return accessibilityHelper().selectionEnd();
         case CARET_OFFSET:
-            {
-                SelectionSegment ss = getSelection();
-                return ss == null ? null : ss.getCaret().offset();
-            }
+            return accessibilityHelper().caretOffset();
         default:
             return super.queryAccessibleAttribute(attribute, parameters);
         }

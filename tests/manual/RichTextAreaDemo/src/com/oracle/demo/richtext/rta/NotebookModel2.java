@@ -82,7 +82,11 @@ public class NotebookModel2 extends SimpleViewOnlyStyledModel {
     }
 
     protected void execute() {
-        String q = query.get().toLowerCase();
+        String q = query.get();
+        if (q == null) {
+            q = "";
+        }
+        q = q.toLowerCase();
         if(q.equals(QUERY.toLowerCase())) {
             result.set(generate());
         } else {
