@@ -329,26 +329,20 @@ public class RichTextArea extends Control {
 
             if (accessibilityHelper != null) {
                 if (accessibilityHelper.handleSelectionChange(cur)) {
-                    nas(AccessibleAttribute.TEXT);
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
                 }
             }
 
             if (!Objects.equals(min0, min2)) {
-                nas(AccessibleAttribute.SELECTION_START);
+                notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
             }
 
             if (!Objects.equals(max0, max2)) {
-                nas(AccessibleAttribute.SELECTION_END);
+                notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
             }
         });
 
         setModel(model);
-    }
-
-    // FIX replace with direct call later
-    private void nas(AccessibleAttribute a) {
-        // System.out.println("notify: " + a); // FIX
-        notifyAccessibleAttributeChanged(a);
     }
 
     // Properties
@@ -625,7 +619,7 @@ public class RichTextArea extends Control {
                         if (accessibilityHelper != null) {
                             if (accessibilityHelper.handleTextUpdate(ch.getStart(), ch.getEnd())) {
                                 // TODO check the timing, may be runLater?
-                                nas(AccessibleAttribute.TEXT);
+                                notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
                             }
                         }
                     }
@@ -663,7 +657,7 @@ public class RichTextArea extends Control {
                         accessibilityHelper.handleModelChange();
                     }
                     selectionModel.clear();
-                    nas(AccessibleAttribute.TEXT);
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
                 }
             };
         }

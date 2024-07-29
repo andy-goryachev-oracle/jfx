@@ -50,7 +50,7 @@ public class RTAccessibilityHelper {
 
     // FIX remove
     private void p(String fmt, Object... args) {
-        if (true) {
+        if (false) {
             System.out.println(String.format(fmt, args));
         }
     }
