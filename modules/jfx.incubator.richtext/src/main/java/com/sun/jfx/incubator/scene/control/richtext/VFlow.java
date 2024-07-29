@@ -231,7 +231,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     /** width of the area available for text cells. */
     private double viewPortWidth() {
         double w = flow.getWidth() - leftPadding - rightPadding - snapSpaceX(Params.LAYOUT_FOCUS_BORDER) - snapSpaceX(Params.LAYOUT_FOCUS_BORDER);
-        if(w < 0.0) {
+        if (w < 0.0) {
             w = 0.0;
         }
         return snapSpaceX(w);
