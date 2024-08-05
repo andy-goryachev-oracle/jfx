@@ -107,7 +107,7 @@ public enum ModelChoice {
                                 if (i > start) {
                                     String s = text.substring(start, i);
                                     String style = num ? DIGITS : null;
-                                    b.addSegment(s, style, null);
+                                    b.withInlineStyle(s, style);
                                     start = i;
                                 }
                                 num = !num;
@@ -116,7 +116,7 @@ public enum ModelChoice {
                         if (start < sz) {
                             String s = text.substring(start);
                             String style = num ? DIGITS : null;
-                            b.addSegment(s, style, null);
+                            b.withInlineStyle(s, style);
                         }
                         return b.build();
                     }

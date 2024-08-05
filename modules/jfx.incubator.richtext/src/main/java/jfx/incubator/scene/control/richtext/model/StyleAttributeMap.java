@@ -97,6 +97,8 @@ public final class StyleAttributeMap {
     /** Empty attribute set. */
     public static final StyleAttributeMap EMPTY = new StyleAttributeMap(Collections.emptyMap());
 
+    private static final String[] EMPTY_ARRAY = new String[0];
+
     private final Map<StyleAttribute<?>,Object> attributes;
     static { initAccessor(); }
 
@@ -128,7 +130,7 @@ public final class StyleAttributeMap {
         if ((style == null) && (names == null)) {
             return StyleAttributeMap.EMPTY;
         } else if (names == null) {
-            names = new String[0];
+            names = EMPTY_ARRAY;
         }
         return new Builder().set(CssStyles.CSS, new CssStyles(style, names)).build();
     }

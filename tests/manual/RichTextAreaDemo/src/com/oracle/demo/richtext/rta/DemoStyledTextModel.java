@@ -81,16 +81,16 @@ public class DemoStyledTextModel extends StyledTextModelViewOnlyBase {
         String sz = format.format(size);
         String[] css = monospaced ? new String[] { "monospaced" } : null;
 
-        b.addSegment(s, "-fx-fill:darkgreen;", css);
-        b.addSegment(" / ", null, css);
-        b.addSegment(sz, "-fx-fill:black;", css);
+        b.withInlineAndExternalStyles(s, "-fx-fill:darkgreen;", css);
+        b.withStyles(" / ", css);
+        b.withInlineAndExternalStyles(sz, "-fx-fill:black;", css);
         if (monospaced) {
-            b.addSegment(" (monospaced)", null, css);
+            b.withStyles(" (monospaced)", css);
         }
 
         if ((ix % 10) == 9) {
             String words = generateWords(ix);
-            b.addSegment(words, null, css);
+            b.withStyles(words, css);
         }
         return b.build();
     }
