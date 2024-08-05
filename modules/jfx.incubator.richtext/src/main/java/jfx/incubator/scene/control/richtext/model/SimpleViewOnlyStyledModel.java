@@ -145,7 +145,7 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
      */
     public SimpleViewOnlyStyledModel withInlineStyle(String text, String style) {
         Objects.requireNonNull(text);
-        StyleAttributeMap a = StyleAttributeMap.fromStyles(style, null);
+        StyleAttributeMap a = StyleAttributeMap.fromInlineStyle(style);
         Paragraph p = lastParagraph();
         p.addSegment(text, a);
         return this;

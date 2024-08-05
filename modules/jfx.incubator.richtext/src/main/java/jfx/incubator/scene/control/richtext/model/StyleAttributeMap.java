@@ -135,6 +135,19 @@ public final class StyleAttributeMap {
         return new Builder().set(CssStyles.CSS, new CssStyles(style, names)).build();
     }
 
+    /**
+     * This convenience method creates an instance from an inline style.
+     *
+     * @param style the inline style, can be null
+     * @return the new instance
+     */
+    public static StyleAttributeMap fromInlineStyle(String style) {
+        if (style == null) {
+            return StyleAttributeMap.EMPTY;
+        }
+        return new Builder().set(CssStyles.CSS, new CssStyles(style, null)).build();
+    }
+
     @Override
     public boolean equals(Object x) {
         if (x == this) {
