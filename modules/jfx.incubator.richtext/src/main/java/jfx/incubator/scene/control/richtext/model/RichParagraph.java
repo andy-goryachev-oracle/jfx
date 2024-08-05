@@ -278,7 +278,7 @@ public abstract class RichParagraph {
          */
         public Builder withInlineStyle(String text, String style) {
             Objects.nonNull(text);
-            StyleAttributeMap a = StyleAttributeMap.fromStyles(style, null);
+            StyleAttributeMap a = StyleAttributeMap.fromStyles(style);
             addSegment(text, a);
             return this;
         }
