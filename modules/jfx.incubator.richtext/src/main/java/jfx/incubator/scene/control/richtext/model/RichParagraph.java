@@ -243,12 +243,12 @@ public abstract class RichParagraph {
          * Adds a styled text segment.
          *
          * @param text non-null text string
-         * @param style direct style (such as {@code -fx-fill:red;}), or null
-         * @param css array of style names, or null
+         * @param css array of style names, cannot be null
          * @return this {@code Builder} instance
          */
         public Builder withStyles(String text, String ... css) {
             Objects.nonNull(text);
+            Objects.nonNull(css);
             StyleAttributeMap a = StyleAttributeMap.fromStyles(null, css);
             addSegment(text, a);
             return this;

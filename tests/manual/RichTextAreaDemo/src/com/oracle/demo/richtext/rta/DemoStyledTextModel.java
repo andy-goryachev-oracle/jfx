@@ -79,7 +79,7 @@ public class DemoStyledTextModel extends StyledTextModelViewOnlyBase {
         RichParagraph.Builder b = RichParagraph.builder();
         String s = format.format(ix + 1);
         String sz = format.format(size);
-        String[] css = monospaced ? new String[] { "monospaced" } : null;
+        String[] css = monospaced ? new String[] { "monospaced" } : new String[0];
 
         b.withInlineAndExternalStyles(s, "-fx-fill:darkgreen;", css);
         b.withStyles(" / ", css);
