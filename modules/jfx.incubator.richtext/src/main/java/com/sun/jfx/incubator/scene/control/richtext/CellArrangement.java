@@ -62,7 +62,7 @@ public class CellArrangement {
 
     public CellArrangement(VFlow f) {
         this.flowWidth = f.getWidth();
-        this.flowHeight = f.getViewHeight();
+        this.flowHeight = f.getViewPortHeight();
         this.origin = f.getOrigin();
         this.lineCount = f.getParagraphCount();
         this.contentPadding = f.contentPadding();

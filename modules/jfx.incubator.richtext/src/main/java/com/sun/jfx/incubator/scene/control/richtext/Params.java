@@ -72,7 +72,7 @@ public class Params {
     public static final boolean DEFAULT_WRAP_TEXT = false;
 
     /** small space between the end of last character and the right edge when typing, in pixels. */
-    public static final double HORIZONTAL_GUARD = 10;
+    public static final double HORIZONTAL_GUARD = 0; //10;
 
     /** focus background outline size */
     public static final double LAYOUT_FOCUS_BORDER = 1;

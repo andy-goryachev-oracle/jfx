@@ -191,6 +191,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         offsetX.addListener((p) -> updateHorizontalScrollBar());
         origin.addListener((p) -> handleOriginChange());
         widthProperty().addListener((p) -> handleWidthChange());
+        heightProperty().addListener((p) -> handleHeightChange());
 
         vscroll.addEventFilter(MouseEvent.ANY, this::handleVScrollMouseEvent);
 
@@ -377,11 +378,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         return offsetX;
     }
 
-    /** max width of all visible text cells (cells within the viewport), excluding content padding */
-    private double unwrappedContentWidth() {
-        return unwrappedContentWidth;
-    }
-
     private void setUnwrappedContentWidth(double w) {
         if (w < Params.LAYOUT_MIN_WIDTH) {
             w = Params.LAYOUT_MIN_WIDTH;
@@ -398,7 +394,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     /** reacts to width changes */
-    protected void handleWidthChange() {
+    void handleWidthChange() {
+        // TODO or simply request layout?
+        // TODO in fact, this should be the default response to any property change that triggers a re-layout.
+        // except for those properties that cause changes in other properties.
+        /*
         if (control.isWrapText()) {
             double w = viewPortWidth;
             setUnwrappedContentWidth(w);
@@ -410,7 +410,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
 
             // scroll horizontally when expanding beyond right boundary
-            double delta = unwrappedContentWidth() + rightPadding - getOffsetX() - viewPortWidth;
+            double delta = unwrappedContentWidth + rightPadding - getOffsetX() - viewPortWidth;
             if (delta < 0.0) {
                 double off = getOffsetX() + delta;
                 if (off > -leftPadding) {
@@ -421,6 +421,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             // TODO set visibility
             updateHorizontalScrollBar();
         }
+        */
+        requestLayout();
+    }
+
+    /** reacts to height changes */
+    void handleHeightChange() {
+        requestLayout();
     }
 
     public void handleSelectionChange() {
@@ -527,7 +534,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         // generate shapes
         double left = -leftPadding;
-        double right = unwrappedContentWidth() + leftPadding + rightPadding;
+        double right = unwrappedContentWidth + leftPadding + rightPadding;
         // TODO
         boolean topLTR = true;
         boolean bottomLTR = true;
@@ -545,7 +552,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (control.isWrapText()) {
                 w = getWidth();
             } else {
-                w = Math.max(getWidth(), unwrappedContentWidth());
+                w = Math.max(getWidth(), unwrappedContentWidth);
             }
             cell.addBoxOutline(b, 0.0, snapPositionX(w), cell.getCellHeight());
         }
@@ -685,6 +692,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         handleScrollEvents = false;
 
+        // TODO move some to the constructor
         vscroll.setMin(0.0);
         vscroll.setMax(1.0);
         vscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
@@ -719,7 +727,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return;
         }
 
-        double max = unwrappedContentWidth() + leftPadding + rightPadding;
+        double max = unwrappedContentWidth + leftPadding + rightPadding;
         double w = vport.getWidth();
         double off = getOffsetX() + leftPadding;
         double vis = w / max;
@@ -727,6 +735,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         handleScrollEvents = false;
 
+        // TODO move some to the constructor
         hscroll.setMin(0.0);
         hscroll.setMax(1.0);
         hscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
@@ -746,7 +755,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 return;
             }
 
-            double max = unwrappedContentWidth() + leftPadding + rightPadding;
+            double max = unwrappedContentWidth + leftPadding + rightPadding;
             double visible = vport.getWidth();
             double val = hscroll.getValue();
             double off = fromScrollBarValue(val, visible, max) - leftPadding;
@@ -907,6 +916,328 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         return 0.0;
     }
 
+    /** returns a non-null layout, laying out cells if necessary */
+    protected CellArrangement arrangement() {
+        if (!inReflow && dirty || (arrangement == null)) {
+            reflow();
+        }
+        return arrangement;
+    }
+
+    private double getLineSpacing(Region r) {
+        if (r instanceof TextFlow f) {
+            return f.getLineSpacing();
+        }
+        return 0.0;
+    }
+
+    public double getViewPortHeight() {
+        return viewPortHeight;
+    }
+
+    public void pageUp() {
+        scrollVerticalPixels(-getViewPortHeight());
+    }
+
+    public void pageDown() {
+        scrollVerticalPixels(getViewPortHeight());
+    }
+
+    public void scrollVerticalFraction(double fractionOfHeight) {
+        scrollVerticalPixels(getViewPortHeight() * fractionOfHeight);
+    }
+
+    /** scroll by a number of pixels, delta must not exceed the view height in absolute terms */
+    public void scrollVerticalPixels(double delta) {
+        scrollVerticalPixels(delta, false);
+    }
+
+    /** scroll by a number of pixels, delta must not exceed the view height in absolute terms */
+    public void scrollVerticalPixels(double delta, boolean forceLayout) {
+        Origin or = arrangement().computeOrigin(delta);
+        if (or != null) {
+            setOrigin(or);
+            if (forceLayout) {
+                layoutChildren();
+            }
+        }
+    }
+
+    public void scrollHorizontalFraction(double delta) {
+        double w = vport.getWidth() + leftPadding + rightPadding;
+        scrollHorizontalPixels(delta * w);
+    }
+
+    public void scrollHorizontalPixels(double delta) {
+        double off = getOffsetX() + delta;
+        double w = vport.getWidth();
+        if (off < -leftPadding) {
+            off = -leftPadding;
+        } else if (off + w > (unwrappedContentWidth + leftPadding)) {
+            off = Math.max(0.0, unwrappedContentWidth + leftPadding - w);
+        }
+        setOffsetX(off);
+        // no need to recompute the flow
+        placeCells();
+        updateCaretAndSelection();
+    }
+
+    /** scrolls to visible area, using vflow.content coordinates */
+    public void scrollToVisible(double x, double y) {
+        if (y < 0.0) {
+            // above viewport
+            scrollVerticalPixels(y);
+        } else if (y >= getViewPortHeight()) {
+            // below viewport
+            scrollVerticalPixels(y - getViewPortHeight());
+        }
+
+        scrollHorizontalToVisible(x);
+    }
+
+    public void scrollCaretToVisible() {
+        CaretInfo c = getCaretInfo();
+        if (c == null) {
+            // caret is outside of the layout; let's set the origin first to the caret position
+            // and then block scroll to avoid scrolling past the document end, if needed
+            TextPos p = control.getCaretPosition();
+            if (p != null) {
+                int ix = p.index();
+                Origin or = new Origin(ix, 0.0);
+                boolean moveDown = (ix > getOrigin().index());
+                setOrigin(or);
+                // TODO this can be null?
+                c = getCaretInfo();
+                if (moveDown) {
+                    scrollVerticalPixels(c.getMaxY() - c.getMinY() - getViewPortHeight());
+                }
+                checkForExcessiveWhitespaceAtTheEnd();
+            }
+        } else {
+            // block scroll, if needed
+            if (c.getMinY() < 0.0) {
+                scrollVerticalPixels(c.getMinY());
+            } else if (c.getMaxY() > getViewPortHeight()) {
+                scrollVerticalPixels(c.getMaxY() - getViewPortHeight());
+            }
+
+            if (!control.isWrapText()) {
+                // FIX primary caret
+                double x = c.getMinX();
+                if (x + leftPadding < 0.0) {
+                    scrollHorizontalToVisible(x);
+                } else {
+                    scrollHorizontalToVisible(c.getMaxX());
+                }
+            }
+        }
+    }
+
+    /** x - vflow.content coordinate */
+    private void scrollHorizontalToVisible(double x) {
+        if (!control.isWrapText()) {
+            x += leftPadding;
+            double cw = vport.getWidth();
+            double off;
+            if (x < 0.0) {
+                off = Math.max(getOffsetX() + x - Params.HORIZONTAL_GUARD, 0.0);
+            } else if (x > cw) {
+                off = getOffsetX() + x - cw + Params.HORIZONTAL_GUARD;
+            } else {
+                return;
+            }
+
+            setOffsetX(off);
+            placeCells();
+            updateCaretAndSelection();
+        }
+    }
+
+    protected void checkForExcessiveWhitespaceAtTheEnd() {
+        double delta = arrangement().bottomHeight() - getViewPortHeight();
+        if (delta < 0) {
+            if (getOrigin().index() == 0) {
+                if (getOrigin().offset() <= -topPadding) {
+                    return;
+                }
+            }
+            scrollVerticalPixels(delta);
+        }
+    }
+
+    @Override
+    public void onContentChange(ContentChange ch) {
+        if (ch.isEdit()) {
+            Origin newOrigin = computeNewOrigin(ch);
+            if (newOrigin != null) {
+                setOrigin(newOrigin);
+            }
+        }
+        // TODO this could be more advanced to reduce the amount of re-computation and re-flow
+        // TODO clear cache >= start, update layout
+        cellCache.clear();
+        // TODO rebuild from start.lineIndex()
+        requestLayout();
+    }
+
+    private Origin computeNewOrigin(ContentChange ch) {
+        int startIndex = ch.getStart().index();
+        int endIndex = ch.getEnd().index();
+        // TODO store position of the last visible symbol, use that to compare with 'start' to avoid reflow
+        Origin or = getOrigin();
+        int lineDelta = endIndex - startIndex + ch.getLinesAdded();
+
+        // jump to start if the old origin is within the changed range
+        if ((startIndex <= or.index()) && (or.index() < (startIndex + lineDelta))) {
+            return new Origin(startIndex, 0);
+        }
+
+        // adjust index only if the end precedes the origin
+        if (lineDelta != 0) {
+            if (
+                (endIndex < or.index()) ||
+                (
+                    (endIndex == or.index()) &&
+                    (ch.getEnd().offset() < or.offset())
+                )
+            )
+            {
+                return new Origin(or.index() + lineDelta, or.offset());
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public StyleAttributeMap resolveStyles(StyleAttributeMap attrs) {
+        if (attrs == null) {
+            return attrs;
+        }
+        CssStyles css = attrs.get(CssStyles.CSS);
+        if (css == null) {
+            // no conversion is needed
+            return attrs;
+        }
+
+        String directStyle = css.style();
+        String[] names = css.names();
+
+        getChildren().add(measurer);
+        try {
+            measurer.setStyle(directStyle);
+            if (names == null) {
+                measurer.getStyleClass().clear();
+            } else {
+                measurer.getStyleClass().setAll(names);
+            }
+            measurer.applyCss();
+            return StyleAttributeMap.fromTextNode(measurer);
+        } finally {
+            getChildren().remove(measurer);
+        }
+    }
+
+    @Override
+    public WritableImage snapshot(Node n) {
+        n.setManaged(false);
+        getChildren().add(n);
+        try {
+            n.applyCss();
+            if (n instanceof Region r) {
+                double w = unwrappedContentWidth;
+                double h = r.prefHeight(w);
+                layoutInArea(r, 0, -h, w, h, 0, HPos.CENTER, VPos.CENTER);
+            }
+            return n.snapshot(null, null);
+        } finally {
+            getChildren().remove(n);
+        }
+    }
+
+    public void handleUseContentHeight() {
+        boolean on = control.isUseContentHeight();
+        if (on) {
+            setUnwrappedContentWidth(0.0);
+            setOrigin(new Origin(0, -topPadding));
+            setOffsetX(-leftPadding);
+        }
+        requestControlLayout(false);
+    }
+
+    public void handleUseContentWidth() {
+        boolean on = control.isUseContentWidth();
+        if (on) {
+            setUnwrappedContentWidth(0.0);
+            setOrigin(new Origin(0, -topPadding));
+            setOffsetX(-leftPadding);
+        }
+        requestControlLayout(false);
+    }
+
+    @Override
+    public void requestLayout() {
+        dirty = true;
+        super.requestLayout();
+    }
+
+    /**
+     * Requests full layout with optional clearing of the cached cells.
+     * @param clearCache if true, clears the cell cache
+     */
+    public void requestControlLayout(boolean clearCache) {
+        if (clearCache) {
+            cellCache.clear();
+        }
+        requestParentLayout();
+        requestLayout();
+    }
+
+    // FIX same treatment as with usePrefHeight
+    private void updatePrefWidth() {
+        if (!control.prefWidthProperty().isBound()) {
+            double w = getFlowWidth();
+            if (w >= 0.0) {
+                if (vscroll.isVisible()) {
+                    w += vscroll.getWidth();
+                }
+            }
+
+            //D.p("w=", w); // FIX
+
+            Parent parent = getParent();
+            if (parent instanceof Region r) {
+                if (r.getPrefWidth() != w) {
+                    r.setPrefWidth(w);
+                    control.getParent().requestLayout();
+                    requestControlLayout(false);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected double computePrefHeight(double width) {
+        if (control.isUseContentHeight()) {
+            return getFlowHeight();
+        }
+        return super.computePrefHeight(width);
+    }
+
+    public double getFlowHeight() {
+        return snapSizeY(Math.max(Params.LAYOUT_MIN_HEIGHT, arrangement().bottomHeight()));
+    }
+
+    public double getFlowWidth() {
+        return
+            arrangement().getUnwrappedWidth() +
+            snapSizeX(leftSide) +
+            snapSizeX(rightSide) +
+            leftPadding +
+            rightPadding +
+            snapSizeX(Params.HORIZONTAL_GUARD);
+    }
+
     @Override
     protected void layoutChildren() {
         reflow();
@@ -939,29 +1270,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
     }
 
-    /** returns a non-null layout, laying out cells if necessary */
-    protected CellArrangement arrangement() {
-        if (!inReflow && dirty || (arrangement == null)) {
-            reflow();
-        }
-        return arrangement;
-    }
-
     /**
      * Recomputes sliding window and lays out scrollbars, left/right sides, and viewport.
      * This process might be repeated if one of the scroll bars changes its visibility as a result.
      * (up to 4 times worst case)
-     * TODO: avoid entering an infinite loop with the scroll bar(s)
-     *
-     * algorithm:
-     * - flags: use content height/width, wrap, unwrappedWidth
-     * - for(;;)
-     * - leftSide, rightSide, vsbWidth, hsbHeight, vportHeight, vportWidth
-     * - sizeCells
-     * - determine arrangement.prefWidth, prefHeight
-     * ? set pref height/width
-     * - if scrollbars visibility changed, do it again
-     * - finally, lay out nodes
      */
     protected void layoutCells() {
         // TODO move to handle model change (or maybe unnecessary because of getParagraphCount();
@@ -1176,16 +1488,16 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             width = unwrappedWidth + leftSide + rightSide + leftPadding + rightPadding;
         }
 
-        viewPortWidth = width - leftSide - rightSide;
+        viewPortWidth = width - leftSide - rightSide - vsbWidth;
         if (viewPortWidth < Params.MIN_VIEWPORT_WIDTH) {
             viewPortWidth = Params.MIN_VIEWPORT_WIDTH;
         }
-        double contentHeight = height;
+        viewPortHeight = height;
 
         // lay out scroll bars
         boolean vsbVisible = useContentHeight ?
             false :
-            (arrangementHeight + topPadding + bottomPadding) > contentHeight;
+            (arrangementHeight + topPadding + bottomPadding) > viewPortHeight;
 
         if (vsbVisible != vscroll.isVisible()) {
             vscroll.setVisible(vsbVisible);
@@ -1238,7 +1550,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             double w = viewPortWidth;
             setUnwrappedContentWidth(w);
         } else {
-            if (unwrappedContentWidth() != unwrappedWidth) {
+            if (unwrappedContentWidth != unwrappedWidth) {
                 setUnwrappedContentWidth(unwrappedWidth);
 
                 if (useContentWidth) {
@@ -1292,6 +1604,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             TextCell cell = arrangement.getCellAt(i);
             double h = cell.getCellHeight();
             double y = cell.getY();
+            // TODO use cell pref width when wrap=off
             vport.layoutInArea(cell, x, y, w, h);
 
             // this step is needed to get the correct caret path afterwards
@@ -1316,319 +1629,5 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 }
             }
         }
-    }
-
-    private double getLineSpacing(Region r) {
-        if (r instanceof TextFlow f) {
-            return f.getLineSpacing();
-        }
-        return 0.0;
-    }
-
-    public double getViewHeight() {
-        return vport.getHeight();
-    }
-
-    public void pageUp() {
-        scrollVerticalPixels(-getViewHeight());
-    }
-
-    public void pageDown() {
-        scrollVerticalPixels(getViewHeight());
-    }
-
-    public void scrollVerticalFraction(double fractionOfHeight) {
-        scrollVerticalPixels(getViewHeight() * fractionOfHeight);
-    }
-
-    /** scroll by a number of pixels, delta must not exceed the view height in absolute terms */
-    public void scrollVerticalPixels(double delta) {
-        scrollVerticalPixels(delta, false);
-    }
-
-    /** scroll by a number of pixels, delta must not exceed the view height in absolute terms */
-    public void scrollVerticalPixels(double delta, boolean forceLayout) {
-        Origin or = arrangement().computeOrigin(delta);
-        if (or != null) {
-            setOrigin(or);
-            if (forceLayout) {
-                layoutChildren();
-            }
-        }
-    }
-
-    public void scrollHorizontalFraction(double delta) {
-        double w = vport.getWidth() + leftPadding + rightPadding;
-        scrollHorizontalPixels(delta * w);
-    }
-
-    public void scrollHorizontalPixels(double delta) {
-        double off = getOffsetX() + delta;
-        double w = vport.getWidth();
-        if (off < -leftPadding) {
-            off = -leftPadding;
-        } else if (off + w > (unwrappedContentWidth() + leftPadding)) {
-            off = Math.max(0.0, unwrappedContentWidth() + leftPadding - w);
-        }
-        setOffsetX(off);
-        // no need to recompute the flow
-        placeCells();
-        updateCaretAndSelection();
-    }
-
-    /** scrolls to visible area, using vflow.content coordinates */
-    public void scrollToVisible(double x, double y) {
-        if (y < 0.0) {
-            // above viewport
-            scrollVerticalPixels(y);
-        } else if (y >= getViewHeight()) {
-            // below viewport
-            scrollVerticalPixels(y - getViewHeight());
-        }
-
-        scrollHorizontalToVisible(x);
-    }
-
-    public void scrollCaretToVisible() {
-        CaretInfo c = getCaretInfo();
-        if (c == null) {
-            // caret is outside of the layout; let's set the origin first to the caret position
-            // and then block scroll to avoid scrolling past the document end, if needed
-            TextPos p = control.getCaretPosition();
-            if (p != null) {
-                int ix = p.index();
-                Origin or = new Origin(ix, 0.0);
-                boolean moveDown = (ix > getOrigin().index());
-                setOrigin(or);
-                // TODO this can be null?
-                c = getCaretInfo();
-                if (moveDown) {
-                    scrollVerticalPixels(c.getMaxY() - c.getMinY() - getViewHeight());
-                }
-                checkForExcessiveWhitespaceAtTheEnd();
-            }
-        } else {
-            // block scroll, if needed
-            if (c.getMinY() < 0.0) {
-                scrollVerticalPixels(c.getMinY());
-            } else if (c.getMaxY() > getViewHeight()) {
-                scrollVerticalPixels(c.getMaxY() - getViewHeight());
-            }
-
-            if (!control.isWrapText()) {
-                // FIX primary caret
-                double x = c.getMinX();
-                if (x + leftPadding < 0.0) {
-                    scrollHorizontalToVisible(x);
-                } else {
-                    scrollHorizontalToVisible(c.getMaxX());
-                }
-            }
-        }
-    }
-
-    /** x - vflow.content coordinate */
-    private void scrollHorizontalToVisible(double x) {
-        if (!control.isWrapText()) {
-            x += leftPadding;
-            double cw = vport.getWidth();
-            double off;
-            if (x < 0.0) {
-                off = Math.max(getOffsetX() + x - Params.HORIZONTAL_GUARD, 0.0);
-            } else if (x > cw) {
-                off = getOffsetX() + x - cw + Params.HORIZONTAL_GUARD;
-            } else {
-                return;
-            }
-
-            setOffsetX(off);
-            placeCells();
-            updateCaretAndSelection();
-        }
-    }
-
-    protected void checkForExcessiveWhitespaceAtTheEnd() {
-        double delta = arrangement().bottomHeight() - getViewHeight();
-        if (delta < 0) {
-            if (getOrigin().index() == 0) {
-                if (getOrigin().offset() <= -topPadding) {
-                    return;
-                }
-            }
-            scrollVerticalPixels(delta);
-        }
-    }
-
-    @Override
-    public void onContentChange(ContentChange ch) {
-        if (ch.isEdit()) {
-            Origin newOrigin = computeNewOrigin(ch);
-            if (newOrigin != null) {
-                setOrigin(newOrigin);
-            }
-        }
-        // TODO this could be more advanced to reduce the amount of re-computation and re-flow
-        // TODO clear cache >= start, update layout
-        cellCache.clear();
-        // TODO rebuild from start.lineIndex()
-        requestLayout();
-    }
-
-    private Origin computeNewOrigin(ContentChange ch) {
-        int startIndex = ch.getStart().index();
-        int endIndex = ch.getEnd().index();
-        // TODO store position of the last visible symbol, use that to compare with 'start' to avoid reflow
-        Origin or = getOrigin();
-        int lineDelta = endIndex - startIndex + ch.getLinesAdded();
-
-        // jump to start if the old origin is within the changed range
-        if ((startIndex <= or.index()) && (or.index() < (startIndex + lineDelta))) {
-            return new Origin(startIndex, 0);
-        }
-
-        // adjust index only if the end precedes the origin
-        if (lineDelta != 0) {
-            if (
-                (endIndex < or.index()) ||
-                (
-                    (endIndex == or.index()) &&
-                    (ch.getEnd().offset() < or.offset())
-                )
-            )
-            {
-                return new Origin(or.index() + lineDelta, or.offset());
-            }
-        }
-
-        return null;
-    }
-
-    @Override
-    public StyleAttributeMap resolveStyles(StyleAttributeMap attrs) {
-        if (attrs == null) {
-            return attrs;
-        }
-        CssStyles css = attrs.get(CssStyles.CSS);
-        if (css == null) {
-            // no conversion is needed
-            return attrs;
-        }
-
-        String directStyle = css.style();
-        String[] names = css.names();
-
-        getChildren().add(measurer);
-        try {
-            measurer.setStyle(directStyle);
-            if (names == null) {
-                measurer.getStyleClass().clear();
-            } else {
-                measurer.getStyleClass().setAll(names);
-            }
-            measurer.applyCss();
-            return StyleAttributeMap.fromTextNode(measurer);
-        } finally {
-            getChildren().remove(measurer);
-        }
-    }
-
-    @Override
-    public WritableImage snapshot(Node n) {
-        n.setManaged(false);
-        getChildren().add(n);
-        try {
-            n.applyCss();
-            if (n instanceof Region r) {
-                double w = unwrappedContentWidth();
-                double h = r.prefHeight(w);
-                layoutInArea(r, 0, -h, w, h, 0, HPos.CENTER, VPos.CENTER);
-            }
-            return n.snapshot(null, null);
-        } finally {
-            getChildren().remove(n);
-        }
-    }
-
-    public void handleUseContentHeight() {
-        boolean on = control.isUseContentHeight();
-        if (on) {
-            setUnwrappedContentWidth(0.0);
-            setOrigin(new Origin(0, -topPadding));
-            setOffsetX(-leftPadding);
-        }
-        requestControlLayout(false);
-    }
-
-    public void handleUseContentWidth() {
-        boolean on = control.isUseContentWidth();
-        if (on) {
-            setUnwrappedContentWidth(0.0);
-            setOrigin(new Origin(0, -topPadding));
-            setOffsetX(-leftPadding);
-        }
-        requestControlLayout(false);
-    }
-
-    @Override
-    public void requestLayout() {
-        dirty = true;
-        super.requestLayout();
-    }
-
-    /**
-     * Requests full layout with optional clearing of the cached cells.
-     * @param clearCache if true, clears the cell cache
-     */
-    public void requestControlLayout(boolean clearCache) {
-        if (clearCache) {
-            cellCache.clear();
-        }
-        requestParentLayout();
-        requestLayout();
-    }
-
-    // FIX same treatment as with usePrefHeight
-    private void updatePrefWidth() {
-        if (!control.prefWidthProperty().isBound()) {
-            double w = getFlowWidth();
-            if (w >= 0.0) {
-                if (vscroll.isVisible()) {
-                    w += vscroll.getWidth();
-                }
-            }
-
-            //D.p("w=", w); // FIX
-
-            Parent parent = getParent();
-            if (parent instanceof Region r) {
-                if (r.getPrefWidth() != w) {
-                    r.setPrefWidth(w);
-                    control.getParent().requestLayout();
-                    requestControlLayout(false);
-                }
-            }
-        }
-    }
-
-    @Override
-    protected double computePrefHeight(double width) {
-        if (control.isUseContentHeight()) {
-            return getFlowHeight();
-        }
-        return super.computePrefHeight(width);
-    }
-
-    public double getFlowHeight() {
-        return snapSizeY(Math.max(Params.LAYOUT_MIN_HEIGHT, arrangement().bottomHeight()));
-    }
-
-    public double getFlowWidth() {
-        return
-            arrangement().getUnwrappedWidth() +
-            snapSizeX(leftSide) +
-            snapSizeX(rightSide) +
-            leftPadding +
-            rightPadding +
-            snapSizeX(Params.HORIZONTAL_GUARD);
     }
 }

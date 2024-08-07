@@ -419,9 +419,9 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             // above visible area
             autoScroll(y);
             return;
-        } else if (y > vflow.getViewHeight()) {
+        } else if (y > vflow.getViewPortHeight()) {
             // below visible area
-            autoScroll(y - vflow.getViewHeight());
+            autoScroll(y - vflow.getViewPortHeight());
             return;
         } else {
             stopAutoScroll();
@@ -518,7 +518,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         vflow.scrollVerticalPixels(delta, true);
 
         double x = Math.max(0.0, phantomX + vflow.getOffsetX());
-        double y = autoScrollUp ? 0.0 : vflow.getViewHeight();
+        double y = autoScrollUp ? 0.0 : vflow.getViewPortHeight();
 
         vflow.scrollToVisible(x, y);
 
@@ -527,11 +527,11 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void pageDown() {
-        moveLine(vflow.getViewHeight(), false);
+        moveLine(vflow.getViewPortHeight(), false);
     }
 
     public void pageUp() {
-        moveLine(-vflow.getViewHeight(), false);
+        moveLine(-vflow.getViewPortHeight(), false);
     }
 
     public void moveRight() {
@@ -787,11 +787,11 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void selectPageDown() {
-        moveLine(vflow.getViewHeight(), true);
+        moveLine(vflow.getViewPortHeight(), true);
     }
 
     public void selectPageUp() {
-        moveLine(-vflow.getViewHeight(), true);
+        moveLine(-vflow.getViewPortHeight(), true);
     }
 
     public void selectAll() {
