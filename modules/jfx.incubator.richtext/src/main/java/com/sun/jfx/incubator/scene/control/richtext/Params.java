@@ -95,6 +95,9 @@ public class Params {
     /** default minimum width */
     public static final double MIN_WIDTH = 10;
 
+    /** minimum viewport width prevents extra tall text flows */
+    public static final double MIN_VIEWPORT_WIDTH = 10;
+
     /** default preferred height */
     public static final double PREF_HEIGHT = 100;
 

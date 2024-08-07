@@ -73,7 +73,6 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 public class RichTextAreaSkin extends SkinBase<RichTextArea> {
     private final ListenerHelper listenerHelper;
     private final RichTextAreaBehavior behavior;
-    private final Pane mainPane;
     private final VFlow vflow;
     private final ScrollBar vscroll;
     private final ScrollBar hscroll;
@@ -122,6 +121,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
 
         vflow = new VFlow(this, vscroll, hscroll);
 
+        /*
         mainPane = new Pane(vflow, vscroll, hscroll) {
             @Override
             protected double computePrefHeight(double width) {
@@ -180,7 +180,8 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
             }
         };
         mainPane.getStyleClass().add("main-pane");
-        getChildren().add(mainPane);
+        */
+        getChildren().add(vflow);
 
         behavior = new RichTextAreaBehavior(control);
 
@@ -251,7 +252,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
 
             listenerHelper.disconnect();
             vflow.dispose();
-            getChildren().remove(mainPane);
+            getChildren().remove(vflow);
 
             super.dispose();
         }

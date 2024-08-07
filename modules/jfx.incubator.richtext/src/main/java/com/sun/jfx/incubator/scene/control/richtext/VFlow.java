@@ -110,6 +110,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private double rightSide;
     private boolean inReflow;
     private double unwrappedContentWidth;
+    private double viewPortWidth;
+    private double viewPortHeight;
     private static final Text measurer = makeMeasurer();
     private static final VFlowCellContext context = new VFlowCellContext();
 
@@ -118,6 +120,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         this.control = skin.getSkinnable();
         this.vscroll = vscroll;
         this.hscroll = hscroll;
+
+        vscroll.setManaged(false);
+        hscroll.setManaged(false);
 
         cellCache = new FastCache(Params.CELL_CACHE_SIZE);
 
@@ -135,7 +140,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         content.setManaged(false);
 
         vport = new ClippedPane("vport");
-        vport.setManaged(true); // TODO unmanaged!
+        vport.setManaged(false);
 
         caretPath = new Path();
         caretPath.getStyleClass().add("caret");
@@ -156,7 +161,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         // layout
         content.getChildren().addAll(caretLineHighlight, selectionHighlight, vport, caretPath);
-        getChildren().addAll(content, leftGutter, rightGutter);
+        getChildren().addAll(content, leftGutter, rightGutter, vscroll, hscroll);
 
         caretAnimation = new Timeline();
         caretAnimation.setCycleCount(Animation.INDEFINITE);
@@ -229,30 +234,33 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     /** width of the area available for text cells. */
-    private double viewPortWidth() {
-        double w = vport.getWidth();
-        if (w == 0.0) {
-            return Params.MAX_WIDTH_FOR_LAYOUT;
-        }
-        w -= leftPadding - rightPadding - snapSpaceX(Params.LAYOUT_FOCUS_BORDER) - snapSpaceX(Params.LAYOUT_FOCUS_BORDER);
-        if (w < 0.0) {
-            w = 0.0;
-        }
-        return snapSpaceX(w);
-    }
+//    @Deprecated // FIX remove
+//    private double viewPortWidth() {
+//        double w = vport.getWidth();
+//        if (w == 0.0) {
+//            return Params.MAX_WIDTH_FOR_LAYOUT;
+//        }
+//        w -= leftPadding - rightPadding - snapSpaceX(Params.LAYOUT_FOCUS_BORDER) - snapSpaceX(Params.LAYOUT_FOCUS_BORDER);
+//        if (w < 0.0) {
+//            w = 0.0;
+//        }
+//        return snapSpaceX(w);
+//    }
 
     /** height of the area available for text cells. */
-    private double viewPortHeight() {
-        double h = vport.getHeight() - snapSpaceX(Params.LAYOUT_FOCUS_BORDER) - snapSpaceX(Params.LAYOUT_FOCUS_BORDER);
-        if (h < 0.0) {
-            h = 0.0;
-        }
-        return h;
-    }
+//    @Deprecated // FIX remove
+//    private double viewPortHeight() {
+//        double h = vport.getHeight() - snapSpaceX(Params.LAYOUT_FOCUS_BORDER) - snapSpaceX(Params.LAYOUT_FOCUS_BORDER);
+//        if (h < 0.0) {
+//            h = 0.0;
+//        }
+//        return h;
+//    }
 
     public final void handleWrapText() {
+        // TODO clear cache, offsetX, request layout
         if (control.isWrapText()) {
-            double w = viewPortWidth();
+            double w = viewPortWidth;
             setUnwrappedContentWidth(w);
         } else {
             setUnwrappedContentWidth(0.0);
@@ -392,7 +400,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     /** reacts to width changes */
     protected void handleWidthChange() {
         if (control.isWrapText()) {
-            double w = viewPortWidth();
+            double w = viewPortWidth;
             setUnwrappedContentWidth(w);
         } else {
             double w = getOffsetX() + vport.getWidth();
@@ -402,7 +410,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
 
             // scroll horizontally when expanding beyond right boundary
-            double delta = unwrappedContentWidth() + rightPadding - getOffsetX() - viewPortWidth();
+            double delta = unwrappedContentWidth() + rightPadding - getOffsetX() - viewPortWidth;
             if (delta < 0.0) {
                 double off = getOffsetX() + delta;
                 if (off > -leftPadding) {
@@ -904,6 +912,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         reflow();
     }
 
+    // TODO move all this to layoutChildren() ?
     protected void reflow() {
         inReflow = true;
         try {
@@ -938,11 +947,30 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         return arrangement;
     }
 
-    /** recomputes sliding window */
+    /**
+     * Recomputes sliding window and lays out scrollbars, left/right sides, and viewport.
+     * This process might be repeated if one of the scroll bars changes its visibility as a result.
+     * (up to 4 times worst case)
+     * TODO: avoid entering an infinite loop with the scroll bar(s)
+     *
+     * algorithm:
+     * - flags: use content height/width, wrap, unwrappedWidth
+     * - for(;;)
+     * - leftSide, rightSide, vsbWidth, hsbHeight, vportHeight, vportWidth
+     * - sizeCells
+     * - determine arrangement.prefWidth, prefHeight
+     * ? set pref height/width
+     * - if scrollbars visibility changed, do it again
+     * - finally, lay out nodes
+     */
     protected void layoutCells() {
+        // TODO move to handle model change (or maybe unnecessary because of getParagraphCount();
         if (control.getModel() == null) {
             leftGutter.setVisible(false);
             rightGutter.setVisible(false);
+            hscroll.setVisible(false);
+            vscroll.setVisible(false);
+            vport.setVisible(false);
             return;
         }
 
@@ -962,28 +990,31 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean useContentWidth = control.isUseContentWidth();
         boolean wrap = control.isWrapText() && !useContentWidth;
         double height = useContentHeight ? 0.0 : getHeight();
+        double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
+        double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
 
-        double forWidth;
-        double maxWidth;
+        double forWidth; // to be used for cell sizing in prefHeight()
+        double maxWidth; // TODO what is it?  replace with cell's preferred width (in unwrapped mode)
         if (wrap) {
-            forWidth = viewPortWidth();
+            forWidth = width - leftSide - rightSide - leftPadding - rightPadding - vsbWidth;
             maxWidth = forWidth;
         } else {
             forWidth = -1.0;
             maxWidth = Params.MAX_WIDTH_FOR_LAYOUT;
         }
 
+        double unwrappedWidth = 0.0;
+        // total height of cells for the purpose of determining vsb visibility
+        double arrangementHeight = 0.0;
+
         double ytop = snapPositionY(-getOrigin().offset());
         double y = ytop;
-        double unwrappedWidth = 0.0;
-        double total = 0.0;
         double margin = Params.SLIDING_WINDOW_EXTENT * height;
         int topMarginCount = 0;
         int bottomMarginCount = 0;
         int count = 0;
-        boolean visible = true;
+        boolean cellOnScreen = true;
         // TODO if topCount < marginCount, increase bottomCount correspondingly
-        // also, update Origin if layout hit the beginning/end of the document
 
         // populating visible part of the sliding window + bottom margin
         int i = topCellIndex();
@@ -994,18 +1025,17 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             vport.getChildren().add(cell);
             cell.setMaxWidth(maxWidth);
             cell.setMaxHeight(USE_COMPUTED_SIZE);
-
             cell.applyCss();
             cell.layout();
 
             arrangement.addCell(cell);
 
             double h = cell.prefHeight(forWidth) + getLineSpacing(r);
-            h = snapSizeY(h); // is this right?  or snap(y + h) - snap(y) ?
-            cell.setPosition(y, h/*, forWidth*/);
+            h = snapSizeY(h);
+            cell.setPosition(y, h);
 
             if (!wrap) {
-                if (visible) {
+                if (cellOnScreen) {
                     double w = cell.prefWidth(-1);
                     if (w > unwrappedWidth) {
                         unwrappedWidth = w;
@@ -1014,7 +1044,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
 
             y = snapPositionY(y + h);
-            total += h;
+            arrangementHeight += h;
             count++;
 
             if (useContentHeight) {
@@ -1025,12 +1055,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             } else {
                 // stop populating the bottom part of the sliding window
                 // when exceeded both pixel and line count margins
-                if (visible) {
+                if (cellOnScreen) {
                     if (y > height) {
                         topMarginCount = (int)Math.ceil(count * Params.SLIDING_WINDOW_EXTENT);
                         bottomMarginCount = count + topMarginCount;
                         arrangement.setVisibleCellCount(count);
-                        visible = false;
+                        cellOnScreen = false;
                     }
                 } else {
                     // remove invisible cell from layout after sizing
@@ -1044,7 +1074,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         // in case there are less paragraphs than can fit in the view
-        if (visible) {
+        if (cellOnScreen) {
             arrangement.setVisibleCellCount(count);
         }
 
@@ -1099,14 +1129,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         unwrappedWidth = snapSizeX(unwrappedWidth);
 
-        if(topCellIndex() > 0) {
-            total = Double.POSITIVE_INFINITY;
+        if (topCellIndex() > 0) {
+            arrangementHeight = Double.POSITIVE_INFINITY;
         }
 
         arrangement.setBottomCount(count);
         arrangement.setBottomHeight(y);
         arrangement.setUnwrappedWidth(unwrappedWidth);
-        arrangement.setTotalHeight(total);
         count = 0;
         y = ytop;
 
@@ -1126,11 +1155,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             arrangement.addCell(cell);
 
             double h = cell.prefHeight(forWidth) + getLineSpacing(r);
-            h = snapSizeY(h); // is this right?  or snap(y + h) - snap(y) ?
+            h = snapSizeY(h);
             y = snapPositionY(y - h);
             count++;
 
-            cell.setPosition(y, h/*, forWidth*/);
+            cell.setPosition(y, h);
 
             vport.getChildren().remove(cell);
 
@@ -1147,6 +1176,46 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             width = unwrappedWidth + leftSide + rightSide + leftPadding + rightPadding;
         }
 
+        viewPortWidth = width - leftSide - rightSide;
+        if (viewPortWidth < Params.MIN_VIEWPORT_WIDTH) {
+            viewPortWidth = Params.MIN_VIEWPORT_WIDTH;
+        }
+        double contentHeight = height;
+
+        // lay out scroll bars
+        boolean vsbVisible = useContentHeight ?
+            false :
+            (arrangementHeight + topPadding + bottomPadding) > contentHeight;
+
+        if (vsbVisible != vscroll.isVisible()) {
+            vscroll.setVisible(vsbVisible);
+            requestParentLayout(); // TODO or requestLayout? or do a cycle?
+            //System.out.println("vsb visible=" + vsbVisible); // FIX
+        }
+        if (vsbVisible) {
+            width -= vsbWidth;
+        }
+
+        boolean hsbVisible = (wrap || useContentWidth) ?
+            false :
+            (unwrappedWidth + leftPadding + rightPadding) > viewPortWidth;
+
+        if (hscroll.isVisible() != hsbVisible) {
+            hscroll.setVisible(hsbVisible);
+            requestParentLayout();
+            //System.out.println("hsb visible=" + hsbVisible); // FIX
+        }
+        if (hsbVisible) {
+            height -= hsbHeight;
+        }
+
+        if (vsbVisible) {
+            Region.layoutInArea(vscroll, width, 0.0, vsbWidth, height, 0.0, Insets.EMPTY, true, true, HPos.CENTER, VPos.CENTER, isSnapToPixel());
+        }
+        if (hsbVisible) {
+            Region.layoutInArea(hscroll, 0.0, height, width, hsbHeight, 0.0, Insets.EMPTY, true, true, HPos.CENTER, VPos.CENTER, isSnapToPixel());
+        }
+
         // lay out gutters
         if (leftDecorator == null) {
             leftGutter.setVisible(false); // TODO perhaps use bindings, and rely on .isVisible() here?
@@ -1156,16 +1225,17 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         if (rightDecorator == null) {
-            rightGutter.setVisible(false);
+            rightGutter.setVisible(false); // TODO perhaps use bindings, and rely on .isVisible() here?
         } else {
             rightGutter.setVisible(true);
             layoutInArea(rightGutter, width - rightSide, 0.0, rightSide, height, 0.0, HPos.CENTER, VPos.CENTER);
         }
 
-        layoutInArea(content, leftSide, 0.0, width - leftSide - rightSide, height, 0.0, HPos.CENTER, VPos.CENTER);
+        layoutInArea(content, leftSide, 0.0, viewPortWidth, height, 0.0, HPos.CENTER, VPos.CENTER);
+        Region.layoutInArea(vport, 0.0, 0.0, viewPortWidth, height, 0.0, Insets.EMPTY, true, true, HPos.CENTER, VPos.CENTER, isSnapToPixel());
 
         if (wrap) {
-            double w = viewPortWidth();
+            double w = viewPortWidth;
             setUnwrappedContentWidth(w);
         } else {
             if (unwrappedContentWidth() != unwrappedWidth) {
@@ -1179,26 +1249,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         if (useContentWidth) {
             updatePrefWidth();
-        }
-
-        boolean vsbVisible = useContentHeight ?
-            false :
-            (arrangement().getTotalHeight() + topPadding + bottomPadding) > viewPortHeight();
-
-        if (vsbVisible != vscroll.isVisible()) {
-            vscroll.setVisible(vsbVisible);
-            requestParentLayout();
-            //System.out.println("vsb visible=" + vsbVisible); // FIX
-        }
-
-        boolean hsbVisible = (wrap || useContentWidth) ?
-            false :
-            (unwrappedWidth + leftPadding + rightPadding) > viewPortWidth();
-
-        if (hscroll.isVisible() != hsbVisible) {
-            hscroll.setVisible(hsbVisible);
-            requestParentLayout();
-            //System.out.println("hsb visible=" + hsbVisible); // FIX
         }
 
         if (useContentHeight) {
@@ -1225,9 +1275,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         placeCells();
     }
 
-    protected void placeCells() {
+    private void placeCells() {
         boolean wrap = control.isWrapText() && !control.isUseContentWidth();
-        double w = wrap ? viewPortWidth() : Params.MAX_WIDTH_FOR_LAYOUT;
+        // FIX pass values
+        double w = wrap ? viewPortWidth : Params.MAX_WIDTH_FOR_LAYOUT;
         double x = snapPositionX(-getOffsetX());
 
         leftGutter.getChildren().clear();

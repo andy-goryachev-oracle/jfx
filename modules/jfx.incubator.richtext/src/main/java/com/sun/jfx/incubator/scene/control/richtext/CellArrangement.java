@@ -57,7 +57,6 @@ public class CellArrangement {
     private double unwrappedWidth;
     private double topHeight;
     private double bottomHeight;
-    private double totalHeight;
     private Node[] left;
     private Node[] right;
 
@@ -372,18 +371,5 @@ public class CellArrangement {
 
     public Node getRightNodeAt(int index) {
         return right[index];
-    }
-
-    /**
-     * Returns the total height of all cells that intersect the viewport, or Double.POSITIVE_INFINITY if there
-     * are at least one cell lays beyond the viewport.
-     * @return the total width
-     */
-    public double getTotalHeight() {
-        return totalHeight;
-    }
-
-    void setTotalHeight(double h) {
-        totalHeight = h;
     }
 }
