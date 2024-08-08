@@ -102,15 +102,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private FastCache<Node> rightCache;
     private boolean handleScrollEvents = true;
     private boolean vsbPressed;
-    private double topPadding;
-    private double bottomPadding;
-    private double leftPadding;
-    private double rightPadding;
+    private double contentPaddingTop;
+    private double contentPaddingBottom;
+    private double contentPaddingLeft;
+    private double contentPaddingRight;
     private double leftSide;
     private double rightSide;
     private boolean inReflow;
     private double unwrappedContentWidth;
-    private double viewPortWidth; // cells
+    private double viewPortWidth;
     private double viewPortHeight;
     private static final Text measurer = makeMeasurer();
     private static final VFlowCellContext context = new VFlowCellContext();
@@ -228,8 +228,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     public void handleModelChange() {
         setUnwrappedContentWidth(0.0);
-        setOrigin(new Origin(0, -topPadding));
-        setOffsetX(-leftPadding);
+        setOrigin(new Origin(0, -contentPaddingTop));
+        setOffsetX(-contentPaddingLeft);
         requestControlLayout(true);
         control.select(TextPos.ZERO);
     }
@@ -266,7 +266,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         } else {
             setUnwrappedContentWidth(0.0);
         }
-        setOffsetX(-leftPadding);
+        setOffsetX(-contentPaddingLeft);
 
         updateHorizontalScrollBar();
         updateVerticalScrollBar();
@@ -302,12 +302,20 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public void handleContentPadding() {
-        updateContentPadding();
+        Insets m = control.getContentPadding();
+        if (m == null) {
+            m = Insets.EMPTY;
+        }
 
-        setOffsetX(-leftPadding);
+        contentPaddingLeft = snapPositionX(m.getLeft());
+        contentPaddingRight = snapPositionX(m.getRight());
+        contentPaddingTop = snapPositionY(m.getTop());
+        contentPaddingBottom = snapPositionY(m.getBottom());
+
+        setOffsetX(-contentPaddingLeft);
 
         if (getOrigin().index() == 0) {
-            setOrigin(new Origin(0, -topPadding));
+            setOrigin(new Origin(0, -contentPaddingTop));
         }
 
         requestLayout();
@@ -315,20 +323,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         updateVerticalScrollBar();
     }
 
-    public void updateContentPadding() {
-        Insets m = control.getContentPadding();
-        if (m == null) {
-            m = Insets.EMPTY;
-        }
-
-        leftPadding = snapPositionX(m.getLeft());
-        rightPadding = snapPositionX(m.getRight());
-        topPadding = snapPositionY(m.getTop());
-        bottomPadding = snapPositionY(m.getBottom());
-    }
-
     public double leftPadding() {
-        return leftPadding;
+        return contentPaddingLeft;
     }
 
     /** Location of the top left corner. */
@@ -346,7 +342,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
         // prevent scrolling
         if (control.isUseContentHeight() || ((or.index() == 0) && (or.offset() == 0))) {
-            or = new Origin(0, -topPadding);
+            or = new Origin(0, -contentPaddingTop);
         }
         origin.set(or);
     }
@@ -368,7 +364,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     public void setOffsetX(double x) {
         // prevent scrolling
         if (control.isUseContentWidth()) {
-            x = -leftPadding;
+            x = -contentPaddingLeft;
         }
         offsetX.set(x);
     }
@@ -467,13 +463,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         FxPathBuilder b = new FxPathBuilder();
         createSelectionHighlight(b, anchor, caret);
         selectionHighlight.getElements().setAll(b.getPathElements());
-        selectionHighlight.setTranslateX(leftPadding);
+        selectionHighlight.setTranslateX(contentPaddingLeft);
 
         // caret
         b = new FxPathBuilder();
         createCaretPath(b, caret);
         caretPath.getElements().setAll(b.getPathElements());
-        caretPath.setTranslateX(leftPadding);
+        caretPath.setTranslateX(contentPaddingLeft);
     }
 
     protected void removeCaretAndSelection() {
@@ -533,15 +529,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         // generate shapes
-        double left = -leftPadding;
-        double right = unwrappedContentWidth + leftPadding + rightPadding;
+        double left = -contentPaddingLeft;
+        double right = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight;
         // TODO
         boolean topLTR = true;
         boolean bottomLTR = true;
 
         // FIX
         double lineSpacing = 0.0; // this is a problem!
-        new SelectionHelper(b, left, right).generate(top, bottom, topLTR, bottomLTR, leftPadding, lineSpacing);
+        new SelectionHelper(b, left, right).generate(top, bottom, topLTR, bottomLTR, contentPaddingLeft, lineSpacing);
     }
 
     protected void createCurrentLineHighlight(FxPathBuilder b, TextPos caret) {
@@ -568,7 +564,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     /** in vflow.flow coordinates */
     // TODO vflow.flow? or content?
     protected CaretInfo getCaretInfo(TextPos p) {
-        return arrangement().getCaretInfo(vport, getOffsetX() + leftPadding, p);
+        return arrangement().getCaretInfo(vport, getOffsetX() + contentPaddingLeft, p);
     }
 
     /** returns caret sizing info using vflow.content coordinates, or null */
@@ -727,9 +723,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return;
         }
 
-        double max = unwrappedContentWidth + leftPadding + rightPadding;
+        double max = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight;
         double w = vport.getWidth();
-        double off = getOffsetX() + leftPadding;
+        double off = getOffsetX() + contentPaddingLeft;
         double vis = w / max;
         double val = toScrollBarValue(off, w, max);
 
@@ -755,10 +751,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 return;
             }
 
-            double max = unwrappedContentWidth + leftPadding + rightPadding;
+            double max = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight;
             double visible = vport.getWidth();
             double val = hscroll.getValue();
-            double off = fromScrollBarValue(val, visible, max) - leftPadding;
+            double off = fromScrollBarValue(val, visible, max) - contentPaddingLeft;
 
             setOffsetX(snapPositionX(off));
             // no need to recompute the flow
@@ -964,17 +960,17 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public void scrollHorizontalFraction(double delta) {
-        double w = vport.getWidth() + leftPadding + rightPadding;
+        double w = vport.getWidth() + contentPaddingLeft + contentPaddingRight;
         scrollHorizontalPixels(delta * w);
     }
 
     public void scrollHorizontalPixels(double delta) {
         double off = getOffsetX() + delta;
         double w = vport.getWidth();
-        if (off < -leftPadding) {
-            off = -leftPadding;
-        } else if (off + w > (unwrappedContentWidth + leftPadding)) {
-            off = Math.max(0.0, unwrappedContentWidth + leftPadding - w);
+        if (off < -contentPaddingLeft) {
+            off = -contentPaddingLeft;
+        } else if (off + w > (unwrappedContentWidth + contentPaddingLeft)) {
+            off = Math.max(0.0, unwrappedContentWidth + contentPaddingLeft - w);
         }
         setOffsetX(off);
         // no need to recompute the flow
@@ -1024,7 +1020,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (!control.isWrapText()) {
                 // FIX primary caret
                 double x = c.getMinX();
-                if (x + leftPadding < 0.0) {
+                if (x + contentPaddingLeft < 0.0) {
                     scrollHorizontalToVisible(x);
                 } else {
                     scrollHorizontalToVisible(c.getMaxX());
@@ -1036,7 +1032,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     /** x - vflow.content coordinate */
     private void scrollHorizontalToVisible(double x) {
         if (!control.isWrapText()) {
-            x += leftPadding;
+            x += contentPaddingLeft;
             double cw = vport.getWidth();
             double off;
             if (x < 0.0) {
@@ -1057,7 +1053,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double delta = arrangement().bottomHeight() - getViewPortHeight();
         if (delta < 0) {
             if (getOrigin().index() == 0) {
-                if (getOrigin().offset() <= -topPadding) {
+                if (getOrigin().offset() <= -contentPaddingTop) {
                     return;
                 }
             }
@@ -1159,8 +1155,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean on = control.isUseContentHeight();
         if (on) {
             setUnwrappedContentWidth(0.0);
-            setOrigin(new Origin(0, -topPadding));
-            setOffsetX(-leftPadding);
+            setOrigin(new Origin(0, -contentPaddingTop));
+            setOffsetX(-contentPaddingLeft);
         }
         requestControlLayout(false);
     }
@@ -1169,8 +1165,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean on = control.isUseContentWidth();
         if (on) {
             setUnwrappedContentWidth(0.0);
-            setOrigin(new Origin(0, -topPadding));
-            setOffsetX(-leftPadding);
+            setOrigin(new Origin(0, -contentPaddingTop));
+            setOffsetX(-contentPaddingLeft);
         }
         requestControlLayout(false);
     }
@@ -1216,26 +1212,42 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
     }
 
-    @Override
-    protected double computePrefHeight(double width) {
-        if (control.isUseContentHeight()) {
-            return getFlowHeight();
-        }
-        return super.computePrefHeight(width);
-    }
-
-    public double getFlowHeight() {
+    private double getFlowHeight() {
         return snapSizeY(Math.max(Params.LAYOUT_MIN_HEIGHT, arrangement().bottomHeight()));
     }
 
-    public double getFlowWidth() {
+    private double getFlowWidth() {
         return
             arrangement().getUnwrappedWidth() +
             snapSizeX(leftSide) +
             snapSizeX(rightSide) +
-            leftPadding +
-            rightPadding +
+            contentPaddingLeft +
+            contentPaddingRight +
             snapSizeX(Params.HORIZONTAL_GUARD);
+    }
+
+    @Override
+    protected double computePrefHeight(double width) {
+        if (control.isUseContentHeight()) {
+            double h = getFlowHeight() + Params.LAYOUT_FOCUS_BORDER * 2;
+            if (hscroll.isVisible()) {
+                h += hscroll.prefHeight(width) + contentPaddingTop + contentPaddingBottom;
+            }
+            return h;
+        }
+        return super.computePrefHeight(width);
+    }
+
+    @Override
+    protected double computePrefWidth(double height) {
+        if (control.isUseContentWidth()) {
+            double w = unwrappedContentWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + Params.LAYOUT_FOCUS_BORDER * 2;
+            if (vscroll.isVisible()) {
+                w += vscroll.prefWidth(height);
+            }
+            return w;
+        }
+        return super.computePrefWidth(height);
     }
 
     @Override
@@ -1252,7 +1264,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             checkForExcessiveWhitespaceAtTheEnd();
             updateCaretAndSelection();
 
-            // eliminate VSB during scrolling with a mouse
+            // eliminate VSB jitter during scrolling with a mouse
             // the VSB will finally get updated on mouse released event
             if (!vsbPressed) {
                 updateVerticalScrollBar();
@@ -1309,7 +1321,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double forWidth; // to be used for cell sizing in prefHeight()
         double maxWidth; // TODO what is it?  replace with cell's preferred width (in unwrapped mode)
         if (wrap) {
-            forWidth = width - leftSide - rightSide - leftPadding - rightPadding - vsbWidth - borderX * 2;
+            forWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - borderX * 2;
             maxWidth = forWidth;
         } else {
             forWidth = -1.0;
@@ -1392,7 +1404,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         if (i == paragraphCount) {
-            y += bottomPadding;
+            y += contentPaddingBottom;
         }
 
         // populate side nodes
@@ -1486,7 +1498,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         arrangement.setTopHeight(-y);
 
         if (useContentWidth) {
-            width = unwrappedWidth + leftSide + rightSide + leftPadding + rightPadding + borderX + borderX;
+            width = unwrappedWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + borderX + borderX;
         }
 
         viewPortWidth = width - leftSide - rightSide - vsbWidth - borderX - borderX;
@@ -1500,7 +1512,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         // scroll bars
         boolean vsbVisible = useContentHeight ?
             false :
-            (arrangementHeight + topPadding + bottomPadding) > viewPortHeight;
+            (arrangementHeight + contentPaddingTop + contentPaddingBottom) > viewPortHeight;
 
         if (vsbVisible != vscroll.isVisible()) {
             vscroll.setVisible(vsbVisible);
@@ -1514,7 +1526,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         boolean hsbVisible = (wrap || useContentWidth) ?
             false :
-            (unwrappedWidth + leftPadding + rightPadding) > viewPortWidth;
+            (unwrappedWidth + contentPaddingLeft + contentPaddingRight) > viewPortWidth;
 
         if (hscroll.isVisible() != hsbVisible) {
             hscroll.setVisible(hsbVisible);

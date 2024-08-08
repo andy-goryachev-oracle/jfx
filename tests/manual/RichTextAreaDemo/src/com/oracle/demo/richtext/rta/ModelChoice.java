@@ -141,8 +141,6 @@ public enum ModelChoice {
             return new NotebookModel();
         case NOTEBOOK2:
             return new NotebookModel2();
-        case NOTEBOOK_STACK:
-            return new NotebookModelStacked();
         case NULL:
             return null;
         case ONE_LINE:
