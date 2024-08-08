@@ -54,6 +54,7 @@ import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 public final class TextCell extends BorderPane {
     private final int index;
     private final Region content;
+    private double width;
     private double height;
     private double y;
 
@@ -135,6 +136,14 @@ public final class TextCell extends BorderPane {
 
     public double getCellHeight() {
         return height;
+    }
+
+    public void setCellWidth(double w) {
+        width = w;
+    }
+
+    public double getCellWidth() {
+        return width;
     }
 
     public double getY() {

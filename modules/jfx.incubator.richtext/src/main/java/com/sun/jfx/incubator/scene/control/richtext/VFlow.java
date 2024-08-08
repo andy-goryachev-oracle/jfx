@@ -1301,6 +1301,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (!wrap) {
                 if (cellOnScreen) {
                     double w = cell.prefWidth(-1);
+                    cell.setCellWidth(w);
                     if (w > unwrappedWidth) {
                         unwrappedWidth = w;
                     }
@@ -1544,7 +1545,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     private void positionCells() {
         boolean wrap = control.isWrapText() && !control.isUseContentWidth();
-        double w = wrap ? viewPortWidth : Params.MAX_WIDTH_FOR_LAYOUT;
         double x = snapPositionX(-getOffsetX());
 
         leftGutter.getChildren().clear();
@@ -1558,7 +1558,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             TextCell cell = arrangement.getCellAt(i);
             double h = cell.getCellHeight();
             double y = cell.getY();
-            // TODO use cell pref width when wrap=off
+            double w = wrap ? viewPortWidth : cell.getCellWidth();
             vport.layoutInArea(cell, x, y, w, h);
 
             // this step is needed to get the correct caret path afterwards
