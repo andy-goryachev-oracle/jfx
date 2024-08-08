@@ -243,7 +243,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         control.select(TextPos.ZERO);
     }
 
-    public final void handleWrapText() {
+    public void handleWrapText() {
         if (control.isWrapText()) {
             double w = viewPortWidth;
             setUnwrappedContentWidth(w);
@@ -252,6 +252,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
         setOffsetX(-contentPaddingLeft);
 
+        layoutChildren();
         updateHorizontalScrollBar();
         updateVerticalScrollBar();
         requestControlLayout(true);
