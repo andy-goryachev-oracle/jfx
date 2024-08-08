@@ -115,14 +115,23 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private static final Text measurer = makeMeasurer();
     private static final VFlowCellContext context = new VFlowCellContext();
 
-    public VFlow(RichTextAreaSkin skin, ScrollBar vscroll, ScrollBar hscroll) {
+    public VFlow(RichTextAreaSkin skin, ScrollBar vsb, ScrollBar hsb) {
         this.skin = skin;
         this.control = skin.getSkinnable();
-        this.vscroll = vscroll;
-        this.hscroll = hscroll;
+        this.vscroll = vsb;
+        this.hscroll = hsb;
 
         vscroll.setManaged(false);
+        vscroll.setMin(0.0);
+        vscroll.setMax(1.0);
+        vscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
+        vscroll.setBlockIncrement(Params.SCROLL_BARS_BLOCK_INCREMENT);
+
         hscroll.setManaged(false);
+        hscroll.setMin(0.0);
+        hscroll.setMax(1.0);
+        hscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
+        hscroll.setBlockIncrement(Params.SCROLL_BARS_BLOCK_INCREMENT);
 
         cellCache = new FastCache(Params.CELL_CACHE_SIZE);
 
@@ -234,32 +243,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         control.select(TextPos.ZERO);
     }
 
-    /** width of the area available for text cells. */
-//    @Deprecated // FIX remove
-//    private double viewPortWidth() {
-//        double w = vport.getWidth();
-//        if (w == 0.0) {
-//            return Params.MAX_WIDTH_FOR_LAYOUT;
-//        }
-//        w -= leftPadding - rightPadding - snapSpaceX(Params.LAYOUT_FOCUS_BORDER) - snapSpaceX(Params.LAYOUT_FOCUS_BORDER);
-//        if (w < 0.0) {
-//            w = 0.0;
-//        }
-//        return snapSpaceX(w);
-//    }
-
-    /** height of the area available for text cells. */
-//    @Deprecated // FIX remove
-//    private double viewPortHeight() {
-//        double h = vport.getHeight() - snapSpaceX(Params.LAYOUT_FOCUS_BORDER) - snapSpaceX(Params.LAYOUT_FOCUS_BORDER);
-//        if (h < 0.0) {
-//            h = 0.0;
-//        }
-//        return h;
-//    }
-
     public final void handleWrapText() {
-        // TODO clear cache, offsetX, request layout
         if (control.isWrapText()) {
             double w = viewPortWidth;
             setUnwrappedContentWidth(w);
@@ -391,33 +375,18 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** reacts to width changes */
     void handleWidthChange() {
-        // TODO or simply request layout?
-        // TODO in fact, this should be the default response to any property change that triggers a re-layout.
-        // except for those properties that cause changes in other properties.
-        /*
-        if (control.isWrapText()) {
-            double w = viewPortWidth;
-            setUnwrappedContentWidth(w);
-        } else {
-            double w = getOffsetX() + vport.getWidth();
-            double uw = arrangement.getUnwrappedWidth();
-            if (uw > w) {
-                w = uw;
-            }
-
+        if (!control.isWrapText()) {
             // scroll horizontally when expanding beyond right boundary
-            double delta = unwrappedContentWidth + rightPadding - getOffsetX() - viewPortWidth;
+            double delta = unwrappedContentWidth + contentPaddingRight - getOffsetX() - viewPortWidth;
             if (delta < 0.0) {
                 double off = getOffsetX() + delta;
-                if (off > -leftPadding) {
+                if (off > -contentPaddingLeft) {
                     setOffsetX(off);
                 }
             }
 
-            // TODO set visibility
             updateHorizontalScrollBar();
         }
-        */
         requestLayout();
     }
 
@@ -531,7 +500,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         // generate shapes
         double left = -contentPaddingLeft;
         double right = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight;
-        // TODO
         boolean topLTR = true;
         boolean bottomLTR = true;
 
@@ -554,15 +522,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
     }
 
-    /** uses vflow.content cooridinates */
+    /** uses vflow.vport cooridinates */
     public TextPos getTextPosLocal(double localX, double localY) {
         // convert to cell coordinates
         double x = localX + getOffsetX();
         return arrangement().getTextPos(x, localY);
     }
 
-    /** in vflow.flow coordinates */
-    // TODO vflow.flow? or content?
+    /** in vflow.vport coordinates */
     protected CaretInfo getCaretInfo(TextPos p) {
         return arrangement().getCaretInfo(vport, getOffsetX() + contentPaddingLeft, p);
     }
@@ -571,7 +538,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     public CaretInfo getCaretInfo() {
         TextPos p = control.getCaretPosition();
         if (p == null) {
-            return null; // TODO check
+            return null;
         }
         return getCaretInfo(p);
     }
@@ -688,11 +655,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         handleScrollEvents = false;
 
-        // TODO move some to the constructor
-        vscroll.setMin(0.0);
-        vscroll.setMax(1.0);
-        vscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
-        vscroll.setBlockIncrement(Params.SCROLL_BARS_BLOCK_INCREMENT);
         vscroll.setVisibleAmount(visible);
         vscroll.setValue(val);
 
@@ -731,11 +693,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         handleScrollEvents = false;
 
-        // TODO move some to the constructor
-        hscroll.setMin(0.0);
-        hscroll.setMax(1.0);
-        hscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
-        hscroll.setBlockIncrement(Params.SCROLL_BARS_BLOCK_INCREMENT);
         hscroll.setVisibleAmount(vis);
         hscroll.setValue(val);
 
@@ -915,7 +872,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     /** returns a non-null layout, laying out cells if necessary */
     protected CellArrangement arrangement() {
         if (!inReflow && dirty || (arrangement == null)) {
-            reflow();
+            layoutChildren();
         }
         return arrangement;
     }
@@ -1002,7 +959,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 Origin or = new Origin(ix, 0.0);
                 boolean moveDown = (ix > getOrigin().index());
                 setOrigin(or);
-                // TODO this can be null?
                 c = getCaretInfo();
                 if (moveDown) {
                     scrollVerticalPixels(c.getMaxY() - c.getMinY() - getViewPortHeight());
@@ -1189,7 +1145,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         requestLayout();
     }
 
-    // FIX same treatment as with usePrefHeight
+    // FIX apply same treatment as with usePrefHeight?
     private void updatePrefWidth() {
         if (!control.prefWidthProperty().isBound()) {
             double w = getFlowWidth();
@@ -1198,8 +1154,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     w += vscroll.getWidth();
                 }
             }
-
-            //D.p("w=", w); // FIX
 
             Parent parent = getParent();
             if (parent instanceof Region r) {
@@ -1252,11 +1206,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     @Override
     protected void layoutChildren() {
-        reflow();
-    }
-
-    // TODO move all this to layoutChildren() ?
-    protected void reflow() {
         inReflow = true;
         try {
             layoutCells();
@@ -1584,7 +1533,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             double h = getFlowHeight();
             double prev = getPrefHeight();
             setPrefHeight(h);
-            //System.out.println("vflow.setPrefHeight=" + h + " prev=" + prev); // FIX
 
             // this "works" except for change model
             requestParentLayout();

@@ -41,7 +41,6 @@ public enum ModelChoice {
     WRITING_SYSTEMS_EDITABLE("Writing Systems (Editable)"),
     EDITABLE_STYLED("❤ Editable Rich Text Model"),
     BILLION_LINES("2,000,000,000 Lines"),
-    NOTEBOOK_STACK("Notebook: Embedded Rich Text Areas"),
     NOTEBOOK("Notebook: Embedded Chart"),
     NOTEBOOK2("Notebook: SQL Queries"),
     EDITABLE_PLAIN("Plaintext with Syntax Highlighting"),
