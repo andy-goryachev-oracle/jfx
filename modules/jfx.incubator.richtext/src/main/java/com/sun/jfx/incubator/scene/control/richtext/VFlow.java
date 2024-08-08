@@ -1236,18 +1236,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
         arrangement = new CellArrangement(this);
 
-        // TODO move to handle model change (or maybe unnecessary because of getParagraphCount();
-        if (control.getModel() == null) {
-            leftGutter.setVisible(false);
-            rightGutter.setVisible(false);
-            hscroll.setVisible(false);
-            vscroll.setVisible(false);
-            vport.setVisible(false);
-            return;
-        }
-
         double width = getWidth();
-        if(width == 0.0) {
+        if (width == 0.0) {
             return;
         }
 
