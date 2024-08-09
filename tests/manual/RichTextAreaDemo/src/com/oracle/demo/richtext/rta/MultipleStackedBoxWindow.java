@@ -45,6 +45,7 @@ public class MultipleStackedBoxWindow extends Stage {
 
     public MultipleStackedBoxWindow(boolean vertical) {
         RichTextArea a1 = new RichTextArea(NotebookModelStacked.m1());
+        a1.setHighlightCurrentParagraph(true);
         a1.setWrapText(true);
         a1.setLeftDecorator(new LineNumberDecorator());
         createPopupMenu(a1);
@@ -55,6 +56,7 @@ public class MultipleStackedBoxWindow extends Stage {
         t2.setWrapText(true);
 
         RichTextArea a2 = new RichTextArea(NotebookModelStacked.m2());
+        a2.setHighlightCurrentParagraph(true);
         a2.setWrapText(true);
         a2.setLeftDecorator(new LineNumberDecorator());
         createPopupMenu(a2);

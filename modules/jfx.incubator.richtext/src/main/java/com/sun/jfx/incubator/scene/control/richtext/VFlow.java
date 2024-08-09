@@ -41,11 +41,8 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventType;
-import javafx.geometry.Bounds;
-import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.NodeOrientation;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.ScrollBar;
@@ -62,6 +59,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SideDecorator;
 import jfx.incubator.scene.control.richtext.StyleResolver;
@@ -136,6 +134,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         cellCache = new FastCache(Params.CELL_CACHE_SIZE);
 
         getStyleClass().add("vflow");
+        setPadding(new Insets(Params.LAYOUT_FOCUS_BORDER));
 
         // TODO consider creating on demand
         leftGutter = new ClippedPane("left-side");
@@ -223,16 +222,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     private void bindClipRectangle(Node target, Node source) {
-        Rectangle r = new Rectangle();
-        target.setClip(r);
-        source.boundsInParentProperty().addListener((s,p,sb) -> {
-            Bounds b = target.parentToLocal(sb);
-            r.setX(b.getMinX());
-            r.setY(b.getMinY());
-            r.setWidth(b.getWidth());
-            r.setHeight(b.getHeight());
-        });
         Rectangle sr = (Rectangle)source.getClip();
+        Rectangle r = new Rectangle();
+        r.widthProperty().bind(sr.widthProperty());
+        r.heightProperty().bind(sr.widthProperty());
+        target.setClip(r);
     }
 
     public void handleModelChange() {
@@ -1100,7 +1094,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (n instanceof Region r) {
                 double w = unwrappedContentWidth;
                 double h = r.prefHeight(w);
-                layoutInArea(r, 0, -h, w, h, 0, HPos.CENTER, VPos.CENTER);
+                RichUtils.layoutInArea(r, 0, -h, w, h);
             }
             return n.snapshot(null, null);
         } finally {
@@ -1184,7 +1178,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     @Override
     protected double computePrefHeight(double width) {
         if (control.isUseContentHeight()) {
-            double h = getFlowHeight() + Params.LAYOUT_FOCUS_BORDER * 2;
+            double h = getFlowHeight() + snappedTopInset() + snappedBottomInset();
             if (hscroll.isVisible()) {
                 h += hscroll.prefHeight(width) + contentPaddingTop + contentPaddingBottom;
             }
@@ -1196,7 +1190,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     @Override
     protected double computePrefWidth(double height) {
         if (control.isUseContentWidth()) {
-            double w = unwrappedContentWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + Params.LAYOUT_FOCUS_BORDER * 2;
+            double w = unwrappedContentWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + snappedLeftInset() + snappedRightInset();
             if (vscroll.isVisible()) {
                 w += vscroll.prefWidth(height);
             }
@@ -1242,6 +1236,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return;
         }
 
+        double padTop = snappedTopInset();
+        double padBottom = snappedBottomInset();
+        double padLeft = snappedLeftInset();
+        double padRight = snappedRightInset();
+
         // sides
         SideDecorator leftDecorator = control.getLeftDecorator();
         SideDecorator rightDecorator = control.getRightDecorator();
@@ -1252,16 +1251,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean useContentHeight = control.isUseContentHeight();
         boolean useContentWidth = control.isUseContentWidth();
         boolean wrap = control.isWrapText() && !useContentWidth;
-        double height = useContentHeight ? 0.0 : getHeight();
+        double height = useContentHeight ? (padTop + padBottom) : getHeight();
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
-        double borderX = snapSizeX(Params.LAYOUT_FOCUS_BORDER);
-        double borderY = snapSizeY(Params.LAYOUT_FOCUS_BORDER);
 
         double forWidth; // to be used for cell sizing in prefHeight()
         double maxWidth; // TODO what is it?  replace with cell's preferred width (in unwrapped mode)
         if (wrap) {
-            forWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - borderX * 2;
+            forWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
             maxWidth = forWidth;
         } else {
             forWidth = -1.0;
@@ -1439,14 +1436,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         arrangement.setTopHeight(-y);
 
         if (useContentWidth) {
-            width = unwrappedWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + borderX + borderX;
+            width = unwrappedWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + padLeft + padRight;
         }
 
-        viewPortWidth = width - leftSide - rightSide - vsbWidth - borderX - borderX;
+        viewPortWidth = width - leftSide - rightSide - vsbWidth - padLeft - padRight;
         if (viewPortWidth < Params.MIN_VIEWPORT_WIDTH) {
             viewPortWidth = Params.MIN_VIEWPORT_WIDTH;
         }
-        viewPortHeight = height - hsbHeight - borderY - borderY;
+        viewPortHeight = height - hsbHeight - padTop - padBottom;
 
         // layout
 
@@ -1462,7 +1459,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return;
         }
         if (vsbVisible) {
-            width -= vsbWidth;
+            width -= vsbWidth; // TODO or use viewportwidth?
         }
 
         boolean hsbVisible = (wrap || useContentWidth) ?
@@ -1476,33 +1473,34 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return;
         }
         if (hsbVisible) {
-            height -= hsbHeight;
+            height -= hsbHeight; // TODO or use viewPortHidth?
         }
 
         if (vsbVisible) {
-            Region.layoutInArea(vscroll, width - borderX, borderY, vsbWidth, height - borderY - borderY, 0.0, Insets.EMPTY, true, true, HPos.CENTER, VPos.CENTER, isSnapToPixel());
+            RichUtils.layoutInArea(vscroll, width - padRight, padTop, vsbWidth, height - padTop - padBottom);
         }
         if (hsbVisible) {
-            Region.layoutInArea(hscroll, borderX, height - borderY, width - borderX - borderX, hsbHeight, 0.0, Insets.EMPTY, true, true, HPos.CENTER, VPos.CENTER, isSnapToPixel());
+            RichUtils.layoutInArea(hscroll, padLeft, height - padBottom, width - padLeft - padRight, hsbHeight);
         }
 
         // gutters
         if (leftDecorator == null) {
-            leftGutter.setVisible(false); // TODO perhaps use bindings, and rely on .isVisible() here?
+            leftGutter.setVisible(false);
         } else {
             leftGutter.setVisible(true);
-            layoutInArea(leftGutter, borderX, borderY, leftSide, height - borderY - borderY, 0.0, HPos.CENTER, VPos.CENTER);
+            RichUtils.layoutInArea(leftGutter, padLeft, padTop, leftSide, height);
         }
 
         if (rightDecorator == null) {
-            rightGutter.setVisible(false); // TODO perhaps use bindings, and rely on .isVisible() here?
+            rightGutter.setVisible(false);
         } else {
             rightGutter.setVisible(true);
-            layoutInArea(rightGutter, width - rightSide - borderX, borderY, rightSide, height - borderY - borderY, 0.0, HPos.CENTER, VPos.CENTER);
+            RichUtils.layoutInArea(rightGutter, width - rightSide - padRight, padTop, rightSide, height);
         }
 
-        layoutInArea(content, leftSide + borderX, borderY, viewPortWidth, height - borderY - borderY, 0.0, HPos.CENTER, VPos.CENTER);
-        Region.layoutInArea(vport, 0.0, 0.0, viewPortWidth, height - borderY - borderY, 0.0, Insets.EMPTY, true, true, HPos.CENTER, VPos.CENTER, isSnapToPixel());
+        RichUtils.layoutInArea(content, leftSide + padLeft, padTop, viewPortWidth, height - padTop - padBottom);
+        // vport is a child of content
+        RichUtils.layoutInArea(vport, 0.0, 0.0, viewPortWidth, height);
 
         if (wrap) {
             double w = viewPortWidth;
@@ -1522,16 +1520,16 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         if (useContentHeight) {
-            double h = getFlowHeight();
+            double h = computePrefHeight(-1);
             double prev = getPrefHeight();
             setPrefHeight(h);
 
-            // this "works" except for change model
             requestParentLayout();
 
             // avoids infinite layout loop in MultipleStackedBoxWindow but ... why?
             if (h != prev) {
                 requestLayout();
+                // FIX perhaps create a boolean for 'reflow is required' and layoutCells again at the end?
                 // weird, need this to make sure the reflow happens when changing models
                 Platform.runLater(() -> layoutChildren());
             }
@@ -1560,10 +1558,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             double h = cell.getCellHeight();
             double y = cell.getY();
             double w = wrap ? viewPortWidth : cell.getCellWidth();
-            vport.layoutInArea(cell, x, y, w, h);
+            RichUtils.layoutInArea(cell, x, y, w, h);
 
             // this step is needed to get the correct caret path afterwards
-            cell.layout();
+            //cell.layout();
 
             // place side nodes
             if (addLeft) {
@@ -1571,7 +1569,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 if (n != null) {
                     leftGutter.getChildren().add(n);
                     n.applyCss();
-                    leftGutter.layoutInArea(n, 0.0, y, leftGutter.getWidth(), h);
+                    RichUtils.layoutInArea(n, 0.0, y, leftGutter.getWidth(), h);
                 }
             }
 
@@ -1580,7 +1578,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 if (n != null) {
                     rightGutter.getChildren().add(n);
                     n.applyCss();
-                    rightGutter.layoutInArea(n, 0.0, y, rightGutter.getWidth(), h);
+                    RichUtils.layoutInArea(n, 0.0, y, rightGutter.getWidth(), h);
                 }
             }
         }

@@ -53,7 +53,7 @@ public class NotebookModelStacked extends StyledTextModel {
     }
 
     public static StyledTextModel m1() {
-        return create(Type.COMMENT, "This is\na comment cell.");
+        return create(Type.COMMENT, "██This is\na comment cell.██p");
     }
 
     public static StyledTextModel m2() {
@@ -114,6 +114,7 @@ public class NotebookModelStacked extends StyledTextModel {
         if(x instanceof StyledTextModel m) {
             return RichParagraph.of(() -> {
                 RichTextArea t = new RichTextArea(m);
+                t.setHighlightCurrentParagraph(true);
                 t.setMaxWidth(Double.POSITIVE_INFINITY);
                 t.setWrapText(true);
                 t.setUseContentHeight(true);
