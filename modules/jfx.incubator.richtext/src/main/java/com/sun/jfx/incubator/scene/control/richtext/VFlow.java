@@ -55,7 +55,6 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
@@ -73,8 +72,23 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 
 /**
- * Virtual text flow deals with TextCells, scroll bars, and conversion
- * between the model and the screen coordinates.
+ * Contains all the parts representing the visuals of the RichTextAreaSkin.
+ *
+ * Component hierarchy (all the way to the top):
+ * <pre>
+ *  RichTextArea (Region) .rich-text-area
+ *    └─ VFlow (Pane) .flow
+ *        ├─ left gutter (ClippedPane) .left-side
+ *        ├─ right gutter (ClippedPane) .right-side
+ *        ├─ vertical ScrollBar
+ *        ├─ horizontal ScrollBar
+ *        └─ view port (ClippedPane) .vport
+ *            └─ content (StackPane) .content
+ *                ├─ caret (Path) .caret
+ *                ├─ cells[]
+ *                ├─ selection highlight (Path) .selection-highlight
+ *                └─ caret line highlight (Path) .caret-line
+ * </pre>
  */
 public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listener {
     private final RichTextAreaSkin skin;
@@ -83,8 +97,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private final ScrollBar hscroll;
     private final ClippedPane leftGutter;
     private final ClippedPane rightGutter;
-    private final StackPane content;
-    private final ClippedPane vport;
+    private final ClippedPane content;
+    private final StackPane vport;
     private final Path caretPath;
     private final Path caretLineHighlight;
     private final Path selectionHighlight;
@@ -143,12 +157,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         rightGutter = new ClippedPane("right-side");
         rightGutter.setManaged(false);
 
-        content = new StackPane();
-        content.getStyleClass().add("content");
-        content.setManaged(false);
-
-        vport = new ClippedPane("vport");
+        vport = new StackPane();
+        vport.getStyleClass().add("vport");
         vport.setManaged(false);
+
+        content = new ClippedPane("content");
+        content.setManaged(false);
 
         caretPath = new Path();
         caretPath.getStyleClass().add("caret");
@@ -162,14 +176,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         selectionHighlight.getStyleClass().add("selection-highlight");
         selectionHighlight.setManaged(false);
 
-        // make sure these are clipped by flow clip rectangle
-        bindClipRectangle(caretLineHighlight, vport);
-        bindClipRectangle(selectionHighlight, vport);
-        bindClipRectangle(caretPath, vport);
-
         // layout
-        content.getChildren().addAll(caretLineHighlight, selectionHighlight, vport, caretPath);
-        getChildren().addAll(content, leftGutter, rightGutter, vscroll, hscroll);
+        getChildren().addAll(leftGutter, rightGutter, vscroll, hscroll, vport);
+        vport.getChildren().addAll(content);
+        content.getChildren().addAll(caretLineHighlight, selectionHighlight, caretPath);
+        // caret on top, then the cells (visual order = 0), then the selection highlight, then the caret line
+        caretPath.setViewOrder(-10);
+        selectionHighlight.setViewOrder(10);
+        caretLineHighlight.setViewOrder(20);
 
         caretAnimation = new Timeline();
         caretAnimation.setCycleCount(Animation.INDEFINITE);
@@ -212,21 +226,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public Pane getViewPort() {
-        return vport;
+        return content;
     }
 
     private static Text makeMeasurer() {
         Text t = new Text("8");
         t.setManaged(false);
         return t;
-    }
-
-    private void bindClipRectangle(Node target, Node source) {
-        Rectangle sr = (Rectangle)source.getClip();
-        Rectangle r = new Rectangle();
-        r.widthProperty().bind(sr.widthProperty());
-        r.heightProperty().bind(sr.widthProperty());
-        target.setClip(r);
     }
 
     public void handleModelChange() {
@@ -526,7 +532,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** in vflow.vport coordinates */
     protected CaretInfo getCaretInfo(TextPos p) {
-        return arrangement().getCaretInfo(vport, getOffsetX() + contentPaddingLeft, p);
+        return arrangement().getCaretInfo(content, getOffsetX() + contentPaddingLeft, p);
     }
 
     /** returns caret sizing info using vflow.content coordinates, or null */
@@ -582,9 +588,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         PathElement[] pe;
         if (startOffset == endOffset) {
             // TODO handle split caret!
-            pe = cell.getCaretShape(vport, startOffset, true, dx, dy);
+            pe = cell.getCaretShape(content, startOffset, true, dx, dy);
         } else {
-            pe = cell.getRangeShape(vport, startOffset, endOffset, dx, dy);
+            pe = cell.getRangeShape(content, startOffset, endOffset, dx, dy);
         }
         return pe;
     }
@@ -681,7 +687,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         double max = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight;
-        double w = vport.getWidth();
+        double w = content.getWidth();
         double off = getOffsetX() + contentPaddingLeft;
         double vis = w / max;
         double val = toScrollBarValue(off, w, max);
@@ -704,7 +710,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
 
             double max = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight;
-            double visible = vport.getWidth();
+            double visible = content.getWidth();
             double val = hscroll.getValue();
             double off = fromScrollBarValue(val, visible, max) - contentPaddingLeft;
 
@@ -845,7 +851,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 Node n = d.getNode(top, true);
                 n.setManaged(false);
 
-                vport.getChildren().add(n);
+                content.getChildren().add(n);
                 try {
                     n.applyCss();
                     if (n instanceof Parent p) {
@@ -853,7 +859,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     }
                     w = n.prefWidth(-1);
                 } finally {
-                    vport.getChildren().remove(n);
+                    content.getChildren().remove(n);
                 }
             }
             // introducing some granularity in order to avoid left boundary moving back and forth when scrolling
@@ -912,13 +918,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public void scrollHorizontalFraction(double delta) {
-        double w = vport.getWidth() + contentPaddingLeft + contentPaddingRight;
+        double w = content.getWidth() + contentPaddingLeft + contentPaddingRight;
         scrollHorizontalPixels(delta * w);
     }
 
     public void scrollHorizontalPixels(double delta) {
         double off = getOffsetX() + delta;
-        double w = vport.getWidth();
+        double w = content.getWidth();
         if (off < -contentPaddingLeft) {
             off = -contentPaddingLeft;
         } else if (off + w > (unwrappedContentWidth + contentPaddingLeft)) {
@@ -984,7 +990,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private void scrollHorizontalToVisible(double x) {
         if (!control.isWrapText()) {
             x += contentPaddingLeft;
-            double cw = vport.getWidth();
+            double cw = content.getWidth();
             double off;
             if (x < 0.0) {
                 off = Math.max(getOffsetX() + x - Params.HORIZONTAL_GUARD, 0.0);
@@ -1226,7 +1232,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
      */
     protected void layoutCells() {
         if (arrangement != null) {
-            arrangement.removeNodesFrom(vport);
+            arrangement.removeNodesFrom(content);
             arrangement = null;
         }
         arrangement = new CellArrangement(this);
@@ -1251,7 +1257,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean useContentHeight = control.isUseContentHeight();
         boolean useContentWidth = control.isUseContentWidth();
         boolean wrap = control.isWrapText() && !useContentWidth;
-        double height = useContentHeight ? (padTop + padBottom) : getHeight();
+        double height2 = useContentHeight ? (padTop + padBottom) : getHeight();
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
 
@@ -1271,7 +1277,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         double ytop = snapPositionY(-getOrigin().offset());
         double y = ytop;
-        double margin = Params.SLIDING_WINDOW_EXTENT * height;
+        double margin = Params.SLIDING_WINDOW_EXTENT * height2;
         int topMarginCount = 0;
         int bottomMarginCount = 0;
         int count = 0;
@@ -1284,7 +1290,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             TextCell cell = getCell(i);
             // TODO skip computation if layout width is the same
             Region r = cell.getContent();
-            vport.getChildren().add(cell);
+            content.getChildren().add(cell);
             cell.setMaxWidth(maxWidth);
             cell.setMaxHeight(USE_COMPUTED_SIZE);
             cell.applyCss();
@@ -1311,7 +1317,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             count++;
 
             if (useContentHeight) {
-                height = y;
+                height2 = y;
                 if (y > Params.MAX_HEIGHT_SAFEGUARD) {
                     break;
                 }
@@ -1319,7 +1325,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 // stop populating the bottom part of the sliding window
                 // when exceeded both pixel and line count margins
                 if (cellOnScreen) {
-                    if (y > height) {
+                    if (y > height2) {
                         topMarginCount = (int)Math.ceil(count * Params.SLIDING_WINDOW_EXTENT);
                         bottomMarginCount = count + topMarginCount;
                         arrangement.setVisibleCellCount(count);
@@ -1327,9 +1333,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     }
                 } else {
                     // remove invisible cell from layout after sizing
-                    vport.getChildren().remove(cell);
+                    content.getChildren().remove(cell);
 
-                    if ((y > (height + margin)) && (count > bottomMarginCount)) {
+                    if ((y > (height2 + margin)) && (count > bottomMarginCount)) {
                         break;
                     }
                 }
@@ -1408,7 +1414,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             TextCell cell = getCell(i);
             // TODO maybe skip computation if layout width is the same
             Region r = cell.getContent();
-            vport.getChildren().add(cell);
+            content.getChildren().add(cell);
             cell.setMaxWidth(maxWidth);
             cell.setMaxHeight(USE_COMPUTED_SIZE);
 
@@ -1424,7 +1430,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
             cell.setPosition(y, h);
 
-            vport.getChildren().remove(cell);
+            content.getChildren().remove(cell);
 
             // stop populating the top part of the sliding window
             // when exceeded both pixel and line count margins
@@ -1443,7 +1449,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         if (viewPortWidth < Params.MIN_VIEWPORT_WIDTH) {
             viewPortWidth = Params.MIN_VIEWPORT_WIDTH;
         }
-        viewPortHeight = height - hsbHeight - padTop - padBottom;
+        viewPortHeight = height2 - hsbHeight - padTop - padBottom;
 
         // layout
 
@@ -1472,15 +1478,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             layoutCells();
             return;
         }
-        if (hsbVisible) {
-            height -= hsbHeight; // TODO or use viewPortHidth?
-        }
 
         if (vsbVisible) {
-            RichUtils.layoutInArea(vscroll, width - padRight, padTop, vsbWidth, height - padTop - padBottom);
+            RichUtils.layoutInArea(vscroll, width - padRight, padTop, vsbWidth, height2 - hsbHeight - padTop - padBottom);
         }
         if (hsbVisible) {
-            RichUtils.layoutInArea(hscroll, padLeft, height - padBottom, width - padLeft - padRight, hsbHeight);
+            RichUtils.layoutInArea(hscroll, padLeft, height2 - hsbHeight - padBottom, width - padLeft - padRight, hsbHeight);
         }
 
         // gutters
@@ -1488,19 +1491,19 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             leftGutter.setVisible(false);
         } else {
             leftGutter.setVisible(true);
-            RichUtils.layoutInArea(leftGutter, padLeft, padTop, leftSide, height);
+            RichUtils.layoutInArea(leftGutter, padLeft, padTop, leftSide, height2 - hsbHeight - padTop - padBottom);
         }
 
         if (rightDecorator == null) {
             rightGutter.setVisible(false);
         } else {
             rightGutter.setVisible(true);
-            RichUtils.layoutInArea(rightGutter, width - rightSide - padRight, padTop, rightSide, height);
+            RichUtils.layoutInArea(rightGutter, width - rightSide - padRight, padTop, rightSide, height2 - hsbHeight - padTop - padBottom);
         }
 
-        RichUtils.layoutInArea(content, leftSide + padLeft, padTop, viewPortWidth, height - padTop - padBottom);
+        RichUtils.layoutInArea(vport, leftSide + padLeft, padTop, viewPortWidth, height2  - hsbHeight - padTop - padBottom);
         // vport is a child of content
-        RichUtils.layoutInArea(vport, 0.0, 0.0, viewPortWidth, height);
+        RichUtils.layoutInArea(content, 0.0, 0.0, viewPortWidth, height2 - hsbHeight - padTop - padBottom);
 
         if (wrap) {
             double w = viewPortWidth;
