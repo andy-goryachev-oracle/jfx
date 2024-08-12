@@ -28,6 +28,7 @@ package com.oracle.demo.richtext.rta;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -51,9 +52,9 @@ public class MultipleStackedBoxWindow extends Stage {
         createPopupMenu(a1);
 
         TextArea t1 = new TextArea("This TextArea has wrap text property set to false.");
+        t1.setPrefHeight(50);
 
-        TextArea t2 = new TextArea("This TextArea has wrap text property set to true.");
-        t2.setWrapText(true);
+        Label t2 = new Label("Label");
 
         RichTextArea a2 = new RichTextArea(NotebookModelStacked.m2());
         a2.setHighlightCurrentParagraph(true);
@@ -158,6 +159,11 @@ public class MultipleStackedBoxWindow extends Stage {
             FX.checkItem(m, "1", new Insets(1).equals(t.getContentPadding()), (on) -> {
                 if (on) {
                     t.setContentPadding(new Insets(1));
+                }
+            });
+            FX.checkItem(m, "2", new Insets(1).equals(t.getContentPadding()), (on) -> {
+                if (on) {
+                    t.setContentPadding(new Insets(2));
                 }
             });
             FX.checkItem(m, "10", new Insets(10).equals(t.getContentPadding()), (on) -> {

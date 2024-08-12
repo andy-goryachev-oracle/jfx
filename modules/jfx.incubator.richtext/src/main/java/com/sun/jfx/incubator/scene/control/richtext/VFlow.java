@@ -48,9 +48,11 @@ import javafx.scene.Parent;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
@@ -1146,10 +1148,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         requestLayout();
     }
 
-    // FIX apply same treatment as with usePrefHeight?
     private void updatePrefWidth() {
         if (!control.prefWidthProperty().isBound()) {
-            double w = getFlowWidth();
+            double w = computeContentWidth();
             if (w >= 0.0) {
                 if (vscroll.isVisible()) {
                     w += vscroll.getWidth();
@@ -1167,11 +1168,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
     }
 
-    private double getFlowHeight() {
-        return snapSizeY(Math.max(Params.LAYOUT_MIN_HEIGHT, arrangement().bottomHeight()));
-    }
-
-    private double getFlowWidth() {
+    private double computeContentWidth() {
         return
             arrangement().getUnwrappedWidth() +
             snapSizeX(leftSide) +
@@ -1184,7 +1181,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     @Override
     protected double computePrefHeight(double width) {
         if (control.isUseContentHeight()) {
-            double h = getFlowHeight() + snappedTopInset() + snappedBottomInset();
+            double h = snapSizeY(Math.max(Params.LAYOUT_MIN_HEIGHT, arrangement().bottomHeight())) + snappedTopInset() + snappedBottomInset();
             if (hscroll.isVisible()) {
                 h += hscroll.prefHeight(width) + contentPaddingTop + contentPaddingBottom;
             }
@@ -1196,6 +1193,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     @Override
     protected double computePrefWidth(double height) {
         if (control.isUseContentWidth()) {
+            // TODO use getFlowWidth ?
             double w = unwrappedContentWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + snappedLeftInset() + snappedRightInset();
             if (vscroll.isVisible()) {
                 w += vscroll.prefWidth(height);
@@ -1257,7 +1255,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean useContentHeight = control.isUseContentHeight();
         boolean useContentWidth = control.isUseContentWidth();
         boolean wrap = control.isWrapText() && !useContentWidth;
-        double height2 = useContentHeight ? (padTop + padBottom) : getHeight();
+        // FIX height as in component height vs. contentHeight in useContentHeight!
+        //double height = useContentHeight ? (padTop + padBottom + contentPaddingTop + contentPaddingBottom) : getHeight();
+        double height = getHeight();
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
 
@@ -1272,12 +1272,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         double unwrappedWidth = 0.0;
-        // total height of cells for the purpose of determining vsb visibility
+        // total height of visible cells for the purpose of determining vsb visibility
         double arrangementHeight = 0.0;
 
         double ytop = snapPositionY(-getOrigin().offset());
         double y = ytop;
-        double margin = Params.SLIDING_WINDOW_EXTENT * height2;
+        double margin = Params.SLIDING_WINDOW_EXTENT * height;
         int topMarginCount = 0;
         int bottomMarginCount = 0;
         int count = 0;
@@ -1317,7 +1317,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             count++;
 
             if (useContentHeight) {
-                height2 = y;
+                // avoid laying out millions of invisible cells
                 if (y > Params.MAX_HEIGHT_SAFEGUARD) {
                     break;
                 }
@@ -1325,7 +1325,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 // stop populating the bottom part of the sliding window
                 // when exceeded both pixel and line count margins
                 if (cellOnScreen) {
-                    if (y > height2) {
+                    if (y > height) {
                         topMarginCount = (int)Math.ceil(count * Params.SLIDING_WINDOW_EXTENT);
                         bottomMarginCount = count + topMarginCount;
                         arrangement.setVisibleCellCount(count);
@@ -1335,7 +1335,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     // remove invisible cell from layout after sizing
                     content.getChildren().remove(cell);
 
-                    if ((y > (height2 + margin)) && (count > bottomMarginCount)) {
+                    if ((y > (height + margin)) && (count > bottomMarginCount)) {
                         break;
                     }
                 }
@@ -1398,10 +1398,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         unwrappedWidth = snapSizeX(unwrappedWidth);
 
-        if (topCellIndex() > 0) {
-            arrangementHeight = Double.POSITIVE_INFINITY;
-        }
-
         arrangement.setBottomCount(count);
         arrangement.setBottomHeight(y);
         arrangement.setUnwrappedWidth(unwrappedWidth);
@@ -1449,14 +1445,16 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         if (viewPortWidth < Params.MIN_VIEWPORT_WIDTH) {
             viewPortWidth = Params.MIN_VIEWPORT_WIDTH;
         }
-        viewPortHeight = height2 - hsbHeight - padTop - padBottom;
+        viewPortHeight = height - hsbHeight - padTop - padBottom;
 
         // layout
 
         // scroll bars
         boolean vsbVisible = useContentHeight ?
             false :
-            (arrangementHeight + contentPaddingTop + contentPaddingBottom) > viewPortHeight;
+            (topCellIndex() > 0) ?
+                true :
+                (arrangementHeight + contentPaddingTop + contentPaddingBottom) > viewPortHeight;
 
         if (vsbVisible != vscroll.isVisible()) {
             vscroll.setVisible(vsbVisible);
@@ -1479,11 +1477,18 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return;
         }
 
+        double h;
+        if (useContentHeight) {
+            h = contentPaddingTop + contentPaddingBottom + arrangementHeight;
+        } else {
+            h = height - hsbHeight - padTop - padBottom;
+        }
+
         if (vsbVisible) {
-            RichUtils.layoutInArea(vscroll, width - padRight, padTop, vsbWidth, height2 - hsbHeight - padTop - padBottom);
+            RichUtils.layoutInArea(vscroll, width - padRight, padTop, vsbWidth, h);
         }
         if (hsbVisible) {
-            RichUtils.layoutInArea(hscroll, padLeft, height2 - hsbHeight - padBottom, width - padLeft - padRight, hsbHeight);
+            RichUtils.layoutInArea(hscroll, padLeft, h, width - padLeft - padRight, hsbHeight);
         }
 
         // gutters
@@ -1491,19 +1496,19 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             leftGutter.setVisible(false);
         } else {
             leftGutter.setVisible(true);
-            RichUtils.layoutInArea(leftGutter, padLeft, padTop, leftSide, height2 - hsbHeight - padTop - padBottom);
+            RichUtils.layoutInArea(leftGutter, padLeft, padTop, leftSide, h);
         }
 
         if (rightDecorator == null) {
             rightGutter.setVisible(false);
         } else {
             rightGutter.setVisible(true);
-            RichUtils.layoutInArea(rightGutter, width - rightSide - padRight, padTop, rightSide, height2 - hsbHeight - padTop - padBottom);
+            RichUtils.layoutInArea(rightGutter, width - rightSide - padRight, padTop, rightSide, h);
         }
 
-        RichUtils.layoutInArea(vport, leftSide + padLeft, padTop, viewPortWidth, height2  - hsbHeight - padTop - padBottom);
+        RichUtils.layoutInArea(vport, leftSide + padLeft, padTop, viewPortWidth, h);
         // vport is a child of content
-        RichUtils.layoutInArea(content, 0.0, 0.0, viewPortWidth, height2 - hsbHeight - padTop - padBottom);
+        RichUtils.layoutInArea(content, 0.0, 0.0, viewPortWidth, h);
 
         if (wrap) {
             double w = viewPortWidth;
@@ -1523,14 +1528,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         if (useContentHeight) {
-            double h = computePrefHeight(-1);
+            double ph = computePrefHeight(-1);
             double prev = getPrefHeight();
-            setPrefHeight(h);
 
+            // necessary for vertical stacking
+            setPrefHeight(ph);
             requestParentLayout();
 
             // avoids infinite layout loop in MultipleStackedBoxWindow but ... why?
-            if (h != prev) {
+            if (ph != prev) {
                 requestLayout();
                 // FIX perhaps create a boolean for 'reflow is required' and layoutCells again at the end?
                 // weird, need this to make sure the reflow happens when changing models
