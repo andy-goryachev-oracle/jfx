@@ -1183,7 +1183,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         if (control.isUseContentHeight()) {
             double h = snapSizeY(Math.max(Params.LAYOUT_MIN_HEIGHT, arrangement().bottomHeight())) + snappedTopInset() + snappedBottomInset();
             if (hscroll.isVisible()) {
-                h += hscroll.prefHeight(width) + contentPaddingTop + contentPaddingBottom;
+                h += hscroll.prefHeight(width);
             }
             return h;
         }
