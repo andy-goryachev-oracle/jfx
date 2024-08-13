@@ -236,14 +236,14 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             }
         }
 
-        Pane vp = vflow.getViewPort();
-        vp.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
-        vp.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
-        vp.addEventFilter(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
-        vp.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
-        vp.addEventFilter(ScrollEvent.SCROLL_STARTED, this::handleScrollEventStarted);
-        vp.addEventHandler(ScrollEvent.SCROLL_FINISHED, this::handleScrollEventFinished);
-        vp.addEventHandler(ScrollEvent.SCROLL, this::handleScrollEvent);
+        Pane cp = vflow.getContentPane();
+        cp.addEventFilter(MouseEvent.MOUSE_CLICKED, this::handleMouseClicked);
+        cp.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressed);
+        cp.addEventFilter(MouseEvent.MOUSE_RELEASED, this::handleMouseReleased);
+        cp.addEventFilter(MouseEvent.MOUSE_DRAGGED, this::handleMouseDragged);
+        cp.addEventFilter(ScrollEvent.SCROLL_STARTED, this::handleScrollEventStarted);
+        cp.addEventHandler(ScrollEvent.SCROLL_FINISHED, this::handleScrollEventFinished);
+        cp.addEventHandler(ScrollEvent.SCROLL, this::handleScrollEvent);
 
         addHandler(KeyEvent.KEY_TYPED, true, this::handleKeyTyped);
         addHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, true, this::contextMenuRequested);
