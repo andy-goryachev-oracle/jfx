@@ -352,9 +352,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         } else {
             x = Math.max(0.0, snapPositionX(x));
         }
-        if(x < contentPaddingLeft) {
-            x = 0.0;
-        }
         offsetX.set(x);
         content.setTranslateX(-x);
     }
@@ -534,16 +531,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
     }
 
-    // FIX check!
     /** uses vflow.content cooridinates */
     public TextPos getTextPosLocal(double localX, double localY) {
-        return arrangement().getTextPos(localX, localY);
+        return arrangement().getTextPos(localX - contentPaddingLeft, localY);
     }
 
-    // FIX check!
     /** in vflow.content coordinates */
     protected CaretInfo getCaretInfo(TextPos p) {
-        return arrangement().getCaretInfo(content, getOffsetX() + contentPaddingLeft, p);
+        return arrangement().getCaretInfo(content, p);
     }
 
     /** returns caret sizing info using vflow.content coordinates, or null */
@@ -1408,7 +1403,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             cell.setMaxHeight(USE_COMPUTED_SIZE);
 
             cell.applyCss();
-            //cell.layout();
+//            cell.layout();
 
             arrangement.addCell(cell);
 
@@ -1549,15 +1544,18 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean addLeft = control.getLeftDecorator() != null;
         boolean addRight = control.getRightDecorator() != null;
 
+        // FIX weird, it should be contentPaddingLeft always...
+        double x = wrap ? 0.0 : contentPaddingLeft;
+
         int sz = arrangement.getVisibleCellCount();
         for (i = 0; i < sz; i++) {
             TextCell cell = arrangement.getCellAt(i);
             double ch = cell.getCellHeight();
             double cy = cell.getY();
             double cw = wrap ? viewPortWidth : cell.getCellWidth();
-            RichUtils.layoutInArea(cell, contentPaddingLeft, cy, cw, ch);
+            RichUtils.layoutInArea(cell, x, cy, cw, ch);
 
-            // this step is needed to get the correct caret path afterwards
+            // needed to get the correct caret path afterwards
             cell.layout();
 
             // place side nodes

@@ -189,7 +189,7 @@ public class CellArrangement {
         return null;
     }
 
-    public CaretInfo getCaretInfo(Region target, double xoffset, TextPos p) {
+    public CaretInfo getCaretInfo(Region target, TextPos p) {
         if (p != null) {
             int ix = p.index();
             TextCell cell = getCell(ix);

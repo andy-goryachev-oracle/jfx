@@ -404,7 +404,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     protected void handleMouseReleased(MouseEvent ev) {
         stopAutoScroll();
-        vflow.scrollCaretToVisible();
+        //vflow.scrollCaretToVisible();
         vflow.setSuppressBlink(false);
         clearPhantomX();
     }
