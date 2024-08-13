@@ -35,7 +35,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -508,7 +507,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         // generate shapes
         double left = -contentPaddingLeft;
-        double right = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight;
+        double right = contentWidth();
         boolean topLTR = true;
         boolean bottomLTR = true;
 
@@ -687,14 +686,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** updates HSB in response to change in width, layout, or offsetX */
     protected void updateHorizontalScrollBar() {
-        boolean wrap = control.isWrapText();
-        if (wrap) {
+        if (control.isWrapText()) {
             return;
         }
 
-        double max = unwrappedContentWidth + contentPaddingLeft + contentPaddingRight; // FIX guard!
-        double w = content.getWidth();
-        double off = getOffsetX() + contentPaddingLeft;
+        double max = contentWidth();
+        double w = vport.getWidth();
+        double off = getOffsetX();
         double vis = w / max;
         double val = toScrollBarValue(off, w, max);
 
@@ -709,9 +707,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     /** handles user moving the horizontal scroll bar */
     public void handleHorizontalScroll() {
         if (handleScrollEvents) {
-            if (arrangement == null) {
-                return;
-            } else if (control.isWrapText()) {
+            if ((arrangement == null) || control.isWrapText()) {
                 return;
             }
 
@@ -1181,8 +1177,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     @Override
     protected double computePrefWidth(double height) {
         if (control.isUseContentWidth()) {
-            // TODO use getFlowWidth ?
-            double w = unwrappedContentWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + snappedLeftInset() + snappedRightInset();
+            double w = contentWidth() + leftSide + rightSide + snappedLeftInset() + snappedRightInset();
             if (vscroll.isVisible()) {
                 w += vscroll.prefWidth(height);
             }
