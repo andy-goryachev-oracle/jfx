@@ -234,11 +234,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public void handleModelChange() {
-        setUnwrappedContentWidth(0.0);
         setOrigin(new Origin(0, -contentPaddingTop));
-        setOffsetX(0.0);
-        requestControlLayout(true);
-        control.select(TextPos.ZERO);
+        handleWrapText();
+//        setUnwrappedContentWidth(0.0);
+//        setOffsetX(0.0);
+//        requestControlLayout(true);
+//        control.select(TextPos.ZERO);
     }
 
     public void handleWrapText() {
