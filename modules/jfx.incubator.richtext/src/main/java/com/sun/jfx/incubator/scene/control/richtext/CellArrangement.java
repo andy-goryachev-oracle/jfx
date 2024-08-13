@@ -189,7 +189,7 @@ public class CellArrangement {
         return null;
     }
 
-    public CaretInfo getCaretInfo(Region target, TextPos p) {
+    public CaretInfo getCaretInfo(Region target, double offsetx, TextPos p) {
         if (p != null) {
             int ix = p.index();
             TextCell cell = getCell(ix);
@@ -203,7 +203,9 @@ public class CellArrangement {
                 }
 
                 double lineSpacing = cell.getLineSpacing();
-                return CaretInfo.create(lineSpacing, path);
+                double top = cell.getContent().snappedTopInset();
+                double bottom = cell.getContent().snappedBottomInset();
+                return CaretInfo.create(lineSpacing, offsetx, top, bottom, path);
             }
         }
         return null;

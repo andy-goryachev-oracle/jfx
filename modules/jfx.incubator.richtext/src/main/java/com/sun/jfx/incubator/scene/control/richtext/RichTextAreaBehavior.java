@@ -653,16 +653,18 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
         double sp = c.getLineSpacing();
         double x = (c.getMinX() + c.getMaxX()) / 2.0;
-        double y = (deltaPixels < 0) ? c.getMinY() + deltaPixels - sp - 0.5 : c.getMaxY() + deltaPixels + sp;
+        double y = (deltaPixels < 0) ?
+            c.getMinY() + deltaPixels - sp - 0.5 :
+            c.getMaxY() + deltaPixels + sp;
 
         if (phantomX < 0) {
-            // phantom x is unclear in the case of split caret
+            // phantomX is unclear in the case of split caret
             phantomX = x;
         } else {
             x = phantomX;
         }
 
-        TextPos p = vflow.getTextPosLocal(x + vflow.leftPadding(), y);
+        TextPos p = vflow.getTextPosLocal(x, y);
         if (p != null) {
             moveCaret(p, extendSelection);
         }

@@ -537,7 +537,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** in vflow.content coordinates */
     protected CaretInfo getCaretInfo(TextPos p) {
-        return arrangement().getCaretInfo(content, p);
+        return arrangement().getCaretInfo(content, contentPaddingLeft, p);
     }
 
     /** returns caret sizing info using vflow.content coordinates, or null */
