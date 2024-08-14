@@ -651,18 +651,25 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         if (c == null) {
             return;
         }
-        double sp = c.getLineSpacing();
-        double x = (c.getMinX() + c.getMaxX()) / 2.0;
-        double y = (deltaPixels < 0) ?
-            c.getMinY() + deltaPixels - sp - 0.5 :
-            c.getMaxY() + deltaPixels + sp;
 
+        double sp = c.getLineSpacing();
+        // TODO split caret?
+        double x = (c.getMinX() + c.getMaxX()) / 2.0;
         if (phantomX < 0) {
             // phantomX is unclear in the case of split caret
             phantomX = x;
         } else {
             x = phantomX;
         }
+
+        boolean up = (deltaPixels < 0);
+        double y0 = up ? c.getMinY() : c.getMaxY();
+        double y = up ?
+            c.getMinY() + deltaPixels - sp - 0.5:
+            c.getMaxY() + deltaPixels + sp + 0.5;
+
+        // TODO
+        // check whether the new caret y position changed, unless it's TextPos.ZERO when going up, or EOF if going down
 
         TextPos p = vflow.getTextPosLocal(x, y);
         if (p != null) {

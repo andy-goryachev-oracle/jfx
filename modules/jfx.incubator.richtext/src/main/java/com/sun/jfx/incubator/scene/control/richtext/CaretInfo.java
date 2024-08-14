@@ -31,7 +31,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
 
 /**
- * Captures the caret position and bounds in the content view coordinates.
+ * Captures the caret position and bounds in the {@code VFlow.content} coordinates.
  */
 public final class CaretInfo {
     private final double xmin;
@@ -56,13 +56,10 @@ public final class CaretInfo {
      * coordinates.
      *
      * @param lineSpacing the line spacing
-     * @param dx the x offset
-     * @param top the snapped top inset of the text flow generating the path
-     * @param bottom the snapped bottom inset of the text flow generating the path
      * @param path the caret path
      * @return the CaretInfo instance
      */
-    public static CaretInfo create(double lineSpacing, double dx, double top, double bottom, PathElement[] path) {
+    public static CaretInfo create(double lineSpacing, PathElement[] path) {
         Objects.requireNonNull(path);
         if (path.length == 0) {
             throw new IllegalArgumentException("non-empty path is required");
@@ -77,7 +74,7 @@ public final class CaretInfo {
         for (int i = 0; i < sz; i++) {
             PathElement em = path[i];
             if (em instanceof LineTo lineto) {
-                double x = lineto.getX() + dx;
+                double x = lineto.getX();
                 double y = lineto.getY();
 
                 x = halfPixel(x);
@@ -94,7 +91,7 @@ public final class CaretInfo {
                     ymax = y;
                 }
             } else if (em instanceof MoveTo moveto) {
-                double x = moveto.getX() + dx;
+                double x = moveto.getX();
                 double y = moveto.getY();
 
                 x = halfPixel(x);
@@ -115,7 +112,7 @@ public final class CaretInfo {
             }
         }
 
-        return new CaretInfo(xmin, xmax, ymin - top, ymax + bottom, lineSpacing, path);
+        return new CaretInfo(xmin, xmax, ymin, ymax, lineSpacing, path);
     }
 
     /**

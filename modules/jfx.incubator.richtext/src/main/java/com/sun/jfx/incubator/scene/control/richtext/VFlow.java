@@ -538,7 +538,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** in vflow.content coordinates */
     protected CaretInfo getCaretInfo(TextPos p) {
-        return arrangement().getCaretInfo(content, contentPaddingLeft, p);
+        return arrangement().getCaretInfo(content, p);
     }
 
     /** returns caret sizing info using vflow.content coordinates, or null */
@@ -587,16 +587,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             endOffset = cell.getTextLength();
         }
 
-        Insets m = contentPadding();
-        double dx = -m.getLeft();
-        double dy = 0.0;
-
         PathElement[] pe;
         if (startOffset == endOffset) {
             // TODO handle split caret!
-            pe = cell.getCaretShape(content, startOffset, true, dx, dy);
+            pe = cell.getCaretShape(content, startOffset, true, -contentPaddingLeft, 0.0);
         } else {
-            pe = cell.getRangeShape(content, startOffset, endOffset, dx, dy);
+            pe = cell.getRangeShape(content, startOffset, endOffset, -contentPaddingLeft, 0.0);
         }
         return pe;
     }
