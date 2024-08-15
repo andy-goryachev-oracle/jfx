@@ -441,13 +441,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         FxPathBuilder b = new FxPathBuilder();
         createSelectionHighlight(b, anchor, caret);
         selectionHighlight.getElements().setAll(b.getPathElements());
-        selectionHighlight.setTranslateX(contentPaddingLeft);
 
         // caret
         b = new FxPathBuilder();
         createCaretPath(b, caret);
         caretPath.getElements().setAll(b.getPathElements());
-        caretPath.setTranslateX(contentPaddingLeft);
     }
 
     protected void removeCaretAndSelection() {
@@ -590,9 +588,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         PathElement[] pe;
         if (startOffset == endOffset) {
             // TODO handle split caret!
-            pe = cell.getCaretShape(content, startOffset, true, -contentPaddingLeft, 0.0);
+            pe = cell.getCaretShape(content, startOffset, true);
         } else {
-            pe = cell.getRangeShape(content, startOffset, endOffset, -contentPaddingLeft, 0.0);
+            pe = cell.getRangeShape(content, startOffset, endOffset);
         }
         return pe;
     }
@@ -1213,7 +1211,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             arrangement.removeNodesFrom(content);
             arrangement = null;
         }
-        arrangement = new CellArrangement(this);
+        arrangement = new CellArrangement(this, contentPaddingLeft, contentPaddingTop);
 
         double width = getWidth();
         if (width == 0.0) {

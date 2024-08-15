@@ -73,6 +73,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     private boolean autoScrollUp;
     private boolean fastAutoScroll;
     private boolean scrollStarted;
+    /** horizontal cursor position preserved during up/down movement, in vflow.content coordinates */
     private double phantomX = -1.0;
     private final Duration autoScrollPeriod;
     private ContextMenu contextMenu = new ContextMenu();
@@ -517,7 +518,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
         vflow.scrollVerticalPixels(delta, true);
 
-        double x = Math.max(0.0, phantomX + vflow.getOffsetX());
+        double x = Math.max(0.0, phantomX);
         double y = autoScrollUp ? 0.0 : vflow.getViewPortHeight();
 
         vflow.scrollToVisible(x, y);

@@ -168,15 +168,15 @@ public final class TextCell extends BorderPane {
      * @param target the Region that provides the target frame of reference
      * @param charIndex the character index
      * @param leading the character bias
-     * @param dx the additional X offset
-     * @param dy the additional Y offset
      * @return the array of path elements translated to the target coordinates
      */
-    public PathElement[] getCaretShape(Region target, int charIndex, boolean leading, double dx, double dy) {
+    public PathElement[] getCaretShape(Region target, int charIndex, boolean leading) {
         PathElement[] p;
+        double dx;
+        double dy;
         if (content instanceof TextFlow f) {
-            dx += f.snappedLeftInset(); // TODO RTL?
-            dy += f.snappedTopInset();
+            dx = f.snappedLeftInset(); // TODO RTL?
+            dy = f.snappedTopInset();
 
             p = f.caretShape(charIndex, leading);
 
@@ -194,6 +194,8 @@ public final class TextCell extends BorderPane {
                 }
             }
         } else {
+            dx = 0.0;
+            dy = 0.0;
             p = new PathElement[] {
                 new MoveTo(0.0, 0.0),
                 new LineTo(0.0, content.getHeight())
@@ -209,15 +211,15 @@ public final class TextCell extends BorderPane {
      * @param target the Region that provides the target frame of reference
      * @param start the start offset
      * @param end the end offset
-     * @param dx the additional X offset
-     * @param dy the additional Y offset
      * @return the array of path elements translated to the target coordinates
      */
-    public PathElement[] getRangeShape(Region target, int start, int end, double dx, double dy) {
+    public PathElement[] getRangeShape(Region target, int start, int end) {
         PathElement[] p;
+        double dx;
+        double dy;
         if (content instanceof TextFlow f) {
-            dx += f.snappedLeftInset(); // TODO RTL?
-            dy += f.snappedTopInset();
+            dx = f.snappedLeftInset(); // TODO RTL?
+            dy = f.snappedTopInset();
 
             p = f.rangeShape(start, end);
 
@@ -228,6 +230,8 @@ public final class TextCell extends BorderPane {
                 };
             }
         } else {
+            dx = 0.0;
+            dy = 0.0;
             double w = getWidth();
             double h = getHeight();
 
