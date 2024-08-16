@@ -648,31 +648,32 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     protected void moveLine(double deltaPixels, boolean extendSelection) {
-        CaretInfo c = vflow.getCaretInfo();
-        if (c == null) {
+        TextPos caret = getControl().getCaretPosition();
+        if (caret == null) {
             return;
         }
 
-        double sp = c.getLineSpacing();
-        // TODO split caret?
-        double x = (c.getMinX() + c.getMaxX()) / 2.0;
+        CaretInfo ci = vflow.getCaretInfo(caret);
+        if (ci == null) {
+            return;
+        }
+
+        double x = (ci.getMinX() + ci.getMaxX()) / 2.0;
         if (phantomX < 0) {
             // phantomX is unclear in the case of split caret
+            // TODO possibly use effectiveOrientation to determine which side we should use
             phantomX = x;
         } else {
             x = phantomX;
         }
 
         boolean up = (deltaPixels < 0);
-        double y0 = up ? c.getMinY() : c.getMaxY();
+        double sp = ci.getLineSpacing();
         double y = up ?
-            c.getMinY() + deltaPixels - sp - 0.5:
-            c.getMaxY() + deltaPixels + sp + 0.5;
+            ci.getMinY() + deltaPixels - sp - 0.5 :
+            ci.getMaxY() + deltaPixels + sp + 0.5;
 
-        // TODO
-        // check whether the new caret y position changed, unless it's TextPos.ZERO when going up, or EOF if going down
-
-        TextPos p = vflow.getTextPosLocal(x, y);
+        TextPos p = vflow.moveLine(caret.index(), up, x, y);
         if (p != null) {
             moveCaret(p, extendSelection);
         }
