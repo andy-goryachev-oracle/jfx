@@ -29,7 +29,6 @@ package com.sun.jfx.incubator.scene.control.richtext;
 
 import java.util.ArrayList;
 import javafx.collections.ObservableList;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -133,19 +132,17 @@ public class CellArrangement {
         TextCell cell = getCell(ix);
         if (cell != null) {
             Region r = cell.getContent();
-            Insets pad = r.getPadding();
-            double y = cellY - cell.getY() - pad.getTop();
+            double y = cellY - cell.getY() - r.snappedTopInset();
             if (y < 0) {
                 return new TextPos(cell.getIndex(), 0, 0, true);
             } else if (y < cell.getCellHeight()) {
-                if (r instanceof TextFlow t) {
-                    double x = cellX - pad.getLeft();
+                if (r instanceof TextFlow f) {
+                    double x = cellX - f.snappedLeftInset();
                     Point2D p = new Point2D(x - r.getLayoutX(), y - r.getLayoutY());
-                    HitInfo h = t.hitTest(p);
+                    HitInfo h = f.hitTest(p);
                     int ii = h.getInsertionIndex();
                     int ci = h.getCharIndex();
                     boolean leading = h.isLeading();
-                    //System.out.println("CellArrangmenet.getTextPos ix=" + ii + " ci=" + ci + " leading=" + leading); // FIX
                     return new TextPos(cell.getIndex(), ii, ci, leading);
                 } else {
                     return new TextPos(cell.getIndex(), 0, 0, true);

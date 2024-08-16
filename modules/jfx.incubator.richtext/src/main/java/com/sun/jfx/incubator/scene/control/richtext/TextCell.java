@@ -37,6 +37,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
@@ -404,5 +405,32 @@ public final class TextCell extends BorderPane {
             }
         }
         return 0;
+    }
+
+    /**
+     * Returns true if the specified point is within the text boundaries,
+     * as reported by the range shape.
+     * <p>
+     * This method returns false if the text cell is not a TextFlow cell,
+     * or {@link #getTextLength()} returns 0. 
+     *
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @return true if the point is within the text bounds
+     */
+    public boolean isWithinTextBounds(double x, double y) {
+        if (content instanceof TextFlow f) {
+            int len = getTextLength();
+            if (len == 0) {
+                return false;
+            }
+
+            x -= snappedLeftInset();
+            y -= snappedTopInset();
+            PathElement[] pe = f.rangeShape(0, len);
+            Path path = new Path(pe);
+            return path.contains(x, y);
+        }
+        return false;
     }
 }

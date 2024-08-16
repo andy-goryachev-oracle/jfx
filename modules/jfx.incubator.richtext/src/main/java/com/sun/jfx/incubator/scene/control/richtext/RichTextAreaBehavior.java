@@ -669,6 +669,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
         boolean up = (deltaPixels < 0);
         double sp = ci.getLineSpacing();
+        // FIX: going up from line 0 of text cell with large line spacing: needs to use previous line spacing!
         double y = up ?
             ci.getMinY() + deltaPixels - sp - 0.5 :
             ci.getMaxY() + deltaPixels + sp + 0.5;

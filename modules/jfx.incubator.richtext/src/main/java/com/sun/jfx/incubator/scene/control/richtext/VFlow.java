@@ -1122,7 +1122,17 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         if (cell.isGoodTargetY(y - cell.getY())) {
             // no special logic is needed
-            return getTextPosLocal(x, y);
+            TextPos rv = getTextPosLocal(x, y);
+            if (rv.charIndex() == cell.getTextLength()) {
+                // there is a possibility of hitting just below the last line of text in which case
+                // we won't get the right position!  JDK-8091012
+
+                if (cell.isWithinTextBounds(x - contentPaddingLeft, y - cell.getY())) {
+                    return rv;
+                }
+            } else {
+                return rv;
+            }
         }
 
         // we are hitting inter-cell space here
