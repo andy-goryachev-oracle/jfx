@@ -1105,24 +1105,33 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
      */
     public TextPos moveLine(int caretIndex, double x, double y, boolean up) {
         TextCell cell = getCell(caretIndex);
+        // account for line spacing
         if (!up) {
             y += cell.getLineSpacing();
         }
+
         double cy = y - cell.getY();
-        if (cell.isInsideText(x - contentPaddingLeft, cy, up)) {
-            // FIX optimize this code
-            return getTextPosLocal(x, y);
-        }
-        
+        boolean inside = cell.isInsideText(x - contentPaddingLeft, cy, up);
         TextPos p = getTextPosLocal(x, y);
-        if(p == null) {
+        if (p == null) {
             return null; // should not happen
+        } else if (inside) {
+            return p;
         }
 
         int ix = p.index();
         if (ix == caretIndex) {
-            ix += (up ? -1 : 1);
-            // FIX watch for out of bounds!
+            if (up) {
+                ix--;
+                if (ix < 0) {
+                    return TextPos.ZERO;
+                }
+            } else {
+                ix++;
+                if (ix >= skin.getSkinnable().getParagraphCount()) {
+                    return skin.getSkinnable().getDocumentEnd();
+                }
+            }
         }
 
         cell = getCell(ix);

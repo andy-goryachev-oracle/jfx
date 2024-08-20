@@ -99,14 +99,6 @@ public class RangeInfo {
         return data.length / 4;
     }
 
-    public double minY() {
-        return ymin;
-    }
-
-    public double maxY() {
-        return ymax;
-    }
-
     public boolean contains(int ix, double x, double y) {
         ix *= 4;
         if (data[ix++] <= x) {

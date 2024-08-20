@@ -407,33 +407,6 @@ public final class TextCell extends BorderPane {
         return 0;
     }
 
-    /**
-     * Returns true if the specified point is within the text boundaries,
-     * as reported by the range shape.
-     * <p>
-     * This method returns false if the text cell is not a TextFlow cell,
-     * or {@link #getTextLength()} returns 0. 
-     *
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @return true if the point is within the text bounds
-     */
-    public boolean isWithinTextBounds_DELETE(double x, double y) {
-        if (content instanceof TextFlow f) {
-            int len = getTextLength();
-            if (len == 0) {
-                return false;
-            }
-
-            x -= snappedLeftInset();
-            y -= snappedTopInset();
-            PathElement[] pe = f.rangeShape(0, len);
-            Path path = new Path(pe);
-            return path.contains(x, y);
-        }
-        return false;
-    }
-
     private RangeInfo getTextRange() {
         if (content instanceof TextFlow f) {
             int len = getTextLength();
@@ -471,7 +444,7 @@ public final class TextCell extends BorderPane {
         int sz = ri.getSegmentCount();
         if (up) {
             for (int i = sz - 1; i >= 0; i--) {
-                if (/*ri.containsX(i, x) && FIX */ (ri.getMinY(i) <= y)) {
+                if (ri.getMinY(i) <= y) {
                     return ri.midPointY(i) + dy;
                 }
             }
