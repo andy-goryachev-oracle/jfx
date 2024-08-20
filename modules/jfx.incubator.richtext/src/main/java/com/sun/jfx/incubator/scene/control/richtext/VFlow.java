@@ -1093,72 +1093,46 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     /**
-     * Computes the new TextPos for the target coordinates.
+     * Computes the new TextPos for the target coordinates.  This method takes into account
+     * the geometry of text as determined by the layout, thus taking into account
+     * line spacing and paragraph padding and borders.
      *
      * @param caretIndex the current caret index
-     * @param up the direction of movement
-     * @param x the x coordinate
-     * @param y the target candidate y coordinate
+     * @param x the target x coordinate
+     * @param y the target y coordinate
+     * @param up direction of the movement relative to the caret
      * @return the new text position, or null if no movement should occur
      */
-    public TextPos moveLine(int caretIndex, boolean up, double x, double y) {
-        // the algorithm:
-        // - if the new y falls within a text flow, use the original method
-        // - otherwise, find the adjacent cell in the direction of the movement,
-        //   then
-        //   - if the cell is a text cell, go to the appropriate text line
-        //   - otherwise, go to start text position (if the content is a rectangle)
-
+    public TextPos moveLine(int caretIndex, double x, double y, boolean up) {
+        TextCell cell = getCell(caretIndex);
+        if (!up) {
+            y += cell.getLineSpacing();
+        }
+        double cy = y - cell.getY();
+        if (cell.isInsideText(x - contentPaddingLeft, cy, up)) {
+            // FIX optimize this code
+            return getTextPosLocal(x, y);
+        }
+        
         TextPos p = getTextPosLocal(x, y);
-        if (p == null) {
+        if(p == null) {
             return null; // should not happen
         }
+
         int ix = p.index();
-        boolean same = (caretIndex == ix);
-        TextCell cell = getCell(ix);
-        if (cell == null) {
-            return null; // should not happen
+        if (ix == caretIndex) {
+            ix += (up ? -1 : 1);
+            // FIX watch for out of bounds!
         }
 
-        if (cell.isGoodTargetY(y - cell.getY())) {
-            // no special logic is needed
-            TextPos rv = getTextPosLocal(x, y);
-            if (rv.charIndex() == cell.getTextLength()) {
-                // there is a possibility of hitting just below the last line of text in which case
-                // we won't get the right position!  JDK-8091012
-
-                if (cell.isWithinTextBounds(x - contentPaddingLeft, y - cell.getY())) {
-                    return rv;
-                }
-            } else {
-                return rv;
-            }
+        cell = getCell(ix);
+        double py = cell.findHitCandidate(x - contentPaddingLeft, y - cell.getY(), up);
+        if (Double.isNaN(py)) {
+            return null; // should not happen... but maybe clip to the document boundaries?
         }
 
-        // we are hitting inter-cell space here
-        // so let'd find the adjacent cell in the direction of movement and get the landing position
-        int off;
-        if (up) {
-            if (same) {
-                ix--;
-            }
-            if (ix < 0) {
-                return TextPos.ZERO;
-            }
-            cell = getCell(ix);
-            off = cell.getTextOffsetAt(x - contentPaddingLeft, false);
-        } else {
-            if (same) {
-                ix++;
-            }
-            cell = getCell(ix);
-            if (cell == null) {
-                return skin.getSkinnable().getDocumentEnd();
-            }
-            off = cell.getTextOffsetAt(x - contentPaddingLeft, true);
-        }
-
-        return new TextPos(ix, off);
+        p = getTextPosLocal(x, py + cell.getY());
+        return p;
     }
 
     public void handleUseContentHeight() {

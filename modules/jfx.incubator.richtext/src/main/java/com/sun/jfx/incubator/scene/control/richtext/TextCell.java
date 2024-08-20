@@ -418,7 +418,7 @@ public final class TextCell extends BorderPane {
      * @param y the y coordinate
      * @return true if the point is within the text bounds
      */
-    public boolean isWithinTextBounds(double x, double y) {
+    public boolean isWithinTextBounds_DELETE(double x, double y) {
         if (content instanceof TextFlow f) {
             int len = getTextLength();
             if (len == 0) {
@@ -432,5 +432,67 @@ public final class TextCell extends BorderPane {
             return path.contains(x, y);
         }
         return false;
+    }
+
+    private RangeInfo getTextRange() {
+        if (content instanceof TextFlow f) {
+            int len = getTextLength();
+            PathElement[] pe = f.rangeShape(0, len);
+            if (pe.length > 0) {
+                double sp = f.getLineSpacing();
+                return RangeInfo.of(pe, sp);
+            }
+        }
+        return RangeInfo.of(getWidth(), getHeight());
+    }
+
+    public boolean isInsideText(double x, double y, boolean up) {
+        y -= snappedTopInset();
+        y -= content.snappedTopInset();
+
+        RangeInfo ri = getTextRange();
+        int sz = ri.getSegmentCount();
+        for (int i = 0; i < sz; i++) {
+            if(ri.contains(i, x, y)) {
+                return true;
+            }
+        }
+        if (ri.insideY(y)) {
+            return true;
+        }
+        return false;
+    }
+
+    public double findHitCandidate(double x, double py, boolean up) {
+        double dy = snappedTopInset() + content.snappedTopInset();
+        double y = py - dy;
+
+        RangeInfo ri = getTextRange();
+        int sz = ri.getSegmentCount();
+        if (up) {
+            for (int i = sz - 1; i >= 0; i--) {
+                if (/*ri.containsX(i, x) && FIX */ (ri.getMinY(i) <= y)) {
+                    return ri.midPointY(i) + dy;
+                }
+            }
+            if (insideY(py)) {
+                int ix = ri.getSegmentCount() - 1;
+                return ri.midPointY(ix) + dy;
+            }
+        } else {
+            for (int i = 0; i < sz; i++) {
+                if (ri.containsX(i, x) && (ri.getMaxY(i) >= y)) {
+                    return ri.midPointY(i) + dy;
+                }
+            }
+            if (insideY(py)) {
+                return ri.midPointY(0) + dy;
+            }
+        }
+        return Double.NaN;
+    }
+
+    private boolean insideY(double y) {
+        return (y < getHeight()) && (y >= 0.0);
     }
 }

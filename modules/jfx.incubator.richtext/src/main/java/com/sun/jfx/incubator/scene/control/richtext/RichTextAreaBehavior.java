@@ -647,6 +647,14 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         control.select(pos);
     }
 
+    /**
+     * Moves the caret {@code deltaPixels} up (negative) or down (positive) from its current position.
+     * Extends existing selection when {@code extendSelection} is true.
+     * Does nothing if the current caret position is null.
+     *
+     * @param deltaPixels the number of pixels to move
+     * @param extendSelection whether to extend selection
+     */
     protected void moveLine(double deltaPixels, boolean extendSelection) {
         TextPos caret = getControl().getCaretPosition();
         if (caret == null) {
@@ -659,6 +667,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
 
         double x = (ci.getMinX() + ci.getMaxX()) / 2.0;
+//        double y = (ci.getMinY() + ci.getMaxY()) / 2.0;
+
         if (phantomX < 0) {
             // phantomX is unclear in the case of split caret
             // TODO possibly use effectiveOrientation to determine which side we should use
@@ -668,13 +678,11 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
 
         boolean up = (deltaPixels < 0);
-        double sp = ci.getLineSpacing();
-        // FIX: going up from line 0 of text cell with large line spacing: needs to use previous line spacing!
         double y = up ?
-            ci.getMinY() + deltaPixels - sp - 0.5 :
-            ci.getMaxY() + deltaPixels + sp + 0.5;
+            ci.getMinY() + deltaPixels - 0.5 :
+            ci.getMaxY() + deltaPixels + 0.5;
 
-        TextPos p = vflow.moveLine(caret.index(), up, x, y);
+        TextPos p = vflow.moveLine(caret.index(), x, y, up);
         if (p != null) {
             moveCaret(p, extendSelection);
         }
