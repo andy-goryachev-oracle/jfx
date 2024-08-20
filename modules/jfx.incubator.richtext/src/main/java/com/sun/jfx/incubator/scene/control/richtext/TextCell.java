@@ -416,8 +416,7 @@ public final class TextCell extends BorderPane {
                 return RangeInfo.of(pe, sp);
             }
         }
-        // FIX width and height might be 0!
-        return RangeInfo.of(getWidth(), getHeight());
+        return RangeInfo.of(width, height);
     }
 
     public boolean isInsideText(double x, double y, boolean down) {
@@ -437,7 +436,7 @@ public final class TextCell extends BorderPane {
         return false;
     }
 
-    public double findHitCandidate(double x, double py, boolean down) {
+    public double findHitCandidate(double py, boolean down) {
         double dy = snappedTopInset() + content.snappedTopInset();
         double y = py - dy;
 

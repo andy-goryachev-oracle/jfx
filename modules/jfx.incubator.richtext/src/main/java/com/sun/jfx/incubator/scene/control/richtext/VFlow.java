@@ -1135,9 +1135,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         cell = getCell(ix);
-        double py = cell.findHitCandidate(x - contentPaddingLeft, y - cell.getY(), down);
+        double py = cell.findHitCandidate(y - cell.getY(), down);
         if (Double.isNaN(py)) {
-            return null; // should not happen... but maybe clip to the document boundaries?
+            return null; // should not happen
         }
 
         p = getTextPosLocal(x, py + cell.getY());
