@@ -416,10 +416,11 @@ public final class TextCell extends BorderPane {
                 return RangeInfo.of(pe, sp);
             }
         }
+        // FIX width and height might be 0!
         return RangeInfo.of(getWidth(), getHeight());
     }
 
-    public boolean isInsideText(double x, double y, boolean up) {
+    public boolean isInsideText(double x, double y, boolean down) {
         y -= snappedTopInset();
         y -= content.snappedTopInset();
 
@@ -436,13 +437,22 @@ public final class TextCell extends BorderPane {
         return false;
     }
 
-    public double findHitCandidate(double x, double py, boolean up) {
+    public double findHitCandidate(double x, double py, boolean down) {
         double dy = snappedTopInset() + content.snappedTopInset();
         double y = py - dy;
 
         RangeInfo ri = getTextRange();
         int sz = ri.getSegmentCount();
-        if (up) {
+        if (down) {
+            for (int i = 0; i < sz; i++) {
+                if (ri.getMaxY(i) >= y) {
+                    return ri.midPointY(i) + dy;
+                }
+            }
+            if (insideY(py)) {
+                return ri.midPointY(0) + dy;
+            }
+        } else {
             for (int i = sz - 1; i >= 0; i--) {
                 if (ri.getMinY(i) <= y) {
                     return ri.midPointY(i) + dy;
@@ -451,15 +461,6 @@ public final class TextCell extends BorderPane {
             if (insideY(py)) {
                 int ix = ri.getSegmentCount() - 1;
                 return ri.midPointY(ix) + dy;
-            }
-        } else {
-            for (int i = 0; i < sz; i++) {
-                if (ri.getMaxY(i) >= y) {
-                    return ri.midPointY(i) + dy;
-                }
-            }
-            if (insideY(py)) {
-                return ri.midPointY(0) + dy;
             }
         }
         return Double.NaN;

@@ -667,8 +667,6 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
 
         double x = (ci.getMinX() + ci.getMaxX()) / 2.0;
-//        double y = (ci.getMinY() + ci.getMaxY()) / 2.0;
-
         if (phantomX < 0) {
             // phantomX is unclear in the case of split caret
             // TODO possibly use effectiveOrientation to determine which side we should use
@@ -677,12 +675,12 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             x = phantomX;
         }
 
-        boolean up = (deltaPixels < 0);
-        double y = up ?
-            ci.getMinY() + deltaPixels - 0.5 :
-            ci.getMaxY() + deltaPixels + 0.5;
+        boolean down = (deltaPixels > 0);
+        double y = down ?
+            ci.getMaxY() + deltaPixels + 0.5 :
+            ci.getMinY() + deltaPixels - 0.5;
 
-        TextPos p = vflow.moveLine(caret.index(), x, y, up);
+        TextPos p = vflow.moveLine(caret.index(), x, y, down);
         if (p != null) {
             moveCaret(p, extendSelection);
         }

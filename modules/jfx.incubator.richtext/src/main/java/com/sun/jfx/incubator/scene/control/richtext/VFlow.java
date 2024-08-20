@@ -1100,18 +1100,18 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
      * @param caretIndex the current caret index
      * @param x the target x coordinate
      * @param y the target y coordinate
-     * @param up direction of the movement relative to the caret
+     * @param down direction of the movement relative to the caret
      * @return the new text position, or null if no movement should occur
      */
-    public TextPos moveLine(int caretIndex, double x, double y, boolean up) {
+    public TextPos moveLine(int caretIndex, double x, double y, boolean down) {
         TextCell cell = getCell(caretIndex);
         // account for line spacing
-        if (!up) {
+        if (down) {
             y += cell.getLineSpacing();
         }
 
         double cy = y - cell.getY();
-        boolean inside = cell.isInsideText(x - contentPaddingLeft, cy, up);
+        boolean inside = cell.isInsideText(x - contentPaddingLeft, cy, down);
         TextPos p = getTextPosLocal(x, y);
         if (p == null) {
             return null; // should not happen
@@ -1121,21 +1121,21 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         int ix = p.index();
         if (ix == caretIndex) {
-            if (up) {
-                ix--;
-                if (ix < 0) {
-                    return TextPos.ZERO;
-                }
-            } else {
+            if (down) {
                 ix++;
                 if (ix >= skin.getSkinnable().getParagraphCount()) {
                     return skin.getSkinnable().getDocumentEnd();
+                }
+            } else {
+                ix--;
+                if (ix < 0) {
+                    return TextPos.ZERO;
                 }
             }
         }
 
         cell = getCell(ix);
-        double py = cell.findHitCandidate(x - contentPaddingLeft, y - cell.getY(), up);
+        double py = cell.findHitCandidate(x - contentPaddingLeft, y - cell.getY(), down);
         if (Double.isNaN(py)) {
             return null; // should not happen... but maybe clip to the document boundaries?
         }
