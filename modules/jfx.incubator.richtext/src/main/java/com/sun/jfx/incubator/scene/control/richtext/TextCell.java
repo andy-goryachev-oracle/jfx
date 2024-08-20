@@ -454,7 +454,7 @@ public final class TextCell extends BorderPane {
             }
         } else {
             for (int i = 0; i < sz; i++) {
-                if (ri.containsX(i, x) && (ri.getMaxY(i) >= y)) {
+                if (ri.getMaxY(i) >= y) {
                     return ri.midPointY(i) + dy;
                 }
             }
