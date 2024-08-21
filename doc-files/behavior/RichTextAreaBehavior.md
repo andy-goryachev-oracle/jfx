@@ -93,14 +93,14 @@
 |shift-shortcut-DOWN   |mac        |SELECT_TO_DOCUMENT_END    |
 |shortcut-DOWN         |mac        |MOVE_TO_DOCUMENT_END      |
 |END                   |           |MOVE_TO_LINE_END          |4
-|ctrl-END              |linux, win |MOVE_TO_DOCUMENT_END      |
-|ctrl-shift-END        |linux, win |SELECT_TO_DOCUMENT_END    |
+|ctrl-END              |           |MOVE_TO_DOCUMENT_END      |
+|ctrl-shift-END        |           |SELECT_TO_DOCUMENT_END    |
 |shift-END             |           |SELECT_LINE_END           |
 |ENTER                 |           |INSERT_LINE_BREAK         |
 |ctrl-H                |linux, win |BACKSPACE                 |
 |HOME                  |           |MOVE_TO_LINE_START        |3
-|ctrl-HOME             |linux, win |MOVE_TO_DOCUMENT_START    |
-|ctrl-shift-HOME       |linux, win |SELECT_TO_DOCUMENT_START  |
+|ctrl-HOME             |           |MOVE_TO_DOCUMENT_START    |
+|ctrl-shift-HOME       |           |SELECT_TO_DOCUMENT_START  |
 |shift-HOME            |           |SELECT_TO_LINE_START      |3
 |LEFT                  |           |MOVE_LEFT                 |
 |ctrl-LEFT             |linux, win |MOVE_WORD_LEFT            |
