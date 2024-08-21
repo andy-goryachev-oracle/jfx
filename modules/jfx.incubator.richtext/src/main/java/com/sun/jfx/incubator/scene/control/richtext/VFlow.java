@@ -942,9 +942,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** scrolls to visible area, using vflow.content coordinates */
     public void scrollToVisible(double x, double y) {
-        if (y < 0.0) {
+        if (y < snappedTopInset()) {
             // above viewport
-            scrollVerticalPixels(y);
+            scrollVerticalPixels(y - snappedTopInset());
         } else if (y >= getViewPortHeight()) {
             // below viewport
             scrollVerticalPixels(y - getViewPortHeight());
@@ -954,28 +954,35 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public void scrollCaretToVisible() {
+        TextPos caret = control.getCaretPosition();
+        if (caret == null) {
+            // no caret
+            return;
+        }
+
+        boolean reflow = false;
         CaretInfo c = getCaretInfo();
         if (c == null) {
             // caret is outside of the layout; let's set the origin first to the caret position
             // and then block scroll to avoid scrolling past the document end, if needed
-            TextPos p = control.getCaretPosition();
-            if (p != null) {
-                int ix = p.index();
-                Origin or = new Origin(ix, 0.0);
-                boolean moveDown = (ix > getOrigin().index());
-                setOrigin(or);
-                c = getCaretInfo();
-                if (moveDown) {
-                    scrollVerticalPixels(c.getMaxY() - c.getMinY() - getViewPortHeight());
-                }
-                checkForExcessiveWhitespaceAtTheEnd();
+            int ix = caret.index();
+            Origin or = new Origin(ix, 0.0);
+            boolean moveDown = (ix > getOrigin().index());
+            setOrigin(or);
+            c = getCaretInfo();
+            if (moveDown) {
+                scrollVerticalPixels(c.getMaxY() - c.getMinY() - getViewPortHeight());
             }
+            checkForExcessiveWhitespaceAtTheEnd();
+            reflow = true;
         } else {
             // block scroll, if needed
-            if (c.getMinY() < 0.0) {
-                scrollVerticalPixels(c.getMinY());
+            if (c.getMinY() < snappedTopInset()) {
+                scrollVerticalPixels(c.getMinY() - snappedTopInset());
+                reflow = true;
             } else if (c.getMaxY() > getViewPortHeight()) {
                 scrollVerticalPixels(c.getMaxY() - getViewPortHeight());
+                reflow = true;
             }
 
             if (!control.isWrapText()) {
@@ -987,6 +994,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     scrollHorizontalToVisible(c.getMaxX());
                 }
             }
+        }
+
+        if (reflow) {
+            layout();
         }
     }
 
@@ -1092,6 +1103,18 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
     }
 
+    public TextPos moveHorizontally(boolean start, int caretIndex, int caretOffset) {
+        TextCell cell = getCell(caretIndex);
+        Integer off = cell.lineEdge(start, caretIndex, caretOffset);
+        if (off == null) {
+            return null;
+        } else if(start || off == 0) {
+            return new TextPos(caretIndex, off);
+        } else {
+            return new TextPos(caretIndex, off, off - 1, false);
+        }
+    }
+
     /**
      * Computes the new TextPos for the target coordinates.  This method takes into account
      * the geometry of text as determined by the layout, thus taking into account
@@ -1103,7 +1126,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
      * @param down direction of the movement relative to the caret
      * @return the new text position, or null if no movement should occur
      */
-    public TextPos moveLine(int caretIndex, double x, double y, boolean down) {
+    public TextPos moveVertically(int caretIndex, double x, double y, boolean down) {
         TextCell cell = getCell(caretIndex);
         // account for line spacing
         if (down) {
@@ -1452,6 +1475,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             double h = cell.prefHeight(forWidth) + getLineSpacing(r);
             h = snapSizeY(h);
             y = snapPositionY(y - h);
+            cell.setPosition(y, h);
             count++;
 
             cell.setPosition(y, h);
