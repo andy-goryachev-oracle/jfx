@@ -51,7 +51,11 @@ import com.sun.javafx.scene.traversal.TraversalUtils;
 public abstract class TraversalPolicy {
     /**
      * Traverse from owner, in direction dir.
-     * Return a the new target Node or null if no suitable target is found.
+     * Return the new {@link javafx.scene.Node#isFocusTraversable() focus traversable} Node
+     * or null if no suitable target is found.
+     * <p>
+     * Note: the {@code node} does not have to be focused or focus traversable, as it serves
+     * only as a reference point.
      *
      * Typically, the implementation of override TraversalPolicy handles only parent's direct children and looks like this:
      * <ol>
@@ -69,7 +73,8 @@ public abstract class TraversalPolicy {
     public abstract Node select(Parent root, Node node, TraversalDirection dir);
 
     /**
-     * Return the first traversable node for the specified context (root).
+     * Return the first {@link javafx.scene.Node#isFocusTraversable() focus traversable}
+     * node for the specified context (root).
      *
      * @param root the traversal root
      * @return the first node
@@ -77,7 +82,8 @@ public abstract class TraversalPolicy {
     public abstract Node selectFirst(Parent root);
 
     /**
-     * Return the last traversable node for the specified context (root).
+     * Return the last
+     * {@link javafx.scene.Node#isFocusTraversable() focus traversable} node for the specified context (root).
      *
      * @param root the traversal root
      * @return the last node

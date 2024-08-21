@@ -88,7 +88,8 @@ public class TraversalEvent extends Event {
     }
 
     /**
-     * The layout bounds of the node, transformed into the coordinates of the root element in the
+     * The layout bounds of the node which received the traversal event,
+     * transformed into the coordinates of the root element in the
      * traversal root being used (i.e. the {@link Scene} or the root {@link Parent}).
      *
      * @return the layout bounds of the node, transformed into the coordinates of the root element.
