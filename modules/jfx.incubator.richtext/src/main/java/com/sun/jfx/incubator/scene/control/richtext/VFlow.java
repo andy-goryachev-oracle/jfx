@@ -1160,7 +1160,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         cell = getCell(ix);
         double py = cell.findHitCandidate(y - cell.getY(), down);
         if (Double.isNaN(py)) {
-            return null; // should not happen
+            if (down) {
+                return skin.getSkinnable().getDocumentEnd();
+            } else {
+                return TextPos.ZERO;
+            }
         }
 
         p = getTextPosLocal(x, py + cell.getY());
