@@ -65,7 +65,7 @@ public class TraversalEvent extends Event {
      * The layout bounds of the node, transformed into the coordinates of the root element.
      */
     private final Bounds bounds;
-    private final Node node;
+    private transient final Node node;
 
     /**
      * Creates new instance of TraversalEvent.
