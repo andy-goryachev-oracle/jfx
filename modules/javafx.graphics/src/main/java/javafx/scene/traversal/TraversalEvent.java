@@ -65,6 +65,7 @@ public class TraversalEvent extends Event {
      * The layout bounds of the node, transformed into the coordinates of the root element.
      */
     private final Bounds bounds;
+    private final Node node;
 
     /**
      * Creates new instance of TraversalEvent.
@@ -79,6 +80,7 @@ public class TraversalEvent extends Event {
         final @NamedArg("eventType") EventType<? extends TraversalEvent> eventType
     ) {
         super(node, node, eventType);
+        this.node = node;
         this.bounds = bounds;
     }
 
@@ -103,7 +105,7 @@ public class TraversalEvent extends Event {
      * @return the Node
      */
     public Node getNode() {
-        return (Node)getTarget();
+        return node;
     }
 
     @Override

@@ -47,9 +47,9 @@ import com.sun.javafx.tk.Toolkit;
 import test.com.sun.javafx.pgstub.StubToolkit;
 
 /**
- * Tests TraversalPolicy APIs using a custom traversal policy.
+ * Tests TraversalPolicy APIs using the default and a custom traversal policies.
  */
-public final class CustomTraversalPolicyTest {
+public final class TraversalPolicyTest {
     private static StubToolkit tk;
     private static Stage stage;
     private static GridPane grid;
@@ -66,6 +66,7 @@ public final class CustomTraversalPolicyTest {
     private static Node b20;
     private static Node b21;
     private static Node b22;
+    private Node fromEvent;
 
     /**
      * [T.0] [T.1] [T.2] [T.3]
@@ -83,15 +84,15 @@ public final class CustomTraversalPolicyTest {
         t2 = b("T.2");
         t3 = b("T.3");
 
-        b00 = b("G.0.0");
-        b01 = b("G.0.1");
-        b02 = b("G.0.2");
-        b10 = b("G.1.0");
-        b11 = b("G.1.1");
-        b12 = b("G.1.2");
-        b20 = b("G.2.0");
-        b21 = b("G.2.1");
-        b22 = b("G.2.2");
+        b00 = b("b.0.0");
+        b01 = b("b.0.1");
+        b02 = b("b.0.2");
+        b10 = b("b.1.0");
+        b11 = b("b.1.1");
+        b12 = b("b.1.2");
+        b20 = b("b.2.0");
+        b21 = b("b.2.1");
+        b22 = b("b.2.2");
 
         grid = new GridPane();
         grid.add(b00, 0, 0);
@@ -116,8 +117,11 @@ public final class CustomTraversalPolicyTest {
         stage.setScene(new Scene(bp, 500, 400));
         stage.addEventHandler(TraversalEvent.ANY, (ev) -> {
             //System.out.println(ev);
+            fromEvent = ev.getNode();
         });
         stage.show();
+
+        fromEvent = null;
     }
 
     @BeforeEach
@@ -141,51 +145,29 @@ public final class CustomTraversalPolicyTest {
         }
     }
 
-    // traversing in the order specified by the custom policy
-    @Test
-    void testCustomPolicy_NEXT() {
-        setCustomPolicy();
-        traverse(
-            t0,
-            TraversalDirection.NEXT,
-            t1, t2, t3,
-            b00, b10, b20,
-            b01, b11, b21,
-            b02, b12, b22,
-            t0, t1, t2, t3
-        );
-    }
-
-    // traversing in the order the children were added to the parent
-    @Test
-    void testDefaultPolicy_NEXT() {
-        traverse(
-            t0,
-            TraversalDirection.NEXT,
-            t1, t2, t3,
-            b00, b01, b02,
-            b10, b11, b12,
-            b20, b21, b22,
-            t0, t1, t2, t3
-        );
-    }
-
     void traverse(Node from, TraversalDirection dir, Node... nodes) {
         from.requestFocus();
         firePulse();
         checkFocused(from);
 
         for (Node n : nodes) {
+            fromEvent = null;
             boolean success = FocusTraversal.traverse(from, dir, TraversalMethod.DEFAULT);
             Assertions.assertTrue(success, "failed to traverse from node: " + from);
             firePulse();
             checkFocused(n);
+            checkEventNode(n);
             from = n;
         }
     }
 
-    static void checkFocused(Node n) {
+    void checkFocused(Node n) {
         Assertions.assertTrue(n.isFocused(), "expecting focused node: " + n);
+    }
+
+    void checkEventNode(Node n) {
+        Assertions.assertTrue(fromEvent == n, "TraversalEvent.node is wrong, expecting=" + n + ", observed=" + fromEvent);
+        //System.out.println(fromEvent);
     }
 
     static void setCustomPolicy() {
@@ -286,5 +268,207 @@ public final class CustomTraversalPolicyTest {
                 return -1;
             }
         };
+    }
+
+    // direction: DOWN, default policy
+    @Test
+    void testDefaultPolicy_DOWN() {
+        traverse(
+            t0,
+            TraversalDirection.DOWN,
+            b00, b01, b02
+        );
+    }
+
+    // direction: DOWN, custom policy
+    @Test
+    void testCustomPolicy_DOWN() {
+        setCustomPolicy();
+        traverse(
+            t0,
+            TraversalDirection.DOWN,
+            b00, b10, b20,
+            b01, b11, b21,
+            b02, b12, b22,
+            b00, b10
+        );
+    }
+
+    // direction: LEFT, default policy
+    @Test
+    void testDefaultPolicy_LEFT() {
+        traverse(
+            t3,
+            TraversalDirection.LEFT,
+            t2, t1, t0
+        );
+    }
+
+    // direction: LEFT, default policy
+    @Test
+    void testDefaultPolicy_LEFT2() {
+        traverse(
+            b20,
+            TraversalDirection.LEFT,
+            b10, b00
+        );
+    }
+
+    // direction: LEFT, custom policy, start at B20
+    @Test
+    void testCustomPolicy_LEFT() {
+        setCustomPolicy();
+        traverse(
+            b20,
+            TraversalDirection.LEFT,
+            b10, b00,
+            b22, b12, b02,
+            b21, b11, b01,
+            b20, b10, b00,
+            b22
+        );
+    }
+
+    // direction: NEXT, default policy
+    @Test
+    void testDefaultPolicy_NEXT() {
+        traverse(
+            t0,
+            TraversalDirection.NEXT,
+            t1, t2, t3,
+            b00, b01, b02,
+            b10, b11, b12,
+            b20, b21, b22,
+            t0, t1, t2, t3
+        );
+    }
+
+    // direction: NEXT, custom policy
+    @Test
+    void testCustomPolicy_NEXT() {
+        setCustomPolicy();
+        traverse(
+            t0,
+            TraversalDirection.NEXT,
+            t1, t2, t3,
+            b00, b10, b20,
+            b01, b11, b21,
+            b02, b12, b22,
+            t0, t1, t2, t3
+        );
+    }
+
+    // direction: NEXT_IN_LINE, default policy
+    @Test
+    void testDefaultPolicy_NEXT_IN_LINE() {
+        traverse(
+            t0,
+            TraversalDirection.NEXT_IN_LINE,
+            t1, t2, t3,
+            b00, b01, b02,
+            b10, b11, b12,
+            b20, b21, b22,
+            t0, t1, t2, t3
+        );
+    }
+
+    // direction: NEXT_IN_LINE, custom policy
+    @Test
+    void testCustomPolicy_NEXT_IN_LINE() {
+        setCustomPolicy();
+        traverse(
+            t0,
+            TraversalDirection.NEXT_IN_LINE,
+            t1, t2, t3,
+            b00, b10, b20,
+            b01, b11, b21,
+            b02, b12, b22,
+            t0, t1, t2, t3
+        );
+    }
+
+    // direction: PREVIOUS, default policy
+    @Test
+    void testDefaultPolicy_PREVIOUS() {
+        traverse(
+            t3,
+            TraversalDirection.PREVIOUS,
+            t2, t1, t0,
+            b22
+        );
+    }
+
+    // direction: PREVIOUS, custom policy
+    @Test
+    void testCustomPolicy_PREVIOUS() {
+        setCustomPolicy();
+        traverse(
+            t3,
+            TraversalDirection.PREVIOUS,
+            t2, t1, t0,
+            b22, b12, b02,
+            b21, b11, b01,
+            b20, b10, b00,
+            t3, t2, t1, t0,
+            b22
+        );
+    }
+
+    // direction: RIGHT, default policy
+    @Test
+    void testDefaultPolicy_RIGHT() {
+        traverse(
+            t0,
+            TraversalDirection.RIGHT,
+            t1, t2, t3
+        );
+    }
+
+    // direction: RIGHT, default policy, start at B00
+    @Test
+    void testDefaultPolicy_RIGHT2() {
+        traverse(
+            b00,
+            TraversalDirection.RIGHT,
+            b10, b20,
+            t3
+        );
+    }
+
+    // direction: RIGHT, custom policy
+    @Test
+    void testCustomPolicy_RIGHT() {
+        setCustomPolicy();
+        traverse(
+            b00,
+            TraversalDirection.RIGHT,
+            b10, b20,
+            b01, b11, b21,
+            b02, b12, b22,
+            b00
+        );
+    }
+
+    // direction: UP, default policy
+    @Test
+    void testDefaultPolicy_UP() {
+        traverse(
+            b02,
+            TraversalDirection.UP,
+            b01, b00, t0
+        );
+    }
+
+    // direction: UP, custom policy
+    @Test
+    void testCustomPolicy_UP() {
+        setCustomPolicy();
+        traverse(
+            b02,
+            TraversalDirection.UP,
+            b21, b11, b01,
+            b20, b10, b00,
+            b22, b12, b02
+        );
     }
 }
