@@ -41,8 +41,9 @@ public class ContainerTabOrder extends TraversalPolicy {
     public Node select(Parent root, Node node, TraversalDirection dir) {
         switch (dir) {
             case NEXT:
+                return findNextFocusableNode(root, node);
             case NEXT_IN_LINE:
-                return findNextFocusableNode(root, node, dir);
+                return findNextInLineFocusableNode(root, node);
             case PREVIOUS:
                 return findPreviousFocusableNode(root, node);
             case UP:

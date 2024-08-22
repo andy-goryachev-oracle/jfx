@@ -110,8 +110,8 @@ public final class TraversalUtils {
         }
     }
 
-    public static Node findNextFocusableNode(Parent root, Node node, TraversalDirection dir) {
-        return TabOrderHelper.findNextFocusablePeer(node, root, dir == TraversalDirection.NEXT);
+    public static Node findNextFocusableNode(Parent root, Node node, boolean traverseIntoCurrent) {
+        return TabOrderHelper.findNextFocusablePeer(node, root, traverseIntoCurrent);
     }
 
     public static Node findPreviousFocusableNode(Parent root, Node node) {

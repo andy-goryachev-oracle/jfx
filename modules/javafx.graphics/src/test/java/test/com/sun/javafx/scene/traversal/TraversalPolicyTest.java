@@ -213,10 +213,16 @@ public final class TraversalPolicyTest {
 
                 switch (dir) {
                 case NEXT:
+                    if (ix >= (nodes.length - 1)) {
+                        // traversing up the stack from last node
+                        return findNextFocusableNode(root, owner);
+                    }
+                    ix++;
+                    break;
                 case NEXT_IN_LINE:
                     if (ix >= (nodes.length - 1)) {
                         // traversing up the stack from last node
-                        return findNextFocusableNode(root, owner, dir);
+                        return findNextInLineFocusableNode(root, owner);
                     }
                     ix++;
                     break;

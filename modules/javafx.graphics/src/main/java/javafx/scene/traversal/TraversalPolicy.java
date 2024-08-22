@@ -118,42 +118,53 @@ public abstract class TraversalPolicy {
     }
 
     /**
-     * Finds the next focusable peer, typically for use within
-     * {@link #select(Parent, Node, TraversalDirection)} for
-     * {@link TraversalDirection#NEXT} or
-     * {@link TraversalDirection#NEXT_IN_LINE} directions.
+     * Finds the next focusable Node.
+     * This method is provided to the policy implementation for handling of the {@link TraversalDirection#NEXT}
+     * case when it needs to consider traversing into the parent's nodes.
      * <p>
      * Example:<pre>     @Override
      *     public Node select(Parent root, Node owner, TraversalDirection dir) {
      *         switch(dir) {
      *         case NEXT:
-     *         case NEXT_IN_LINE:
-     *             return findNextFocusableNode(root, owner, dir);
+     *             return findNextFocusableNode(root, owner);
      *         ...
      * </pre>
      *
      * @param root the traversal root
      * @param node the Node to traverse from
-     * @param dir the traversal direction
+     * @return the new focus owner or null if none found (in that case old focus owner is still valid)
+     */
+    protected final Node findNextFocusableNode(Parent root, Node node) {
+        return TraversalUtils.findNextFocusableNode(root, node, true);
+    }
+
+    /**
+     * Finds the next in line focusable Node.
+     * This method is provided to the policy implementation for handling of the {@link TraversalDirection#NEXT_IN_LINE}
+     * case when it needs to consider traversing into the parent's nodes.
+     * <p>
+     * Example:<pre>     @Override
+     *     public Node select(Parent root, Node owner, TraversalDirection dir) {
+     *         switch(dir) {
+     *         case NEXT_IN_LINE:
+     *             return findNextInLineFocusableNode(root, owner);
+     *         ...
+     * </pre>
+     *
+     * @param root the traversal root
+     * @param node the Node to traverse from
      * @return the new focus owner or null if none found (in that case old focus owner is still valid)
      * @throws IllegalArgumentException if the direction is other than {@code TraversalDirection.NEXT}
      *         or {@code TraversalDirection.NEXT_IN_LINE}
      */
-    protected final Node findNextFocusableNode(Parent root, Node node, TraversalDirection dir) {
-        switch (dir) {
-        case NEXT:
-        case NEXT_IN_LINE:
-            break;
-        default:
-            throw new IllegalArgumentException("Must specify either NEXT or NEXT_IN_LINE");
-        }
-        return TraversalUtils.findNextFocusableNode(root, node, dir);
+    protected final Node findNextInLineFocusableNode(Parent root, Node node) {
+        return TraversalUtils.findNextFocusableNode(root, node, false);
     }
 
     /**
-     * Finds the previous focusable peer, typically for use within
-     * {@link #select(Parent, Node, TraversalDirection)} for
-     * {@link TraversalDirection#PREVIOUS} directions.
+     * Finds the previous focusable Node.
+     * This method is provided to the policy implementation for handling of the {@link TraversalDirection#PREVIOUS}
+     * case when it needs to consider traversing into the parent's nodes.
      * <p>
      * Example:<pre>     @Override
      *     public Node select(Parent root, Node owner, TraversalDirection dir) {
@@ -170,8 +181,4 @@ public abstract class TraversalPolicy {
     protected final Node findPreviousFocusableNode(Parent root, Node node) {
         return TraversalUtils.findPreviousFocusableNode(root, node);
     }
-
-    // NOTE: similarly, we can add protected methods
-    // TabOrderHelper.getFirstTargetNode(root); and TabOrderHelper.getLastTargetNode(root);
-    // for use in selectFirst() and selectLast()
 }
