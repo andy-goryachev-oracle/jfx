@@ -104,10 +104,6 @@ public class RegionHelper extends ParentHelper {
         regionAccessor.doPickNodeLocal(node, localPickRay, result);
     }
 
-    public static double snapInnerSpaceX(Node node, double x) {
-        return regionAccessor.snapInnerSpaceX(node, x);
-    }
-
     public static void setRegionAccessor(final RegionAccessor newAccessor) {
         if (regionAccessor != null) {
             throw new IllegalStateException();
@@ -125,6 +121,5 @@ public class RegionHelper extends ParentHelper {
         void doNotifyLayoutBoundsChanged(Node node);
         void doPickNodeLocal(Node node, PickRay localPickRay,
                 PickResultChooser result);
-        double snapInnerSpaceX(Node node, double x);
     }
 }
