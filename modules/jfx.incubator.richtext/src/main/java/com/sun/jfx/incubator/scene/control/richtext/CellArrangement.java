@@ -87,13 +87,13 @@ public class CellArrangement {
             "CellArrangement{" +
             "origin=" + origin +
             ", topCount=" + topCount() +
-            ", visible=" + getVisibleCellCount() +
             ", bottomCount=" + bottomCount +
+            ", visible=" + getVisibleCellCount() +
             ", topHeight=" + topHeight +
             ", bottomHeight=" + bottomHeight +
             ", lineCount=" + lineCount +
             ", average=" + averageHeight() +
-            ", estMax=" + estimatedMax() +
+            //", estMax=" + estimatedMax() +
             ", unwrapped=" + getUnwrappedWidth() +
             "}";
     }
@@ -305,7 +305,7 @@ public class CellArrangement {
     }
 
     /** creates a new Origin from the absolute position [0.0 ... (1.0-normalized.visible.amount)] */
-    public Origin fromAbsolutePosition(double pos) {
+    public Origin fromAbsolutePosition_ORIGINAL(double pos) {
         int topIx = topIndex();
         int btmIx = bottomIndex();
         int ix = (int)(pos * lineCount);
@@ -318,9 +318,85 @@ public class CellArrangement {
 
             ix = binarySearch(localY, topIx, btmIx - 1);
             TextCell cell = getCell(ix);
+            System.out.println("pos=" + pos + " or=" + new Origin(cell.getIndex(), localY - cell.getY())); // FIX
             return new Origin(cell.getIndex(), localY - cell.getY());
         }
         return new Origin(ix, 0.0);
+    }
+
+    /** creates a new Origin from the absolute position [0.0 ... (1.0-normalized.visible.amount)] */
+    // fixed with rounding
+    public Origin fromAbsolutePosition(double pos) {
+        int topIx = topIndex();
+        int btmIx = bottomIndex();
+        int ix = (int)Math.round(pos * lineCount);
+        if ((ix >= topIx) && (ix < btmIx)) {
+            // inside the layout
+            double top = topIx / (double)lineCount;
+            double btm = btmIx / (double)lineCount;
+            double f = (pos - top) / (btm - top); // TODO check for dvi0/infinity/NaN
+            double localY = f * (topHeight + bottomHeight) - topHeight;
+
+            ix = binarySearch(localY, topIx, btmIx - 1);
+            TextCell cell = getCell(ix);
+            System.out.println("pos=" + pos + " or=" + new Origin(cell.getIndex(), localY - cell.getY())); // FIX
+            return new Origin(cell.getIndex(), localY - cell.getY());
+        }
+        return new Origin(ix, 0.0);
+    }
+
+    /** creates a new Origin from the absolute position [0.0 ... 1.0] */
+    public Origin fromAbsolutePosition_BAD(double pos, double viewPortHeight, double padTop, double padBottom) {
+        int topIx = topIndex();
+        int btmIx = bottomIndex();
+        double estimatedTopSpace = topIx * averageHeight() + padTop;
+        double estimatedBottomSpace = (lineCount - btmIx) * averageHeight() + padBottom;
+        // estimate total scrollable space minus viewport height
+        double estimatedScrollableSpace =
+            estimatedTopSpace + estimatedBottomSpace +
+            (topHeight + bottomHeight) -
+            viewPortHeight;
+
+        if (estimatedScrollableSpace < 0) {
+            return Origin.ZERO;
+        }
+        //System.out.println(" estimatedTopSpace=" + estimatedTopSpace + ", estimatedBottomSpace=" + estimatedBottomSpace + ", estimatedScrollableSpace=" + estimatedScrollableSpace);
+
+        double p = (pos * estimatedScrollableSpace) - estimatedTopSpace;
+        if ((pos >= 0.0) && (pos < (topHeight + bottomHeight))) {
+            // inside cell arrangement
+            double y = p - topHeight; // pixels from top of cell arrangement
+            int ix = binarySearch(y, topIx, btmIx - 1);
+            TextCell cell = getCell(ix);
+            if(cell == null) {
+                System.out.println("null cell pos=" + pos); // FIX
+                return null;
+            }
+            System.out.println("pos=" + pos + " or=" + new Origin(ix, y - cell.getY())); // FIX
+            return new Origin(cell.getIndex(), y - cell.getY());
+        } else {
+            System.out.println("retry pos=" + pos); // FIX
+            return null;
+            // FIX account for gaps, etc.
+            // OR, request layout and retry!
+            // or return null to signify that an iterative approach is needed
+//            int ix = (int)Math.round(pos * lineCount);
+//            System.out.println("pos=" + pos + " index=" + ix + "/" + lineCount);
+//            return new Origin(ix, 0.0);
+        }
+    }
+
+    /** creates a new Origin from the absolute position [0.0 ... 1.0] */
+    public Origin fromAbsolutePosition_NEW(double y) {
+        int topIx = topIndex();
+        int btmIx = bottomIndex();
+
+        int ix = binarySearch(y, topIx, btmIx - 1);
+        TextCell cell = getCell(ix);
+        if (cell == null) {
+            return null;
+        }
+        return new Origin(ix, y - cell.getY());
     }
 
     public Origin computeOrigin(double delta) {

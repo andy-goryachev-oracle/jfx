@@ -518,7 +518,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         if (autoScrollUp) {
             delta = -delta;
         }
-        vflow.scrollVerticalPixels(delta, true);
+        vflow.scrollVerticalPixels(delta);
+        vflow.layoutChildren();
 
         double x = Math.max(0.0, phantomX);
         double y = autoScrollUp ? 0.0 : vflow.getViewPortHeight();

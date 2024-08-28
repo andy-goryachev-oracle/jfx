@@ -649,7 +649,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             CellArrangement ar = arrangement();
             double av = ar.averageHeight();
             double max = ar.estimatedMax();
-            double h = getHeight();
+            double h = getViewPortHeight();
             val = toScrollBarValue((topCellIndex() - ar.topCount()) * av + ar.topHeight(), h, max);
             visible = h / max;
         }
@@ -668,14 +668,146 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (getParagraphCount() == 0) {
                 return;
             }
+            
+            enum T {
+                ORIGINAL,
+                ORIGINAL_CORRECTED,
+                ALMOST,
+                NEW,
+                OLD_IMPROVED
+            };
+            T t = T.NEW;
 
-            double max = vscroll.getMax();
-            double val = vscroll.getValue();
-            double visible = vscroll.getVisibleAmount();
-            double pos = fromScrollBarValue(val, visible, max); // max is 1.0
+            switch(t) {
+            case ORIGINAL:
+                {
+                    // old style
+                    double max = vscroll.getMax(); // TODO use getMin which is 0
+                    double val = vscroll.getValue();
+                    System.out.println("val=" + val); // FIX
+                    double visible = vscroll.getVisibleAmount(); // FIX perhaps this is wrong? should not be using this value
+                    double pos = fromScrollBarValue(val, visible, max); // max is 1.0
+                    Origin p = arrangement().fromAbsolutePosition_ORIGINAL(pos);
+                    setOrigin(p);
+                    break;
+                }
+            case ORIGINAL_CORRECTED:
+                {
+                    double max = vscroll.getMax();
+                    double min = vscroll.getMin();
+                    double val = vscroll.getValue();
+                    double pos = (val - min) / max;
+                    Origin p = arrangement().fromAbsolutePosition_ORIGINAL(pos);
+                    setOrigin(p);
+                    System.out.println("pos=" + pos + ", origin=" + getOrigin());
+                    break;
+                }
+            case OLD_IMPROVED:
+                {
+                    // old style
+                    double max = vscroll.getMax();
+                    double min = vscroll.getMin();
+                    double val = vscroll.getValue();
+                    double pos = (val - min) / max;
+                    System.out.println("pos=" + pos); // FIX
+                    Origin p = arrangement().fromAbsolutePosition(pos);
+                    setOrigin(p);
+                    break;
+                }
+            case ALMOST:
+                {
+                    double max = vscroll.getMax();
+                    double min = vscroll.getMin();
+                    double val = vscroll.getValue();
+                    double pos = (val - min) / max;
+                    
+                    int lineCount = getParagraphCount();
+                    int ix = Math.max(0, (int)Math.round(pos * (lineCount - 1)));
+                    Origin p = new Origin(ix, 0.0);
+                    setOrigin(p);
+                    layoutCells();
+                    
+                    double th = arrangement().topHeight();
+                    double bh = arrangement().bottomHeight();
+                    double vh = getViewPortHeight();
+                    
+                    double y = 0; //(th - (bh - vh)) / 2.0;
+    
+                    // fine adjustement:
+                    if(pos < 0.5) {
+                        y -= (contentPaddingTop * (1.0 - pos));
+                    } else {
+                        y += (contentPaddingBottom * pos);
+                    }
+                    
+                    scrollVerticalPixels(y);
+                    layoutChildren();
+                    
+                    System.out.println("pos=" + pos + ", ix=" + ix + ", y=" + y + ", p=" + p + ", origin=" + getOrigin());
+                    break;
+                }
+            case NEW:
+                {
+                    // ok, so here is an idea:
+                    // 1. rough positioning by using index = pos * (lineCount - 1)
+                    // 2. compute resulting position' based on (estimated) pixel counts
+                    //      pos' = topPixels / (topPixels + bottomPixels - viewportH)
+                    //    where
+                    //      topPixels = topPad + (topIndex)*av + topHeight
+                    //      bottomPixels = bottomPad + bottomHeight + (lineCount - origin.ix - bottomCount)*av
+                    // 3. then adjust by scrolling by pixels
+                    //      dy = (pos - pos') * totalPixels
+                    //    where
+                    //      totalPixels = topPixels + bottomPixels - viewportH
+                    //
+                    // the only problem is that dy might exceed the boundaries of the sliding window, in which case
+                    // we need to adjust index to either top or bottom index of the sliding window and repeat the process
+                    
+                    // no, jumps too much still
+                    
+                    double max = vscroll.getMax();
+                    double min = vscroll.getMin();
+                    double val = vscroll.getValue();
+                    double pos = (val - min) / max;
+                    
+                    int lineCount = getParagraphCount();
+                    int ix = Math.max(0, (int)Math.round(pos * (lineCount - 1)));
+                    Origin p = new Origin(ix, 0.0);
+                    setOrigin(p);
+                    layoutCells();
 
-            Origin p = arrangement().fromAbsolutePosition(pos);
-            setOrigin(p);
+                    CellArrangement a = arrangement();
+                    int topIx = a.topIndex();
+                    double topH = a.topHeight();
+                    double av = a.averageHeight();
+                    double bottomH = a.bottomHeight();
+                    int bottomCount = a.bottomCount();
+                    int originIx = getOrigin().index();
+
+                    double viewH = getViewPortHeight();
+                    double topPixels = contentPaddingTop + (topIx * av) + topH;
+                    double bottomPixels = contentPaddingBottom + bottomH + (lineCount - originIx - bottomCount) * av;
+
+                    double totalHeight = Math.max(viewH, (topPixels + bottomPixels - viewH));
+                    double pos1 = topPixels / totalHeight;
+                                        
+                    double dy = (pos - pos1) * totalHeight;
+                    // TODO clip dy to the sliding window boundaries?
+//                    if(-dy < -topH) {
+//                        dy = -topH;
+//                        System.out.println("clipped above");
+//                    } else if(dy > bottomH) {
+//                        dy = bottomH;
+//                        System.out.println("clipped below");
+//                    }
+
+                    scrollVerticalPixels(dy);
+                    layoutChildren();
+                    
+                    System.out.println("pos=" + pos + ", pos1=" + pos1 + ", ix=" + ix + ", dy=" + dy + ", p=" + p + ", origin=" + getOrigin() + ", cells=" + a);
+                    break;
+                }
+            }
         }
     }
 
@@ -897,17 +1029,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** scroll by a number of pixels, delta must not exceed the view height in absolute terms */
     public void scrollVerticalPixels(double delta) {
-        scrollVerticalPixels(delta, false);
-    }
-
-    /** scroll by a number of pixels, delta must not exceed the view height in absolute terms */
-    public void scrollVerticalPixels(double delta, boolean forceLayout) {
         Origin or = arrangement().computeOrigin(delta);
         if (or != null) {
             setOrigin(or);
-            if (forceLayout) {
-                layoutChildren();
-            }
         }
     }
 
@@ -1335,7 +1459,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double ytop = snapPositionY(-getOrigin().offset());
         double y = ytop;
         double margin = Params.SLIDING_WINDOW_EXTENT * height;
-        int topMarginCount = 0;
+        int topMarginCount = 100;
         int bottomMarginCount = 0;
         int count = 0;
         boolean cellOnScreen = true;
@@ -1398,6 +1522,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 }
             }
         }
+
+        // FIX topMarginCount might not be initialized near the end of the document
 
         // in case there are less paragraphs than can fit in the view
         if (cellOnScreen) {
@@ -1472,7 +1598,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             cell.setMaxHeight(USE_COMPUTED_SIZE);
 
             cell.applyCss();
-//            cell.layout();
 
             arrangement.addCell(cell);
 
