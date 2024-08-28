@@ -1455,15 +1455,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double unwrappedWidth = 0.0;
         // total height of visible cells for the purpose of determining vsb visibility
         double arrangementHeight = 0.0;
-
         double ytop = snapPositionY(-getOrigin().offset());
         double y = ytop;
-        double margin = Params.SLIDING_WINDOW_EXTENT * height;
-        int topMarginCount = 100;
-        int bottomMarginCount = 0;
+        int topMarginCount = Params.SLIDING_WINDOW_EXTENT;
+        int bottomMargin = 0;;
         int count = 0;
         boolean cellOnScreen = true;
-        // TODO if topCount < marginCount, increase bottomCount correspondingly
 
         // populating visible part of the sliding window + bottom margin
         int i = topCellIndex();
@@ -1507,16 +1504,22 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 // when exceeded both pixel and line count margins
                 if (cellOnScreen) {
                     if (y > height) {
-                        topMarginCount = (int)Math.ceil(count * Params.SLIDING_WINDOW_EXTENT);
-                        bottomMarginCount = count + topMarginCount;
+                        // reached the cell below the last visible cell at the bottom
                         arrangement.setVisibleCellCount(count);
                         cellOnScreen = false;
+
+                        bottomMargin = count + Params.SLIDING_WINDOW_EXTENT;
+                        int less = bottomMargin - getParagraphCount();
+                        if (less > 0) {
+                            // more cells on top
+                            topMarginCount += less;
+                        }
                     }
                 } else {
                     // remove invisible cell from layout after sizing
                     content.getChildren().remove(cell);
 
-                    if ((y > (height + margin)) && (count > bottomMarginCount)) {
+                    if (count > bottomMargin) {
                         break;
                     }
                 }
@@ -1524,6 +1527,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         // FIX topMarginCount might not be initialized near the end of the document
+        // now we know it, let's recompute again
 
         // in case there are less paragraphs than can fit in the view
         if (cellOnScreen) {
@@ -1613,7 +1617,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
             // stop populating the top part of the sliding window
             // when exceeded both pixel and line count margins
-            if ((-y > margin) && (count > topMarginCount)) {
+            if (count > topMarginCount) {
                 break;
             }
         }
