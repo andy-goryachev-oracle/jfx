@@ -51,8 +51,8 @@ public class CellArrangement {
     private final double flowWidth;
     private final double flowHeight;
     private final int lineCount;
-    private final double contentPaddingLeft; // snapped
     private final double contentPaddingTop; // snapped
+    private final double contentPaddingBottom; // snapped
     private final Origin origin;
     private int visibleCount;
     private int bottomCount;
@@ -62,23 +62,24 @@ public class CellArrangement {
     private Node[] left;
     private Node[] right;
 
-    public CellArrangement(VFlow f, double contentPaddingLeft, double contentPaddingTop) {
+    public CellArrangement(VFlow f, double contentPaddingTop, double contentPaddingBottom) {
         this.flowWidth = f.getWidth();
         this.flowHeight = f.getViewPortHeight();
         this.origin = f.getOrigin();
         this.lineCount = f.getParagraphCount();
-        this.contentPaddingLeft = contentPaddingLeft;
         this.contentPaddingTop = contentPaddingTop;
+        this.contentPaddingBottom = contentPaddingBottom;
     }
 
     // TODO not called right now, use it to skip reflow when not necessary
+    // (may need to include left and right content padding or a sum thereof */
     public boolean isValid(VFlow f, double padLeft, double padTop) {
         return
             (f.getWidth() == flowWidth) &&
             (f.getHeight() == flowHeight) &&
             (f.topCellIndex() == origin.index()) &&
-            (contentPaddingLeft == padLeft) &&
-            (contentPaddingTop == padTop);
+            (contentPaddingTop == padTop) &&
+            (contentPaddingBottom == contentPaddingBottom);
     }
 
     @Override
@@ -93,7 +94,6 @@ public class CellArrangement {
             ", bottomHeight=" + bottomHeight +
             ", lineCount=" + lineCount +
             ", average=" + averageHeight() +
-            //", estMax=" + estimatedMax() +
             ", unwrapped=" + getUnwrappedWidth() +
             "}";
     }
@@ -437,10 +437,28 @@ public class CellArrangement {
             }
         }
         */
+        if(delta > 0) {
+            // do not scroll beyond the bottom edge
+            double max = bottomHeight - flowHeight;
+            if (max < 0) {
+                return null;
+            }
+            if (y > max) {
+                y = max;
+            }
+        }
 
         int ix = binarySearch(y, topIx, btmIx - 1);
         TextCell cell = getCell(ix);
         double off = y - cell.getY();
+
+        // do not scroll beyond the top edge
+        if (delta < 0) {
+            if (ix == 0) {
+                off = Math.max(off, -contentPaddingTop);
+            }
+        }
+
         return new Origin(cell.getIndex(), off);
     }
 
@@ -464,5 +482,13 @@ public class CellArrangement {
 
     public Node getRightNodeAt(int index) {
         return right[index];
+    }
+
+    /** last cell at the bottom of the arrangement */
+    private TextCell lastBottomCell() {
+        if (bottomCount == 0) {
+            return null;
+        }
+        return cells.get(bottomCount - 1);
     }
 }

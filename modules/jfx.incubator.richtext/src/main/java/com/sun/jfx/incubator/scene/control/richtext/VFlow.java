@@ -1419,7 +1419,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             arrangement.removeNodesFrom(content);
             arrangement = null;
         }
-        arrangement = new CellArrangement(this, contentPaddingLeft, contentPaddingTop);
+        arrangement = new CellArrangement(this, contentPaddingTop, contentPaddingBottom);
 
         double width = getWidth();
         if (width == 0.0) {
