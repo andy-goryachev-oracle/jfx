@@ -207,7 +207,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
         });
 
-        // FIX contentWidth.addListener((p) -> updateHorizontalScrollBar());
         offsetX.addListener((p) -> updateHorizontalScrollBar());
         origin.addListener((p) -> handleOriginChange());
         widthProperty().addListener((p) -> handleWidthChange());
@@ -357,11 +356,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     private void setUnwrappedContentWidth(double w) {
-        // TODO remove this check later
-        if (Math.abs(w - snapPositionX(w)) > 0.0001) {
-            System.err.println("unwrapped position is not snapped!");
-        }
-
         double min = snapPositionX(Params.LAYOUT_MIN_WIDTH);
         if (w < min) {
             w = min;
@@ -669,150 +663,51 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 return;
             }
 
+            // When scrolling virtualized views, we cannot rely on caching of cell heights as it's being done
+            // in the VirtualFlow.  Instead, we must approximate using the information provided to us by the
+            // sliding window.
+            //
+            // 1. rough positioning by using index = pos * (lineCount - 1)
+            // 2. compute resulting position' based on (estimated) pixel counts
+            //      pos' = topPixels / (topPixels + bottomPixels - viewportH)
+            //    where
+            //      topPixels = topPad + (topIndex)*av + topHeight
+            //      bottomPixels = bottomPad + bottomHeight + (lineCount - origin.ix - bottomCount)*av
+            // 3. then adjust by scrolling by pixels
+            //      dy = (pos - pos') * totalPixels
+            //    where
+            //      totalPixels = topPixels + bottomPixels - viewportH
+            //
+            // there might still be some flicker due to the hsb appearing and disappearing
+
+            double max = vscroll.getMax();
+            double min = vscroll.getMin();
+            double val = vscroll.getValue();
+            double pos = (val - min) / max;
+
+            int lineCount = getParagraphCount();
+            int ix = Math.max(0, (int)Math.round(pos * (lineCount - 1)));
+            Origin p = new Origin(ix, 0.0);
+            setOrigin(p);
+            layoutCells();
+
+            CellArrangement a = arrangement();
+            int topIx = a.topIndex();
+            double topH = a.topHeight();
+            double bottomH = a.bottomHeight();
+            int cellCount = a.cellCount();
+            double av = a.averageHeight();
+            int originIx = getOrigin().index();
             double viewH = getViewPortHeight();
-            
-            enum T {
-                ORIGINAL,
-                ORIGINAL_ABS,
-                ALMOST, // very bad
-                WITH_ADJUSTMENT,
-            };
-            T t = T.WITH_ADJUSTMENT;
 
-            switch(t) {
-            case ORIGINAL:
-                {
-                    // old style
-                    double max = vscroll.getMax(); // TODO use getMin which is 0
-                    double val = vscroll.getValue();
-                    System.out.println("val=" + val); // FIX
-                    double visible = vscroll.getVisibleAmount(); // FIX perhaps this is wrong? should not be using this value
-                    double pos = fromScrollBarValue(val, visible, max); // max is 1.0
-                    Origin p = arrangement().fromAbsolutePosition_ORIGINAL(pos);
-                    setOrigin(p);
-                    break;
-                }
-            case ORIGINAL_ABS:
-                {
-                    double max = vscroll.getMax();
-                    double min = vscroll.getMin();
-                    double val = vscroll.getValue();
-                    double pos = (val - min) / max;
-                    Origin p = arrangement().fromAbsolutePosition(pos);
-                    setOrigin(p);
-                    System.out.println("pos=" + pos + ", origin=" + getOrigin());
-                    break;
-                }
-            case ALMOST:
-                {
-                    double max = vscroll.getMax();
-                    double min = vscroll.getMin();
-                    double val = vscroll.getValue();
-                    double pos = (val - min) / max;
-                    
-                    int lineCount = getParagraphCount();
-                    int ix = Math.max(0, (int)Math.round(pos * (lineCount - 1)));
-                    Origin p = new Origin(ix, 0.0);
-                    setOrigin(p);
-                    layoutCells();
-                    
-                    double th = arrangement().topHeight();
-                    double bh = arrangement().bottomHeight();
-                    double y = 0; //(th - (bh - vh)) / 2.0;
-    
-                    // fine adjustement:
-                    if(pos < 0.5) {
-                        y -= (contentPaddingTop * (1.0 - pos));
-                    } else {
-                        y += (contentPaddingBottom * pos);
-                    }
-                    
-                    scrollVerticalPixels(y);
-                    layoutChildren();
-                    
-                    System.out.println("pos=" + pos + ", ix=" + ix + ", y=" + y + ", p=" + p + ", origin=" + getOrigin());
-                    break;
-                }
-            case WITH_ADJUSTMENT:
-                {
-                    // ok, so here is an idea:
-                    // 1. rough positioning by using index = pos * (lineCount - 1)
-                    // 2. compute resulting position' based on (estimated) pixel counts
-                    //      pos' = topPixels / (topPixels + bottomPixels - viewportH)
-                    //    where
-                    //      topPixels = topPad + (topIndex)*av + topHeight
-                    //      bottomPixels = bottomPad + bottomHeight + (lineCount - origin.ix - bottomCount)*av
-                    // 3. then adjust by scrolling by pixels
-                    //      dy = (pos - pos') * totalPixels
-                    //    where
-                    //      totalPixels = topPixels + bottomPixels - viewportH
-                    //
-                    // the only problem is that dy might exceed the boundaries of the sliding window, in which case
-                    // we need to adjust index to either top or bottom index of the sliding window and repeat the process
-                    
-                    // no, jumps too much still
-                    
-                    double max = vscroll.getMax();
-                    double min = vscroll.getMin();
-                    double val = vscroll.getValue();
-                    double pos = (val - min) / max;
-                    
-                    int lineCount = getParagraphCount();
-                    int ix = Math.max(0, (int)Math.round(pos * (lineCount - 1)));
-                    Origin p = new Origin(ix, 0.0);
-                    setOrigin(p);
-                    layoutCells();
+            double topPixels = contentPaddingTop + (topIx * av) + topH;
+            double bottomPixels = bottomH + (lineCount - topIx - cellCount) * av + contentPaddingBottom;
+            double totalScroll = Math.max(0.0, (topPixels + bottomPixels - viewH));
+            double pos1 = topPixels / totalScroll;
+            double dy = (pos - pos1) * totalScroll;
 
-                    CellArrangement a = arrangement();
-                    int topIx = a.topIndex();
-                    double topH = a.topHeight();
-                    double bottomH = a.bottomHeight();
-                    int cellCount = a.cellCount();
-                    double av = a.averageHeight();
-                    int originIx = getOrigin().index();
-
-                    double topPixels = contentPaddingTop + (topIx * av) + topH;
-                    double bottomPixels = bottomH + (lineCount - topIx - cellCount) * av + contentPaddingBottom;
-
-                    double totalScroll = Math.max(0.0, (topPixels + bottomPixels - viewH));
-                    double pos1 = topPixels / totalScroll;
-                                        
-                    double dy = (pos - pos1) * totalScroll;
-                    // TODO clip dy to the sliding window boundaries?
-//                    if(-dy < -topH) {
-//                        dy = -topH;
-//                        System.out.println("clipped above");
-//                    } else if(dy > bottomH) {
-//                        dy = bottomH;
-//                        System.out.println("clipped below");
-//                    }
-
-                    scrollVerticalPixels(dy);
-                    layoutChildren();
-                    
-                    // check the new position
-                    double pos2;
-                    {
-                        CellArrangement a2 = arrangement();
-                        int topIx2 = a2.topIndex();
-                        double topH2 = a2.topHeight();
-                        double bottomH2 = a2.bottomHeight();
-                        int cellCount2 = a2.cellCount();
-                        double av2 = a2.averageHeight();
-                        int originIx2 = getOrigin().index();
-                        
-                        double topPixels2 = contentPaddingTop + (topIx2 * av2) + topH2;
-                        double bottomPixels2 = bottomH2 + (lineCount - topIx2 - cellCount2) * av2 + contentPaddingBottom;
-
-                        double totalScroll2 = Math.max(0.0, (topPixels2 + bottomPixels2 - viewH));
-                        pos2 = topPixels2 / totalScroll2;
-                    }
-                    
-                    System.out.println("pos=" + pos + ", pos1=" + pos1 + ", ix=" + ix + ", dy=" + dy + ", p=" + p + ", origin=" + getOrigin() + ", cells=" + a);
-                    System.out.println("pos2=" + pos2);
-                    break;
-                }
-            }
+            scrollVerticalPixels(dy);
+            layoutChildren();
         }
     }
 
@@ -1441,14 +1336,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         boolean useContentHeight = control.isUseContentHeight();
         boolean useContentWidth = control.isUseContentWidth();
         boolean wrap = control.isWrapText() && !useContentWidth;
-        // FIX height as in component height vs. contentHeight in useContentHeight!
-        //double height = useContentHeight ? (padTop + padBottom + contentPaddingTop + contentPaddingBottom) : getHeight();
         double height = getHeight();
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
 
         double forWidth; // to be used for cell sizing in prefHeight()
-        double maxWidth; // TODO what is it?  replace with cell's preferred width (in unwrapped mode)
+        double maxWidth; // max width to apply before the layout (or replace with cell's preferred width?)
         if (wrap) {
             forWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
             maxWidth = forWidth;
@@ -1457,9 +1350,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             maxWidth = Params.MAX_WIDTH_FOR_LAYOUT;
         }
 
-        double unwrappedWidth = 0.0;
         // total height of visible cells for the purpose of determining vsb visibility
         double arrangementHeight = 0.0;
+        double unwrappedWidth = 0.0;
         double ytop = snapPositionY(-getOrigin().offset());
         double y = ytop;
         int topMarginCount = Params.SLIDING_WINDOW_EXTENT;
@@ -1531,9 +1424,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
         }
 
-        // FIX topMarginCount might not be initialized near the end of the document
-        // now we know it, let's recompute again
-
         // in case there are less paragraphs than can fit in the view
         if (cellOnScreen) {
             arrangement.setVisibleCellCount(count);
@@ -1597,7 +1487,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         y = ytop;
 
         // populate top margin, going backwards from topCellIndex
-        // TODO populate more, if bottom ended prematurely
         for (i = topCellIndex() - 1; i >= 0; i--) {
             TextCell cell = getCell(i);
             // TODO maybe skip computation if layout width is the same
@@ -1655,7 +1544,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return;
         }
         if (vsbVisible) {
-            width -= vsbWidth; // TODO or use viewportwidth?
+            width -= vsbWidth;
         }
 
         boolean hsbVisible = (wrap || useContentWidth) ?
