@@ -668,15 +668,16 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (getParagraphCount() == 0) {
                 return;
             }
+
+            double viewH = getViewPortHeight();
             
             enum T {
                 ORIGINAL,
-                ORIGINAL_CORRECTED,
-                ALMOST,
-                NEW,
-                OLD_IMPROVED
+                ORIGINAL_ABS,
+                ALMOST, // very bad
+                WITH_ADJUSTMENT,
             };
-            T t = T.NEW;
+            T t = T.WITH_ADJUSTMENT;
 
             switch(t) {
             case ORIGINAL:
@@ -691,27 +692,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     setOrigin(p);
                     break;
                 }
-            case ORIGINAL_CORRECTED:
+            case ORIGINAL_ABS:
                 {
                     double max = vscroll.getMax();
                     double min = vscroll.getMin();
                     double val = vscroll.getValue();
                     double pos = (val - min) / max;
-                    Origin p = arrangement().fromAbsolutePosition_ORIGINAL(pos);
-                    setOrigin(p);
-                    System.out.println("pos=" + pos + ", origin=" + getOrigin());
-                    break;
-                }
-            case OLD_IMPROVED:
-                {
-                    // old style
-                    double max = vscroll.getMax();
-                    double min = vscroll.getMin();
-                    double val = vscroll.getValue();
-                    double pos = (val - min) / max;
-                    System.out.println("pos=" + pos); // FIX
                     Origin p = arrangement().fromAbsolutePosition(pos);
                     setOrigin(p);
+                    System.out.println("pos=" + pos + ", origin=" + getOrigin());
                     break;
                 }
             case ALMOST:
@@ -729,8 +718,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     
                     double th = arrangement().topHeight();
                     double bh = arrangement().bottomHeight();
-                    double vh = getViewPortHeight();
-                    
                     double y = 0; //(th - (bh - vh)) / 2.0;
     
                     // fine adjustement:
@@ -746,7 +733,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     System.out.println("pos=" + pos + ", ix=" + ix + ", y=" + y + ", p=" + p + ", origin=" + getOrigin());
                     break;
                 }
-            case NEW:
+            case WITH_ADJUSTMENT:
                 {
                     // ok, so here is an idea:
                     // 1. rough positioning by using index = pos * (lineCount - 1)
@@ -779,19 +766,18 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     CellArrangement a = arrangement();
                     int topIx = a.topIndex();
                     double topH = a.topHeight();
-                    double av = a.averageHeight();
                     double bottomH = a.bottomHeight();
-                    int bottomCount = a.bottomCount();
+                    int cellCount = a.cellCount();
+                    double av = a.averageHeight();
                     int originIx = getOrigin().index();
 
-                    double viewH = getViewPortHeight();
                     double topPixels = contentPaddingTop + (topIx * av) + topH;
-                    double bottomPixels = contentPaddingBottom + bottomH + (lineCount - originIx - bottomCount) * av;
+                    double bottomPixels = bottomH + (lineCount - topIx - cellCount) * av + contentPaddingBottom;
 
-                    double totalHeight = Math.max(viewH, (topPixels + bottomPixels - viewH));
-                    double pos1 = topPixels / totalHeight;
+                    double totalScroll = Math.max(0.0, (topPixels + bottomPixels - viewH));
+                    double pos1 = topPixels / totalScroll;
                                         
-                    double dy = (pos - pos1) * totalHeight;
+                    double dy = (pos - pos1) * totalScroll;
                     // TODO clip dy to the sliding window boundaries?
 //                    if(-dy < -topH) {
 //                        dy = -topH;
@@ -804,7 +790,26 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     scrollVerticalPixels(dy);
                     layoutChildren();
                     
+                    // check the new position
+                    double pos2;
+                    {
+                        CellArrangement a2 = arrangement();
+                        int topIx2 = a2.topIndex();
+                        double topH2 = a2.topHeight();
+                        double bottomH2 = a2.bottomHeight();
+                        int cellCount2 = a2.cellCount();
+                        double av2 = a2.averageHeight();
+                        int originIx2 = getOrigin().index();
+                        
+                        double topPixels2 = contentPaddingTop + (topIx2 * av2) + topH2;
+                        double bottomPixels2 = bottomH2 + (lineCount - topIx2 - cellCount2) * av2 + contentPaddingBottom;
+
+                        double totalScroll2 = Math.max(0.0, (topPixels2 + bottomPixels2 - viewH));
+                        pos2 = topPixels2 / totalScroll2;
+                    }
+                    
                     System.out.println("pos=" + pos + ", pos1=" + pos1 + ", ix=" + ix + ", dy=" + dy + ", p=" + p + ", origin=" + getOrigin() + ", cells=" + a);
+                    System.out.println("pos2=" + pos2);
                     break;
                 }
             }
@@ -1029,7 +1034,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** scroll by a number of pixels, delta must not exceed the view height in absolute terms */
     public void scrollVerticalPixels(double delta) {
-        Origin or = arrangement().computeOrigin(delta);
+        Origin or = arrangement().moveOrigin(delta);
         if (or != null) {
             setOrigin(or);
         }

@@ -226,14 +226,20 @@ public class CellArrangement {
         bottomCount = ix;
     }
 
+    /** visible + bottom margin cells */
     public int bottomCount() {
         return bottomCount;
+    }
+
+    public int cellCount() {
+        return cells.size();
     }
 
     public void setBottomHeight(double h) {
         bottomHeight = h;
     }
 
+    /** in pixels from the first visible cell to the last cell in the arrangement */
     public double bottomHeight() {
         return bottomHeight;
     }
@@ -251,7 +257,11 @@ public class CellArrangement {
     }
 
     public double averageHeight() {
-        return (topHeight + bottomHeight) / (topCount() + bottomCount);
+        int sz = cells.size();
+        if (sz == 0) {
+            return 20;
+        }
+        return (topHeight + bottomHeight) / sz;
     }
 
     public double estimatedMax() {
@@ -399,11 +409,13 @@ public class CellArrangement {
         return new Origin(ix, y - cell.getY());
     }
 
-    public Origin computeOrigin(double delta) {
+    /** returns the new origin after scrolling for delta pixels within the arrangement */
+    public Origin moveOrigin(double delta) {
         int topIx = topIndex();
         int btmIx = bottomIndex();
         double y = delta;
 
+        /*
         if (delta < 0) {
             // do not scroll above the top edge
             double top = -origin.offset() - topHeight;
@@ -424,6 +436,7 @@ public class CellArrangement {
                 y = max;
             }
         }
+        */
 
         int ix = binarySearch(y, topIx, btmIx - 1);
         TextCell cell = getCell(ix);
