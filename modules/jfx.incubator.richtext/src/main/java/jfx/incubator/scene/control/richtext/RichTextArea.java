@@ -1064,11 +1064,10 @@ public class RichTextArea extends Control {
      * @param end the end of text range
      * @param attrs the style attributes to apply
      */
+    // TODO document exceptions? NPE if null model, UnsupportedOperationException if view-only model
     public void applyStyle(TextPos start, TextPos end, StyleAttributeMap attrs) {
-        if (canEdit()) {
-            StyledTextModel m = getModel();
-            m.applyStyle(start, end, attrs, true);
-        }
+        StyledTextModel m = getModel();
+        m.applyStyle(start, end, attrs, true);
     }
 
     /**
@@ -1082,26 +1081,6 @@ public class RichTextArea extends Control {
      */
     public void backspace() {
         execute(Tags.BACKSPACE);
-    }
-
-    /**
-     * This convenience method returns true if all the following conditions are true:
-     * <ul>
-     * <li>this control's {@link #isEditable()} returns true</li>
-     * <li>the model is not {@code null}</li>
-     * <li>the model's {@link StyledTextModel#isUserEditable()} returns true</li>
-     * </ul>
-     *
-     * @return true if the editing is allowed
-     */
-    public final boolean canEdit() {
-        if (isEditable()) {
-            StyledTextModel m = getModel();
-            if (m != null) {
-                return m.isUserEditable();
-            }
-        }
-        return false;
     }
 
     /**
@@ -1785,12 +1764,10 @@ public class RichTextArea extends Control {
      * @param allowUndo when true, creates an undo-redo entry
      * @return the new caret position at the end of inserted text, or null if the change cannot be made
      */
+    // TODO document exceptions? NPE if null model, UnsupportedOperationException if view-only model
     public final TextPos replaceText(TextPos start, TextPos end, String text, boolean allowUndo) {
-        if (canEdit()) {
-            StyledTextModel m = getModel();
-            return m.replace(vflow(), start, end, text, allowUndo);
-        }
-        return null;
+        StyledTextModel m = getModel();
+        return m.replace(vflow(), start, end, text, allowUndo);
     }
 
     /**
@@ -2122,11 +2099,10 @@ public class RichTextArea extends Control {
      * @param end the end of text range
      * @param attrs the style attributes to set
      */
+    // TODO document exceptions? NPE if null model, UnsupportedOperationException if view-only model
     public final void setStyle(TextPos start, TextPos end, StyleAttributeMap attrs) {
-        if (canEdit()) {
-            StyledTextModel m = getModel();
-            m.applyStyle(start, end, attrs, false);
-        }
+        StyledTextModel m = getModel();
+        m.applyStyle(start, end, attrs, false);
     }
 
     /**

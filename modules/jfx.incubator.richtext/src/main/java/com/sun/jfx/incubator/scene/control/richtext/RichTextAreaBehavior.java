@@ -1088,7 +1088,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         RichTextArea control = getControl();
         boolean sel = control.hasNonEmptySelection();
         boolean paste = (findFormatForPaste() != null);
-        boolean editable = control.canEdit();
+        boolean editable = canEdit();
 
         ObservableList<MenuItem> items = contextMenu.getItems();
         items.clear();
@@ -1572,8 +1572,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     private void deleteIgnoreSelection(BiFunction<RichTextArea, TextPos, TextPos> getter) {
-        RichTextArea control = getControl();
-        if (control.canEdit()) {
+        if (canEdit()) {
+            RichTextArea control = getControl();
             TextPos caret = control.getCaretPosition();
             if (caret != null) {
                 TextPos p = getter.apply(control, caret);
