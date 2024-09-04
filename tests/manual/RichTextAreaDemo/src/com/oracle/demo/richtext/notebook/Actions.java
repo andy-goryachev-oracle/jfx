@@ -134,7 +134,7 @@ public class Actions {
                 if (r == null) {
                     return true;
                 }
-                if (r.isEditable() && (r.getModel() != null) && (r.getModel().isUserEditable())) {
+                if (r.isEditable() && (r.getModel() != null) && (r.getModel().isWritable())) {
                     return false;
                 }
                 return true;

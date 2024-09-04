@@ -57,7 +57,7 @@ public class RichTextModel extends StyledTextModel {
     }
 
     @Override
-    public final boolean isUserEditable() {
+    public final boolean isWritable() {
         return true;
     }
 

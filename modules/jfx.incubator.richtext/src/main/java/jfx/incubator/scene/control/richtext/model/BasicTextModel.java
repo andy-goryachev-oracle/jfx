@@ -152,7 +152,7 @@ public class BasicTextModel extends StyledTextModel {
      * @return true if the model is user-editable
      */
     @Override
-    public final boolean isUserEditable() {
+    public final boolean isWritable() {
         return content.isUserEditable();
     }
 

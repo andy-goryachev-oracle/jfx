@@ -64,7 +64,7 @@ import jfx.incubator.scene.control.richtext.TextPos;
  * </ul>
  *
  * <h2>Editing</h2>
- * The model supports editing when {@link #isUserEditable()} returns {@code true}.
+ * The model supports editing when {@link #isWritable()} returns {@code true}.
  * Three methods participate in modification of the content:
  * {@link #replace(StyleResolver, TextPos, TextPos, String, boolean)},
  * {@link #replace(StyleResolver, TextPos, TextPos, StyledInput, boolean)},
@@ -103,11 +103,19 @@ public abstract class StyledTextModel {
     }
 
     /**
-     * Indicates whether the model supports editing by the user.
+     * Indicates whether the model supports content modifications made via
+     * {@code applyStyle()},
+     * {@code replace()},
+     * {@code undo()},
+     * {@code redo()}
+     * methods, i.e. editing via UI.
+     * <p>
+     * Note that even when this method returns {@code false}, the model itself may still update its content
+     * and fire the change events as a response, for example, to changes in its backing data storage.
      *
-     * @return true if the model supports editing by the user
+     * @return true if the model supports content modifications via UI
      */
-    public abstract boolean isUserEditable();
+    public abstract boolean isWritable();
 
     /**
      * Returns the number of paragraphs in the model.
@@ -594,7 +602,7 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public final TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean allowUndo) {
-        if (isUserEditable()) {
+        if (isWritable()) {
             // TODO pick the lowest from start,end.  Possibly add (end) argument to getStyleAttributes?
             StyleAttributeMap a = getStyleAttributeMap(resolver, start);
             StyledInput in = StyledInput.of(text, a);
@@ -618,7 +626,7 @@ public abstract class StyledTextModel {
      * @return the text position at the end of the inserted text, or null if the model is read only
      */
     public final TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean allowUndo) {
-        if (isUserEditable()) {
+        if (isWritable()) {
             // TODO clamp to document boundaries
             int cmp = start.compareTo(end);
             if (cmp > 0) {
@@ -706,7 +714,7 @@ public abstract class StyledTextModel {
      * @param mergeAttributes whether to merge or replace the attributes
      */
     public final void applyStyle(TextPos start, TextPos end, StyleAttributeMap attrs, boolean mergeAttributes) {
-        if (isUserEditable()) {
+        if (isWritable()) {
             if (start.compareTo(end) > 0) {
                 TextPos p = start;
                 start = end;
