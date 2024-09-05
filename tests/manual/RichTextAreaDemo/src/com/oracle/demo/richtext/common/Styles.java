@@ -25,23 +25,35 @@
 
 package com.oracle.demo.richtext.common;
 
+import javafx.scene.paint.Color;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 
+/**
+ * Standard Styles.
+ */
 public class Styles {
     // TODO perhaps we should specifically set fonts to be used,
     // and couple that with the app stylesheet
-    public static final StyleAttributeMap TITLE = s("System", 24, true);
-    public static final StyleAttributeMap HEADING = s("System", 18, true);
-    public static final StyleAttributeMap SUBHEADING = s("System", 14, true);
-    public static final StyleAttributeMap BODY = s("System", 12, false);
-    public static final StyleAttributeMap MONOSPACED = s("Monospace", 12, false);
+    public static final StyleAttributeMap TITLE = mkStyle("System", 24, true);
+    public static final StyleAttributeMap HEADING = mkStyle("System", 18, true);
+    public static final StyleAttributeMap SUBHEADING = mkStyle("System", 14, true);
+    public static final StyleAttributeMap BODY = mkStyle("System", 12, false);
+    public static final StyleAttributeMap MONOSPACED = mkStyle("Monospace", 12, false);
 
-    private static StyleAttributeMap s(String font, double size, boolean bold) {
+    private static final StyleAttribute<?>[] STD_ATTRS = {
+        StyleAttributeMap.BOLD,
+        StyleAttributeMap.FONT_FAMILY,
+        StyleAttributeMap.FONT_SIZE,
+        StyleAttributeMap.TEXT_COLOR,
+    };
+
+    private static StyleAttributeMap mkStyle(String font, double size, boolean bold) {
         return StyleAttributeMap.builder().
             setFontFamily(font).
             setFontSize(size).
             setBold(bold).
+            setTextColor(Color.BLACK).
             build();
     }
 
@@ -67,14 +79,9 @@ public class Styles {
             if (attrs.isEmpty()) {
                 return TextStyle.BODY;
             }
-            StyleAttribute<?>[] keys = {
-                StyleAttributeMap.BOLD,
-                StyleAttributeMap.FONT_FAMILY,
-                StyleAttributeMap.FONT_SIZE
-            };
             for (TextStyle st : TextStyle.values()) {
                 StyleAttributeMap a = getStyleAttributeMap(st);
-                if (match(attrs, a, keys)) {
+                if (match(attrs, a, STD_ATTRS)) {
                     return st;
                 }
             }
@@ -86,11 +93,21 @@ public class Styles {
         for (StyleAttribute<?> k : keys) {
             Object v1 = attrs.get(k);
             Object v2 = builtin.get(k);
-            if (!eq(v1, v2)) {
-                return false;
+            if (k.getType() == Boolean.class) {
+                if (getBoolean(v1) != getBoolean(v2)) {
+                    return false;
+                }
+            } else {
+                if (!eq(v1, v2)) {
+                    return false;
+                }
             }
         }
         return true;
+    }
+
+    private static boolean getBoolean(Object x) {
+        return Boolean.TRUE.equals(x);
     }
 
     private static boolean eq(Object a, Object b) {

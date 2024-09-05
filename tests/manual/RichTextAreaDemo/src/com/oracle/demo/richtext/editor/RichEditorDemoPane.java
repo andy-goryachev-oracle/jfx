@@ -108,6 +108,7 @@ public class RichEditorDemoPane extends BorderPane {
         textStyle.setConverter(TextStyle.converter());
         textStyle.setOnAction((ev) -> {
             updateTextStyle();
+            control.requestFocus();
         });
 
         setTop(createToolBar());
