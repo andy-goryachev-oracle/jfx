@@ -113,7 +113,7 @@ public abstract class StyledTextModel {
      * Note that even when this method returns {@code false}, the model itself may still update its content
      * and fire the change events as a response, for example, to changes in its backing data storage.
      *
-     * @return true if the model supports content modifications via UI
+     * @return true if the model supports content modifications via the UI
      */
     public abstract boolean isWritable();
 
@@ -600,15 +600,15 @@ public abstract class StyledTextModel {
      * @param text text string to insert
      * @param allowUndo when true, creates an undo-redo entry
      * @return the text position at the end of the inserted text, or null if the model is read only
+     * @throws UnsupportedOperationException if the model is not {@link #isWritable() writable}
      */
     public final TextPos replace(StyleResolver resolver, TextPos start, TextPos end, String text, boolean allowUndo) {
-        if (isWritable()) {
-            // TODO pick the lowest from start,end.  Possibly add (end) argument to getStyleAttributes?
-            StyleAttributeMap a = getStyleAttributeMap(resolver, start);
-            StyledInput in = StyledInput.of(text, a);
-            return replace(resolver, start, end, in, allowUndo);
-        }
-        return null;
+        checkWritable();
+
+        // TODO pick the lowest from start,end.  Possibly add (end) argument to getStyleAttributes?
+        StyleAttributeMap a = getStyleAttributeMap(resolver, start);
+        StyledInput in = StyledInput.of(text, a);
+        return replace(resolver, start, end, in, allowUndo);
     }
 
     /**
@@ -624,80 +624,80 @@ public abstract class StyledTextModel {
      * @param input the input content stream
      * @param allowUndo when true, creates an undo-redo entry
      * @return the text position at the end of the inserted text, or null if the model is read only
+     * @throws UnsupportedOperationException if the model is not {@link #isWritable() writable}
      */
     public final TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean allowUndo) {
-        if (isWritable()) {
-            // TODO clamp to document boundaries
-            int cmp = start.compareTo(end);
-            if (cmp > 0) {
-                TextPos p = start;
-                start = end;
-                end = p;
-            }
+        checkWritable();
 
-            UndoableChange ch = allowUndo ? UndoableChange.create(this, start, end) : null;
-
-            if (cmp != 0) {
-                removeRange(start, end);
-            }
-
-            int index = start.index();
-            int offset = start.offset();
-            int top = 0;
-            int btm = 0;
-
-            StyledSegment seg;
-            while ((seg = input.nextSegment()) != null) {
-                switch (seg.getType()) {
-                case LINE_BREAK:
-                    insertLineBreak(index, offset);
-                    index++;
-                    offset = 0;
-                    btm = 0;
-                    break;
-                case PARAGRAPH_ATTRIBUTES:
-                    StyleAttributeMap pa = seg.getStyleAttributeMap(resolver);
-                    setParagraphStyle(index, pa);
-                    break;
-                case REGION:
-                    offset = 0;
-                    btm = 0;
-                    index++;
-                    Supplier<Region> gen = seg.getParagraphNodeGenerator();
-                    insertParagraph(index, gen);
-                    break;
-                case TEXT:
-                    String text = seg.getText();
-                    StyleAttributeMap a = seg.getStyleAttributeMap(resolver);
-                    if (a == null) {
-                        a = StyleAttributeMap.EMPTY;
-                    } else {
-                        a = filterUnsupportedAttributes(a);
-                    }
-                    int len = insertTextSegment(index, offset, text, a);
-                    if (index == start.index()) {
-                        top += len;
-                    }
-                    offset += len;
-                    btm += len;
-                    break;
-                }
-            }
-
-            int lines = index - start.index();
-            if (lines == 0) {
-                btm = 0;
-            }
-
-            fireChangeEvent(start, end, top, lines, btm);
-
-            TextPos newEnd = new TextPos(index, offset);
-            if (allowUndo) {
-                add(ch, newEnd);
-            }
-            return newEnd;
+        // TODO clamp to document boundaries
+        int cmp = start.compareTo(end);
+        if (cmp > 0) {
+            TextPos p = start;
+            start = end;
+            end = p;
         }
-        return null;
+
+        UndoableChange ch = allowUndo ? UndoableChange.create(this, start, end) : null;
+
+        if (cmp != 0) {
+            removeRange(start, end);
+        }
+
+        int index = start.index();
+        int offset = start.offset();
+        int top = 0;
+        int btm = 0;
+
+        StyledSegment seg;
+        while ((seg = input.nextSegment()) != null) {
+            switch (seg.getType()) {
+            case LINE_BREAK:
+                insertLineBreak(index, offset);
+                index++;
+                offset = 0;
+                btm = 0;
+                break;
+            case PARAGRAPH_ATTRIBUTES:
+                StyleAttributeMap pa = seg.getStyleAttributeMap(resolver);
+                setParagraphStyle(index, pa);
+                break;
+            case REGION:
+                offset = 0;
+                btm = 0;
+                index++;
+                Supplier<Region> gen = seg.getParagraphNodeGenerator();
+                insertParagraph(index, gen);
+                break;
+            case TEXT:
+                String text = seg.getText();
+                StyleAttributeMap a = seg.getStyleAttributeMap(resolver);
+                if (a == null) {
+                    a = StyleAttributeMap.EMPTY;
+                } else {
+                    a = filterUnsupportedAttributes(a);
+                }
+                int len = insertTextSegment(index, offset, text, a);
+                if (index == start.index()) {
+                    top += len;
+                }
+                offset += len;
+                btm += len;
+                break;
+            }
+        }
+
+        int lines = index - start.index();
+        if (lines == 0) {
+            btm = 0;
+        }
+
+        fireChangeEvent(start, end, top, lines, btm);
+
+        TextPos newEnd = new TextPos(index, offset);
+        if (allowUndo) {
+            add(ch, newEnd);
+        }
+        return newEnd;
     }
 
     /**
@@ -712,63 +712,64 @@ public abstract class StyledTextModel {
      * @param end the end of text range
      * @param attrs the style attributes to set
      * @param mergeAttributes whether to merge or replace the attributes
+     * @throws UnsupportedOperationException if the model is not {@link #isWritable() writable}
      */
     public final void applyStyle(TextPos start, TextPos end, StyleAttributeMap attrs, boolean mergeAttributes) {
-        if (isWritable()) {
-            if (start.compareTo(end) > 0) {
-                TextPos p = start;
-                start = end;
-                end = p;
+        checkWritable();
+
+        if (start.compareTo(end) > 0) {
+            TextPos p = start;
+            start = end;
+            end = p;
+        }
+
+        attrs = filterUnsupportedAttributes(attrs);
+
+        TextPos evStart;
+        TextPos evEnd;
+        boolean changed;
+
+        StyleAttributeMap pa = StyleAttributeMapHelper.getParagraphAttrs(attrs);
+        if (pa == null) {
+            evStart = start;
+            evEnd = end;
+            changed = false;
+        } else {
+            evStart = new TextPos(start.index(), 0, 0, true);
+            evEnd = getEndOfParagraphTextPos(end.index());
+            changed = true;
+        }
+
+        UndoableChange ch = UndoableChange.create(this, evStart, evEnd);
+
+        if (pa != null) {
+            // set paragraph attributes
+            for (int ix = start.index(); ix <= end.index(); ix++) {
+                setParagraphStyle(ix, pa);
             }
+        }
 
-            attrs = filterUnsupportedAttributes(attrs);
-
-            TextPos evStart;
-            TextPos evEnd;
-            boolean changed;
-
-            StyleAttributeMap pa = StyleAttributeMapHelper.getParagraphAttrs(attrs);
-            if (pa == null) {
-                evStart = start;
-                evEnd = end;
-                changed = false;
+        // apply character styles
+        StyleAttributeMap ca = StyleAttributeMapHelper.getCharacterAttrs(attrs);
+        if (ca != null) {
+            int ix = start.index();
+            if (ix == end.index()) {
+                applyStyle(ix, start.offset(), end.offset(), attrs, mergeAttributes);
             } else {
-                evStart = new TextPos(start.index(), 0, 0, true);
-                evEnd = getEndOfParagraphTextPos(end.index());
-                changed = true;
-            }
-
-            UndoableChange ch = UndoableChange.create(this, evStart, evEnd);
-
-            if (pa != null) {
-                // set paragraph attributes
-                for (int ix = start.index(); ix <= end.index(); ix++) {
-                    setParagraphStyle(ix, pa);
-                }
-            }
-
-            // apply character styles
-            StyleAttributeMap ca = StyleAttributeMapHelper.getCharacterAttrs(attrs);
-            if (ca != null) {
-                int ix = start.index();
-                if (ix == end.index()) {
-                    applyStyle(ix, start.offset(), end.offset(), attrs, mergeAttributes);
-                } else {
-                    applyStyle(ix, start.offset(), Integer.MAX_VALUE, attrs, mergeAttributes);
+                applyStyle(ix, start.offset(), Integer.MAX_VALUE, attrs, mergeAttributes);
+                ix++;
+                while (ix < end.index()) {
+                    applyStyle(ix, 0, Integer.MAX_VALUE, attrs, mergeAttributes);
                     ix++;
-                    while (ix < end.index()) {
-                        applyStyle(ix, 0, Integer.MAX_VALUE, attrs, mergeAttributes);
-                        ix++;
-                    }
-                    applyStyle(ix, 0, end.offset(), attrs, mergeAttributes);
                 }
-                changed = true;
+                applyStyle(ix, 0, end.offset(), attrs, mergeAttributes);
             }
+            changed = true;
+        }
 
-            if (changed) {
-                fireStyleChangeEvent(evStart, evEnd);
-                add(ch, end);
-            }
+        if (changed) {
+            fireStyleChangeEvent(evStart, evEnd);
+            add(ch, end);
         }
     }
 
@@ -828,6 +829,7 @@ public abstract class StyledTextModel {
      *
      * @param resolver the StyleResolver to use
      * @return the [start, end] text positions prior to the change
+     * @throws UnsupportedOperationException if the model is not {@link #isWritable() writable}
      */
     public final TextPos[] undo(StyleResolver resolver) {
         if (undo != head) {
@@ -851,6 +853,7 @@ public abstract class StyledTextModel {
      * Returns null when the redo operation is not possible.
      * @param resolver the StyleResolver to use
      * @return the [start, end] text positions prior to the change
+     * @throws UnsupportedOperationException if the model is not {@link #isWritable() writable}
      */
     public final TextPos[] redo(StyleResolver resolver) {
         if (undo.getNext() != null) {
@@ -943,7 +946,8 @@ public abstract class StyledTextModel {
      * @param f the data format
      * @param input the input stream
      * @throws IOException in case of an I/O error
-     * @throws UnsupportedOperationException when the data format is not supported by the model
+     * @throws UnsupportedOperationException when the data format is not supported by the model,
+     *         or the model is not {@link StyledTextModel#isWritable() writable}
      */
     public final void read(StyleResolver r, DataFormat f, InputStream input) throws IOException {
         clearUndoRedo();
@@ -973,5 +977,11 @@ public abstract class StyledTextModel {
             throw new UnsupportedOperationException("format not supported: " + f);
         }
         h.save(this, r, TextPos.ZERO, end, out);
+    }
+
+    private void checkWritable() {
+        if (!isWritable()) {
+            throw new UnsupportedOperationException("the model is not writeable");
+        }
     }
 }

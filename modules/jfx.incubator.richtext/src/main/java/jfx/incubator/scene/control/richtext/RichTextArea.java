@@ -1062,8 +1062,9 @@ public class RichTextArea extends Control {
      * @param start the start of text range
      * @param end the end of text range
      * @param attrs the style attributes to apply
+     * @throws NullPointerException if the model is {@code null}
+     * @throws UnsupportedOperationException if the model is not {@link StyledTextModel#isWritable() writable}
      */
-    // TODO document exceptions? NPE if null model, UnsupportedOperationException if view-only model
     public void applyStyle(TextPos start, TextPos end, StyleAttributeMap attrs) {
         StyledTextModel m = getModel();
         m.applyStyle(start, end, attrs, true);
@@ -1762,8 +1763,9 @@ public class RichTextArea extends Control {
      * @param text the input text
      * @param allowUndo when true, creates an undo-redo entry
      * @return the new caret position at the end of inserted text, or null if the change cannot be made
+     * @throws NullPointerException if the model is {@code null}
+     * @throws UnsupportedOperationException if the model is not {@link StyledTextModel#isWritable() writable}
      */
-    // TODO document exceptions? NPE if null model, UnsupportedOperationException if view-only model
     public final TextPos replaceText(TextPos start, TextPos end, String text, boolean allowUndo) {
         StyledTextModel m = getModel();
         return m.replace(vflow(), start, end, text, allowUndo);
@@ -1779,13 +1781,12 @@ public class RichTextArea extends Control {
      * @param in the input stream
      * @param createUndo when true, creates an undo-redo entry
      * @return the new caret position at the end of inserted text, or null if the change cannot be made
+     * @throws NullPointerException if the model is {@code null}
+     * @throws UnsupportedOperationException if the model is not {@link StyledTextModel#isWritable() writable}
      */
     public final TextPos replaceText(TextPos start, TextPos end, StyledInput in, boolean createUndo) {
         StyledTextModel m = getModel();
-        if (m != null) {
-            return m.replace(vflow(), start, end, in, createUndo);
-        }
-        return null;
+        return m.replace(vflow(), start, end, in, createUndo);
     }
 
     /**
@@ -2097,8 +2098,9 @@ public class RichTextArea extends Control {
      * @param start the start of text range
      * @param end the end of text range
      * @param attrs the style attributes to set
+     * @throws NullPointerException if the model is {@code null}
+     * @throws UnsupportedOperationException if the model is not {@link StyledTextModel#isWritable() writable}
      */
-    // TODO document exceptions? NPE if null model, UnsupportedOperationException if view-only model
     public final void setStyle(TextPos start, TextPos end, StyleAttributeMap attrs) {
         StyledTextModel m = getModel();
         m.applyStyle(start, end, attrs, false);
