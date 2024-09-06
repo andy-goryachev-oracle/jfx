@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.oracle.demo.richtext.notebook;
+package com.oracle.demo.richtext.util;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -52,8 +52,6 @@ public class ExceptionDialog extends Alert {
         super(AlertType.ERROR);
 
         setTitle("An Error Occurred");
-        //setHeaderText("");
-        //setContentText("");
 
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);

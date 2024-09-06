@@ -31,7 +31,7 @@
  */
 
 /**
- * RichTextArea Control demo.
+ * RichTextArea Control demos and sample code.
  *
  * <BR><b><a href="https://openjdk.org/jeps/11">Incubating Feature.</a>
  * Will be removed in a future release.</b>

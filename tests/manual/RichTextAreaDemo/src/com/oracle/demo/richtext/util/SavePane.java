@@ -30,7 +30,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.oracle.demo.richtext.editor;
+package com.oracle.demo.richtext.util;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,7 +46,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
-import com.oracle.demo.richtext.util.FX;
 
 /**
  * Part of the Save As dialog.
