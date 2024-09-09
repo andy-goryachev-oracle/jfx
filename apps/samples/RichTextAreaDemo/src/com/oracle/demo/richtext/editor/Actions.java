@@ -345,6 +345,7 @@ public class Actions {
         try (FileInputStream in = new FileInputStream(f)) {
             control.read(fmt, in);
             file.set(f);
+            control.setEditable(f.canWrite());
             setModified(false);
         }
     }
