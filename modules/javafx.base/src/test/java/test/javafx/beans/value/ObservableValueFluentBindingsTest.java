@@ -59,8 +59,9 @@ public class ObservableValueFluentBindingsTest {
 
     private StringProperty property = new SimpleStringProperty("Initial");
 
+    /** When_map_Called */
     @Nested
-    class When_map_Called {
+    class WMC {
 
         @Nested
         class WithNull {
@@ -71,8 +72,9 @@ public class ObservableValueFluentBindingsTest {
             }
         }
 
+        /** WithNotNullReturns_ObservableValue_Which */
         @Nested
-        class WithNotNullReturns_ObservableValue_Which {
+        class WNNROVW {
             private ObservableValue<String> observableValue = property.map(v -> v + "+map");
 
             @Test
@@ -85,8 +87,9 @@ public class ObservableValueFluentBindingsTest {
                 ReferenceAsserts.testIfNotStronglyReferenced(observableValue, () -> observableValue = null);
             }
 
+            /** When_getValue_Called */
             @Nested
-            class When_getValue_Called {
+            class WGVC {
 
                 @Test
                 void shouldReturnPropertyValuesWithOperationApplied() {
@@ -105,8 +108,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** WhenObservedForInvalidations */
             @Nested
-            class WhenObservedForInvalidations {
+            class WOFI {
                 {
                     startObservingInvalidations(observableValue);
                 }
@@ -129,8 +133,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
                 }
 
+                /** AndWhenUnobserved */
                 @Nested
-                class AndWhenUnobserved {
+                class AWU {
                     {
                         stopObservingInvalidations(observableValue);
                     }
@@ -152,8 +157,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** WhenObservedForChanges */
             @Nested
-            class WhenObservedForChanges {
+            class WOFC {
                 {
                     startObservingChanges(observableValue);
                 }
@@ -179,8 +185,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
                 }
 
+                /** AndWhenUnobserved */
                 @Nested
-                class AndWhenUnobserved {
+                class AWU {
                     {
                         stopObservingChanges(observableValue);
                     }
@@ -201,8 +208,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** When_orElse_CalledReturns_ObservableValue_Which */
             @Nested
-            class When_orElse_CalledReturns_ObservableValue_Which {
+            class WOECROVW {
                 {
                     observableValue = observableValue.orElse("Empty");
                 }
@@ -217,8 +225,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfNotStronglyReferenced(observableValue, () -> observableValue = null);
                 }
 
+                /** WhenObservedForChanges */
                 @Nested
-                class WhenObservedForChanges {
+                class WOFC {
                     {
                         startObservingChanges(observableValue);
                     }
@@ -241,8 +250,9 @@ public class ObservableValueFluentBindingsTest {
                         ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
                     }
 
+                    /** AndWhenUnobserved */
                     @Nested
-                    class AndWhenUnobserved {
+                    class AWU {
                         {
                             stopObservingChanges(observableValue);
                         }
@@ -264,8 +274,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** When_map_CalledAgainReturns_ObservableValue_Which */
             @Nested
-            class When_map_CalledAgainReturns_ObservableValue_Which {
+            class WMCAROVW {
                 {
                     observableValue = observableValue.map(v -> v + "+map2");
                 }
@@ -280,8 +291,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfNotStronglyReferenced(observableValue, () -> observableValue = null);
                 }
 
+                /** WhenObservedForChanges */
                 @Nested
-                class WhenObservedForChanges {
+                class WOFC {
                     {
                         startObservingChanges(observableValue);
                     }
@@ -304,8 +316,9 @@ public class ObservableValueFluentBindingsTest {
                         ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
                     }
 
+                    /** AndWhenUnobserved */
                     @Nested
-                    class AndWhenUnobserved {
+                    class AWU {
                         {
                             stopObservingChanges(observableValue);
                         }
@@ -329,8 +342,9 @@ public class ObservableValueFluentBindingsTest {
         }
     }
 
+    /** When_orElse_CalledReturns_ObservableValue_Which */
     @Nested
-    class When_orElse_CalledReturns_ObservableValue_Which {
+    class WOECROVW {
         private ObservableValue<String> observableValue = property.orElse("Empty");
 
         @Test
@@ -343,8 +357,9 @@ public class ObservableValueFluentBindingsTest {
             ReferenceAsserts.testIfNotStronglyReferenced(observableValue, () -> observableValue = null);
         }
 
+        /** When_getValue_Called */
         @Nested
-        class When_getValue_Called {
+        class WGVC {
 
             @Test
             void shouldReturnPropertyValuesWithOperationApplied() {
@@ -356,8 +371,9 @@ public class ObservableValueFluentBindingsTest {
             }
         }
 
+        /** WhenObservedForInvalidations */
         @Nested
-        class WhenObservedForInvalidations {
+        class WOFI {
             {
                 startObservingInvalidations(observableValue);
             }
@@ -380,8 +396,9 @@ public class ObservableValueFluentBindingsTest {
                 ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
             }
 
+            /** AndWhenUnobserved */
             @Nested
-            class AndWhenUnobserved {
+            class AWU {
                 {
                     stopObservingInvalidations(observableValue);
                 }
@@ -403,8 +420,9 @@ public class ObservableValueFluentBindingsTest {
             }
         }
 
+        /** WhenObservedForChanges */
         @Nested
-        class WhenObservedForChanges {
+        class WOFC {
             {
                 startObservingChanges(observableValue);
             }
@@ -427,8 +445,9 @@ public class ObservableValueFluentBindingsTest {
                 ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
             }
 
+            /** AndWhenUnobserved */
             @Nested
-            class AndWhenUnobserved {
+            class AWU {
                 {
                     stopObservingChanges(observableValue);
                 }
@@ -450,8 +469,9 @@ public class ObservableValueFluentBindingsTest {
         }
     }
 
+    /** When_flatMap_Called */
     @Nested
-    class When_flatMap_Called {
+    class WFMC {
 
         @Nested
         class WithNull {
@@ -462,8 +482,9 @@ public class ObservableValueFluentBindingsTest {
             }
         }
 
+        /** WithNotNullReturns_ObservableValue_Which */
         @Nested
-        class WithNotNullReturns_ObservableValue_Which {
+        class WNNROVW {
             private int subscribeCount;
             private int unsubscribeCount;
 
@@ -498,8 +519,9 @@ public class ObservableValueFluentBindingsTest {
                 ReferenceAsserts.testIfNotStronglyReferenced(observableValue, () -> observableValue = null);
             }
 
+            /** When_getValue_Called */
             @Nested
-            class When_getValue_Called {
+            class WGVC {
 
                 @Test
                 void shouldReturnPropertyValuesWithOperationApplied() {
@@ -538,8 +560,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** WhenObservedForInvalidations */
             @Nested
-            class WhenObservedForInvalidations {
+            class WOFI {
                 {
                     startObservingInvalidations(observableValue);
                 }
@@ -590,8 +613,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfNotStronglyReferenced(unknown, () -> unknown = null);
                 }
 
+                /** AndWhenUnobserved */
                 @Nested
-                class AndWhenUnobserved {
+                class AWU {
                     {
                         stopObservingInvalidations(observableValue);
                     }
@@ -615,8 +639,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** WhenObservedForChanges */
             @Nested
-            class WhenObservedForChanges {
+            class WOFC {
                 {
                     startObservingChanges(observableValue);
                 }
@@ -704,8 +729,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfNotStronglyReferenced(unknown, () -> unknown = null);
                 }
 
+                /** AndWhenUnobserved */
                 @Nested
-                class AndWhenUnobserved {
+                class AWO {
                     {
                         stopObservingChanges(observableValue);
                     }
@@ -729,8 +755,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** When_map_CalledReturns_ObservableValue_Which */
             @Nested
-            class When_map_CalledReturns_ObservableValue_Which {
+            class WMCROVW {
                 {
                     observableValue = observableValue.map(v -> v + "+map");
                 }
@@ -745,8 +772,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfNotStronglyReferenced(observableValue, () -> observableValue = null);
                 }
 
+                /** WhenObservedForChanges */
                 @Nested
-                class WhenObservedForChanges {
+                class WOFC {
                     {
                         startObservingChanges(observableValue);
                     }
@@ -777,8 +805,9 @@ public class ObservableValueFluentBindingsTest {
                         ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
                     }
 
+                    /** AndWhenUnobserved */
                     @Nested
-                    class AndWhenUnobserved {
+                    class AWU {
                         {
                             stopObservingChanges(observableValue);
                         }
@@ -800,8 +829,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** When_orElse_CalledReturns_ObservableValue_Which */
             @Nested
-            class When_orElse_CalledReturns_ObservableValue_Which {
+            class WOECROVW {
                 {
                     observableValue = observableValue.orElse("Empty");
                 }
@@ -816,8 +846,9 @@ public class ObservableValueFluentBindingsTest {
                     ReferenceAsserts.testIfNotStronglyReferenced(observableValue, () -> observableValue = null);
                 }
 
+                /** WhenObservedForChanges */
                 @Nested
-                class WhenObservedForChanges {
+                class WOFC {
                     {
                         startObservingChanges(observableValue);
                     }
@@ -860,8 +891,9 @@ public class ObservableValueFluentBindingsTest {
                         ReferenceAsserts.testIfStronglyReferenced(observableValue, () -> observableValue = null);
                     }
 
+                    /** AndWhenUnobserved */
                     @Nested
-                    class AndWhenUnobserved {
+                    class AWU {
                         {
                             stopObservingChanges(observableValue);
                         }
@@ -885,8 +917,9 @@ public class ObservableValueFluentBindingsTest {
         }
     }
 
+    /** When_when_Called */
     @Nested
-    class When_when_Called {
+    class WWC {
 
         @Nested
         class WithNull {
@@ -897,8 +930,9 @@ public class ObservableValueFluentBindingsTest {
             }
         }
 
+        /** WithNotNullAndInitiallyFalseConditionReturns_ObservableValue_Which */
         @Nested
-        class WithNotNullAndInitiallyFalseConditionReturns_ObservableValue_Which {
+        class WNNAIFCROVW {
             private BooleanProperty condition = new SimpleBooleanProperty(false);
             private ObservableValue<String> observableValue = property.when(condition);
 
@@ -915,8 +949,9 @@ public class ObservableValueFluentBindingsTest {
                 });
             }
 
+            /** When_getValue_Called */
             @Nested
-            class When_getValue_Called {
+            class WGVC {
 
                 @Test
                 void shouldReturnInitialValueAtTimeOfCreation() {
@@ -927,8 +962,9 @@ public class ObservableValueFluentBindingsTest {
             }
         }
 
+        /** WithNotNullReturns_ObservableValue_Which */
         @Nested
-        class WithNotNullReturns_ObservableValue_Which {
+        class WNNROVW {
             // using object property here so it can be set to null for testing
             private ObjectProperty<Boolean> condition = new SimpleObjectProperty<>(true);
             private ObservableValue<String> observableValue = property.when(condition);
@@ -946,8 +982,9 @@ public class ObservableValueFluentBindingsTest {
                 });
             }
 
+            /** When_getValue_Called */
             @Nested
-            class When_getValue_Called {
+            class WGVC {
 
                 @Test
                 void shouldReturnCurrentPropertyValuesWhileConditionIsTrue() {
@@ -977,8 +1014,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** WhenObservedForInvalidations */
             @Nested
-            class WhenObservedForInvalidations {
+            class WOFI {
                 {
                     startObservingInvalidations(observableValue);
                 }
@@ -1072,8 +1110,9 @@ public class ObservableValueFluentBindingsTest {
                     });
                 }
 
+                /** AndWhenUnobserved */
                 @Nested
-                class AndWhenUnobserved {
+                class AWU {
                     {
                         stopObservingInvalidations(observableValue);
                     }
@@ -1098,8 +1137,9 @@ public class ObservableValueFluentBindingsTest {
                 }
             }
 
+            /** WhenObservedForChanges */
             @Nested
-            class WhenObservedForChanges {
+            class WOFC {
                 {
                     startObservingChanges(observableValue);
                 }
@@ -1160,8 +1200,9 @@ public class ObservableValueFluentBindingsTest {
                     });
                 }
 
+                /** AndWhenUnobserved */
                 @Nested
-                class AndWhenUnobserved {
+                class AWU {
                     {
                         stopObservingChanges(observableValue);
                     }
