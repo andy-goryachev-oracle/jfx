@@ -4289,7 +4289,7 @@ project(":systemTests") {
         // enable native access for all modules with native code
         jvmArgs enableNativeAll
 
-        maxHeapSize = "1000m"
+        maxHeapSize = "128m"
 
         // FIXME: Remove this when JDK-8334137 is fixed
         if (jdk24OrLater) {

@@ -166,7 +166,7 @@ import test.robot.testharness.RobotTestBase;
  * TODO add remaining Nodes to the test.
  */
 public class NodeInitializationStressTest extends RobotTestBase {
-    private static final int DURATION = 5000;
+    private static final int DURATION = 15000;
     private static final AtomicLong seq = new AtomicLong();
     private static final AtomicBoolean failed = new AtomicBoolean();
     // for debugging purposes: setting this to true will skip working tests
@@ -470,7 +470,6 @@ public class NodeInitializationStressTest extends RobotTestBase {
         });
     }
 
-    @Disabled("JDK-8349090") // FIX
     @Test
     public void pieChart() {
         assumeFalse(SKIP_TEST);
