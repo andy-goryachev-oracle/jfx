@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -70,8 +70,9 @@ public class LazyObjectBindingTest {
         assertEquals("A", binding.get());
     }
 
+    /** WhenObservedWithInvalidationListener */
     @Nested
-    class WhenObservedWithInvalidationListener {
+    class WOWIL {
         private InvalidationListener invalidationListener = obs -> {};
 
         {
@@ -110,8 +111,9 @@ public class LazyObjectBindingTest {
             assertTrue(binding.computeValueCalls >= 1 && binding.computeValueCalls <= 2);
         }
 
+        /** AndWhenObservedAgain */
         @Nested
-        class AndWhenObservedAgain {
+        class AWOA {
             private ChangeListener<String> changeListener = (obs, old, current) -> {};
 
             {
@@ -139,8 +141,9 @@ public class LazyObjectBindingTest {
                 assertEquals(0, binding.computeValueCalls);
             }
 
+            /** AndThenOneObserverIsRemoved */
             @Nested
-            class AndThenOneObserverIsRemoved {
+            class ATOOIR {
                 {
                     resetCounters();
                     binding.removeListener(changeListener);
@@ -166,8 +169,9 @@ public class LazyObjectBindingTest {
                     assertEquals(0, binding.computeValueCalls);
                 }
 
+                /** AndThenTheLastObserverIsRemoved */
                 @Nested
-                class AndThenTheLastObserverIsRemoved {
+                class ATTLOIR {
                     {
                         resetCounters();
                         binding.removeListener(invalidationListener);
@@ -193,8 +197,9 @@ public class LazyObjectBindingTest {
                         assertFalse(binding.isValid());
                     }
 
+                    /** AndTheListenerIsRemovedAgain */
                     @Nested
-                    class AndTheListenerIsRemovedAgain {
+                    class ATLRA {
                         {
                             resetCounters();
                             binding.removeListener(invalidationListener);
