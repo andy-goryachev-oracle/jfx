@@ -25,32 +25,32 @@
 
 package javafx.scene.media;
 
-import com.sun.media.jfxmedia.MetadataParser;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.atomic.AtomicLong;
 import javafx.application.Platform;
 import javafx.beans.NamedArg;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ObjectPropertyBase;
+import javafx.beans.property.ReadOnlyIntegerProperty;
+import javafx.beans.property.ReadOnlyIntegerWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.scene.image.Image;
 import javafx.util.Duration;
-
-import com.sun.media.jfxmedia.locator.Locator;
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyIntegerWrapper;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyObjectWrapper;
+import com.sun.media.jfxmedia.MetadataParser;
 import com.sun.media.jfxmedia.events.MetadataListener;
+import com.sun.media.jfxmedia.locator.Locator;
 
 /**
  * The <code>Media</code> class represents a media resource. It is instantiated
@@ -85,9 +85,15 @@ public final class Media {
      */
     private ReadOnlyObjectWrapper<MediaException> error;
 
-    private void setError(MediaException value) {
+    void setError(MediaException value) {
         if (getError() == null) {
             errorPropertyImpl().set(value);
+        }
+    }
+
+    void setError(MediaException.Type type, String message) {
+        if (getError() == null) {
+            errorPropertyImpl().set(new MediaException(type, message));
         }
     }
 
@@ -374,31 +380,71 @@ public final class Media {
      * (type {@link MediaException.Type#MEDIA_UNSUPPORTED}).
      */
     public Media(@NamedArg("source") String source) {
-        this.source = source;
+        this(null, source);
+    }
 
-        URI uri = null;
+    public Media(String source, InputStream in) {
+        this(in, source);
+    }
+
+    private static URI parseSource(String source) {
         try {
             // URI will throw NPE if source == null: do not catch it!
-            uri = new URI(source);
+            return new URI(source);
         } catch(URISyntaxException use) {
             throw new IllegalArgumentException(use);
         }
+    }
 
+    private static final AtomicLong sequence = new AtomicLong(0L);
+
+    private static URI constructUri(String source) {
+        try {
+            // TODO url-encode source? validate?
+            return new URI("input-stream://input-stream/" + sequence.incrementAndGet() + source);
+        } catch(URISyntaxException e) {
+            // TODO message: invalid source?
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    /**
+     * TODO
+     * @param in
+     * @param source
+     * @since TODO
+     */
+    public Media(InputStream in, String source) {
+        this.source = source;
+        URI uri = (in == null) ? parseSource(source) : constructUri(source);
         metadata = FXCollections.unmodifiableObservableMap(metadataBacking);
         tracks = FXCollections.unmodifiableObservableList(tracksBacking);
 
         Locator locator = null;
         try {
-            locator = new com.sun.media.jfxmedia.locator.Locator(uri);
+            locator = new com.sun.media.jfxmedia.locator.Locator(uri, in);
             jfxLocator = locator;
             if (locator.canBlock()) {
-                InitLocator locatorInit = new InitLocator();
-                Thread t = new Thread(locatorInit);
+                Thread t = new Thread(() -> {
+                    try {
+                        jfxLocator.init();
+                        runMetadataParser();
+                    } catch (URISyntaxException use) {
+                        setError(MediaException.Type.OPERATION_UNSUPPORTED, use.getMessage());
+                    } catch (FileNotFoundException fnfe) {
+                        setError(MediaException.Type.MEDIA_UNAVAILABLE, fnfe.getMessage());
+                    } catch (IOException ioe) {
+                        setError(MediaException.Type.MEDIA_INACCESSIBLE, ioe.getMessage());
+                    } catch (com.sun.media.jfxmedia.MediaException me) {
+                        setError(MediaException.Type.MEDIA_UNSUPPORTED, me.getMessage());
+                    } catch (Exception e) {
+                        setError(MediaException.Type.UNKNOWN, e.getMessage());
+                    }
+                });
                 t.setDaemon(true);
                 t.start();
             } else {
-                locator.init();
-                runMetadataParser();
+                initLocator(locator);
             }
         } catch(URISyntaxException use) {
             throw new IllegalArgumentException(use);
@@ -411,11 +457,18 @@ public final class Media {
         }
     }
 
+    private void initLocator(Locator loc) throws FileNotFoundException, URISyntaxException, IOException {
+        loc.init();
+        runMetadataParser();
+    }
+
     private void runMetadataParser() {
         try {
             jfxParser = com.sun.media.jfxmedia.MediaManager.getMetadataParser(jfxLocator);
-            jfxParser.addListener(metadataListener);
-            jfxParser.startParser();
+            if (jfxParser != null) {
+                jfxParser.addListener(metadataListener);
+                jfxParser.startParser();
+            }
         } catch (Exception e) {
             jfxParser = null;
         }
@@ -508,10 +561,6 @@ public final class Media {
         }
     }
 
-    void _setError(MediaException.Type type, String message) {
-        setError(new MediaException(type, message));
-    }
-
     private synchronized void updateMetadata(Map<String, Object> metadata) {
         if (metadata != null) {
             for (Map.Entry<String,Object> entry : metadata.entrySet()) {
@@ -545,27 +594,6 @@ public final class Media {
                 jfxParser.stopParser();
                 jfxParser = null;
             });
-        }
-    }
-
-    private class InitLocator implements Runnable {
-
-        @Override
-        public void run() {
-            try {
-                jfxLocator.init();
-                runMetadataParser();
-            } catch (URISyntaxException use) {
-                _setError(MediaException.Type.OPERATION_UNSUPPORTED, use.getMessage());
-            } catch (FileNotFoundException fnfe) {
-                _setError(MediaException.Type.MEDIA_UNAVAILABLE, fnfe.getMessage());
-            } catch (IOException ioe) {
-                _setError(MediaException.Type.MEDIA_INACCESSIBLE, ioe.getMessage());
-            } catch (com.sun.media.jfxmedia.MediaException me) {
-                _setError(MediaException.Type.MEDIA_UNSUPPORTED, me.getMessage());
-            } catch (Exception e) {
-                _setError(MediaException.Type.UNKNOWN, e.getMessage());
-            }
         }
     }
 }
