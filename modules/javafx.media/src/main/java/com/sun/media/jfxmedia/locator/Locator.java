@@ -370,24 +370,16 @@ public class Locator {
                 uri = new URI(uriString);
             }
             
-            // FIX do not cache if inputStream != null
-
-            // First check if this URI is cached, if it is then we're done
-            cacheEntry = LocatorCache.locatorCache().fetchURICache(uri);
-            if (null != cacheEntry) {
-                // Cache hit! Grab contentType and contentLength and be done
-                contentType = cacheEntry.getMIMEType();
-                contentLength = cacheEntry.getBuffer().capacity();
-                if (Logger.canLog(Logger.DEBUG)) {
-                    Logger.logMsg(Logger.DEBUG, "Locator init cache hit:"
-                            + "\n    uri " + uri
-                            + "\n    type " + contentType
-                            + "\n    length " + contentLength);
-                }
-                return;
-            }
-
             if (inputStream != null) {
+                // change uri protocol in order to fool the native layer
+                String scheme = "file";
+                String authority = uri.getAuthority();
+                String path = uri.getPath();
+                String query = uri.getQuery();
+                String fragment = null;
+                uri = new URI(scheme, authority, path, query, fragment);
+                System.out.println(uri); // FIX
+
                 // TODO media type
                 contentType = MediaUtils.filenameToContentType(uri);
                 if (contentType == null) {
@@ -399,6 +391,21 @@ public class Locator {
                     throw new MediaException("media type not supported (" + uri + ")");
                 }
             } else {
+                // First check if this URI is cached, if it is then we're done
+                cacheEntry = LocatorCache.locatorCache().fetchURICache(uri);
+                if (null != cacheEntry) {
+                    // Cache hit! Grab contentType and contentLength and be done
+                    contentType = cacheEntry.getMIMEType();
+                    contentLength = cacheEntry.getBuffer().capacity();
+                    if (Logger.canLog(Logger.DEBUG)) {
+                        Logger.logMsg(Logger.DEBUG, "Locator init cache hit:"
+                                + "\n    uri " + uri
+                                + "\n    type " + contentType
+                                + "\n    length " + contentLength);
+                    }
+                    return;
+                }
+
                 // Try to open a connection on the corresponding URL.
                 boolean isConnected = false;
                 boolean isMediaUnAvailable = false;

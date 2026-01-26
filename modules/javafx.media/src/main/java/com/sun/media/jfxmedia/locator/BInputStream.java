@@ -44,18 +44,21 @@ public class BInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
+        p("available");
         int d = (index >= 0) ? signature.length - index : 0;
         return input.available() + d;
     }
 
     @Override
     public void close() throws IOException {
+        p("close");
         index = -1;
         input.close();
     }
 
     @Override
     public int read() throws IOException {
+        p("read");
         if (index >= 0) {
             if (signature == null) {
                 signature = readSignature();
@@ -74,6 +77,7 @@ public class BInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+        p("read off=" + off + " len=" + len);
         if (index >= 0) {
             if (signature == null) {
                 signature = readSignature();
@@ -97,6 +101,7 @@ public class BInputStream extends InputStream {
    }
 
     public byte[] getSignature() throws IOException {
+        p("getSignature");
         if(signature == null) {
             signature = readSignature();
         }
@@ -125,5 +130,9 @@ public class BInputStream extends InputStream {
             return smaller;
         }
         return b;
+    }
+
+    private static void p(String text) {
+        System.out.println(text);
     }
 }
