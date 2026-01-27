@@ -3615,12 +3615,46 @@ public abstract sealed class Node
      * @return the {@code boundsInParent} property for this {@code Node}
      */
     public final ReadOnlyObjectProperty<Bounds> boundsInParentProperty() {
-        return getMiscProperties().boundsInParentProperty();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_PARENT);
+        if (p == null) {
+            p = props.init(K_BOUNDS_IN_PARENT, () -> new LazyBoundsProperty() {
+                /**
+                 * Computes the bounds including the clip, effects, and all
+                 * transforms. This function is essentially how to compute
+                 * the boundsInParent. Optimizations are made to compute as
+                 * little as possible and create as little trash as
+                 * possible.
+                 */
+                @Override
+                protected Bounds computeBounds() {
+                    BaseBounds b = TempState.getInstance().bounds;
+                    b = getTransformedBounds(b, BaseTransform.IDENTITY_TRANSFORM);
+                    return new BoundingBox(b.getMinX(),
+                                           b.getMinY(),
+                                           b.getMinZ(),
+                                           b.getWidth(),
+                                           b.getHeight(),
+                                           b.getDepth());
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "boundsInParent";
+                }
+            });
+        }
+        return p;
     }
 
     private void invalidateBoundsInParent() {
-        if (miscProperties != null) {
-            miscProperties.invalidateBoundsInParent();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_PARENT);
+        if (p != null) {
+            p.invalidate();
         }
     }
 
@@ -6983,7 +7017,6 @@ public abstract sealed class Node
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     private final class MiscProperties {
-        private LazyBoundsProperty boundsInParent;
         private BooleanProperty cache;
         private ObjectProperty<CacheHint> cacheHint;
         private ObjectProperty<Cursor> cursor;
@@ -7034,51 +7067,6 @@ public abstract sealed class Node
 
         public final Bounds getBoundsInParent() {
             return boundsInParentProperty().get();
-        }
-
-        public final ReadOnlyObjectProperty<Bounds> boundsInParentProperty() {
-            if (boundsInParent == null) {
-                boundsInParent = new LazyBoundsProperty() {
-                    /**
-                     * Computes the bounds including the clip, effects, and all
-                     * transforms. This function is essentially how to compute
-                     * the boundsInParent. Optimizations are made to compute as
-                     * little as possible and create as little trash as
-                     * possible.
-                     */
-                    @Override
-                    protected Bounds computeBounds() {
-                        BaseBounds tempBounds = TempState.getInstance().bounds;
-                        tempBounds = getTransformedBounds(
-                                             tempBounds,
-                                             BaseTransform.IDENTITY_TRANSFORM);
-                        return new BoundingBox(tempBounds.getMinX(),
-                                               tempBounds.getMinY(),
-                                               tempBounds.getMinZ(),
-                                               tempBounds.getWidth(),
-                                               tempBounds.getHeight(),
-                                               tempBounds.getDepth());
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "boundsInParent";
-                    }
-                };
-            }
-
-            return boundsInParent;
-        }
-
-        public void invalidateBoundsInParent() {
-            if (boundsInParent != null) {
-                boundsInParent.invalidate();
-            }
         }
 
         public final boolean isCache() {
