@@ -414,7 +414,21 @@ public abstract sealed class Node
         implements EventTarget, Styleable
         permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D {
 
-    private static final PKey<ObjectProperty<Node>> K_CLIP = new PKey<>();
+    // strictly speaking, tags don't have to specify type, can be a simple Object
+    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<LazyBoundsProperty>();
+    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_PARENT = new PKey<LazyBoundsProperty>();
+    private static final PKey<BooleanProperty> K_CACHE = new PKey<BooleanProperty>();
+    private static final PKey<ObjectProperty<CacheHint>> K_CACHE_HINT = new PKey<ObjectProperty<CacheHint>>();
+    private static final PKey<ObjectProperty<Node>> K_CLIP = new PKey<ObjectProperty<Node>>();
+    private static final PKey<ObjectProperty<Cursor>> K_CURSOR = new PKey<ObjectProperty<Cursor>>();
+    private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<TransitionDefinitionCollection>();
+    private static final PKey<ObjectProperty<DepthTest>> K_DEPTH_TEST = new PKey<ObjectProperty<DepthTest>>();
+    private static final PKey<BooleanProperty> K_DISABLE = new PKey<BooleanProperty>();
+    private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<ObjectProperty<Effect>>();
+    private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<ObjectProperty<InputMethodRequests>>();
+    private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<BooleanProperty>();
+    private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<DoubleProperty>();
+    private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<TransitionTimerCollection>();
     // TODO
     private final FastMap props = new FastMap();
 
@@ -3637,12 +3651,39 @@ public abstract sealed class Node
      * @return the boundsInLocal for this {@code Node}
      */
     public final ReadOnlyObjectProperty<Bounds> boundsInLocalProperty() {
-        return getMiscProperties().boundsInLocalProperty();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_LOCAL);
+        if (p == null) {
+            p = props.init(K_BOUNDS_IN_LOCAL, () -> new LazyBoundsProperty() {
+                @Override
+                protected Bounds computeBounds() {
+                    BaseBounds b = TempState.getInstance().bounds;
+                    b = getLocalBounds(b, BaseTransform.IDENTITY_TRANSFORM);
+                    return new BoundingBox(b.getMinX(),
+                                           b.getMinY(),
+                                           b.getMinZ(),
+                                           b.getWidth(),
+                                           b.getHeight(),
+                                           b.getDepth());
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "boundsInLocal";
+                }
+            });
+        }
+        return p;
     }
 
     private void invalidateBoundsInLocal() {
-        if (miscProperties != null) {
-            miscProperties.invalidateBoundsInLocal();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_LOCAL);
+        if (p != null) {
+            p.invalidate();
         }
     }
 
@@ -6943,7 +6984,6 @@ public abstract sealed class Node
 
     private final class MiscProperties {
         private LazyBoundsProperty boundsInParent;
-        private LazyBoundsProperty boundsInLocal;
         private BooleanProperty cache;
         private ObjectProperty<CacheHint> cacheHint;
         private ObjectProperty<Cursor> cursor;
@@ -7038,48 +7078,6 @@ public abstract sealed class Node
         public void invalidateBoundsInParent() {
             if (boundsInParent != null) {
                 boundsInParent.invalidate();
-            }
-        }
-
-        public final Bounds getBoundsInLocal() {
-            return boundsInLocalProperty().get();
-        }
-
-        public final ReadOnlyObjectProperty<Bounds> boundsInLocalProperty() {
-            if (boundsInLocal == null) {
-                boundsInLocal = new LazyBoundsProperty() {
-                    @Override
-                    protected Bounds computeBounds() {
-                        BaseBounds tempBounds = TempState.getInstance().bounds;
-                        tempBounds = getLocalBounds(
-                                             tempBounds,
-                                             BaseTransform.IDENTITY_TRANSFORM);
-                        return new BoundingBox(tempBounds.getMinX(),
-                                               tempBounds.getMinY(),
-                                               tempBounds.getMinZ(),
-                                               tempBounds.getWidth(),
-                                               tempBounds.getHeight(),
-                                               tempBounds.getDepth());
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "boundsInLocal";
-                    }
-                };
-            }
-
-            return boundsInLocal;
-        }
-
-        public void invalidateBoundsInLocal() {
-            if (boundsInLocal != null) {
-                boundsInLocal.invalidate();
             }
         }
 
