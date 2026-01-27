@@ -1942,8 +1942,13 @@ public abstract sealed class Node
     }
 
     public final Effect getEffect() {
-        return (miscProperties == null) ? DEFAULT_EFFECT
-                                        : miscProperties.getEffect();
+        ObjectProperty<Effect> p = props.get(K_EFFECT);
+        return (p == null) ? DEFAULT_EFFECT : p.get();
+    }
+
+    private boolean isEffectSettable() {
+        ObjectProperty<Effect> p = props.get(K_EFFECT);
+        return (p == null) || !p.isBound();
     }
 
     /**
@@ -1964,7 +1969,77 @@ public abstract sealed class Node
      * @defaultValue null
      */
     public final ObjectProperty<Effect> effectProperty() {
-        return getMiscProperties().effectProperty();
+        ObjectProperty<Effect> p = props.get(K_EFFECT);
+        if (p == null) {
+            p = props.init(K_EFFECT, () -> new StyleableObjectProperty<Effect>(DEFAULT_EFFECT) {
+                private Effect oldEffect = null;
+                private int oldBits;
+
+                private final AbstractNotifyListener effectChangeListener =
+                        new AbstractNotifyListener() {
+
+                    @Override
+                    public void invalidated(Observable valueModel) {
+                        int newBits = ((IntegerProperty) valueModel).get();
+                        int changedBits = newBits ^ oldBits;
+                        oldBits = newBits;
+                        if (EffectDirtyBits.isSet(
+                                changedBits,
+                                EffectDirtyBits.EFFECT_DIRTY)
+                            && EffectDirtyBits.isSet(
+                                   newBits,
+                                   EffectDirtyBits.EFFECT_DIRTY)) {
+                            NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
+                        }
+                        if (EffectDirtyBits.isSet(
+                                changedBits,
+                                EffectDirtyBits.BOUNDS_CHANGED)) {
+                            localBoundsChanged();
+                        }
+                    }
+                };
+
+                @Override
+                protected void invalidated() {
+                    Effect _effect = get();
+                    if (oldEffect != null) {
+                        EffectHelper.effectDirtyProperty(oldEffect).removeListener(
+                                effectChangeListener.getWeakListener());
+                    }
+                    oldEffect = _effect;
+                    if (_effect != null) {
+                        EffectHelper.effectDirtyProperty(_effect)
+                               .addListener(
+                                   effectChangeListener.getWeakListener());
+                        if (EffectHelper.isEffectDirty(_effect)) {
+                            NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
+                        }
+                        oldBits = EffectHelper.effectDirtyProperty(_effect).get();
+                    }
+
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_EFFECT);
+                    // bounds may have changed regardless whether
+                    // the dirty flag on effect is set
+                    localBoundsChanged();
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.EFFECT;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "effect";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setDepthTest(DepthTest value) {
@@ -7090,7 +7165,6 @@ public abstract sealed class Node
     private final class MiscProperties {
         private ObjectProperty<DepthTest> depthTest;
         private BooleanProperty disable;
-        private ObjectProperty<Effect> effect;
         private ObjectProperty<InputMethodRequests> inputMethodRequests;
         private BooleanProperty mouseTransparent;
         private DoubleProperty viewOrder;
@@ -7189,83 +7263,6 @@ public abstract sealed class Node
             return disable;
         }
 
-        public final Effect getEffect() {
-            return (effect == null) ? DEFAULT_EFFECT : effect.get();
-        }
-
-        public final ObjectProperty<Effect> effectProperty() {
-            if (effect == null) {
-                effect = new StyleableObjectProperty<Effect>(DEFAULT_EFFECT) {
-                    private Effect oldEffect = null;
-                    private int oldBits;
-
-                    private final AbstractNotifyListener effectChangeListener =
-                            new AbstractNotifyListener() {
-
-                        @Override
-                        public void invalidated(Observable valueModel) {
-                            int newBits = ((IntegerProperty) valueModel).get();
-                            int changedBits = newBits ^ oldBits;
-                            oldBits = newBits;
-                            if (EffectDirtyBits.isSet(
-                                    changedBits,
-                                    EffectDirtyBits.EFFECT_DIRTY)
-                                && EffectDirtyBits.isSet(
-                                       newBits,
-                                       EffectDirtyBits.EFFECT_DIRTY)) {
-                                NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
-                            }
-                            if (EffectDirtyBits.isSet(
-                                    changedBits,
-                                    EffectDirtyBits.BOUNDS_CHANGED)) {
-                                localBoundsChanged();
-                            }
-                        }
-                    };
-
-                    @Override
-                    protected void invalidated() {
-                        Effect _effect = get();
-                        if (oldEffect != null) {
-                            EffectHelper.effectDirtyProperty(oldEffect).removeListener(
-                                    effectChangeListener.getWeakListener());
-                        }
-                        oldEffect = _effect;
-                        if (_effect != null) {
-                            EffectHelper.effectDirtyProperty(_effect)
-                                   .addListener(
-                                       effectChangeListener.getWeakListener());
-                            if (EffectHelper.isEffectDirty(_effect)) {
-                                NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
-                            }
-                            oldBits = EffectHelper.effectDirtyProperty(_effect).get();
-                        }
-
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_EFFECT);
-                        // bounds may have changed regardless whether
-                        // the dirty flag on effect is set
-                        localBoundsChanged();
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.EFFECT;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "effect";
-                    }
-                };
-            }
-            return effect;
-        }
-
         public final InputMethodRequests getInputMethodRequests() {
             return (inputMethodRequests == null) ? DEFAULT_INPUT_METHOD_REQUESTS
                                                  : inputMethodRequests.get();
@@ -7297,10 +7294,6 @@ public abstract sealed class Node
                                 DEFAULT_MOUSE_TRANSPARENT);
             }
             return mouseTransparent;
-        }
-
-        public boolean canSetEffect() {
-            return (effect == null) || !effect.isBound();
         }
     }
 
@@ -9439,7 +9432,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.miscProperties == null || node.miscProperties.canSetEffect();
+                    return node.isEffectSettable();
                 }
 
                 @Override
