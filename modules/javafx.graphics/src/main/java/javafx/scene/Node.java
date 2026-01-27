@@ -415,20 +415,20 @@ public abstract sealed class Node
         permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D {
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
-    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<LazyBoundsProperty>();
-    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_PARENT = new PKey<LazyBoundsProperty>();
-    private static final PKey<BooleanProperty> K_CACHE = new PKey<BooleanProperty>();
-    private static final PKey<ObjectProperty<CacheHint>> K_CACHE_HINT = new PKey<ObjectProperty<CacheHint>>();
-    private static final PKey<ObjectProperty<Node>> K_CLIP = new PKey<ObjectProperty<Node>>();
-    private static final PKey<ObjectProperty<Cursor>> K_CURSOR = new PKey<ObjectProperty<Cursor>>();
-    private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<TransitionDefinitionCollection>();
-    private static final PKey<ObjectProperty<DepthTest>> K_DEPTH_TEST = new PKey<ObjectProperty<DepthTest>>();
-    private static final PKey<BooleanProperty> K_DISABLE = new PKey<BooleanProperty>();
-    private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<ObjectProperty<Effect>>();
-    private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<ObjectProperty<InputMethodRequests>>();
-    private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<BooleanProperty>();
-    private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<DoubleProperty>();
-    private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<TransitionTimerCollection>();
+    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<>();
+    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_PARENT = new PKey<>();
+    private static final PKey<BooleanProperty> K_CACHE = new PKey<>();
+    private static final PKey<ObjectProperty<CacheHint>> K_CACHE_HINT = new PKey<>();
+    private static final PKey<ObjectProperty<Node>> K_CLIP = new PKey<>();
+    private static final PKey<ObjectProperty<Cursor>> K_CURSOR = new PKey<>();
+    private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
+    private static final PKey<ObjectProperty<DepthTest>> K_DEPTH_TEST = new PKey<>();
+    private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
+    private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
+    private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
+    private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
+    private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
+    private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     // TODO
     private final FastMap props = new FastMap();
 
@@ -1538,7 +1538,7 @@ public abstract sealed class Node
     public final ObjectProperty<Cursor> cursorProperty() {
         ObjectProperty<Cursor> p = props.get(K_CURSOR);
         if (p == null) {
-            p = new StyleableObjectProperty<Cursor>(DEFAULT_CURSOR) {
+            p = props.init(K_CURSOR, () -> new StyleableObjectProperty<Cursor>(DEFAULT_CURSOR) {
 
                 @Override
                 protected void invalidated() {
@@ -1562,7 +1562,7 @@ public abstract sealed class Node
                 public String getName() {
                     return "cursor";
                 }
-            };
+            });
         }
         return p;
     }
@@ -1837,7 +1837,7 @@ public abstract sealed class Node
     public final BooleanProperty cacheProperty() {
         BooleanProperty p = props.get(K_CACHE);
         if (p == null) {
-            p = new BooleanPropertyBase(DEFAULT_CACHE) {
+            p = props.init(K_CACHE, () -> new BooleanPropertyBase(DEFAULT_CACHE) {
                 @Override
                 protected void invalidated() {
                     NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
@@ -1852,7 +1852,7 @@ public abstract sealed class Node
                 public String getName() {
                     return "cache";
                 }
-            };
+            });
         }
         return p;
     }
