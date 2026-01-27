@@ -411,8 +411,19 @@ import com.sun.scenario.effect.EffectHelper;
  */
 @IDProperty("id")
 public abstract sealed class Node
-        implements EventTarget, Styleable
-        permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D {
+    implements EventTarget, Styleable
+    permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D
+{
+    private static final double DEFAULT_VIEW_ORDER = 0;
+    private static final boolean DEFAULT_CACHE = false;
+    private static final CacheHint DEFAULT_CACHE_HINT = CacheHint.DEFAULT;
+    private static final Node DEFAULT_CLIP = null;
+    private static final Cursor DEFAULT_CURSOR = null;
+    private static final DepthTest DEFAULT_DEPTH_TEST = DepthTest.INHERIT;
+    private static final boolean DEFAULT_DISABLE = false;
+    private static final Effect DEFAULT_EFFECT = null;
+    private static final InputMethodRequests DEFAULT_INPUT_METHOD_REQUESTS = null;
+    private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
     private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<>();
@@ -2147,8 +2158,8 @@ public abstract sealed class Node
     }
 
     public final boolean isDisable() {
-        return (miscProperties == null) ? DEFAULT_DISABLE
-                                        : miscProperties.isDisable();
+        BooleanProperty p = props.get(K_DISABLE);
+        return (p == null) ? DEFAULT_DISABLE : p.get();
     }
 
     /**
@@ -2165,9 +2176,27 @@ public abstract sealed class Node
      * @defaultValue false
      */
     public final BooleanProperty disableProperty() {
-        return getMiscProperties().disableProperty();
-    }
+        BooleanProperty p = props.get(K_DISABLE);
+        if (p == null) {
+            p = props.init(K_DISABLE, () -> new BooleanPropertyBase(DEFAULT_DISABLE) {
+                @Override
+                protected void invalidated() {
+                    updateDisabled();
+                }
 
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "disable";
+                }
+            });
+        }
+        return p;
+    }
 
 //    /**
 //     * TODO document - null by default, could be non-null in subclasses (e.g. Control)
@@ -7168,20 +7197,7 @@ public abstract sealed class Node
         return miscProperties;
     }
 
-    private static final double DEFAULT_VIEW_ORDER = 0;
-    private static final boolean DEFAULT_CACHE = false;
-    private static final CacheHint DEFAULT_CACHE_HINT = CacheHint.DEFAULT;
-    private static final Node DEFAULT_CLIP = null;
-    private static final Cursor DEFAULT_CURSOR = null;
-    private static final DepthTest DEFAULT_DEPTH_TEST = DepthTest.INHERIT;
-    private static final boolean DEFAULT_DISABLE = false;
-    private static final Effect DEFAULT_EFFECT = null;
-    private static final InputMethodRequests DEFAULT_INPUT_METHOD_REQUESTS =
-            null;
-    private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
-
     private final class MiscProperties {
-        private BooleanProperty disable;
         private ObjectProperty<InputMethodRequests> inputMethodRequests;
         private BooleanProperty mouseTransparent;
         private DoubleProperty viewOrder;
@@ -7226,32 +7242,6 @@ public abstract sealed class Node
 
         public final Bounds getBoundsInParent() {
             return boundsInParentProperty().get();
-        }
-
-        public final boolean isDisable() {
-            return (disable == null) ? DEFAULT_DISABLE : disable.get();
-        }
-
-        public final BooleanProperty disableProperty() {
-            if (disable == null) {
-                disable = new BooleanPropertyBase(DEFAULT_DISABLE) {
-                    @Override
-                    protected void invalidated() {
-                        updateDisabled();
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "disable";
-                    }
-                };
-            }
-            return disable;
         }
 
         public final InputMethodRequests getInputMethodRequests() {
