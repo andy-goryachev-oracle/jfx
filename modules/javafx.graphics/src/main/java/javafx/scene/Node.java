@@ -1775,8 +1775,8 @@ public abstract sealed class Node
     }
 
     public final boolean isCache() {
-        return (miscProperties == null) ? DEFAULT_CACHE
-                                        : miscProperties.isCache();
+        BooleanProperty p = props.get(K_CACHE);
+        return (p == null) ? DEFAULT_CACHE : p.get();
     }
 
     /**
@@ -1802,7 +1802,26 @@ public abstract sealed class Node
      * @defaultValue false
      */
     public final BooleanProperty cacheProperty() {
-        return getMiscProperties().cacheProperty();
+        BooleanProperty p = props.get(K_CACHE);
+        if (p == null) {
+            p = new BooleanPropertyBase(DEFAULT_CACHE) {
+                @Override
+                protected void invalidated() {
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "cache";
+                }
+            };
+        }
+        return p;
     }
 
     public final void setCacheHint(CacheHint value) {
@@ -1810,8 +1829,8 @@ public abstract sealed class Node
     }
 
     public final CacheHint getCacheHint() {
-        return (miscProperties == null) ? DEFAULT_CACHE_HINT
-                                        : miscProperties.getCacheHint();
+        ObjectProperty<CacheHint> p = props.get(K_CACHE_HINT);
+        return (p == null) ? DEFAULT_CACHE_HINT : p.get();
     }
 
     /**
@@ -1863,7 +1882,26 @@ public abstract sealed class Node
      * @defaultValue CacheHint.DEFAULT
      */
     public final ObjectProperty<CacheHint> cacheHintProperty() {
-        return getMiscProperties().cacheHintProperty();
+        ObjectProperty<CacheHint> p = props.get(K_CACHE_HINT);
+        if (p == null) {
+            p = props.init(K_CACHE_HINT, () -> new ObjectPropertyBase<CacheHint>(DEFAULT_CACHE_HINT) {
+                @Override
+                protected void invalidated() {
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "cacheHint";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setEffect(Effect value) {
@@ -7017,8 +7055,6 @@ public abstract sealed class Node
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     private final class MiscProperties {
-        private BooleanProperty cache;
-        private ObjectProperty<CacheHint> cacheHint;
         private ObjectProperty<Cursor> cursor;
         private ObjectProperty<DepthTest> depthTest;
         private BooleanProperty disable;
@@ -7067,60 +7103,6 @@ public abstract sealed class Node
 
         public final Bounds getBoundsInParent() {
             return boundsInParentProperty().get();
-        }
-
-        public final boolean isCache() {
-            return (cache == null) ? DEFAULT_CACHE
-                                   : cache.get();
-        }
-
-        public final BooleanProperty cacheProperty() {
-            if (cache == null) {
-                cache = new BooleanPropertyBase(DEFAULT_CACHE) {
-                    @Override
-                    protected void invalidated() {
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "cache";
-                    }
-                };
-            }
-            return cache;
-        }
-
-        public final CacheHint getCacheHint() {
-            return (cacheHint == null) ? DEFAULT_CACHE_HINT
-                                       : cacheHint.get();
-        }
-
-        public final ObjectProperty<CacheHint> cacheHintProperty() {
-            if (cacheHint == null) {
-                cacheHint = new ObjectPropertyBase<CacheHint>(DEFAULT_CACHE_HINT) {
-                    @Override
-                    protected void invalidated() {
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "cacheHint";
-                    }
-                };
-            }
-            return cacheHint;
         }
 
         public final Cursor getCursor() {
