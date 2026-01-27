@@ -26,8 +26,15 @@
 package javafx.scene;
 
 
-import com.sun.javafx.geometry.BoundsUtils;
-import com.sun.javafx.scene.traversal.TraversalMethod;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -59,6 +66,8 @@ import javafx.collections.ObservableSet;
 import javafx.css.CssMetaData;
 import javafx.css.ParsedValue;
 import javafx.css.PseudoClass;
+import javafx.css.Selector;
+import javafx.css.Style;
 import javafx.css.StyleConverter;
 import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
@@ -66,6 +75,11 @@ import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.BooleanConverter;
+import javafx.css.converter.CursorConverter;
+import javafx.css.converter.EffectConverter;
+import javafx.css.converter.EnumConverter;
+import javafx.css.converter.SizeConverter;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -101,27 +115,14 @@ import javafx.scene.input.TouchEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.shape.Shape;
+import javafx.scene.shape.Shape3D;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.stage.Window;
 import javafx.util.Callback;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.sun.glass.ui.Accessible;
 import com.sun.glass.ui.Application;
-import com.sun.javafx.util.Logging;
-import com.sun.javafx.util.TempState;
-import com.sun.javafx.util.Utils;
 import com.sun.javafx.beans.IDProperty;
 import com.sun.javafx.beans.event.AbstractNotifyListener;
 import com.sun.javafx.collections.TrackableObservableList;
@@ -132,13 +133,6 @@ import com.sun.javafx.css.TransitionDefinitionConverter;
 import com.sun.javafx.css.TransitionDefinitionCssMetaData;
 import com.sun.javafx.css.TransitionTimer;
 import com.sun.javafx.css.media.MediaQueryContext;
-import javafx.css.Selector;
-import javafx.css.Style;
-import javafx.css.converter.BooleanConverter;
-import javafx.css.converter.CursorConverter;
-import javafx.css.converter.EffectConverter;
-import javafx.css.converter.EnumConverter;
-import javafx.css.converter.SizeConverter;
 import com.sun.javafx.effect.EffectDirtyBits;
 import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.BoxBounds;
@@ -149,6 +143,9 @@ import com.sun.javafx.geom.transform.Affine3D;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.javafx.geom.transform.GeneralTransform3D;
 import com.sun.javafx.geom.transform.NoninvertibleTransformException;
+import com.sun.javafx.geometry.BoundsUtils;
+import com.sun.javafx.logging.PlatformLogger;
+import com.sun.javafx.logging.PlatformLogger.Level;
 import com.sun.javafx.perf.PerformanceTracker;
 import com.sun.javafx.scene.AbstractNode;
 import com.sun.javafx.scene.BoundsAccessor;
@@ -165,14 +162,16 @@ import com.sun.javafx.scene.input.PickResultChooser;
 import com.sun.javafx.scene.transform.TransformHelper;
 import com.sun.javafx.scene.transform.TransformUtils;
 import com.sun.javafx.scene.traversal.Direction;
+import com.sun.javafx.scene.traversal.TraversalMethod;
 import com.sun.javafx.sg.prism.NGNode;
 import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.util.FastMap;
+import com.sun.javafx.util.Logging;
+import com.sun.javafx.util.PKey;
+import com.sun.javafx.util.TempState;
+import com.sun.javafx.util.Utils;
 import com.sun.prism.impl.PrismSettings;
 import com.sun.scenario.effect.EffectHelper;
-
-import javafx.scene.shape.Shape3D;
-import com.sun.javafx.logging.PlatformLogger;
-import com.sun.javafx.logging.PlatformLogger.Level;
 
 /**
  * Base class for scene graph nodes. A scene graph is a set of tree data structures
@@ -414,6 +413,10 @@ import com.sun.javafx.logging.PlatformLogger.Level;
 public abstract sealed class Node
         implements EventTarget, Styleable
         permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D {
+
+    private static final PKey<ObjectProperty<Node>> K_CLIP = new PKey<>();
+    // TODO
+    private final FastMap props = new FastMap();
 
     /*
      * Store the singleton instance of the NodeHelper subclass corresponding
@@ -1640,8 +1643,8 @@ public abstract sealed class Node
     }
 
     public final Node getClip() {
-        return (miscProperties == null) ? DEFAULT_CLIP
-                                        : miscProperties.getClip();
+        ObjectProperty<Node> p = props.get(K_CLIP);
+        return (p == null) ? DEFAULT_CLIP : p.get();
     }
 
     /**
@@ -1674,7 +1677,83 @@ public abstract sealed class Node
      * @defaultValue null
      */
     public final ObjectProperty<Node> clipProperty() {
-        return getMiscProperties().clipProperty();
+        ObjectProperty<Node> p = props.get(K_CLIP);
+        if (p == null) {
+            p = props.init(K_CLIP, () -> new ObjectPropertyBase<Node>(DEFAULT_CLIP) {
+
+                //temp variables used when clip was invalid to rollback to
+                // last value
+                private Node oldClip;
+
+                @Override
+                protected void invalidated() {
+                    final Node newClip = get();
+                    if ((newClip != null)
+                            && ((newClip.isConnected()
+                                       && newClip.clipParent != Node.this)
+                                   || wouldCreateCycle(Node.this,
+                                                       newClip))) {
+                        // Assigning this node to clip is illegal.
+                        // Roll back to the previous state and throw an
+                        // exception.
+                        final String cause =
+                                newClip.isConnected()
+                                    && (newClip.clipParent != Node.this)
+                                        ? "node already connected"
+                                        : "cycle detected";
+
+                        if (isBound()) {
+                            unbind();
+                            set(oldClip);
+                            throw new IllegalArgumentException(
+                                    "Node's clip set to incorrect value "
+                                        + " through binding"
+                                        + " (" + cause + ", node  = "
+                                               + Node.this + ", clip = "
+                                               + this + ")."
+                                        + " Binding has been removed.");
+                        } else {
+                            set(oldClip);
+                            throw new IllegalArgumentException(
+                                    "Node's clip set to incorrect value"
+                                        + " (" + cause + ", node  = "
+                                               + Node.this + ", clip = "
+                                               + this + ").");
+                        }
+                    } else {
+                        if (oldClip != null) {
+                            oldClip.clipParent = null;
+                            oldClip.setScenes(null, null);
+                            oldClip.updateTreeVisible(false);
+                        }
+
+                        if (newClip != null) {
+                            newClip.clipParent = Node.this;
+                            newClip.setScenes(getScene(), getSubScene());
+                            newClip.updateTreeVisible(true);
+                        }
+
+                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_CLIP);
+
+                        // the local bounds have (probably) changed
+                        localBoundsChanged();
+
+                        oldClip = newClip;
+                    }
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "clip";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setCache(boolean value) {
@@ -6867,7 +6946,6 @@ public abstract sealed class Node
         private LazyBoundsProperty boundsInLocal;
         private BooleanProperty cache;
         private ObjectProperty<CacheHint> cacheHint;
-        private ObjectProperty<Node> clip;
         private ObjectProperty<Cursor> cursor;
         private ObjectProperty<DepthTest> depthTest;
         private BooleanProperty disable;
@@ -7057,89 +7135,6 @@ public abstract sealed class Node
                 };
             }
             return cacheHint;
-        }
-
-        public final Node getClip() {
-            return (clip == null) ? DEFAULT_CLIP : clip.get();
-        }
-
-        public final ObjectProperty<Node> clipProperty() {
-            if (clip == null) {
-                clip = new ObjectPropertyBase<Node>(DEFAULT_CLIP) {
-
-                    //temp variables used when clip was invalid to rollback to
-                    // last value
-                    private Node oldClip;
-
-                    @Override
-                    protected void invalidated() {
-                        final Node newClip = get();
-                        if ((newClip != null)
-                                && ((newClip.isConnected()
-                                           && newClip.clipParent != Node.this)
-                                       || wouldCreateCycle(Node.this,
-                                                           newClip))) {
-                            // Assigning this node to clip is illegal.
-                            // Roll back to the previous state and throw an
-                            // exception.
-                            final String cause =
-                                    newClip.isConnected()
-                                        && (newClip.clipParent != Node.this)
-                                            ? "node already connected"
-                                            : "cycle detected";
-
-                            if (isBound()) {
-                                unbind();
-                                set(oldClip);
-                                throw new IllegalArgumentException(
-                                        "Node's clip set to incorrect value "
-                                            + " through binding"
-                                            + " (" + cause + ", node  = "
-                                                   + Node.this + ", clip = "
-                                                   + clip + ")."
-                                            + " Binding has been removed.");
-                            } else {
-                                set(oldClip);
-                                throw new IllegalArgumentException(
-                                        "Node's clip set to incorrect value"
-                                            + " (" + cause + ", node  = "
-                                                   + Node.this + ", clip = "
-                                                   + clip + ").");
-                            }
-                        } else {
-                            if (oldClip != null) {
-                                oldClip.clipParent = null;
-                                oldClip.setScenes(null, null);
-                                oldClip.updateTreeVisible(false);
-                            }
-
-                            if (newClip != null) {
-                                newClip.clipParent = Node.this;
-                                newClip.setScenes(getScene(), getSubScene());
-                                newClip.updateTreeVisible(true);
-                            }
-
-                            NodeHelper.markDirty(Node.this, DirtyBits.NODE_CLIP);
-
-                            // the local bounds have (probably) changed
-                            localBoundsChanged();
-
-                            oldClip = newClip;
-                        }
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "clip";
-                    }
-                };
-            }
-            return clip;
         }
 
         public final Cursor getCursor() {
