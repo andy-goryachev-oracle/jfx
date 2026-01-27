@@ -25,7 +25,6 @@
 
 package javafx.scene;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7198,7 +7197,6 @@ public abstract sealed class Node
     }
 
     private final class MiscProperties {
-        private ObjectProperty<InputMethodRequests> inputMethodRequests;
         private BooleanProperty mouseTransparent;
         private DoubleProperty viewOrder;
         private TransitionTimerCollection transitionTimers;
@@ -7238,27 +7236,6 @@ public abstract sealed class Node
                 };
             }
             return viewOrder;
-        }
-
-        public final Bounds getBoundsInParent() {
-            return boundsInParentProperty().get();
-        }
-
-        public final InputMethodRequests getInputMethodRequests() {
-            return (inputMethodRequests == null) ? DEFAULT_INPUT_METHOD_REQUESTS
-                                                 : inputMethodRequests.get();
-        }
-
-        public ObjectProperty<InputMethodRequests>
-                inputMethodRequestsProperty() {
-            if (inputMethodRequests == null) {
-                inputMethodRequests =
-                        new SimpleObjectProperty<>(
-                                Node.this,
-                                "inputMethodRequests",
-                                DEFAULT_INPUT_METHOD_REQUESTS);
-            }
-            return inputMethodRequests;
         }
 
         public final boolean isMouseTransparent() {
@@ -8186,9 +8163,8 @@ public abstract sealed class Node
     }
 
     public final InputMethodRequests getInputMethodRequests() {
-        return (miscProperties == null)
-                       ? DEFAULT_INPUT_METHOD_REQUESTS
-                       : miscProperties.getInputMethodRequests();
+        ObjectProperty<InputMethodRequests> p = props.get(K_INPUT_METHOD_REQUESTS);
+        return (p == null) ? DEFAULT_INPUT_METHOD_REQUESTS : p.get();
     }
 
     /**
@@ -8197,8 +8173,16 @@ public abstract sealed class Node
      * @return InputMethodRequestsProperty
      */
     public final ObjectProperty<InputMethodRequests> inputMethodRequestsProperty() {
-        return getMiscProperties().inputMethodRequestsProperty();
+        ObjectProperty<InputMethodRequests> p = props.get(K_INPUT_METHOD_REQUESTS);
+        if (p == null) {
+            p = props.init(K_INPUT_METHOD_REQUESTS, () -> new SimpleObjectProperty<>(
+                Node.this,
+                "inputMethodRequests",
+                DEFAULT_INPUT_METHOD_REQUESTS));
+        }
+        return p;
     }
+
 
     /* *************************************************************************
      *                                                                         *
