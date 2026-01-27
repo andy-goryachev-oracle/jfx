@@ -1522,8 +1522,8 @@ public abstract sealed class Node
     }
 
     public final Cursor getCursor() {
-        return (miscProperties == null) ? DEFAULT_CURSOR
-                                        : miscProperties.getCursor();
+        ObjectProperty<Cursor> p = props.get(K_CURSOR);
+        return (p == null) ? DEFAULT_CURSOR : p.get();
     }
 
     /**
@@ -1536,7 +1536,40 @@ public abstract sealed class Node
      * @defaultValue null
      */
     public final ObjectProperty<Cursor> cursorProperty() {
-        return getMiscProperties().cursorProperty();
+        ObjectProperty<Cursor> p = props.get(K_CURSOR);
+        if (p == null) {
+            p = new StyleableObjectProperty<Cursor>(DEFAULT_CURSOR) {
+
+                @Override
+                protected void invalidated() {
+                    final Scene sceneValue = getScene();
+                    if (sceneValue != null) {
+                        sceneValue.markCursorDirty();
+                    }
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.CURSOR;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "cursor";
+                }
+            };
+        }
+        return p;
+    }
+    
+    public boolean isCursorSettable() {
+        ObjectProperty<Cursor> p = props.get(K_CURSOR);
+        return (p == null) || !p.isBound();
     }
 
     /**
@@ -7055,7 +7088,6 @@ public abstract sealed class Node
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     private final class MiscProperties {
-        private ObjectProperty<Cursor> cursor;
         private ObjectProperty<DepthTest> depthTest;
         private BooleanProperty disable;
         private ObjectProperty<Effect> effect;
@@ -7103,42 +7135,6 @@ public abstract sealed class Node
 
         public final Bounds getBoundsInParent() {
             return boundsInParentProperty().get();
-        }
-
-        public final Cursor getCursor() {
-            return (cursor == null) ? DEFAULT_CURSOR : cursor.get();
-        }
-
-        public final ObjectProperty<Cursor> cursorProperty() {
-            if (cursor == null) {
-                cursor = new StyleableObjectProperty<Cursor>(DEFAULT_CURSOR) {
-
-                    @Override
-                    protected void invalidated() {
-                        final Scene sceneValue = getScene();
-                        if (sceneValue != null) {
-                            sceneValue.markCursorDirty();
-                        }
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.CURSOR;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "cursor";
-                    }
-
-                };
-            }
-            return cursor;
         }
 
         public final DepthTest getDepthTest() {
@@ -7301,10 +7297,6 @@ public abstract sealed class Node
                                 DEFAULT_MOUSE_TRANSPARENT);
             }
             return mouseTransparent;
-        }
-
-        public boolean canSetCursor() {
-            return (cursor == null) || !cursor.isBound();
         }
 
         public boolean canSetEffect() {
@@ -9427,7 +9419,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.miscProperties == null || node.miscProperties.canSetCursor();
+                    return node.isCursorSettable();
                 }
 
                 @Override
@@ -9441,7 +9433,6 @@ public abstract sealed class Node
                     // Give a way to have them return the correct default value.
                     return node.getInitialCursor();
                 }
-
             };
         private static final CssMetaData<Node,Effect> EFFECT =
             new CssMetaData<>("-fx-effect", EffectConverter.getInstance()) {
