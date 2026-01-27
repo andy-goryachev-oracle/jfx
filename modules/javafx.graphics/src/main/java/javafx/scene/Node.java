@@ -1567,7 +1567,7 @@ public abstract sealed class Node
         return p;
     }
     
-    public boolean isCursorSettable() {
+    private boolean isCursorSettable() {
         ObjectProperty<Cursor> p = props.get(K_CURSOR);
         return (p == null) || !p.isBound();
     }
@@ -2047,8 +2047,8 @@ public abstract sealed class Node
     }
 
     public final DepthTest getDepthTest() {
-        return (miscProperties == null) ? DEFAULT_DEPTH_TEST
-                                        : miscProperties.getDepthTest();
+        ObjectProperty<DepthTest> p = props.get(K_DEPTH_TEST);
+        return (p == null) ? DEFAULT_DEPTH_TEST : p.get();
     }
 
     /**
@@ -2082,7 +2082,25 @@ public abstract sealed class Node
      * @defaultValue INHERIT
      */
     public final ObjectProperty<DepthTest> depthTestProperty() {
-        return getMiscProperties().depthTestProperty();
+        ObjectProperty<DepthTest> p = props.get(K_DEPTH_TEST);
+        if (p == null) {
+            p = props.init(K_DEPTH_TEST, () -> new ObjectPropertyBase<DepthTest>(DEFAULT_DEPTH_TEST) {
+                @Override protected void invalidated() {
+                    computeDerivedDepthTest();
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "depthTest";
+                }
+            });
+        }
+        return p;
     }
 
     /**
@@ -7163,7 +7181,6 @@ public abstract sealed class Node
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     private final class MiscProperties {
-        private ObjectProperty<DepthTest> depthTest;
         private BooleanProperty disable;
         private ObjectProperty<InputMethodRequests> inputMethodRequests;
         private BooleanProperty mouseTransparent;
@@ -7209,32 +7226,6 @@ public abstract sealed class Node
 
         public final Bounds getBoundsInParent() {
             return boundsInParentProperty().get();
-        }
-
-        public final DepthTest getDepthTest() {
-            return (depthTest == null) ? DEFAULT_DEPTH_TEST
-                                       : depthTest.get();
-        }
-
-        public final ObjectProperty<DepthTest> depthTestProperty() {
-            if (depthTest == null) {
-                depthTest = new ObjectPropertyBase<DepthTest>(DEFAULT_DEPTH_TEST) {
-                    @Override protected void invalidated() {
-                        computeDerivedDepthTest();
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "depthTest";
-                    }
-                };
-            }
-            return depthTest;
         }
 
         public final boolean isDisable() {
