@@ -435,6 +435,7 @@ public abstract sealed class Node
     private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
     private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
+    private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
@@ -6922,7 +6923,6 @@ public abstract sealed class Node
      * @defaultValue {@code NodeOrientation.INHERIT}
      * @since JavaFX 8.0
      */
-    private ObjectProperty<NodeOrientation> nodeOrientation;
     private EffectiveOrientationProperty effectiveNodeOrientationProperty;
 
     private static final byte EFFECTIVE_ORIENTATION_LTR = 0;
@@ -6947,12 +6947,14 @@ public abstract sealed class Node
     }
 
     public final NodeOrientation getNodeOrientation() {
-        return nodeOrientation == null ? NodeOrientation.INHERIT : nodeOrientation.get();
+        ObjectProperty<NodeOrientation> p = props.get(K_NODE_ORIENTATION);
+        return p == null ? NodeOrientation.INHERIT : p.get();
     }
 
     public final ObjectProperty<NodeOrientation> nodeOrientationProperty() {
-        if (nodeOrientation == null) {
-            nodeOrientation = new StyleableObjectProperty<NodeOrientation>(NodeOrientation.INHERIT) {
+        ObjectProperty<NodeOrientation> p = props.get(K_NODE_ORIENTATION);
+        if (p == null) {
+            p = props.init(K_NODE_ORIENTATION, () -> new StyleableObjectProperty<NodeOrientation>(NodeOrientation.INHERIT) {
                 @Override
                 protected void invalidated() {
                     nodeResolvedOrientationInvalidated();
@@ -6973,10 +6975,9 @@ public abstract sealed class Node
                     //TODO - not supported
                     throw new UnsupportedOperationException("Not supported yet.");
                 }
-
-            };
+            });
         }
-        return nodeOrientation;
+        return p;
     }
 
     public final NodeOrientation getEffectiveNodeOrientation() {
