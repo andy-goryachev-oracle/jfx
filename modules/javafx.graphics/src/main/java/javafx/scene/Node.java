@@ -431,14 +431,14 @@ public abstract sealed class Node
     private static final PKey<ObjectProperty<CacheHint>> K_CACHE_HINT = new PKey<>();
     private static final PKey<ObjectProperty<Node>> K_CLIP = new PKey<>();
     private static final PKey<ObjectProperty<Cursor>> K_CURSOR = new PKey<>();
-    private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<ObjectProperty<DepthTest>> K_DEPTH_TEST = new PKey<>();
     private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
     private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
-    private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
+    private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
+    private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
     // TODO
     private final FastMap props = new FastMap();
 
@@ -698,7 +698,11 @@ public abstract sealed class Node
 
             @Override
             public StyleableProperty<TransitionDefinition[]> getTransitionProperty(Node node) {
-                return node.getTransitionDefinitions();
+                TransitionDefinitionCollection p = node.getTransitionDefinitions();
+                if (p == null) {
+                    p = node.props.init(K_TRANSITIONS_DEFINITIONS, TransitionDefinitionCollection::new);
+                }
+                return p;
             }
 
             @Override
@@ -9045,7 +9049,11 @@ public abstract sealed class Node
      * @param timer the transition timer
      */
     private void addTransitionTimer(String propertyName, TransitionTimer timer) {
-        getTransitionTimers().put(propertyName, timer);
+        TransitionTimerCollection p = getTransitionTimers();
+        if (p == null) {
+            p = props.init(K_TRANSITION_TIMERS, TransitionTimerCollection::new);
+        }
+        p.put(propertyName, timer);
     }
 
     /**
