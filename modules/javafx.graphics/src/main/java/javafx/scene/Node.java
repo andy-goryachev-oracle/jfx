@@ -7232,10 +7232,7 @@ public abstract sealed class Node
     }
 
     private final class MiscProperties {
-        private TransitionTimerCollection transitionTimers;
         private TransitionDefinitionCollection transitionDefinitions;
-
-
     }
 
     /* *************************************************************************
@@ -9073,13 +9070,7 @@ public abstract sealed class Node
      * @param timer the transition timer
      */
     private void addTransitionTimer(String propertyName, TransitionTimer timer) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
-        if (transitionTimers == null) {
-            transitionTimers = new TransitionTimerCollection();
-            getMiscProperties().transitionTimers = transitionTimers;
-        }
-
-        transitionTimers.put(propertyName, timer);
+        getTransitionTimers().put(propertyName, timer);
     }
 
     /**
@@ -9090,12 +9081,12 @@ public abstract sealed class Node
      * @param propertyName the CSS name of the targeted property
      */
     private void removeTransitionTimer(String propertyName) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         if (transitionTimers != null) {
             transitionTimers.remove(propertyName);
 
             if (transitionTimers.isEmpty()) {
-                miscProperties.transitionTimers = null;
+                props.remove(K_TRANSITION_TIMERS);
             }
         }
     }
@@ -9108,7 +9099,7 @@ public abstract sealed class Node
      *         targeted by a transition timer
      */
     private TransitionTimer findTransitionTimer(String propertyName) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         return transitionTimers != null ? transitionTimers.get(propertyName) : null;
     }
 
@@ -9120,7 +9111,7 @@ public abstract sealed class Node
      *         property is not targeted by any transition timers
      */
     private Map<String, TransitionTimer> findTransitionTimers(StyleableProperty<?> property) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         return transitionTimers != null ? transitionTimers.getAll(property) : Map.of();
     }
 
@@ -9130,7 +9121,7 @@ public abstract sealed class Node
      */
     // package-private for testing
     void completeTransitionTimers() {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         if (transitionTimers == null || transitionTimers.isEmpty()) {
             return;
         }
@@ -9143,8 +9134,8 @@ public abstract sealed class Node
     }
 
     // package-private for testing
-    Map<String, TransitionTimer> getTransitionTimers() {
-        return miscProperties != null ? miscProperties.transitionTimers : null;
+    TransitionTimerCollection getTransitionTimers() {
+        return props.get(K_TRANSITION_TIMERS);
     }
 
     /**
