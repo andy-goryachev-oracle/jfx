@@ -436,6 +436,8 @@ public abstract sealed class Node
     private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
     private static final PKey<ReadOnlyBooleanWrapper> K_DISABLED = new PKey<>();
     private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
+    private static final PKey<ReadOnlyBooleanWrapper> K_HOVER = new PKey<>();
+    private static final PKey<StringProperty> K_ID = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
@@ -1288,7 +1290,6 @@ public abstract sealed class Node
     void scenesChanged(final Scene newScene, final SubScene newSubScene,
                        final Scene oldScene, final SubScene oldSubScene) { }
 
-
     /**
      * The id of this {@code Node}. This simple string identifier is useful for
      * finding a specific Node within the scene graph. While the id of a Node
@@ -1300,37 +1301,15 @@ public abstract sealed class Node
      *     be used to find this node as follows: <code>scene.lookup("#myId");</code>.
      * </p>
      *
-     * @defaultValue null
-     * @see <a href="doc-files/cssref.html">CSS Reference Guide</a>.
-     */
-    private StringProperty id;
-
-    public final void setId(String value) {
-        idProperty().set(value);
-    }
-
-    //TODO: this is copied from the property in order to add the @return statement.
-    //      We should have a better, general solution without the need to copy it.
-    /**
-     * The id of this {@code Node}. This simple string identifier is useful for
-     * finding a specific Node within the scene graph. While the id of a Node
-     * should be unique within the scene graph, this uniqueness is not enforced.
-     * This is analogous to the "id" attribute on an HTML element
-     * (<a href="http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier">CSS ID Specification</a>).
-     *
      * @return the id assigned to this {@code Node} using the {@code setId}
      *         method or {@code null}, if no id has been assigned.
      * @defaultValue null
      * @see <a href="doc-files/cssref.html">CSS Reference Guide</a>
      */
-    @Override
-    public final String getId() {
-        return id == null ? null : id.get();
-    }
-
     public final StringProperty idProperty() {
-        if (id == null) {
-            id = new StringPropertyBase() {
+        StringProperty p = props.get(K_ID);
+        if (p == null) {
+            p = props.init(K_ID, () -> new StringPropertyBase() {
 
                 @Override
                 protected void invalidated() {
@@ -1349,9 +1328,19 @@ public abstract sealed class Node
                 public String getName() {
                     return "id";
                 }
-            };
+            });
         }
-        return id;
+        return p;
+    }
+    
+    public final void setId(String value) {
+        idProperty().set(value);
+    }
+
+    @Override
+    public final String getId() {
+        StringProperty p = props.get(K_ID);
+        return p == null ? null : p.get();
     }
 
     /**
@@ -7278,25 +7267,17 @@ public abstract sealed class Node
      * have a mouse. Future implementations may provide alternative means of
      * supporting hover.
      *
+     * @return the hover value for this {@code Node}
      * @defaultValue false
      */
-    private ReadOnlyBooleanWrapper hover;
-
-    protected final void setHover(boolean value) {
-        hoverPropertyImpl().set(value);
-    }
-
-    public final boolean isHover() {
-        return hover == null ? false : hover.get();
-    }
-
     public final ReadOnlyBooleanProperty hoverProperty() {
         return hoverPropertyImpl().getReadOnlyProperty();
     }
 
     private ReadOnlyBooleanWrapper hoverPropertyImpl() {
-        if (hover == null) {
-            hover = new ReadOnlyBooleanWrapper() {
+        ReadOnlyBooleanWrapper p = props.get(K_HOVER);
+        if (p == null) {
+            p = props.init(K_HOVER, () -> new ReadOnlyBooleanWrapper() {
 
                 @Override
                 protected void invalidated() {
@@ -7316,9 +7297,18 @@ public abstract sealed class Node
                 public String getName() {
                     return "hover";
                 }
-            };
+            });
         }
-        return hover;
+        return p;
+    }
+
+    protected final void setHover(boolean value) {
+        hoverPropertyImpl().set(value);
+    }
+
+    public final boolean isHover() {
+        ReadOnlyBooleanWrapper p = props.get(K_HOVER);
+        return p == null ? false : p.get();
     }
 
     /**
@@ -8559,7 +8549,7 @@ public abstract sealed class Node
         String klassName = getClass().getName();
         String simpleName = klassName.substring(klassName.lastIndexOf('.')+1);
         StringBuilder sbuf = new StringBuilder(simpleName);
-        boolean hasId = id != null && !"".equals(getId());
+        boolean hasId = (props.get(K_ID) != null) && !"".equals(getId());
         boolean hasStyleClass = !getStyleClass().isEmpty();
 
         if (!hasId) {
