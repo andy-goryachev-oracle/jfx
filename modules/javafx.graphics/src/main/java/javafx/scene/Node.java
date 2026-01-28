@@ -7232,25 +7232,10 @@ public abstract sealed class Node
     }
 
     private final class MiscProperties {
-        private BooleanProperty mouseTransparent;
         private TransitionTimerCollection transitionTimers;
         private TransitionDefinitionCollection transitionDefinitions;
 
-        public final boolean isMouseTransparent() {
-            return (mouseTransparent == null) ? DEFAULT_MOUSE_TRANSPARENT
-                                              : mouseTransparent.get();
-        }
 
-        public final BooleanProperty mouseTransparentProperty() {
-            if (mouseTransparent == null) {
-                mouseTransparent =
-                        new SimpleBooleanProperty(
-                                Node.this,
-                                "mouseTransparent",
-                                DEFAULT_MOUSE_TRANSPARENT);
-            }
-            return mouseTransparent;
-        }
     }
 
     /* *************************************************************************
@@ -7264,8 +7249,8 @@ public abstract sealed class Node
     }
 
     public final boolean isMouseTransparent() {
-        return (miscProperties == null) ? DEFAULT_MOUSE_TRANSPARENT
-                                        : miscProperties.isMouseTransparent();
+        BooleanProperty p = props.get(K_MOUSE_TRANSPARENT);
+        return (p == null) ? DEFAULT_MOUSE_TRANSPARENT : p.get();
     }
 
     /**
@@ -7277,7 +7262,14 @@ public abstract sealed class Node
      * transparent to mouse events.
      */
     public final BooleanProperty mouseTransparentProperty() {
-        return getMiscProperties().mouseTransparentProperty();
+        BooleanProperty p = props.get(K_MOUSE_TRANSPARENT);
+        if (p == null) {
+            p = props.init(K_MOUSE_TRANSPARENT, () -> new SimpleBooleanProperty(
+                Node.this,
+                "mouseTransparent",
+                DEFAULT_MOUSE_TRANSPARENT));
+        }
+        return p;
     }
 
     /**
