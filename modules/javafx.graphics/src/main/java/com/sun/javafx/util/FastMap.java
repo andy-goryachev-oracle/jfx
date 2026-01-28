@@ -28,7 +28,12 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 /**
- * TODO
+ * This map-like object holds properties that are lazily created
+ * by the Node class and its descendants (Region, etc.).
+ * The main idea behind it is that on average, very few of these properties are instantiated,
+ * so by placing these properties into an elastic map we could save some memory.
+ * The lookup here is implemented by a super-fast == comparison, so every PKey must be
+ * statically declared.
  */
 public class FastMap {
     private final ArrayList<PKey<?>> keys;
@@ -74,5 +79,9 @@ public class FastMap {
             keys.remove(ix);
             values.remove(ix);
         }
+    }
+
+    public int size() {
+        return keys.size();
     }
 }
