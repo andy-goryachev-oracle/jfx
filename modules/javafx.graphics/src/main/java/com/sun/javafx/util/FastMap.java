@@ -28,7 +28,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -41,22 +44,23 @@ import javafx.util.Duration;
  * by the Node class and its descendants (Region, etc.).
  * The main idea behind it is that on average, very few of these properties are instantiated,
  * so by placing these properties into an elastic map we could save some memory.
- * The lookup here is implemented by a super-fast == comparison, so every PKey must be
+ * The lookup here is implemented by a super-fast '==' comparison, so every PKey must be
  * statically declared.
  */
 public class FastMap {
     private final int keyCount;
     private final ArrayList<PKey<?>> keys;
     private final ArrayList<Object> values;
+    private static HashMap<PKey<?>,String> keyNames = new HashMap<>();
+    private static HashMap<Class<?>,Integer> counts = new HashMap<>();
     private static WeakHashMap<FastMap,Object> all = new WeakHashMap(1000);
     static {
         init();
     }
 
     public FastMap(Node node) {
-        // TODO cache the info
         this.keyCount = countKeys(node);
-        int capacity = 4; // TODO compute from type
+        int capacity = 4;
         keys = new ArrayList<>(capacity);
         values = new ArrayList<>(capacity);
         all.put(this, null);
@@ -101,49 +105,111 @@ public class FastMap {
 
     private static void init() {
         Platform.runLater(() -> {
-            Timeline t = new Timeline(new KeyFrame(Duration.seconds(5), (ev) -> dump()));
-            //t.setDelay(Duration.seconds(5));
+            Timeline t = new Timeline(new KeyFrame(Duration.seconds(10), (ev) -> dump()));
+            t.setDelay(Duration.seconds(5));
             t.setCycleCount(Timeline.INDEFINITE);
             t.play();
         });
     }
 
     private static int countKeys(Node node) {
+        Class<?> cls = node.getClass();
+        String className = cls.getSimpleName();
+        Integer cached = counts.get(cls);
+        if(cached != null) {
+            return cached.intValue();
+        }
+
+        Class<?> c = cls;
         int count = 0;
-        Class<?> c = node.getClass();
         for (;;) {
             Field[] fs = c.getDeclaredFields();
             for (Field f : fs) {
                 if ((f.getType() == PKey.class) && Modifier.isStatic(f.getModifiers())) {
+                    // histogram needs the key name 
+                    String name = className + "." + f.getName();
+                    try {
+                        f.setAccessible(true);
+                        PKey k = (PKey)f.get(null);
+                        keyNames.put(k, name);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     count++;
                 }
             }
 
             if (c == Node.class) {
+                counts.put(cls, Integer.valueOf(count));
                 return count;
             }
             c = c.getSuperclass();
         }
     }
 
+    private static String getName(PKey k) {
+        String s = keyNames.get(k);
+        return (s == null) ? k.toString() : s;
+    }
+
     private static void dump() {
         int count = 0; // number of nodes
         int used = 0; // number of pointers actually used
         int max = 0; // max number of possible pointers
+        int top = 0; // largest map size
+        HashMap<PKey, AtomicInteger> hist = new HashMap<>();
         for (FastMap m : all.keySet()) {
             if (m != null) {
                 count++;
                 used += m.size();
                 max += m.keyCount;
+                if (m.size() > top) {
+                    top = m.size();
+                }
+
+                for (PKey k : m.keys) {
+                    AtomicInteger ct = hist.get(k);
+                    if (ct == null) {
+                        ct = new AtomicInteger(1);
+                        hist.put(k, ct);
+                    } else {
+                        ct.incrementAndGet();
+                    }
+                }
             }
         }
-
-        // TODO histogram of keys
 
         float ut = used / ((float)max);
         int sv = (max - used) * 8; // 64 bit pointers
         float av = used / (float)count;
-        String s = MessageFormat.format("Nodes={0} utilization={1} average={2} saved={3} bytes", count, ut, av, sv);
+        String s = MessageFormat.format("Nodes={0} utilization={1} average={2} top={3} saved={4} bytes", count, ut, av, top, sv);
         System.out.println(s);
+        System.out.println(histogram(hist));
+    }
+
+    private static String histogram(HashMap<PKey,AtomicInteger> h) {
+        record Entry(String name, int count) implements Comparable<Entry> {
+            @Override
+            public int compareTo(Entry x) {
+                return x.count - count;
+            }
+        }
+
+        ArrayList<Entry> hist = new ArrayList<>();
+        for(PKey k: h.keySet()) {
+            int ct = h.get(k).intValue();
+            String name = getName(k);
+            hist.add(new Entry(name, ct));
+        }
+        Collections.sort(hist);
+        StringBuilder sb = new StringBuilder();
+        for(Entry en: hist) {
+            sb.append("   ");
+            sb.append(en.name);
+            sb.append(": ");
+            sb.append(en.count);
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }
