@@ -24,6 +24,8 @@
  */
 package com.sun.javafx.util;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.WeakHashMap;
@@ -31,6 +33,7 @@ import java.util.function.Supplier;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.scene.Node;
 import javafx.util.Duration;
 
 /**
@@ -42,6 +45,7 @@ import javafx.util.Duration;
  * statically declared.
  */
 public class FastMap {
+    private final int keyCount;
     private final ArrayList<PKey<?>> keys;
     private final ArrayList<Object> values;
     private static WeakHashMap<FastMap,Object> all = new WeakHashMap(1000);
@@ -49,14 +53,13 @@ public class FastMap {
         init();
     }
 
-    public FastMap(int capacity) {
+    public FastMap(Node node) {
+        // TODO cache the info
+        this.keyCount = countKeys(node);
+        int capacity = 4; // TODO compute from type
         keys = new ArrayList<>(capacity);
         values = new ArrayList<>(capacity);
         all.put(this, null);
-    }
-
-    public FastMap() {
-        this(16);
     }
 
     public <T> T init(PKey<T> key, Supplier<T> generator) {
@@ -105,18 +108,40 @@ public class FastMap {
         });
     }
 
-    private static void dump() {
+    private static int countKeys(Node node) {
         int count = 0;
-        int used = 0;
-        for(FastMap m: all.keySet()) {
-            if(m != null) {
+        Class<?> c = node.getClass();
+        for (;;) {
+            Field[] fs = c.getDeclaredFields();
+            for (Field f : fs) {
+                if ((f.getType() == PKey.class) && Modifier.isStatic(f.getModifiers())) {
+                    count++;
+                }
+            }
+
+            if (c == Node.class) {
+                return count;
+            }
+            c = c.getSuperclass();
+        }
+    }
+
+    private static void dump() {
+        int count = 0; // number of nodes
+        int used = 0; // number of pointers actually used
+        int max = 0; // max number of possible pointers
+        for (FastMap m : all.keySet()) {
+            if (m != null) {
                 count++;
                 used += m.size();
+                max += m.keyCount;
             }
         }
-        int pkeys = 17; // number of Node.PKeys
-        float ut = used / ((float)pkeys * count);
-        int sv = ((pkeys * count) - used) * 8; // 64 bit pointers
+
+        // TODO histogram of keys
+
+        float ut = used / ((float)max);
+        int sv = (max - used) * 8; // 64 bit pointers
         float av = used / (float)count;
         String s = MessageFormat.format("Nodes={0} utilization={1} average={2} saved={3} bytes", count, ut, av, sv);
         System.out.println(s);
