@@ -442,6 +442,7 @@ public abstract sealed class Node
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
+    private static final PKey<BooleanProperty> K_VISIBLE = new PKey<>();
     // TODO
     private final FastMap props = new FastMap();
 
@@ -1477,21 +1478,13 @@ public abstract sealed class Node
      * keyboard focus and never maintain keyboard focus when they become
      * invisible.
      *
+     * @return whether this {@code Node} is visible
      * @defaultValue true
      */
-    private BooleanProperty visible;
-
-    public final void setVisible(boolean value) {
-        visibleProperty().set(value);
-    }
-
-    public final boolean isVisible() {
-        return visible == null ? true : visible.get();
-    }
-
     public final BooleanProperty visibleProperty() {
-        if (visible == null) {
-            visible = new StyleableBooleanProperty(true) {
+        BooleanProperty p = props.get(K_VISIBLE);
+        if (p == null) {
+            p = props.init(K_VISIBLE, () -> new StyleableBooleanProperty(true) {
                 boolean oldValue = true;
                 @Override
                 protected void invalidated() {
@@ -1523,9 +1516,23 @@ public abstract sealed class Node
                 public String getName() {
                     return "visible";
                 }
-            };
+            });
         }
-        return visible;
+        return p;
+    }
+
+    public final void setVisible(boolean value) {
+        visibleProperty().set(value);
+    }
+
+    public final boolean isVisible() {
+        BooleanProperty p = props.get(K_VISIBLE);
+        return p == null ? true : p.get();
+    }
+
+    private boolean isVisibleSettable() {
+        BooleanProperty p = props.get(K_VISIBLE);
+        return (p == null) || !p.isBound();
     }
 
     public final void setCursor(Cursor value) {
@@ -9572,7 +9579,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.visible == null || !node.visible.isBound();
+                    return node.isVisibleSettable();
                 }
 
                 @Override
