@@ -24,8 +24,14 @@
  */
 package com.sun.javafx.util;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.WeakHashMap;
 import java.util.function.Supplier;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Platform;
+import javafx.util.Duration;
 
 /**
  * TODO
@@ -33,10 +39,15 @@ import java.util.function.Supplier;
 public class FastMap {
     private final ArrayList<PKey<?>> keys;
     private final ArrayList<Object> values;
+    private static WeakHashMap<FastMap,Object> all = new WeakHashMap(1000);
+    static {
+        init();
+    }
 
     public FastMap(int capacity) {
         keys = new ArrayList<>(capacity);
         values = new ArrayList<>(capacity);
+        all.put(this, null);
     }
 
     public FastMap() {
@@ -74,5 +85,35 @@ public class FastMap {
             keys.remove(ix);
             values.remove(ix);
         }
+    }
+
+    public int size() {
+        return keys.size();
+    }
+
+    private static void init() {
+        Platform.runLater(() -> {
+            Timeline t = new Timeline(new KeyFrame(Duration.seconds(5), (ev) -> dump()));
+            t.setDelay(Duration.seconds(5));
+            t.setCycleCount(Timeline.INDEFINITE);
+            t.play();
+        });
+    }
+
+    private static void dump() {
+        int count = 0;
+        int used = 0;
+        for(FastMap m: all.keySet()) {
+            if(m != null) {
+                count++;
+                used += m.size();
+            }
+        }
+        int pkeys = 17; // number of Node.PKeys
+        float ut = used / ((float)pkeys * count);
+        int sv = ((pkeys * count) - used) * 8; // 64 bit pointers
+        float av = used / (float)count;
+        String s = MessageFormat.format("Nodes={0} utilization={1} average={2} saved={3} bytes", count, ut, av, sv);
+        System.out.println(s);
     }
 }
