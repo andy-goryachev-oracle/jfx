@@ -425,6 +425,7 @@ public abstract sealed class Node
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
+    private static final PKey<ObjectProperty<BlendMode>> K_BLEND_MODE = new PKey<>();
     private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<>();
     private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_PARENT = new PKey<>();
     private static final PKey<BooleanProperty> K_CACHE = new PKey<>();
@@ -1657,20 +1658,13 @@ public abstract sealed class Node
      * A value of {@code null} is treated as pass-through. This means no effect on a
      * parent (such as a {@code Group}), and the equivalent of {@code SRC_OVER} for a single {@code Node}.
      *
+     * @return the blend mode for this {@code Node}
      * @defaultValue {@code null}
      */
-    private javafx.beans.property.ObjectProperty<BlendMode> blendMode;
-
-    public final void setBlendMode(BlendMode value) {
-        blendModeProperty().set(value);
-    }
-    public final BlendMode getBlendMode() {
-        return blendMode == null ? null : blendMode.get();
-    }
-
     public final ObjectProperty<BlendMode> blendModeProperty() {
-        if (blendMode == null) {
-            blendMode = new StyleableObjectProperty<BlendMode>(null) {
+        ObjectProperty<BlendMode> p = props.get(K_BLEND_MODE);
+        if (p == null) {
+            p = props.init(K_BLEND_MODE, () -> new StyleableObjectProperty<BlendMode>(null) {
                 @Override public void invalidated() {
                     NodeHelper.markDirty(Node.this, DirtyBits.NODE_BLENDMODE);
                 }
@@ -1689,9 +1683,23 @@ public abstract sealed class Node
                 public String getName() {
                     return "blendMode";
                 }
-            };
+            });
         }
-        return blendMode;
+        return p;
+    }
+
+    public final void setBlendMode(BlendMode value) {
+        blendModeProperty().set(value);
+    }
+
+    public final BlendMode getBlendMode() {
+        ObjectProperty<BlendMode> p = props.get(K_BLEND_MODE);
+        return p == null ? null : p.get();
+    }
+
+    private boolean isBlendModeSettable() {
+        ObjectProperty<BlendMode> p = props.get(K_BLEND_MODE);
+        return (p == null) || !p.isBound();
     }
 
     public final void setClip(Node value) {
@@ -6913,16 +6921,6 @@ public abstract sealed class Node
      *                                                                         *
      **************************************************************************/
 
-    /**
-     * Node orientation describes the flow of visual data within a node.
-     * In the English speaking world, visual data normally flows from
-     * left-to-right. In an Arabic or Hebrew world, visual data flows
-     * from right-to-left. This is consistent with the reading order
-     * of text in both worlds.
-     *
-     * @defaultValue {@code NodeOrientation.INHERIT}
-     * @since JavaFX 8.0
-     */
     private EffectiveOrientationProperty effectiveNodeOrientationProperty;
 
     private static final byte EFFECTIVE_ORIENTATION_LTR = 0;
@@ -6951,6 +6949,17 @@ public abstract sealed class Node
         return p == null ? NodeOrientation.INHERIT : p.get();
     }
 
+    /**
+     * Node orientation describes the flow of visual data within a node.
+     * In the English speaking world, visual data normally flows from
+     * left-to-right. In an Arabic or Hebrew world, visual data flows
+     * from right-to-left. This is consistent with the reading order
+     * of text in both worlds.
+     *
+     * @return the node orientation for this {@code Node}
+     * @defaultValue {@code NodeOrientation.INHERIT}
+     * @since JavaFX 8.0
+     */
     public final ObjectProperty<NodeOrientation> nodeOrientationProperty() {
         ObjectProperty<NodeOrientation> p = props.get(K_NODE_ORIENTATION);
         if (p == null) {
@@ -9411,7 +9420,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.blendMode == null || !node.blendMode.isBound();
+                    return node.isBlendModeSettable();
                 }
 
                 @Override
