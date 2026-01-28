@@ -434,6 +434,7 @@ public abstract sealed class Node
     private static final PKey<ObjectProperty<Cursor>> K_CURSOR = new PKey<>();
     private static final PKey<ObjectProperty<DepthTest>> K_DEPTH_TEST = new PKey<>();
     private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
+    private static final PKey<ReadOnlyBooleanWrapper> K_DISABLED = new PKey<>();
     private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
@@ -2279,25 +2280,26 @@ public abstract sealed class Node
      * <p>
      * A disabled {@code Node} does not receive mouse or key events.
      *
+     * @return whether or not this {@code Node} is disabled
      * @defaultValue false
      */
-    private ReadOnlyBooleanWrapper disabled;
+    public final ReadOnlyBooleanProperty disabledProperty() {
+        return disabledPropertyImpl().getReadOnlyProperty();
+    }
 
     protected final void setDisabled(boolean value) {
         disabledPropertyImpl().set(value);
     }
 
     public final boolean isDisabled() {
-        return disabled == null ? false : disabled.get();
-    }
-
-    public final ReadOnlyBooleanProperty disabledProperty() {
-        return disabledPropertyImpl().getReadOnlyProperty();
+        ReadOnlyBooleanWrapper p = props.get(K_DISABLED);
+        return p == null ? false : p.get();
     }
 
     private ReadOnlyBooleanWrapper disabledPropertyImpl() {
-        if (disabled == null) {
-            disabled = new ReadOnlyBooleanWrapper() {
+        ReadOnlyBooleanWrapper p = props.get(K_DISABLED);
+        if (p == null) {
+            p = props.init(K_DISABLED, () -> new ReadOnlyBooleanWrapper() {
 
                 @Override
                 protected void invalidated() {
@@ -2319,9 +2321,9 @@ public abstract sealed class Node
                 public String getName() {
                     return "disabled";
                 }
-            };
+            });
         }
-        return disabled;
+        return p;
     }
 
     private void updateDisabled() {
