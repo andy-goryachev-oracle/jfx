@@ -698,26 +698,20 @@ public abstract sealed class Node
 
             @Override
             public StyleableProperty<TransitionDefinition[]> getTransitionProperty(Node node) {
-                var definitions = node.miscProperties != null ? node.miscProperties.transitionDefinitions : null;
-                if (definitions == null) {
-                    definitions = new TransitionDefinitionCollection();
-                    node.getMiscProperties().transitionDefinitions = definitions;
-                }
-
-                return definitions;
+                return node.getTransitionDefinitions();
             }
 
             @Override
             public TransitionDefinition findTransitionDefinition(
-                    Node node, CssMetaData<? extends Styleable, ?> metadata) {
-                var definitions = node.miscProperties != null ? node.miscProperties.transitionDefinitions : null;
+                Node node, CssMetaData<? extends Styleable, ?> metadata) {
+                TransitionDefinitionCollection definitions = node.getTransitionDefinitions();
                 return definitions == null ? null : definitions.find(metadata);
             }
 
             @Override
             public Map<CssMetaData<? extends Styleable, ?>, TransitionDefinition> findTransitionDefinitions(
                     Node node, CssMetaData<? extends Styleable, ?> metadata) {
-                var definitions = node.miscProperties != null ? node.miscProperties.transitionDefinitions : null;
+                TransitionDefinitionCollection definitions = node.getTransitionDefinitions();
                 return definitions == null ? null : definitions.findAll(metadata);
             }
 
@@ -7215,25 +7209,6 @@ public abstract sealed class Node
         }
     }
 
-    /* *************************************************************************
-     *                                                                         *
-     *                       Misc Seldom Used Properties                       *
-     *                                                                         *
-     **************************************************************************/
-
-    private MiscProperties miscProperties;
-
-    private MiscProperties getMiscProperties() {
-        if (miscProperties == null) {
-            miscProperties = new MiscProperties();
-        }
-
-        return miscProperties;
-    }
-
-    private final class MiscProperties {
-        private TransitionDefinitionCollection transitionDefinitions;
-    }
 
     /* *************************************************************************
      *                                                                         *
@@ -9274,8 +9249,8 @@ public abstract sealed class Node
     }
 
     // package-private for testing
-    List<TransitionDefinition> getTransitionDefinitions() {
-        return miscProperties != null ? miscProperties.transitionDefinitions : null;
+    TransitionDefinitionCollection getTransitionDefinitions() {
+        return props.get(K_TRANSITIONS_DEFINITIONS);
     }
 
 
