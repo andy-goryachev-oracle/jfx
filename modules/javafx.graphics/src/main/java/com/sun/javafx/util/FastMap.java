@@ -99,7 +99,7 @@ public class FastMap {
     private static void init() {
         Platform.runLater(() -> {
             Timeline t = new Timeline(new KeyFrame(Duration.seconds(5), (ev) -> dump()));
-            t.setDelay(Duration.seconds(5));
+            //t.setDelay(Duration.seconds(5));
             t.setCycleCount(Timeline.INDEFINITE);
             t.play();
         });
