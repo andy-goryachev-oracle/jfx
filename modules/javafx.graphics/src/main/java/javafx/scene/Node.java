@@ -5948,7 +5948,36 @@ public abstract sealed class Node
      * @since 9
      */
     public final DoubleProperty viewOrderProperty() {
-        return getMiscProperties().viewOrderProperty();
+        DoubleProperty p = props.get(K_VIEW_ORDER);
+        if (p == null) {
+            p = props.init(K_VIEW_ORDER, () -> new StyleableDoubleProperty(DEFAULT_VIEW_ORDER) {
+                @Override
+                public void invalidated() {
+                    Parent p = getParent();
+                    if (p != null) {
+                        // Parent will be responsible to update sorted children list
+                        p.markViewOrderChildrenDirty();
+                    }
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_VIEW_ORDER);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.VIEW_ORDER;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "viewOrder";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setViewOrder(double value) {
@@ -5956,9 +5985,15 @@ public abstract sealed class Node
     }
 
     public final double getViewOrder() {
-        return (miscProperties == null) ? DEFAULT_VIEW_ORDER
-                : miscProperties.getViewOrder();
+        DoubleProperty p = props.get(K_VIEW_ORDER);
+        return (p == null) ? DEFAULT_VIEW_ORDER : p.get();
     }
+
+    private boolean isViewOrderSettable() {
+        DoubleProperty p = props.get(K_VIEW_ORDER);
+        return (p == null) || !p.isBound();
+    }
+
 
     /* *************************************************************************
      *                                                                         *
@@ -7198,45 +7233,8 @@ public abstract sealed class Node
 
     private final class MiscProperties {
         private BooleanProperty mouseTransparent;
-        private DoubleProperty viewOrder;
         private TransitionTimerCollection transitionTimers;
         private TransitionDefinitionCollection transitionDefinitions;
-
-        public double getViewOrder() {
-            return (viewOrder == null) ? DEFAULT_VIEW_ORDER : viewOrder.get();
-        }
-
-        public final DoubleProperty viewOrderProperty() {
-            if (viewOrder == null) {
-                viewOrder = new StyleableDoubleProperty(DEFAULT_VIEW_ORDER) {
-                    @Override
-                    public void invalidated() {
-                        Parent p = getParent();
-                        if (p != null) {
-                            // Parent will be responsible to update sorted children list
-                            p.markViewOrderChildrenDirty();
-                        }
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_VIEW_ORDER);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.VIEW_ORDER;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "viewOrder";
-                    }
-                };
-            }
-            return viewOrder;
-        }
 
         public final boolean isMouseTransparent() {
             return (mouseTransparent == null) ? DEFAULT_MOUSE_TRANSPARENT
@@ -9572,9 +9570,7 @@ public abstract sealed class Node
 
                      @Override
                      public boolean isSettable(Node node) {
-                         return node.miscProperties == null
-                         || node.miscProperties.viewOrder == null
-                         || !node.miscProperties.viewOrder.isBound();
+                         return node.isViewOrderSettable();
                      }
 
                      @Override
