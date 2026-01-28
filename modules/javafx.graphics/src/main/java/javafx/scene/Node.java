@@ -436,6 +436,7 @@ public abstract sealed class Node
     private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
     private static final PKey<ReadOnlyBooleanWrapper> K_DISABLED = new PKey<>();
     private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
+    private static final PKey<ReadOnlyBooleanWrapper> K_HOVER = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
@@ -7278,25 +7279,17 @@ public abstract sealed class Node
      * have a mouse. Future implementations may provide alternative means of
      * supporting hover.
      *
+     * @return the hover value for this {@code Node}
      * @defaultValue false
      */
-    private ReadOnlyBooleanWrapper hover;
-
-    protected final void setHover(boolean value) {
-        hoverPropertyImpl().set(value);
-    }
-
-    public final boolean isHover() {
-        return hover == null ? false : hover.get();
-    }
-
     public final ReadOnlyBooleanProperty hoverProperty() {
         return hoverPropertyImpl().getReadOnlyProperty();
     }
 
     private ReadOnlyBooleanWrapper hoverPropertyImpl() {
-        if (hover == null) {
-            hover = new ReadOnlyBooleanWrapper() {
+        ReadOnlyBooleanWrapper p = props.get(K_HOVER);
+        if (p == null) {
+            p = props.init(K_HOVER, () -> new ReadOnlyBooleanWrapper() {
 
                 @Override
                 protected void invalidated() {
@@ -7316,9 +7309,18 @@ public abstract sealed class Node
                 public String getName() {
                     return "hover";
                 }
-            };
+            });
         }
-        return hover;
+        return p;
+    }
+
+    protected final void setHover(boolean value) {
+        hoverPropertyImpl().set(value);
+    }
+
+    public final boolean isHover() {
+        ReadOnlyBooleanWrapper p = props.get(K_HOVER);
+        return p == null ? false : p.get();
     }
 
     /**
