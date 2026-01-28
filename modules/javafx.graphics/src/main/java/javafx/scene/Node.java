@@ -439,6 +439,8 @@ public abstract sealed class Node
     private static final PKey<ReadOnlyBooleanWrapper> K_HOVER = new PKey<>();
     private static final PKey<StringProperty> K_ID = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
+    private static final PKey<DoubleProperty> K_LAYOUT_X = new PKey<>();
+    private static final PKey<DoubleProperty> K_LAYOUT_Y = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
@@ -3122,23 +3124,15 @@ public abstract sealed class Node
      * own layout policy.   If the node is unmanaged or parented by a {@link Group},
      * then the application may set {@code layoutX} directly to position it.
      *
+     * @return this {@code Node} layout x value
      * @see #relocate(double, double)
      * @see #layoutBoundsProperty()
      *
      */
-    private DoubleProperty layoutX;
-
-    public final void setLayoutX(double value) {
-        layoutXProperty().set(value);
-    }
-
-    public final double getLayoutX() {
-        return layoutX == null ? 0.0 : layoutX.get();
-    }
-
     public final DoubleProperty layoutXProperty() {
-        if (layoutX == null) {
-            layoutX = new DoublePropertyBase(0.0) {
+        DoubleProperty p = props.get(K_LAYOUT_X);
+        if (p == null) {
+            p = props.init(K_LAYOUT_X, () -> new DoublePropertyBase(0.0) {
 
                 @Override
                 protected void invalidated() {
@@ -3167,9 +3161,18 @@ public abstract sealed class Node
                 public String getName() {
                     return "layoutX";
                 }
-            };
+            });
         }
-        return layoutX;
+        return p;
+    }
+
+    public final void setLayoutX(double value) {
+        layoutXProperty().set(value);
+    }
+
+    public final double getLayoutX() {
+        DoubleProperty p = props.get(K_LAYOUT_X);
+        return p == null ? 0.0 : p.get();
     }
 
     /**
@@ -3197,22 +3200,14 @@ public abstract sealed class Node
      * own layout policy.   If the node is unmanaged or parented by a {@link Group},
      * then the application may set {@code layoutY} directly to position it.
      *
+     * @return this {@code Node} layout y value
      * @see #relocate(double, double)
      * @see #layoutBoundsProperty()
      */
-    private DoubleProperty layoutY;
-
-    public final void setLayoutY(double value) {
-        layoutYProperty().set(value);
-    }
-
-    public final double getLayoutY() {
-        return layoutY == null ? 0.0 : layoutY.get();
-    }
-
     public final DoubleProperty layoutYProperty() {
-        if (layoutY == null) {
-            layoutY = new DoublePropertyBase(0.0) {
+        DoubleProperty p = props.get(K_LAYOUT_Y);
+        if (p == null) {
+            p = props.init(K_LAYOUT_Y, () -> new DoublePropertyBase(0.0) {
 
                 @Override
                 protected void invalidated() {
@@ -3241,10 +3236,18 @@ public abstract sealed class Node
                 public String getName() {
                     return "layoutY";
                 }
-
-            };
+            });
         }
-        return layoutY;
+        return p;
+    }
+
+    public final void setLayoutY(double value) {
+        layoutYProperty().set(value);
+    }
+
+    public final double getLayoutY() {
+        DoubleProperty p = props.get(K_LAYOUT_Y);
+        return p == null ? 0.0 : p.get();
     }
 
     /**
