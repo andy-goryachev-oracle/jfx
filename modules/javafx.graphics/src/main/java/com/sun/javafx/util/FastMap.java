@@ -114,7 +114,6 @@ public class FastMap {
 
     private static int countKeys(Node node) {
         Class<?> cls = node.getClass();
-        String className = cls.getSimpleName();
         Integer cached = counts.get(cls);
         if(cached != null) {
             return cached.intValue();
@@ -127,7 +126,7 @@ public class FastMap {
             for (Field f : fs) {
                 if ((f.getType() == PKey.class) && Modifier.isStatic(f.getModifiers())) {
                     // histogram needs the key name 
-                    String name = className + "." + f.getName();
+                    String name = c.getSimpleName() + "." + f.getName();
                     try {
                         f.setAccessible(true);
                         PKey k = (PKey)f.get(null);
