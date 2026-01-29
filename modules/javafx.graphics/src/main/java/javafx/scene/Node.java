@@ -425,9 +425,9 @@ public abstract sealed class Node
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
-    private static final PKey<ObjectProperty<String>> K_ACCESSIBILITY_HELP = new PKey<>();
-    private static final PKey<ObjectProperty<String>> K_ACCESSIBILITY_ROLE = new PKey<>();
-    private static final PKey<ObjectProperty<String>> K_ACCESSIBILITY_TEXT = new PKey<>();
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_HELP = new PKey<>();
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_ROLE_DESCR = new PKey<>();
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_TEXT = new PKey<>();
     private static final PKey<ObjectProperty<BlendMode>> K_BLEND_MODE = new PKey<>();
     private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<>();
     private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_PARENT = new PKey<>();
@@ -439,6 +439,7 @@ public abstract sealed class Node
     private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
     private static final PKey<ReadOnlyBooleanWrapper> K_DISABLED = new PKey<>();
     private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
+    private static final PKey<BooleanProperty> K_FOCUS_TRAVERSABLE = new PKey<>();
     private static final PKey<ReadOnlyBooleanWrapper> K_HOVER = new PKey<>();
     private static final PKey<StringProperty> K_ID = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
@@ -8421,21 +8422,14 @@ public abstract sealed class Node
      * unless the focus had been set explicitly via a call
      * to {@link #requestFocus()}.
      *
+     * @return the focus traversable value for this {@code Node}
      * @see #requestFocus()
      * @defaultValue false
      */
-    private BooleanProperty focusTraversable;
-
-    public final void setFocusTraversable(boolean value) {
-        focusTraversableProperty().set(value);
-    }
-    public final boolean isFocusTraversable() {
-        return focusTraversable == null ? false : focusTraversable.get();
-    }
-
     public final BooleanProperty focusTraversableProperty() {
-        if (focusTraversable == null) {
-            focusTraversable = new StyleableBooleanProperty(false) {
+        BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
+        if (p == null) {
+            p = props.init(K_FOCUS_TRAVERSABLE, () -> new StyleableBooleanProperty(false) {
 
                 @Override
                 public void invalidated() {
@@ -8462,9 +8456,23 @@ public abstract sealed class Node
                 public String getName() {
                     return "focusTraversable";
                 }
-            };
+            });
         }
-        return focusTraversable;
+        return p;
+    }
+
+    public final void setFocusTraversable(boolean value) {
+        focusTraversableProperty().set(value);
+    }
+
+    public final boolean isFocusTraversable() {
+        BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
+        return p == null ? false : p.get();
+    }
+
+    private boolean isFocusTraversableSettable() {
+        BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
+        return (p == null) || !p.isBound();
     }
 
     /**
@@ -9390,7 +9398,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.focusTraversable == null || !node.focusTraversable.isBound();
+                    return node.isFocusTraversableSettable();
                 }
 
                 @Override
@@ -10231,7 +10239,7 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleRoleDescription() {
-        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_ROLE);
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_ROLE_DESCR);
         return (p == null) ? null : p.get();
     }
 
@@ -10251,9 +10259,9 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleRoleDescriptionProperty() {
-        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_ROLE);
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_ROLE_DESCR);
         if (p == null) {
-            p = props.init(K_ACCESSIBILITY_ROLE, () -> {
+            p = props.init(K_ACCESSIBLE_ROLE_DESCR, () -> {
                 return new SimpleObjectProperty<>(Node.this, "accessibleRoleDescription", null);
             });
         }
@@ -10265,7 +10273,7 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleText() {
-        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_TEXT);
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_TEXT);
         return (p == null) ? null : p.get();
     }
 
@@ -10284,9 +10292,9 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleTextProperty() {
-        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_TEXT);
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_TEXT);
         if (p == null) {
-            p = props.init(K_ACCESSIBILITY_TEXT, () -> {
+            p = props.init(K_ACCESSIBLE_TEXT, () -> {
                 return new SimpleObjectProperty<>(Node.this, "accessibleText", null);
             });
         }
@@ -10298,7 +10306,7 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleHelp() {
-        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_HELP);
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_HELP);
         return (p == null) ? null : p.get();
     }
 
@@ -10315,9 +10323,9 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleHelpProperty() {
-        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_HELP);
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_HELP);
         if (p == null) {
-            p = props.init(K_ACCESSIBILITY_HELP, () -> {
+            p = props.init(K_ACCESSIBLE_HELP, () -> {
                 return new SimpleObjectProperty<>(Node.this, "accessibleHelp", null);
             });
         }
