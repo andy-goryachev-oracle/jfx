@@ -425,6 +425,9 @@ public abstract sealed class Node
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBILITY_HELP = new PKey<>();
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBILITY_ROLE = new PKey<>();
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBILITY_TEXT = new PKey<>();
     private static final PKey<ObjectProperty<BlendMode>> K_BLEND_MODE = new PKey<>();
     private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<>();
     private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_PARENT = new PKey<>();
@@ -10228,9 +10231,8 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleRoleDescription() {
-        if (accessibilityProperties == null) return null;
-        if (accessibilityProperties.accessibleRoleDescription == null) return null;
-        return accessibleRoleDescriptionProperty().get();
+        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_ROLE);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -10249,7 +10251,13 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleRoleDescriptionProperty() {
-        return getAccessibilityProperties().getAccessibleRoleDescription();
+        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_ROLE);
+        if (p == null) {
+            p = props.init(K_ACCESSIBILITY_ROLE, () -> {
+                return new SimpleObjectProperty<>(Node.this, "accessibleRoleDescription", null);
+            });
+        }
+        return p;
     }
 
     public final void setAccessibleText(String value) {
@@ -10257,9 +10265,8 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleText() {
-        if (accessibilityProperties == null) return null;
-        if (accessibilityProperties.accessibleText == null) return null;
-        return accessibleTextProperty().get();
+        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_TEXT);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -10277,7 +10284,13 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleTextProperty() {
-        return getAccessibilityProperties().getAccessibleText();
+        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_TEXT);
+        if (p == null) {
+            p = props.init(K_ACCESSIBILITY_TEXT, () -> {
+                return new SimpleObjectProperty<>(Node.this, "accessibleText", null);
+            });
+        }
+        return p;
     }
 
     public final void setAccessibleHelp(String value) {
@@ -10285,9 +10298,8 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleHelp() {
-        if (accessibilityProperties == null) return null;
-        if (accessibilityProperties.accessibleHelp == null) return null;
-        return accessibleHelpProperty().get();
+        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_HELP);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -10303,39 +10315,13 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleHelpProperty() {
-        return getAccessibilityProperties().getAccessibleHelp();
-    }
-
-    AccessibilityProperties accessibilityProperties;
-    private AccessibilityProperties getAccessibilityProperties() {
-        if (accessibilityProperties == null) {
-            accessibilityProperties = new AccessibilityProperties();
+        ObjectProperty<String> p = props.get(K_ACCESSIBILITY_HELP);
+        if (p == null) {
+            p = props.init(K_ACCESSIBILITY_HELP, () -> {
+                return new SimpleObjectProperty<>(Node.this, "accessibleHelp", null);
+            });
         }
-        return accessibilityProperties;
-    }
-
-    private class AccessibilityProperties {
-        ObjectProperty<String> accessibleRoleDescription;
-        ObjectProperty<String> getAccessibleRoleDescription() {
-            if (accessibleRoleDescription == null) {
-                accessibleRoleDescription = new SimpleObjectProperty<>(Node.this, "accessibleRoleDescription", null);
-            }
-            return accessibleRoleDescription;
-        }
-        ObjectProperty<String> accessibleText;
-        ObjectProperty<String> getAccessibleText() {
-            if (accessibleText == null) {
-                accessibleText = new SimpleObjectProperty<>(Node.this, "accessibleText", null);
-            }
-            return accessibleText;
-        }
-        ObjectProperty<String> accessibleHelp;
-        ObjectProperty<String> getAccessibleHelp() {
-            if (accessibleHelp == null) {
-                accessibleHelp = new SimpleObjectProperty<>(Node.this, "accessibleHelp", null);
-            }
-            return accessibleHelp;
-        }
+        return p;
     }
 
     /**
