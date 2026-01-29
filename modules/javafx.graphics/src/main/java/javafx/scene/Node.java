@@ -448,6 +448,9 @@ public abstract sealed class Node
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
     private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
@@ -7795,35 +7798,27 @@ public abstract sealed class Node
         return getEventHandlerProperties().onRotationFinishedProperty();
     }
 
-    public final void setOnZoomStarted(
-            EventHandler<? super ZoomEvent> value) {
-        onZoomStartedProperty().set(value);
-    }
-
-    public final EventHandler<? super ZoomEvent> getOnZoomStarted() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnZoomStarted();
-    }
-
     /**
      * Defines a function to be called when a zooming gesture is detected.
      * @return the event handler that is called when a zooming gesture is
      * detected
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomStartedProperty() {
-        return getEventHandlerProperties().onZoomStartedProperty();
+    public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomStartedProperty() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        if (p == null) {
+            p = props.init(K_ON_ZOOM_STARTED, () -> new EHProperty<>("onZoomStarted", ZoomEvent.ZOOM_STARTED));
+        }
+        return p;
     }
 
-    public final void setOnZoom(
-            EventHandler<? super ZoomEvent> value) {
-        onZoomProperty().set(value);
+    public final void setOnZoomStarted(EventHandler<? super ZoomEvent> value) {
+        onZoomStartedProperty().set(value);
     }
 
-    public final EventHandler<? super ZoomEvent> getOnZoom() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnZoom();
+    public final EventHandler<? super ZoomEvent> getOnZoomStarted() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7832,19 +7827,21 @@ public abstract sealed class Node
      * action
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomProperty() {
-        return getEventHandlerProperties().onZoomProperty();
+    public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomProperty() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        if (p == null) {
+            p = props.init(K_ON_ZOOM, () -> new EHProperty<>("onZoom", ZoomEvent.ZOOM));
+        }
+        return p;
     }
 
-    public final void setOnZoomFinished(
-            EventHandler<? super ZoomEvent> value) {
-        onZoomFinishedProperty().set(value);
+    public final EventHandler<? super ZoomEvent> getOnZoom() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        return (p == null) ? null : p.get();
     }
 
-    public final EventHandler<? super ZoomEvent> getOnZoomFinished() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnZoomFinished();
+    public final void setOnZoom(EventHandler<? super ZoomEvent> value) {
+        onZoomProperty().set(value);
     }
 
     /**
@@ -7852,9 +7849,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a zooming gesture ends
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomFinishedProperty() {
-        return getEventHandlerProperties().onZoomFinishedProperty();
+    public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomFinishedProperty() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        if (p == null) {
+            p = props.init(K_ON_ZOOM_FINISHED, () -> new EHProperty<>("onZoomFinished", ZoomEvent.ZOOM_FINISHED));
+        }
+        return p;
+    }
+
+    public final void setOnZoomFinished(EventHandler<? super ZoomEvent> value) {
+        onZoomFinishedProperty().set(value);
+    }
+
+    public final EventHandler<? super ZoomEvent> getOnZoomFinished() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        return (p == null) ? null : p.get();
     }
 
     public final void setOnSwipeUp(
