@@ -445,8 +445,9 @@ public abstract sealed class Node
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
     private static final PKey<DoubleProperty> K_LAYOUT_X = new PKey<>();
     private static final PKey<DoubleProperty> K_LAYOUT_Y = new PKey<>();
-    private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
+    private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
@@ -7491,25 +7492,28 @@ public abstract sealed class Node
         return getEventHandlerProperties().onMouseMovedProperty();
     }
 
-    public final void setOnMousePressed(
-            EventHandler<? super MouseEvent> value) {
-        onMousePressedProperty().set(value);
-    }
-
-    public final EventHandler<? super MouseEvent> getOnMousePressed() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMousePressed();
-    }
-
     /**
      * Defines a function to be called when a mouse button
      * has been pressed on this {@code Node}.
      * @return the event handler that is called when a mouse button has been
      * pressed on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMousePressedProperty() {
-        return getEventHandlerProperties().onMousePressedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMousePressedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_PRESSED, () -> new EHProperty<>("onMousePressed", MouseEvent.MOUSE_PRESSED));
+        }
+        return p;
+    }
+
+    public final EventHandler<? super MouseEvent> getOnMousePressed() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        return (p == null) ? null : p.get();
+    }
+
+    public final void setOnMousePressed(
+        EventHandler<? super MouseEvent> value) {
+        onMousePressedProperty().set(value);
     }
 
     public final void setOnMouseReleased(
@@ -10469,4 +10473,29 @@ public abstract sealed class Node
         }
     }
 
+    // replaces EventHandlerProperties.EventHandlerProperty
+    private class EHProperty<T extends Event> extends ObjectPropertyBase<EventHandler<? super T>> {
+        private final String name;
+        private final EventType<T> eventType;
+
+        public EHProperty(String name, EventType<T> eventType) {
+            this.name = name;
+            this.eventType = eventType;
+        }
+
+        @Override
+        protected void invalidated() {
+            getInternalEventDispatcher().getEventHandlerManager().setEventHandler(eventType, get());
+        }
+
+        @Override
+        public Object getBean() {
+            return Node.this;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+    }
 }
