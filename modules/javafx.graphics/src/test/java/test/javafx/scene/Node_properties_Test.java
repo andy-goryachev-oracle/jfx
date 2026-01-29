@@ -153,6 +153,8 @@ public final class Node_properties_Test extends PropertiesTestBase {
                        NodeOrientation.LEFT_TO_RIGHT,
                        NodeOrientation.RIGHT_TO_LEFT)
             // TODO transitionTimers
+            // TODO accessibility and other properties!
+            // also, sort by name
         );
     }
 }
