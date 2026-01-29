@@ -34,15 +34,13 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-
-import com.sun.javafx.event.EventHandlerManager;
 import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.RotateEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.SwipeEvent;
 import javafx.scene.input.TouchEvent;
-import javafx.scene.input.ZoomEvent;
+import com.sun.javafx.event.EventHandlerManager;
 
 @Deprecated // FIX remove
 public final class EventHandlerProperties {
@@ -50,8 +48,8 @@ public final class EventHandlerProperties {
     private final Object bean;
 
     public EventHandlerProperties(
-            final EventHandlerManager eventDispatcher,
-            final Object bean) {
+        final EventHandlerManager eventDispatcher,
+        final Object bean) {
         this.eventDispatcher = eventDispatcher;
         this.bean = bean;
     }
@@ -62,13 +60,12 @@ public final class EventHandlerProperties {
         return (onMenuContextRequested == null) ? null : onMenuContextRequested.get();
     }
 
-    public ObjectProperty<EventHandler<? super ContextMenuEvent>>
-            onContextMenuRequestedProperty() {
+    public ObjectProperty<EventHandler<? super ContextMenuEvent>> onContextMenuRequestedProperty() {
         if (onMenuContextRequested == null) {
             onMenuContextRequested = new EventHandlerProperty<>(
-                                    bean,
-                                    "onMenuContextRequested",
-                                    ContextMenuEvent.CONTEXT_MENU_REQUESTED);
+                bean,
+                "onMenuContextRequested",
+                ContextMenuEvent.CONTEXT_MENU_REQUESTED);
         }
         return onMenuContextRequested;
     }
@@ -79,13 +76,12 @@ public final class EventHandlerProperties {
         return (onMouseClicked == null) ? null : onMouseClicked.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseClickedProperty() {
+    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseClickedProperty() {
         if (onMouseClicked == null) {
             onMouseClicked = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseClicked",
-                                     MouseEvent.MOUSE_CLICKED);
+                bean,
+                "onMouseClicked",
+                MouseEvent.MOUSE_CLICKED);
         }
         return onMouseClicked;
     }
@@ -96,13 +92,12 @@ public final class EventHandlerProperties {
         return (onMouseDragged == null) ? null : onMouseDragged.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseDraggedProperty() {
+    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseDraggedProperty() {
         if (onMouseDragged == null) {
             onMouseDragged = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseDragged",
-                                     MouseEvent.MOUSE_DRAGGED);
+                bean,
+                "onMouseDragged",
+                MouseEvent.MOUSE_DRAGGED);
         }
         return onMouseDragged;
     }
@@ -113,13 +108,12 @@ public final class EventHandlerProperties {
         return (onMouseEntered == null) ? null : onMouseEntered.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseEnteredProperty() {
+    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseEnteredProperty() {
         if (onMouseEntered == null) {
             onMouseEntered = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseEntered",
-                                     MouseEvent.MOUSE_ENTERED);
+                bean,
+                "onMouseEntered",
+                MouseEvent.MOUSE_ENTERED);
         }
         return onMouseEntered;
     }
@@ -130,13 +124,12 @@ public final class EventHandlerProperties {
         return (onMouseExited == null) ? null : onMouseExited.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseExitedProperty() {
+    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseExitedProperty() {
         if (onMouseExited == null) {
             onMouseExited = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseExited",
-                                     MouseEvent.MOUSE_EXITED);
+                bean,
+                "onMouseExited",
+                MouseEvent.MOUSE_EXITED);
         }
         return onMouseExited;
     }
@@ -147,13 +140,12 @@ public final class EventHandlerProperties {
         return (onMouseMoved == null) ? null : onMouseMoved.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseMovedProperty() {
+    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseMovedProperty() {
         if (onMouseMoved == null) {
             onMouseMoved = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseMoved",
-                                     MouseEvent.MOUSE_MOVED);
+                bean,
+                "onMouseMoved",
+                MouseEvent.MOUSE_MOVED);
         }
         return onMouseMoved;
     }
@@ -164,13 +156,12 @@ public final class EventHandlerProperties {
         return (onMouseReleased == null) ? null : onMouseReleased.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseReleasedProperty() {
+    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseReleasedProperty() {
         if (onMouseReleased == null) {
             onMouseReleased = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseReleased",
-                                     MouseEvent.MOUSE_RELEASED);
+                bean,
+                "onMouseReleased",
+                MouseEvent.MOUSE_RELEASED);
         }
         return onMouseReleased;
     }
@@ -181,13 +172,12 @@ public final class EventHandlerProperties {
         return (onDragDetected == null) ? null : onDragDetected.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onDragDetectedProperty() {
+    public ObjectProperty<EventHandler<? super MouseEvent>> onDragDetectedProperty() {
         if (onDragDetected == null) {
             onDragDetected = new EventHandlerProperty<>(
-                                     bean,
-                                     "onDragDetected",
-                                     MouseEvent.DRAG_DETECTED);
+                bean,
+                "onDragDetected",
+                MouseEvent.DRAG_DETECTED);
         }
         return onDragDetected;
     }
@@ -198,13 +188,12 @@ public final class EventHandlerProperties {
         return (onScroll == null) ? null : onScroll.get();
     }
 
-    public ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollProperty() {
+    public ObjectProperty<EventHandler<? super ScrollEvent>> onScrollProperty() {
         if (onScroll == null) {
             onScroll = new EventHandlerProperty<>(
-                                     bean,
-                                     "onScroll",
-                                     ScrollEvent.SCROLL);
+                bean,
+                "onScroll",
+                ScrollEvent.SCROLL);
         }
         return onScroll;
     }
@@ -215,13 +204,12 @@ public final class EventHandlerProperties {
         return (onScrollStarted == null) ? null : onScrollStarted.get();
     }
 
-    public ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollStartedProperty() {
+    public ObjectProperty<EventHandler<? super ScrollEvent>> onScrollStartedProperty() {
         if (onScrollStarted == null) {
             onScrollStarted = new EventHandlerProperty<>(
-                                     bean,
-                                     "onScrollStarted",
-                                     ScrollEvent.SCROLL_STARTED);
+                bean,
+                "onScrollStarted",
+                ScrollEvent.SCROLL_STARTED);
         }
         return onScrollStarted;
     }
@@ -232,13 +220,12 @@ public final class EventHandlerProperties {
         return (onScrollFinished == null) ? null : onScrollFinished.get();
     }
 
-    public ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollFinishedProperty() {
+    public ObjectProperty<EventHandler<? super ScrollEvent>> onScrollFinishedProperty() {
         if (onScrollFinished == null) {
             onScrollFinished = new EventHandlerProperty<>(
-                                     bean,
-                                     "onScrollFinished",
-                                     ScrollEvent.SCROLL_FINISHED);
+                bean,
+                "onScrollFinished",
+                ScrollEvent.SCROLL_FINISHED);
         }
         return onScrollFinished;
     }
@@ -249,13 +236,12 @@ public final class EventHandlerProperties {
         return (onRotationStarted == null) ? null : onRotationStarted.get();
     }
 
-    public ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotationStartedProperty() {
+    public ObjectProperty<EventHandler<? super RotateEvent>> onRotationStartedProperty() {
         if (onRotationStarted == null) {
             onRotationStarted = new EventHandlerProperty<>(
-                                     bean,
-                                     "onRotationStarted",
-                                     RotateEvent.ROTATION_STARTED);
+                bean,
+                "onRotationStarted",
+                RotateEvent.ROTATION_STARTED);
         }
         return onRotationStarted;
     }
@@ -266,13 +252,12 @@ public final class EventHandlerProperties {
         return (onRotate == null) ? null : onRotate.get();
     }
 
-    public ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotateProperty() {
+    public ObjectProperty<EventHandler<? super RotateEvent>> onRotateProperty() {
         if (onRotate == null) {
             onRotate = new EventHandlerProperty<>(
-                                     bean,
-                                     "onRotate",
-                                     RotateEvent.ROTATE);
+                bean,
+                "onRotate",
+                RotateEvent.ROTATE);
         }
         return onRotate;
     }
@@ -283,67 +268,16 @@ public final class EventHandlerProperties {
         return (onRotationFinished == null) ? null : onRotationFinished.get();
     }
 
-    public ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotationFinishedProperty() {
+    public ObjectProperty<EventHandler<? super RotateEvent>> onRotationFinishedProperty() {
         if (onRotationFinished == null) {
             onRotationFinished = new EventHandlerProperty<>(
-                                     bean,
-                                     "onRotationFinished",
-                                     RotateEvent.ROTATION_FINISHED);
+                bean,
+                "onRotationFinished",
+                RotateEvent.ROTATION_FINISHED);
         }
         return onRotationFinished;
     }
 
-    private EventHandlerProperty<ZoomEvent> onZoomStarted;
-
-    public final EventHandler<? super ZoomEvent> getOnZoomStarted() {
-        return (onZoomStarted == null) ? null : onZoomStarted.get();
-    }
-
-    public ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomStartedProperty() {
-        if (onZoomStarted == null) {
-            onZoomStarted = new EventHandlerProperty<>(
-                                     bean,
-                                     "onZoomStarted",
-                                     ZoomEvent.ZOOM_STARTED);
-        }
-        return onZoomStarted;
-    }
-
-    private EventHandlerProperty<ZoomEvent> onZoom;
-
-    public final EventHandler<? super ZoomEvent> getOnZoom() {
-        return (onZoom == null) ? null : onZoom.get();
-    }
-
-    public ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomProperty() {
-        if (onZoom == null) {
-            onZoom = new EventHandlerProperty<>(
-                                     bean,
-                                     "onZoom",
-                                     ZoomEvent.ZOOM);
-        }
-        return onZoom;
-    }
-
-    private EventHandlerProperty<ZoomEvent> onZoomFinished;
-
-    public final EventHandler<? super ZoomEvent> getOnZoomFinished() {
-        return (onZoomFinished == null) ? null : onZoomFinished.get();
-    }
-
-    public ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomFinishedProperty() {
-        if (onZoomFinished == null) {
-            onZoomFinished = new EventHandlerProperty<>(
-                                     bean,
-                                     "onZoomFinished",
-                                     ZoomEvent.ZOOM_FINISHED);
-        }
-        return onZoomFinished;
-    }
 
     private EventHandlerProperty<SwipeEvent> onSwipeUp;
 
@@ -351,13 +285,12 @@ public final class EventHandlerProperties {
         return (onSwipeUp == null) ? null : onSwipeUp.get();
     }
 
-    public ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeUpProperty() {
+    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeUpProperty() {
         if (onSwipeUp == null) {
             onSwipeUp = new EventHandlerProperty<>(
-                                     bean,
-                                     "onSwipeUp",
-                                     SwipeEvent.SWIPE_UP);
+                bean,
+                "onSwipeUp",
+                SwipeEvent.SWIPE_UP);
         }
         return onSwipeUp;
     }
@@ -368,13 +301,12 @@ public final class EventHandlerProperties {
         return (onSwipeDown == null) ? null : onSwipeDown.get();
     }
 
-    public ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeDownProperty() {
+    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeDownProperty() {
         if (onSwipeDown == null) {
             onSwipeDown = new EventHandlerProperty<>(
-                                     bean,
-                                     "onSwipeDown",
-                                     SwipeEvent.SWIPE_DOWN);
+                bean,
+                "onSwipeDown",
+                SwipeEvent.SWIPE_DOWN);
         }
         return onSwipeDown;
     }
@@ -385,13 +317,12 @@ public final class EventHandlerProperties {
         return (onSwipeLeft == null) ? null : onSwipeLeft.get();
     }
 
-    public ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeLeftProperty() {
+    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeLeftProperty() {
         if (onSwipeLeft == null) {
             onSwipeLeft = new EventHandlerProperty<>(
-                                     bean,
-                                     "onSwipeLeft",
-                                     SwipeEvent.SWIPE_LEFT);
+                bean,
+                "onSwipeLeft",
+                SwipeEvent.SWIPE_LEFT);
         }
         return onSwipeLeft;
     }
@@ -402,13 +333,12 @@ public final class EventHandlerProperties {
         return (onSwipeRight == null) ? null : onSwipeRight.get();
     }
 
-    public ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeRightProperty() {
+    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeRightProperty() {
         if (onSwipeRight == null) {
             onSwipeRight = new EventHandlerProperty<>(
-                                     bean,
-                                     "onSwipeRight",
-                                     SwipeEvent.SWIPE_RIGHT);
+                bean,
+                "onSwipeRight",
+                SwipeEvent.SWIPE_RIGHT);
         }
         return onSwipeRight;
     }
@@ -419,13 +349,12 @@ public final class EventHandlerProperties {
         return (onMouseDragOver == null) ? null : onMouseDragOver.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragOverProperty() {
+    public ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragOverProperty() {
         if (onMouseDragOver == null) {
             onMouseDragOver = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseDragOver",
-                                     MouseDragEvent.MOUSE_DRAG_OVER);
+                bean,
+                "onMouseDragOver",
+                MouseDragEvent.MOUSE_DRAG_OVER);
         }
         return onMouseDragOver;
     }
@@ -436,13 +365,12 @@ public final class EventHandlerProperties {
         return (onMouseDragReleased == null) ? null : onMouseDragReleased.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragReleasedProperty() {
+    public ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragReleasedProperty() {
         if (onMouseDragReleased == null) {
             onMouseDragReleased = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseDragReleased",
-                                     MouseDragEvent.MOUSE_DRAG_RELEASED);
+                bean,
+                "onMouseDragReleased",
+                MouseDragEvent.MOUSE_DRAG_RELEASED);
         }
         return onMouseDragReleased;
     }
@@ -453,13 +381,12 @@ public final class EventHandlerProperties {
         return (onMouseDragEntered == null) ? null : onMouseDragEntered.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragEnteredProperty() {
+    public ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragEnteredProperty() {
         if (onMouseDragEntered == null) {
             onMouseDragEntered = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseDragEntered",
-                                     MouseDragEvent.MOUSE_DRAG_ENTERED);
+                bean,
+                "onMouseDragEntered",
+                MouseDragEvent.MOUSE_DRAG_ENTERED);
         }
         return onMouseDragEntered;
     }
@@ -470,17 +397,15 @@ public final class EventHandlerProperties {
         return (onMouseDragExited == null) ? null : onMouseDragExited.get();
     }
 
-    public ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragExitedProperty() {
+    public ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragExitedProperty() {
         if (onMouseDragExited == null) {
             onMouseDragExited = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMouseDragExited",
-                                     MouseDragEvent.MOUSE_DRAG_EXITED);
+                bean,
+                "onMouseDragExited",
+                MouseDragEvent.MOUSE_DRAG_EXITED);
         }
         return onMouseDragExited;
     }
-
 
     private EventHandlerProperty<MouseDragEvent> onMouseDragDone;
 
@@ -495,20 +420,18 @@ public final class EventHandlerProperties {
         return onMouseDragDone;
     }
 
-
     private EventHandlerProperty<KeyEvent> onKeyPressed;
 
     public final EventHandler<? super KeyEvent> getOnKeyPressed() {
         return (onKeyPressed == null) ? null : onKeyPressed.get();
     }
 
-    public ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyPressedProperty() {
+    public ObjectProperty<EventHandler<? super KeyEvent>> onKeyPressedProperty() {
         if (onKeyPressed == null) {
             onKeyPressed = new EventHandlerProperty<>(
-                                     bean,
-                                     "onKeyPressed",
-                                     KeyEvent.KEY_PRESSED);
+                bean,
+                "onKeyPressed",
+                KeyEvent.KEY_PRESSED);
         }
         return onKeyPressed;
     }
@@ -519,13 +442,12 @@ public final class EventHandlerProperties {
         return (onKeyReleased == null) ? null : onKeyReleased.get();
     }
 
-    public ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyReleasedProperty() {
+    public ObjectProperty<EventHandler<? super KeyEvent>> onKeyReleasedProperty() {
         if (onKeyReleased == null) {
             onKeyReleased = new EventHandlerProperty<>(
-                                     bean,
-                                     "onKeyReleased",
-                                     KeyEvent.KEY_RELEASED);
+                bean,
+                "onKeyReleased",
+                KeyEvent.KEY_RELEASED);
         }
         return onKeyReleased;
     }
@@ -536,33 +458,30 @@ public final class EventHandlerProperties {
         return (onKeyTyped == null) ? null : onKeyTyped.get();
     }
 
-    public ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyTypedProperty() {
+    public ObjectProperty<EventHandler<? super KeyEvent>> onKeyTypedProperty() {
         if (onKeyTyped == null) {
             onKeyTyped = new EventHandlerProperty<>(
-                                     bean,
-                                     "onKeyTyped",
-                                     KeyEvent.KEY_TYPED);
+                bean,
+                "onKeyTyped",
+                KeyEvent.KEY_TYPED);
         }
         return onKeyTyped;
     }
 
     private EventHandlerProperty<InputMethodEvent> onInputMethodTextChanged;
 
-    public final EventHandler<? super InputMethodEvent>
-            getOnInputMethodTextChanged() {
+    public final EventHandler<? super InputMethodEvent> getOnInputMethodTextChanged() {
         return (onInputMethodTextChanged == null)
-                ? null : onInputMethodTextChanged.get();
+            ? null
+            : onInputMethodTextChanged.get();
     }
 
-    public ObjectProperty<EventHandler<? super InputMethodEvent>>
-            onInputMethodTextChangedProperty() {
+    public ObjectProperty<EventHandler<? super InputMethodEvent>> onInputMethodTextChangedProperty() {
         if (onInputMethodTextChanged == null) {
-            onInputMethodTextChanged =
-                    new EventHandlerProperty<>(
-                            bean,
-                            "onInputMethodTextChanged",
-                            InputMethodEvent.INPUT_METHOD_TEXT_CHANGED);
+            onInputMethodTextChanged = new EventHandlerProperty<>(
+                bean,
+                "onInputMethodTextChanged",
+                InputMethodEvent.INPUT_METHOD_TEXT_CHANGED);
         }
         return onInputMethodTextChanged;
     }
@@ -573,13 +492,12 @@ public final class EventHandlerProperties {
         return (onDragEntered == null) ? null : onDragEntered.get();
     }
 
-    public ObjectProperty<EventHandler<? super DragEvent>>
-            onDragEnteredProperty() {
+    public ObjectProperty<EventHandler<? super DragEvent>> onDragEnteredProperty() {
         if (onDragEntered == null) {
             onDragEntered = new EventHandlerProperty<>(
-                                    bean,
-                                    "onDragEntered",
-                                    DragEvent.DRAG_ENTERED);
+                bean,
+                "onDragEntered",
+                DragEvent.DRAG_ENTERED);
         }
         return onDragEntered;
     }
@@ -590,13 +508,12 @@ public final class EventHandlerProperties {
         return (onDragExited == null) ? null : onDragExited.get();
     }
 
-    public ObjectProperty<EventHandler<? super DragEvent>>
-            onDragExitedProperty() {
+    public ObjectProperty<EventHandler<? super DragEvent>> onDragExitedProperty() {
         if (onDragExited == null) {
             onDragExited = new EventHandlerProperty<>(
-                                    bean,
-                                    "onDragExited",
-                                    DragEvent.DRAG_EXITED);
+                bean,
+                "onDragExited",
+                DragEvent.DRAG_EXITED);
         }
         return onDragExited;
     }
@@ -607,33 +524,32 @@ public final class EventHandlerProperties {
         return (onDragOver == null) ? null : onDragOver.get();
     }
 
-    public ObjectProperty<EventHandler<? super DragEvent>>
-            onDragOverProperty() {
+    public ObjectProperty<EventHandler<? super DragEvent>> onDragOverProperty() {
         if (onDragOver == null) {
             onDragOver = new EventHandlerProperty<>(
-                                    bean,
-                                    "onDragOver",
-                                    DragEvent.DRAG_OVER);
+                bean,
+                "onDragOver",
+                DragEvent.DRAG_OVER);
         }
         return onDragOver;
     }
 
     // Do we want DRAG_TRANSFER_MODE_CHANGED event?
-//    private EventHandlerProperty<DragEvent> onDragTransferModeChanged;
-//
-//    public final EventHandler<? super DragEvent> getOnDragTransferModeChanged() {
-//        return (onDragTransferModeChanged == null) ?
-//            null : onDragTransferModeChanged.get();
-//    }
-//
-//    public ObjectProperty<EventHandler<? super DragEvent>>
-//            onDragTransferModeChanged() {
-//        if (onDragTransferModeChanged == null) {
-//            onDragTransferModeChanged = new EventHandlerProperty<DragEvent>(
-//                                    DragEvent.DRAG_TRANSFER_MODE_CHANGED);
-//        }
-//        return onDragTransferModeChanged;
-//    }
+    //    private EventHandlerProperty<DragEvent> onDragTransferModeChanged;
+    //
+    //    public final EventHandler<? super DragEvent> getOnDragTransferModeChanged() {
+    //        return (onDragTransferModeChanged == null) ?
+    //            null : onDragTransferModeChanged.get();
+    //    }
+    //
+    //    public ObjectProperty<EventHandler<? super DragEvent>>
+    //            onDragTransferModeChanged() {
+    //        if (onDragTransferModeChanged == null) {
+    //            onDragTransferModeChanged = new EventHandlerProperty<DragEvent>(
+    //                                    DragEvent.DRAG_TRANSFER_MODE_CHANGED);
+    //        }
+    //        return onDragTransferModeChanged;
+    //    }
 
     private EventHandlerProperty<DragEvent> onDragDropped;
 
@@ -641,13 +557,12 @@ public final class EventHandlerProperties {
         return (onDragDropped == null) ? null : onDragDropped.get();
     }
 
-    public ObjectProperty<EventHandler<? super DragEvent>>
-            onDragDroppedProperty() {
+    public ObjectProperty<EventHandler<? super DragEvent>> onDragDroppedProperty() {
         if (onDragDropped == null) {
             onDragDropped = new EventHandlerProperty<>(
-                                    bean,
-                                    "onDragDropped",
-                                    DragEvent.DRAG_DROPPED);
+                bean,
+                "onDragDropped",
+                DragEvent.DRAG_DROPPED);
         }
         return onDragDropped;
     }
@@ -658,24 +573,23 @@ public final class EventHandlerProperties {
         return (onDragDone == null) ? null : onDragDone.get();
     }
 
-    public ObjectProperty<EventHandler<? super DragEvent>>
-            onDragDoneProperty() {
+    public ObjectProperty<EventHandler<? super DragEvent>> onDragDoneProperty() {
         if (onDragDone == null) {
             onDragDone = new EventHandlerProperty<>(
-                                    bean,
-                                    "onDragDone",
-                                    DragEvent.DRAG_DONE);
+                bean,
+                "onDragDone",
+                DragEvent.DRAG_DONE);
         }
         return onDragDone;
     }
 
     private final class EventHandlerProperty<T extends Event>
-            extends SimpleObjectProperty<EventHandler<? super T>> {
+        extends SimpleObjectProperty<EventHandler<? super T>> {
         private final EventType<T> eventType;
 
         public EventHandlerProperty(final Object bean,
-                                    final String name,
-                                    final EventType<T> eventType) {
+            final String name,
+            final EventType<T> eventType) {
             super(bean, name);
             this.eventType = eventType;
         }
@@ -692,13 +606,12 @@ public final class EventHandlerProperties {
         return (onTouchPressed == null) ? null : onTouchPressed.get();
     }
 
-    public ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchPressedProperty() {
+    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchPressedProperty() {
         if (onTouchPressed == null) {
             onTouchPressed = new EventHandlerProperty<>(
-                                     bean,
-                                     "onTouchPressed",
-                                     TouchEvent.TOUCH_PRESSED);
+                bean,
+                "onTouchPressed",
+                TouchEvent.TOUCH_PRESSED);
         }
         return onTouchPressed;
     }
@@ -709,13 +622,12 @@ public final class EventHandlerProperties {
         return (onTouchMoved == null) ? null : onTouchMoved.get();
     }
 
-    public ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchMovedProperty() {
+    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchMovedProperty() {
         if (onTouchMoved == null) {
             onTouchMoved = new EventHandlerProperty<>(
-                                     bean,
-                                     "onTouchMoved",
-                                     TouchEvent.TOUCH_MOVED);
+                bean,
+                "onTouchMoved",
+                TouchEvent.TOUCH_MOVED);
         }
         return onTouchMoved;
     }
@@ -726,13 +638,12 @@ public final class EventHandlerProperties {
         return (onTouchReleased == null) ? null : onTouchReleased.get();
     }
 
-    public ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchReleasedProperty() {
+    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchReleasedProperty() {
         if (onTouchReleased == null) {
             onTouchReleased = new EventHandlerProperty<>(
-                                     bean,
-                                     "onTouchReleased",
-                                     TouchEvent.TOUCH_RELEASED);
+                bean,
+                "onTouchReleased",
+                TouchEvent.TOUCH_RELEASED);
         }
         return onTouchReleased;
     }
@@ -743,13 +654,12 @@ public final class EventHandlerProperties {
         return (onTouchStationary == null) ? null : onTouchStationary.get();
     }
 
-    public ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchStationaryProperty() {
+    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchStationaryProperty() {
         if (onTouchStationary == null) {
             onTouchStationary = new EventHandlerProperty<>(
-                                     bean,
-                                     "onTouchStationary",
-                                     TouchEvent.TOUCH_STATIONARY);
+                bean,
+                "onTouchStationary",
+                TouchEvent.TOUCH_STATIONARY);
         }
         return onTouchStationary;
     }
