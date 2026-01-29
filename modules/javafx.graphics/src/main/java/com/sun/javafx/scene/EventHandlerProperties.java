@@ -44,6 +44,7 @@ import javafx.scene.input.SwipeEvent;
 import javafx.scene.input.TouchEvent;
 import javafx.scene.input.ZoomEvent;
 
+@Deprecated // FIX remove
 public final class EventHandlerProperties {
     private final EventHandlerManager eventDispatcher;
     private final Object bean;
@@ -155,23 +156,6 @@ public final class EventHandlerProperties {
                                      MouseEvent.MOUSE_MOVED);
         }
         return onMouseMoved;
-    }
-
-    private EventHandlerProperty<MouseEvent> onMousePressed;
-
-    public final EventHandler<? super MouseEvent> getOnMousePressed() {
-        return (onMousePressed == null) ? null : onMousePressed.get();
-    }
-
-    public ObjectProperty<EventHandler<? super MouseEvent>>
-            onMousePressedProperty() {
-        if (onMousePressed == null) {
-            onMousePressed = new EventHandlerProperty<>(
-                                     bean,
-                                     "onMousePressed",
-                                     MouseEvent.MOUSE_PRESSED);
-        }
-        return onMousePressed;
     }
 
     private EventHandlerProperty<MouseEvent> onMouseReleased;
