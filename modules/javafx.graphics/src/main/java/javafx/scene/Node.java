@@ -474,6 +474,9 @@ public abstract sealed class Node
     private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATE = new PKey<>();
     private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATION_FINISHED = new PKey<>();
     private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATION_STARTED = new PKey<>();
+    private static final PKey<EventHandlerProperty<ScrollEvent>> K_ON_SCROLL = new PKey<>();
+    private static final PKey<EventHandlerProperty<ScrollEvent>> K_ON_SCROLL_FINISHED = new PKey<>();
+    private static final PKey<EventHandlerProperty<ScrollEvent>> K_ON_SCROLL_STARTED = new PKey<>();
     private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_DOWN = new PKey<>();
     private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_LEFT = new PKey<>();
     private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_RIGHT = new PKey<>();
@@ -7753,8 +7756,8 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ScrollEvent> getOnScrollStarted() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnScrollStarted();
+        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7763,19 +7766,21 @@ public abstract sealed class Node
      * detected
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollStartedProperty() {
-        return getEventHandlerProperties().onScrollStartedProperty();
+    public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollStartedProperty() {
+        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
+        if (p == null) {
+            p = props.init(K_ON_SCROLL_STARTED, () -> new EventHandlerProperty<>("onScrollStarted", ScrollEvent.SCROLL_STARTED));
+        }
+        return p;
     }
 
-    public final void setOnScroll(
-            EventHandler<? super ScrollEvent> value) {
+    public final void setOnScroll(EventHandler<? super ScrollEvent> value) {
         onScrollProperty().set(value);
     }
 
     public final EventHandler<? super ScrollEvent> getOnScroll() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnScroll();
+        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7783,19 +7788,21 @@ public abstract sealed class Node
      * @return the event handler that is called when user performs a scrolling
      * action
      */
-    public final ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollProperty() {
-        return getEventHandlerProperties().onScrollProperty();
+    public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollProperty() {
+        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
+        if (p == null) {
+            p = props.init(K_ON_SCROLL, () -> new EventHandlerProperty<>("onScroll", ScrollEvent.SCROLL));
+        }
+        return p;
     }
 
-    public final void setOnScrollFinished(
-            EventHandler<? super ScrollEvent> value) {
+    public final void setOnScrollFinished(EventHandler<? super ScrollEvent> value) {
         onScrollFinishedProperty().set(value);
     }
 
     public final EventHandler<? super ScrollEvent> getOnScrollFinished() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnScrollFinished();
+        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7804,7 +7811,11 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollFinishedProperty() {
-        return getEventHandlerProperties().onScrollFinishedProperty();
+        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
+        if (p == null) {
+            p = props.init(K_ON_SCROLL_FINISHED, () -> new EventHandlerProperty<>("onScrollFinished", ScrollEvent.SCROLL_FINISHED));
+        }
+        return p;
     }
 
     public final void setOnRotationStarted(EventHandler<? super RotateEvent> value) {

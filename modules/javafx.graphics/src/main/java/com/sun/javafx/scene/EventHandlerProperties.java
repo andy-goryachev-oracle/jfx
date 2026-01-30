@@ -48,53 +48,11 @@ public final class EventHandlerProperties {
 
 
 
-    private EventHandlerProperty<ScrollEvent> onScroll;
 
-    public final EventHandler<? super ScrollEvent> getOnScroll() {
-        return (onScroll == null) ? null : onScroll.get();
-    }
 
-    public ObjectProperty<EventHandler<? super ScrollEvent>> onScrollProperty() {
-        if (onScroll == null) {
-            onScroll = new EventHandlerProperty<>(
-                bean,
-                "onScroll",
-                ScrollEvent.SCROLL);
-        }
-        return onScroll;
-    }
 
-    private EventHandlerProperty<ScrollEvent> onScrollStarted;
 
-    public final EventHandler<? super ScrollEvent> getOnScrollStarted() {
-        return (onScrollStarted == null) ? null : onScrollStarted.get();
-    }
 
-    public ObjectProperty<EventHandler<? super ScrollEvent>> onScrollStartedProperty() {
-        if (onScrollStarted == null) {
-            onScrollStarted = new EventHandlerProperty<>(
-                bean,
-                "onScrollStarted",
-                ScrollEvent.SCROLL_STARTED);
-        }
-        return onScrollStarted;
-    }
-
-    private EventHandlerProperty<ScrollEvent> onScrollFinished;
-
-    public final EventHandler<? super ScrollEvent> getOnScrollFinished() {
-        return (onScrollFinished == null) ? null : onScrollFinished.get();
-    }
-
-    public ObjectProperty<EventHandler<? super ScrollEvent>> onScrollFinishedProperty() {
-        if (onScrollFinished == null) {
-            onScrollFinished = new EventHandlerProperty<>(
-                bean,
-                "onScrollFinished",
-                ScrollEvent.SCROLL_FINISHED);
-        }
-        return onScrollFinished;
-    }
 
 
 
