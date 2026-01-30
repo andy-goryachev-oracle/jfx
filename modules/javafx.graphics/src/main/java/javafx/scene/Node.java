@@ -471,6 +471,9 @@ public abstract sealed class Node
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_RELEASED = new PKey<>();
+    private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATE = new PKey<>();
+    private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATION_FINISHED = new PKey<>();
+    private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATION_STARTED = new PKey<>();
     private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_DOWN = new PKey<>();
     private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_LEFT = new PKey<>();
     private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_RIGHT = new PKey<>();
@@ -7800,19 +7803,17 @@ public abstract sealed class Node
      * @return the event handler that is called when a scrolling gesture ends
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollFinishedProperty() {
+    public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollFinishedProperty() {
         return getEventHandlerProperties().onScrollFinishedProperty();
     }
 
-    public final void setOnRotationStarted(
-            EventHandler<? super RotateEvent> value) {
+    public final void setOnRotationStarted(EventHandler<? super RotateEvent> value) {
         onRotationStartedProperty().set(value);
     }
 
     public final EventHandler<? super RotateEvent> getOnRotationStarted() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnRotationStarted();
+        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7821,19 +7822,21 @@ public abstract sealed class Node
      * detected
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotationStartedProperty() {
-        return getEventHandlerProperties().onRotationStartedProperty();
+    public final ObjectProperty<EventHandler<? super RotateEvent>> onRotationStartedProperty() {
+        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
+        if (p == null) {
+            p = props.init(K_ON_ROTATION_STARTED, () -> new EventHandlerProperty<>("onRotationStarted", RotateEvent.ROTATION_STARTED));
+        }
+        return p;
     }
 
-    public final void setOnRotate(
-            EventHandler<? super RotateEvent> value) {
+    public final void setOnRotate(EventHandler<? super RotateEvent> value) {
         onRotateProperty().set(value);
     }
 
     public final EventHandler<? super RotateEvent> getOnRotate() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnRotate();
+        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATE);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7842,19 +7845,21 @@ public abstract sealed class Node
      * action
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotateProperty() {
-        return getEventHandlerProperties().onRotateProperty();
+    public final ObjectProperty<EventHandler<? super RotateEvent>> onRotateProperty() {
+        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATE);
+        if (p == null) {
+            p = props.init(K_ON_ROTATE, () -> new EventHandlerProperty<>("onRotate", RotateEvent.ROTATE));
+        }
+        return p;
     }
 
-    public final void setOnRotationFinished(
-            EventHandler<? super RotateEvent> value) {
+    public final void setOnRotationFinished(EventHandler<? super RotateEvent> value) {
         onRotationFinishedProperty().set(value);
     }
 
     public final EventHandler<? super RotateEvent> getOnRotationFinished() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnRotationFinished();
+        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7862,9 +7867,12 @@ public abstract sealed class Node
      * @return the event handler that is called when a rotation gesture ends
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotationFinishedProperty() {
-        return getEventHandlerProperties().onRotationFinishedProperty();
+    public final ObjectProperty<EventHandler<? super RotateEvent>> onRotationFinishedProperty() {
+        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
+        if (p == null) {
+            p = props.init(K_ON_ROTATION_FINISHED, () -> new EventHandlerProperty<>("onRotationFinished", RotateEvent.ROTATION_FINISHED));
+        }
+        return p;
     }
 
     /**

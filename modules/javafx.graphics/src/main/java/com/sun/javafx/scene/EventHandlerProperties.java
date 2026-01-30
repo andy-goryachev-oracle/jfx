@@ -30,12 +30,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.RotateEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.SwipeEvent;
 import com.sun.javafx.event.EventHandlerManager;
 
 @Deprecated // FIX remove
@@ -101,53 +96,10 @@ public final class EventHandlerProperties {
         return onScrollFinished;
     }
 
-    private EventHandlerProperty<RotateEvent> onRotationStarted;
 
-    public final EventHandler<? super RotateEvent> getOnRotationStarted() {
-        return (onRotationStarted == null) ? null : onRotationStarted.get();
-    }
 
-    public ObjectProperty<EventHandler<? super RotateEvent>> onRotationStartedProperty() {
-        if (onRotationStarted == null) {
-            onRotationStarted = new EventHandlerProperty<>(
-                bean,
-                "onRotationStarted",
-                RotateEvent.ROTATION_STARTED);
-        }
-        return onRotationStarted;
-    }
 
-    private EventHandlerProperty<RotateEvent> onRotate;
 
-    public final EventHandler<? super RotateEvent> getOnRotate() {
-        return (onRotate == null) ? null : onRotate.get();
-    }
-
-    public ObjectProperty<EventHandler<? super RotateEvent>> onRotateProperty() {
-        if (onRotate == null) {
-            onRotate = new EventHandlerProperty<>(
-                bean,
-                "onRotate",
-                RotateEvent.ROTATE);
-        }
-        return onRotate;
-    }
-
-    private EventHandlerProperty<RotateEvent> onRotationFinished;
-
-    public final EventHandler<? super RotateEvent> getOnRotationFinished() {
-        return (onRotationFinished == null) ? null : onRotationFinished.get();
-    }
-
-    public ObjectProperty<EventHandler<? super RotateEvent>> onRotationFinishedProperty() {
-        if (onRotationFinished == null) {
-            onRotationFinished = new EventHandlerProperty<>(
-                bean,
-                "onRotationFinished",
-                RotateEvent.ROTATION_FINISHED);
-        }
-        return onRotationFinished;
-    }
 
 
     private final class EventHandlerProperty<T extends Event>
