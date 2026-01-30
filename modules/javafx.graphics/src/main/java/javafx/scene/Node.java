@@ -448,6 +448,7 @@ public abstract sealed class Node
     private static final PKey<DoubleProperty> K_LAYOUT_Y = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
+    private static final PKey<EventHandlerProperty<ContextMenuEvent>> K_ON_CONTEXT_MENU_REQUESTED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_DRAG_DETECTED = new PKey<>();
     private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_DONE = new PKey<>();
     private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_DROPPED = new PKey<>();
@@ -458,7 +459,13 @@ public abstract sealed class Node
     private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_RELEASED = new PKey<>();
     private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_TYPED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_CLICKED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_DRAGGED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_ENTERED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_EXITED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_RELEASED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_RELEASED = new PKey<>();
@@ -7395,14 +7402,13 @@ public abstract sealed class Node
         return pressed;
     }
 
-    public final void setOnContextMenuRequested(
-            EventHandler<? super ContextMenuEvent> value) {
+    public final void setOnContextMenuRequested(EventHandler<? super ContextMenuEvent> value) {
         onContextMenuRequestedProperty().set(value);
     }
 
     public final EventHandler<? super ContextMenuEvent> getOnContextMenuRequested() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.onContextMenuRequested();
+        EventHandlerProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7412,19 +7418,21 @@ public abstract sealed class Node
      * requested on this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super ContextMenuEvent>>
-            onContextMenuRequestedProperty() {
-        return getEventHandlerProperties().onContextMenuRequestedProperty();
+    public final ObjectProperty<EventHandler<? super ContextMenuEvent>> onContextMenuRequestedProperty() {
+        EventHandlerProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
+        if (p == null) {
+            p = props.init(K_ON_CONTEXT_MENU_REQUESTED, () -> new EventHandlerProperty<>("onMenuContextRequested", ContextMenuEvent.CONTEXT_MENU_REQUESTED));
+        }
+        return p;
     }
 
-    public final void setOnMouseClicked(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseClicked(EventHandler<? super MouseEvent> value) {
         onMouseClickedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseClicked() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseClicked();
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7433,19 +7441,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse button has been
      * clicked (pressed and released) on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseClickedProperty() {
-        return getEventHandlerProperties().onMouseClickedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseClickedProperty() {
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_CLICKED, () -> new EventHandlerProperty<>("onMouseClicked", MouseEvent.MOUSE_CLICKED));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragged(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseDragged(EventHandler<? super MouseEvent> value) {
         onMouseDraggedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseDragged() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragged();
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7454,19 +7464,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse button is pressed
      * on this {@code Node} and then dragged
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseDraggedProperty() {
-        return getEventHandlerProperties().onMouseDraggedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseDraggedProperty() {
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAGGED, () -> new EventHandlerProperty<>("onMouseDragged", MouseEvent.MOUSE_DRAGGED));
+        }
+        return p;
     }
 
-    public final void setOnMouseEntered(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseEntered(EventHandler<? super MouseEvent> value) {
         onMouseEnteredProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseEntered() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseEntered();
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7474,19 +7486,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse enters this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseEnteredProperty() {
-        return getEventHandlerProperties().onMouseEnteredProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseEnteredProperty() {
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_ENTERED, () -> new EventHandlerProperty<>("onMouseEntered", MouseEvent.MOUSE_ENTERED));
+        }
+        return p;
     }
 
-    public final void setOnMouseExited(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseExited(EventHandler<? super MouseEvent> value) {
         onMouseExitedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseExited() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseExited();
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7494,19 +7508,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse exits this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseExitedProperty() {
-        return getEventHandlerProperties().onMouseExitedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseExitedProperty() {
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_EXITED, () -> new EventHandlerProperty<>("onMouseExited", MouseEvent.MOUSE_EXITED));
+        }
+        return p;
     }
 
-    public final void setOnMouseMoved(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseMoved(EventHandler<? super MouseEvent> value) {
         onMouseMovedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseMoved() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseMoved();
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7515,9 +7531,12 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse cursor moves
      * within this {@code Node} but no buttons have been pushed
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseMovedProperty() {
-        return getEventHandlerProperties().onMouseMovedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseMovedProperty() {
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_MOVED, () -> new EventHandlerProperty<>("onMouseMoved", MouseEvent.MOUSE_MOVED));
+        }
+        return p;
     }
 
     /**
@@ -7539,19 +7558,17 @@ public abstract sealed class Node
         return (p == null) ? null : p.get();
     }
 
-    public final void setOnMousePressed(
-        EventHandler<? super MouseEvent> value) {
+    public final void setOnMousePressed(EventHandler<? super MouseEvent> value) {
         onMousePressedProperty().set(value);
     }
 
-    public final void setOnMouseReleased(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseReleased(EventHandler<? super MouseEvent> value) {
         onMouseReleasedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseReleased();
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7560,9 +7577,12 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse button has been
      * released on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseReleasedProperty() {
-        return getEventHandlerProperties().onMouseReleasedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseReleasedProperty() {
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_RELEASED, () -> new EventHandlerProperty<>("onMouseReleased", MouseEvent.MOUSE_RELEASED));
+        }
+        return p;
     }
 
     public final void setOnDragDetected(EventHandler<? super MouseEvent> value) {

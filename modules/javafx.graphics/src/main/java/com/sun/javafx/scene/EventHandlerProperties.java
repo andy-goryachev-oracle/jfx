@@ -50,117 +50,17 @@ public final class EventHandlerProperties {
         this.bean = bean;
     }
 
-    private EventHandlerProperty<ContextMenuEvent> onMenuContextRequested;
 
-    public final EventHandler<? super ContextMenuEvent> onContextMenuRequested() {
-        return (onMenuContextRequested == null) ? null : onMenuContextRequested.get();
-    }
 
-    public ObjectProperty<EventHandler<? super ContextMenuEvent>> onContextMenuRequestedProperty() {
-        if (onMenuContextRequested == null) {
-            onMenuContextRequested = new EventHandlerProperty<>(
-                bean,
-                "onMenuContextRequested",
-                ContextMenuEvent.CONTEXT_MENU_REQUESTED);
-        }
-        return onMenuContextRequested;
-    }
 
-    private EventHandlerProperty<MouseEvent> onMouseClicked;
 
-    public final EventHandler<? super MouseEvent> getOnMouseClicked() {
-        return (onMouseClicked == null) ? null : onMouseClicked.get();
-    }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseClickedProperty() {
-        if (onMouseClicked == null) {
-            onMouseClicked = new EventHandlerProperty<>(
-                bean,
-                "onMouseClicked",
-                MouseEvent.MOUSE_CLICKED);
-        }
-        return onMouseClicked;
-    }
 
-    private EventHandlerProperty<MouseEvent> onMouseDragged;
 
-    public final EventHandler<? super MouseEvent> getOnMouseDragged() {
-        return (onMouseDragged == null) ? null : onMouseDragged.get();
-    }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseDraggedProperty() {
-        if (onMouseDragged == null) {
-            onMouseDragged = new EventHandlerProperty<>(
-                bean,
-                "onMouseDragged",
-                MouseEvent.MOUSE_DRAGGED);
-        }
-        return onMouseDragged;
-    }
 
-    private EventHandlerProperty<MouseEvent> onMouseEntered;
 
-    public final EventHandler<? super MouseEvent> getOnMouseEntered() {
-        return (onMouseEntered == null) ? null : onMouseEntered.get();
-    }
 
-    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseEnteredProperty() {
-        if (onMouseEntered == null) {
-            onMouseEntered = new EventHandlerProperty<>(
-                bean,
-                "onMouseEntered",
-                MouseEvent.MOUSE_ENTERED);
-        }
-        return onMouseEntered;
-    }
-
-    private EventHandlerProperty<MouseEvent> onMouseExited;
-
-    public final EventHandler<? super MouseEvent> getOnMouseExited() {
-        return (onMouseExited == null) ? null : onMouseExited.get();
-    }
-
-    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseExitedProperty() {
-        if (onMouseExited == null) {
-            onMouseExited = new EventHandlerProperty<>(
-                bean,
-                "onMouseExited",
-                MouseEvent.MOUSE_EXITED);
-        }
-        return onMouseExited;
-    }
-
-    private EventHandlerProperty<MouseEvent> onMouseMoved;
-
-    public final EventHandler<? super MouseEvent> getOnMouseMoved() {
-        return (onMouseMoved == null) ? null : onMouseMoved.get();
-    }
-
-    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseMovedProperty() {
-        if (onMouseMoved == null) {
-            onMouseMoved = new EventHandlerProperty<>(
-                bean,
-                "onMouseMoved",
-                MouseEvent.MOUSE_MOVED);
-        }
-        return onMouseMoved;
-    }
-
-    private EventHandlerProperty<MouseEvent> onMouseReleased;
-
-    public final EventHandler<? super MouseEvent> getOnMouseReleased() {
-        return (onMouseReleased == null) ? null : onMouseReleased.get();
-    }
-
-    public ObjectProperty<EventHandler<? super MouseEvent>> onMouseReleasedProperty() {
-        if (onMouseReleased == null) {
-            onMouseReleased = new EventHandlerProperty<>(
-                bean,
-                "onMouseReleased",
-                MouseEvent.MOUSE_RELEASED);
-        }
-        return onMouseReleased;
-    }
 
     private EventHandlerProperty<ScrollEvent> onScroll;
 
