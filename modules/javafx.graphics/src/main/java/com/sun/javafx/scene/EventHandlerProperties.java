@@ -165,22 +165,6 @@ public final class EventHandlerProperties {
         return onMouseReleased;
     }
 
-    private EventHandlerProperty<MouseEvent> onDragDetected;
-
-    public final EventHandler<? super MouseEvent> getOnDragDetected() {
-        return (onDragDetected == null) ? null : onDragDetected.get();
-    }
-
-    public ObjectProperty<EventHandler<? super MouseEvent>> onDragDetectedProperty() {
-        if (onDragDetected == null) {
-            onDragDetected = new EventHandlerProperty<>(
-                bean,
-                "onDragDetected",
-                MouseEvent.DRAG_DETECTED);
-        }
-        return onDragDetected;
-    }
-
     private EventHandlerProperty<ScrollEvent> onScroll;
 
     public final EventHandler<? super ScrollEvent> getOnScroll() {
@@ -485,53 +469,8 @@ public final class EventHandlerProperties {
         return onInputMethodTextChanged;
     }
 
-    private EventHandlerProperty<DragEvent> onDragEntered;
 
-    public final EventHandler<? super DragEvent> getOnDragEntered() {
-        return (onDragEntered == null) ? null : onDragEntered.get();
-    }
 
-    public ObjectProperty<EventHandler<? super DragEvent>> onDragEnteredProperty() {
-        if (onDragEntered == null) {
-            onDragEntered = new EventHandlerProperty<>(
-                bean,
-                "onDragEntered",
-                DragEvent.DRAG_ENTERED);
-        }
-        return onDragEntered;
-    }
-
-    private EventHandlerProperty<DragEvent> onDragExited;
-
-    public final EventHandler<? super DragEvent> getOnDragExited() {
-        return (onDragExited == null) ? null : onDragExited.get();
-    }
-
-    public ObjectProperty<EventHandler<? super DragEvent>> onDragExitedProperty() {
-        if (onDragExited == null) {
-            onDragExited = new EventHandlerProperty<>(
-                bean,
-                "onDragExited",
-                DragEvent.DRAG_EXITED);
-        }
-        return onDragExited;
-    }
-
-    private EventHandlerProperty<DragEvent> onDragOver;
-
-    public final EventHandler<? super DragEvent> getOnDragOver() {
-        return (onDragOver == null) ? null : onDragOver.get();
-    }
-
-    public ObjectProperty<EventHandler<? super DragEvent>> onDragOverProperty() {
-        if (onDragOver == null) {
-            onDragOver = new EventHandlerProperty<>(
-                bean,
-                "onDragOver",
-                DragEvent.DRAG_OVER);
-        }
-        return onDragOver;
-    }
 
     // Do we want DRAG_TRANSFER_MODE_CHANGED event?
     //    private EventHandlerProperty<DragEvent> onDragTransferModeChanged;
@@ -550,37 +489,7 @@ public final class EventHandlerProperties {
     //        return onDragTransferModeChanged;
     //    }
 
-    private EventHandlerProperty<DragEvent> onDragDropped;
 
-    public final EventHandler<? super DragEvent> getOnDragDropped() {
-        return (onDragDropped == null) ? null : onDragDropped.get();
-    }
-
-    public ObjectProperty<EventHandler<? super DragEvent>> onDragDroppedProperty() {
-        if (onDragDropped == null) {
-            onDragDropped = new EventHandlerProperty<>(
-                bean,
-                "onDragDropped",
-                DragEvent.DRAG_DROPPED);
-        }
-        return onDragDropped;
-    }
-
-    private EventHandlerProperty<DragEvent> onDragDone;
-
-    public final EventHandler<? super DragEvent> getOnDragDone() {
-        return (onDragDone == null) ? null : onDragDone.get();
-    }
-
-    public ObjectProperty<EventHandler<? super DragEvent>> onDragDoneProperty() {
-        if (onDragDone == null) {
-            onDragDone = new EventHandlerProperty<>(
-                bean,
-                "onDragDone",
-                DragEvent.DRAG_DONE);
-        }
-        return onDragDone;
-    }
 
     private final class EventHandlerProperty<T extends Event>
         extends SimpleObjectProperty<EventHandler<? super T>> {

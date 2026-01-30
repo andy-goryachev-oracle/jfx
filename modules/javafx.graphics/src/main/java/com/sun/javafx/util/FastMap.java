@@ -60,8 +60,8 @@ public class FastMap {
         values = new ArrayList<>(capacity);
     }
 
-    public static FastMap create(Node node) {
-        return COLLECT_STATISTICS ? new FastMaPWithStats(node) : new FastMap(node);
+    public static FastMap create(Node node, Class<? extends Node> cls) {
+        return COLLECT_STATISTICS ? new FastMaPWithStats(node, cls) : new FastMap(node);
     }
 
     public <T> T init(PKey<T> key, Supplier<T> generator) {
@@ -115,9 +115,9 @@ public class FastMap {
             init();
         }
 
-        public FastMaPWithStats(Node n) {
+        public FastMaPWithStats(Node n, Class<? extends Node> cls) {
             super(n);
-            this.keyCount = countKeys(n);
+            this.keyCount = countKeys(cls);
             all.put(this, null);
         }
 
@@ -131,7 +131,7 @@ public class FastMap {
             histComp = new Comparator<HEntry>() {
                 @Override
                 public int compare(HEntry a, HEntry b) {
-                    return b.size - a.size;
+                    return a.size - b.size;
                 }
             };
             
@@ -143,8 +143,7 @@ public class FastMap {
             });
         }
 
-        private static int countKeys(Node node) {
-            Class<?> cls = node.getClass();
+        private static int countKeys(Class<?> cls) {
             Integer cached = counts.get(cls);
             if(cached != null) {
                 return cached.intValue();
@@ -171,6 +170,7 @@ public class FastMap {
     
                 if (c == Node.class) {
                     counts.put(cls, Integer.valueOf(count));
+                    System.out.println(cls + " properties=" + count);
                     return count;
                 }
                 c = c.getSuperclass();
@@ -227,19 +227,25 @@ public class FastMap {
             System.out.println(frequencies(freq));
             System.out.println(histogram(hist));
         }
-    
+
         private static String histogram(HashMap<Integer, AtomicInteger> hist) {
             ArrayList<HEntry> entries = new ArrayList<>();
-            for(Integer k: hist.keySet()) {
+            for (Integer k : hist.keySet()) {
                 int ct = hist.get(k).intValue();
                 entries.add(new HEntry(k, ct));
             }
             entries.sort(histComp);
-            
+
             StringBuilder sb = new StringBuilder();
-            for(HEntry en: entries) {
+            for (HEntry en : entries) {
+                String name = String.valueOf(en.size);
+                switch (name.length()) {
+                case 1:
+                    name = " " + name;
+                    break;
+                }
                 sb.append("   ");
-                sb.append(en.size);
+                sb.append(name);
                 sb.append(": ");
                 sb.append(en.count);
                 sb.append("\n");
@@ -247,17 +253,17 @@ public class FastMap {
             return sb.toString();
         }
 
-        private static String frequencies(HashMap<PKey,AtomicInteger> freq) {
+        private static String frequencies(HashMap<PKey, AtomicInteger> freq) {
             ArrayList<FEntry> entries = new ArrayList<>();
-            for(PKey k: freq.keySet()) {
+            for (PKey k : freq.keySet()) {
                 int ct = freq.get(k).intValue();
                 String name = getName(k);
                 entries.add(new FEntry(name, ct));
             }
             entries.sort(freqComp);
-            
+
             StringBuilder sb = new StringBuilder();
-            for(FEntry en: entries) {
+            for (FEntry en : entries) {
                 sb.append("   ");
                 sb.append(en.name);
                 sb.append(": ");

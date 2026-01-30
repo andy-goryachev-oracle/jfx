@@ -447,6 +447,12 @@ public abstract sealed class Node
     private static final PKey<DoubleProperty> K_LAYOUT_Y = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_DRAG_DETECTED = new PKey<>();
+    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_DONE = new PKey<>();
+    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_DROPPED = new PKey<>();
+    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_ENTERED = new PKey<>();
+    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_EXITED = new PKey<>();
+    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_OVER = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
@@ -460,7 +466,7 @@ public abstract sealed class Node
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
     private static final PKey<BooleanProperty> K_VISIBLE = new PKey<>();
     // TODO
-    private final FastMap props = FastMap.create(this);
+    private final FastMap props = FastMap.create(this, Node.class);
 
     /*
      * Store the singleton instance of the NodeHelper subclass corresponding
@@ -2753,14 +2759,13 @@ public abstract sealed class Node
      *                                                                        *
      *************************************************************************/
 
-    public final void setOnDragEntered(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragEntered(EventHandler<? super DragEvent> value) {
         onDragEnteredProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragEntered() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragEntered();
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2769,19 +2774,21 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture enters this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragEnteredProperty() {
-        return getEventHandlerProperties().onDragEnteredProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragEnteredProperty() {
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_ENTERED, () -> new EventHandlerProperty<>("onDragEntered", DragEvent.DRAG_ENTERED));
+        }
+        return p;
     }
 
-    public final void setOnDragExited(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragExited(EventHandler<? super DragEvent> value) {
         onDragExitedProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragExited() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragExited();
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2790,19 +2797,21 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture exits this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragExitedProperty() {
-        return getEventHandlerProperties().onDragExitedProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragExitedProperty() {
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_EXITED, () -> new EventHandlerProperty<>("onDragExited", DragEvent.DRAG_EXITED));
+        }
+        return p;
     }
 
-    public final void setOnDragOver(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragOver(EventHandler<? super DragEvent> value) {
         onDragOverProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragOver() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragOver();
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2811,9 +2820,12 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture progresses
      * within this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragOverProperty() {
-        return getEventHandlerProperties().onDragOverProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragOverProperty() {
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_OVER, () -> new EventHandlerProperty<>("onDragOver", DragEvent.DRAG_OVER));
+        }
+        return p;
     }
 
     // Do we want DRAG_TRANSFER_MODE_CHANGED event?
@@ -2839,14 +2851,13 @@ public abstract sealed class Node
 //        return getEventHandlerProperties().onDragTransferModeChangedProperty();
 //    }
 
-    public final void setOnDragDropped(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragDropped(EventHandler<? super DragEvent> value) {
         onDragDroppedProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragDropped() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragDropped();
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2857,19 +2868,21 @@ public abstract sealed class Node
      * @return the event handler that is called when the mouse button is
      * released on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragDroppedProperty() {
-        return getEventHandlerProperties().onDragDroppedProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragDroppedProperty() {
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_DROPPED, () -> new EventHandlerProperty<>("onDragDropped", DragEvent.DRAG_DROPPED));
+        }
+        return p;
     }
 
-    public final void setOnDragDone(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragDone(EventHandler<? super DragEvent> value) {
         onDragDoneProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragDone() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragDone();
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2885,9 +2898,12 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} is a drag
      * and drop gesture source after its data has been dropped on a drop target
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragDoneProperty() {
-        return getEventHandlerProperties().onDragDoneProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragDoneProperty() {
+        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_DONE, () -> new EventHandlerProperty<>("onDragDone", DragEvent.DRAG_DONE));
+        }
+        return p;
     }
 
     /**
@@ -7544,14 +7560,13 @@ public abstract sealed class Node
         return getEventHandlerProperties().onMouseReleasedProperty();
     }
 
-    public final void setOnDragDetected(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnDragDetected(EventHandler<? super MouseEvent> value) {
         onDragDetectedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnDragDetected() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragDetected();
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7560,9 +7575,12 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture has been
      * detected
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onDragDetectedProperty() {
-        return getEventHandlerProperties().onDragDetectedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onDragDetectedProperty() {
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_DETECTED, () -> new EventHandlerProperty<>("onDragDetected", MouseEvent.DRAG_DETECTED));
+        }
+        return p;
     }
 
     public final void setOnMouseDragOver(
