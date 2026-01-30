@@ -426,6 +426,7 @@ public abstract sealed class Node
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
     private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_HELP = new PKey<>();
+    private static final PKey<ObjectProperty<AccessibleRole>> K_ACCESSIBLE_ROLE = new PKey<>();
     private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_ROLE_DESCR = new PKey<>();
     private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_TEXT = new PKey<>();
     private static final PKey<ObjectProperty<BlendMode>> K_BLEND_MODE = new PKey<>();
@@ -453,6 +454,7 @@ public abstract sealed class Node
     private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_ENTERED = new PKey<>();
     private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_EXITED = new PKey<>();
     private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_OVER = new PKey<>();
+    private static final PKey<EventHandlerProperty<InputMethodEvent>> K_ON_INPUT_METHOD_TEXT_CHANGED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
@@ -8155,15 +8157,13 @@ public abstract sealed class Node
      *                                                                         *
      **************************************************************************/
 
-    public final void setOnInputMethodTextChanged(
-            EventHandler<? super InputMethodEvent> value) {
+    public final void setOnInputMethodTextChanged(EventHandler<? super InputMethodEvent> value) {
         onInputMethodTextChangedProperty().set(value);
     }
 
-    public final EventHandler<? super InputMethodEvent>
-            getOnInputMethodTextChanged() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnInputMethodTextChanged();
+    public final EventHandler<? super InputMethodEvent> getOnInputMethodTextChanged() {
+        EventHandlerProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8179,9 +8179,12 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} has input
      * focus and the input method text has changed
      */
-    public final ObjectProperty<EventHandler<? super InputMethodEvent>>
-            onInputMethodTextChangedProperty() {
-        return getEventHandlerProperties().onInputMethodTextChangedProperty();
+    public final ObjectProperty<EventHandler<? super InputMethodEvent>> onInputMethodTextChangedProperty() {
+        EventHandlerProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
+        if (p == null) {
+            p = props.init(K_ON_INPUT_METHOD_TEXT_CHANGED, () -> new EventHandlerProperty<>("onInputMethodTextChanged", InputMethodEvent.INPUT_METHOD_TEXT_CHANGED));
+        }
+        return p;
     }
 
     public final void setInputMethodRequests(InputMethodRequests value) {
@@ -10254,12 +10257,19 @@ public abstract sealed class Node
      * The screen reader uses the role of a node to determine the
      * attributes and actions that are supported.
      *
+     * @return the accessible role for this {@code Node}
      * @defaultValue {@link AccessibleRole#NODE}
      * @see AccessibleRole
      *
      * @since JavaFX 8u40
      */
-    private ObjectProperty<AccessibleRole> accessibleRole;
+    public final ObjectProperty<AccessibleRole> accessibleRoleProperty() {
+        ObjectProperty<AccessibleRole> p = props.get(K_ACCESSIBLE_ROLE);
+        if (p == null) {
+            p = props.init(K_ACCESSIBLE_ROLE, () -> new SimpleObjectProperty<>(this, "accessibleRole", AccessibleRole.NODE));
+        }
+        return p;
+    }
 
     public final void setAccessibleRole(AccessibleRole value) {
         if (value == null) value = AccessibleRole.NODE;
@@ -10267,15 +10277,8 @@ public abstract sealed class Node
     }
 
     public final AccessibleRole getAccessibleRole() {
-        if (accessibleRole == null) return AccessibleRole.NODE;
-        return accessibleRoleProperty().get();
-    }
-
-    public final ObjectProperty<AccessibleRole> accessibleRoleProperty() {
-        if (accessibleRole == null) {
-            accessibleRole = new SimpleObjectProperty<>(this, "accessibleRole", AccessibleRole.NODE);
-        }
-        return accessibleRole;
+        ObjectProperty<AccessibleRole> p = props.get(K_ACCESSIBLE_ROLE);
+        return (p == null) ? AccessibleRole.NODE : p.get();
     }
 
     public final void setAccessibleRoleDescription(String value) {

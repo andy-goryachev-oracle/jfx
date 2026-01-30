@@ -451,23 +451,6 @@ public final class EventHandlerProperties {
         return onKeyTyped;
     }
 
-    private EventHandlerProperty<InputMethodEvent> onInputMethodTextChanged;
-
-    public final EventHandler<? super InputMethodEvent> getOnInputMethodTextChanged() {
-        return (onInputMethodTextChanged == null)
-            ? null
-            : onInputMethodTextChanged.get();
-    }
-
-    public ObjectProperty<EventHandler<? super InputMethodEvent>> onInputMethodTextChangedProperty() {
-        if (onInputMethodTextChanged == null) {
-            onInputMethodTextChanged = new EventHandlerProperty<>(
-                bean,
-                "onInputMethodTextChanged",
-                InputMethodEvent.INPUT_METHOD_TEXT_CHANGED);
-        }
-        return onInputMethodTextChanged;
-    }
 
 
 
