@@ -447,10 +447,14 @@ public abstract sealed class Node
     private static final PKey<DoubleProperty> K_LAYOUT_Y = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
-    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
-    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM = new PKey<>();
-    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
-    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
+    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
+    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
+    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_RELEASED = new PKey<>();
+    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_STATIONARY = new PKey<>();
+    private static final PKey<EventHandlerProperty<ZoomEvent>> K_ON_ZOOM = new PKey<>();
+    private static final PKey<EventHandlerProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
+    private static final PKey<EventHandlerProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
@@ -7502,15 +7506,15 @@ public abstract sealed class Node
      * pressed on this {@code Node}
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMousePressedProperty() {
-        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_PRESSED, () -> new EHProperty<>("onMousePressed", MouseEvent.MOUSE_PRESSED));
+            p = props.init(K_ON_MOUSE_PRESSED, () -> new EventHandlerProperty<>("onMousePressed", MouseEvent.MOUSE_PRESSED));
         }
         return p;
     }
 
     public final EventHandler<? super MouseEvent> getOnMousePressed() {
-        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
         return (p == null) ? null : p.get();
     }
 
@@ -7805,9 +7809,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomStartedProperty() {
-        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
         if (p == null) {
-            p = props.init(K_ON_ZOOM_STARTED, () -> new EHProperty<>("onZoomStarted", ZoomEvent.ZOOM_STARTED));
+            p = props.init(K_ON_ZOOM_STARTED, () -> new EventHandlerProperty<>("onZoomStarted", ZoomEvent.ZOOM_STARTED));
         }
         return p;
     }
@@ -7817,7 +7821,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ZoomEvent> getOnZoomStarted() {
-        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
         return (p == null) ? null : p.get();
     }
 
@@ -7828,15 +7832,15 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomProperty() {
-        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
         if (p == null) {
-            p = props.init(K_ON_ZOOM, () -> new EHProperty<>("onZoom", ZoomEvent.ZOOM));
+            p = props.init(K_ON_ZOOM, () -> new EventHandlerProperty<>("onZoom", ZoomEvent.ZOOM));
         }
         return p;
     }
 
     public final EventHandler<? super ZoomEvent> getOnZoom() {
-        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
         return (p == null) ? null : p.get();
     }
 
@@ -7850,9 +7854,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomFinishedProperty() {
-        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
         if (p == null) {
-            p = props.init(K_ON_ZOOM_FINISHED, () -> new EHProperty<>("onZoomFinished", ZoomEvent.ZOOM_FINISHED));
+            p = props.init(K_ON_ZOOM_FINISHED, () -> new EventHandlerProperty<>("onZoomFinished", ZoomEvent.ZOOM_FINISHED));
         }
         return p;
     }
@@ -7862,7 +7866,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ZoomEvent> getOnZoomFinished() {
-        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
         return (p == null) ? null : p.get();
     }
 
@@ -7961,34 +7965,26 @@ public abstract sealed class Node
      *                                                                         *
      **************************************************************************/
 
-    public final void setOnTouchPressed(
-            EventHandler<? super TouchEvent> value) {
-        onTouchPressedProperty().set(value);
-    }
-
-    public final EventHandler<? super TouchEvent> getOnTouchPressed() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchPressed();
-    }
-
     /**
      * Defines a function to be called when a new touch point is pressed.
      * @return the event handler that is called when a new touch point is pressed
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchPressedProperty() {
-        return getEventHandlerProperties().onTouchPressedProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchPressedProperty() {
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_PRESSED, () -> new EventHandlerProperty<>("onTouchPressed", TouchEvent.TOUCH_PRESSED));
+        }
+        return p;
     }
 
-    public final void setOnTouchMoved(
-            EventHandler<? super TouchEvent> value) {
-        onTouchMovedProperty().set(value);
+    public final void setOnTouchPressed(EventHandler<? super TouchEvent> value) {
+        onTouchPressedProperty().set(value);
     }
 
-    public final EventHandler<? super TouchEvent> getOnTouchMoved() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchMoved();
+    public final EventHandler<? super TouchEvent> getOnTouchPressed() {
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7996,19 +7992,30 @@ public abstract sealed class Node
      * @return the event handler that is called when a touch point is moved
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchMovedProperty() {
-        return getEventHandlerProperties().onTouchMovedProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchMovedProperty() {
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_MOVED, () -> new EventHandlerProperty<>("onTouchMoved", TouchEvent.TOUCH_MOVED));
+        }
+        return p;
     }
 
-    public final void setOnTouchReleased(
-            EventHandler<? super TouchEvent> value) {
+    public final EventHandler<? super TouchEvent> getOnTouchMoved() {
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
+        return (p == null) ? null : p.get();
+    }
+
+    public final void setOnTouchMoved(EventHandler<? super TouchEvent> value) {
+        onTouchMovedProperty().set(value);
+    }
+
+    public final void setOnTouchReleased(EventHandler<? super TouchEvent> value) {
         onTouchReleasedProperty().set(value);
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchReleased();
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8016,9 +8023,12 @@ public abstract sealed class Node
      * @return the event handler that is called when a touch point is released
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchReleasedProperty() {
-        return getEventHandlerProperties().onTouchReleasedProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchReleasedProperty() {
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_RELEASED, () -> new EventHandlerProperty<>("onTouchReleased", TouchEvent.TOUCH_RELEASED));
+        }
+        return p;
     }
 
     public final void setOnTouchStationary(
@@ -8027,8 +8037,8 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchStationary() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchStationary();
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8038,9 +8048,12 @@ public abstract sealed class Node
      * and still
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchStationaryProperty() {
-        return getEventHandlerProperties().onTouchStationaryProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchStationaryProperty() {
+        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_STATIONARY, () -> new EventHandlerProperty<>("onTouchStationary", TouchEvent.TOUCH_STATIONARY));
+        }
+        return p;
     }
 
     /* *************************************************************************
@@ -10483,11 +10496,11 @@ public abstract sealed class Node
     }
 
     // replaces EventHandlerProperties.EventHandlerProperty
-    private class EHProperty<T extends Event> extends ObjectPropertyBase<EventHandler<? super T>> {
+    private class EventHandlerProperty<T extends Event> extends ObjectPropertyBase<EventHandler<? super T>> {
         private final String name;
         private final EventType<T> eventType;
 
-        public EHProperty(String name, EventType<T> eventType) {
+        public EventHandlerProperty(String name, EventType<T> eventType) {
             this.name = name;
             this.eventType = eventType;
         }

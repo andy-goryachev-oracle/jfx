@@ -39,7 +39,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.RotateEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.input.SwipeEvent;
-import javafx.scene.input.TouchEvent;
 import com.sun.javafx.event.EventHandlerManager;
 
 @Deprecated // FIX remove
@@ -598,69 +597,5 @@ public final class EventHandlerProperties {
         protected void invalidated() {
             eventDispatcher.setEventHandler(eventType, get());
         }
-    }
-
-    private EventHandlerProperty<TouchEvent> onTouchPressed;
-
-    public final EventHandler<? super TouchEvent> getOnTouchPressed() {
-        return (onTouchPressed == null) ? null : onTouchPressed.get();
-    }
-
-    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchPressedProperty() {
-        if (onTouchPressed == null) {
-            onTouchPressed = new EventHandlerProperty<>(
-                bean,
-                "onTouchPressed",
-                TouchEvent.TOUCH_PRESSED);
-        }
-        return onTouchPressed;
-    }
-
-    private EventHandlerProperty<TouchEvent> onTouchMoved;
-
-    public final EventHandler<? super TouchEvent> getOnTouchMoved() {
-        return (onTouchMoved == null) ? null : onTouchMoved.get();
-    }
-
-    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchMovedProperty() {
-        if (onTouchMoved == null) {
-            onTouchMoved = new EventHandlerProperty<>(
-                bean,
-                "onTouchMoved",
-                TouchEvent.TOUCH_MOVED);
-        }
-        return onTouchMoved;
-    }
-
-    private EventHandlerProperty<TouchEvent> onTouchReleased;
-
-    public final EventHandler<? super TouchEvent> getOnTouchReleased() {
-        return (onTouchReleased == null) ? null : onTouchReleased.get();
-    }
-
-    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchReleasedProperty() {
-        if (onTouchReleased == null) {
-            onTouchReleased = new EventHandlerProperty<>(
-                bean,
-                "onTouchReleased",
-                TouchEvent.TOUCH_RELEASED);
-        }
-        return onTouchReleased;
-    }
-
-    private EventHandlerProperty<TouchEvent> onTouchStationary;
-
-    public final EventHandler<? super TouchEvent> getOnTouchStationary() {
-        return (onTouchStationary == null) ? null : onTouchStationary.get();
-    }
-
-    public ObjectProperty<EventHandler<? super TouchEvent>> onTouchStationaryProperty() {
-        if (onTouchStationary == null) {
-            onTouchStationary = new EventHandlerProperty<>(
-                bean,
-                "onTouchStationary",
-                TouchEvent.TOUCH_STATIONARY);
-        }
-        return onTouchStationary;
     }
 }
