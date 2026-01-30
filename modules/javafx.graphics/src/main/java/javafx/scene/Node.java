@@ -455,6 +455,9 @@ public abstract sealed class Node
     private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_EXITED = new PKey<>();
     private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_OVER = new PKey<>();
     private static final PKey<EventHandlerProperty<InputMethodEvent>> K_ON_INPUT_METHOD_TEXT_CHANGED = new PKey<>();
+    private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_PRESSED = new PKey<>();
+    private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_RELEASED = new PKey<>();
+    private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_TYPED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
@@ -8082,14 +8085,13 @@ public abstract sealed class Node
      *                                                                         *
      **************************************************************************/
 
-    public final void setOnKeyPressed(
-            EventHandler<? super KeyEvent> value) {
+    public final void setOnKeyPressed(EventHandler<? super KeyEvent> value) {
         onKeyPressedProperty().set(value);
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyPressed() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnKeyPressed();
+        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8100,19 +8102,21 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} or its
      * child {@code Node} has input focus and a key has been pressed
      */
-    public final ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyPressedProperty() {
-        return getEventHandlerProperties().onKeyPressedProperty();
+    public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyPressedProperty() {
+        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
+        if (p == null) {
+            p = props.init(K_ON_KEY_PRESSED, () -> new EventHandlerProperty<>("onKeyPressed", KeyEvent.KEY_PRESSED));
+        }
+        return p;
     }
 
-    public final void setOnKeyReleased(
-            EventHandler<? super KeyEvent> value) {
+    public final void setOnKeyReleased(EventHandler<? super KeyEvent> value) {
         onKeyReleasedProperty().set(value);
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnKeyReleased();
+        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8123,19 +8127,21 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} or its
      * child {@code Node} has input focus and a key has been released
      */
-    public final ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyReleasedProperty() {
-        return getEventHandlerProperties().onKeyReleasedProperty();
+    public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyReleasedProperty() {
+        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_KEY_RELEASED, () -> new EventHandlerProperty<>("onKeyReleased", KeyEvent.KEY_RELEASED));
+        }
+        return p;
     }
 
-    public final void setOnKeyTyped(
-            EventHandler<? super KeyEvent> value) {
+    public final void setOnKeyTyped(EventHandler<? super KeyEvent> value) {
         onKeyTypedProperty().set(value);
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyTyped() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnKeyTyped();
+        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8146,9 +8152,12 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} or its
      * child {@code Node} has input focus and a key has been typed
      */
-    public final ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyTypedProperty() {
-        return getEventHandlerProperties().onKeyTypedProperty();
+    public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyTypedProperty() {
+        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
+        if (p == null) {
+            p = props.init(K_ON_KEY_TYPED, () -> new EventHandlerProperty<>("onKeyTyped", KeyEvent.KEY_TYPED));
+        }
+        return p;
     }
 
     /* *************************************************************************

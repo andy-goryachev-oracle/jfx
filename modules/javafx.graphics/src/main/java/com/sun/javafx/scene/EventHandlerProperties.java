@@ -31,9 +31,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.InputMethodEvent;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.RotateEvent;
@@ -403,53 +400,11 @@ public final class EventHandlerProperties {
         return onMouseDragDone;
     }
 
-    private EventHandlerProperty<KeyEvent> onKeyPressed;
 
-    public final EventHandler<? super KeyEvent> getOnKeyPressed() {
-        return (onKeyPressed == null) ? null : onKeyPressed.get();
-    }
 
-    public ObjectProperty<EventHandler<? super KeyEvent>> onKeyPressedProperty() {
-        if (onKeyPressed == null) {
-            onKeyPressed = new EventHandlerProperty<>(
-                bean,
-                "onKeyPressed",
-                KeyEvent.KEY_PRESSED);
-        }
-        return onKeyPressed;
-    }
 
-    private EventHandlerProperty<KeyEvent> onKeyReleased;
 
-    public final EventHandler<? super KeyEvent> getOnKeyReleased() {
-        return (onKeyReleased == null) ? null : onKeyReleased.get();
-    }
 
-    public ObjectProperty<EventHandler<? super KeyEvent>> onKeyReleasedProperty() {
-        if (onKeyReleased == null) {
-            onKeyReleased = new EventHandlerProperty<>(
-                bean,
-                "onKeyReleased",
-                KeyEvent.KEY_RELEASED);
-        }
-        return onKeyReleased;
-    }
-
-    private EventHandlerProperty<KeyEvent> onKeyTyped;
-
-    public final EventHandler<? super KeyEvent> getOnKeyTyped() {
-        return (onKeyTyped == null) ? null : onKeyTyped.get();
-    }
-
-    public ObjectProperty<EventHandler<? super KeyEvent>> onKeyTypedProperty() {
-        if (onKeyTyped == null) {
-            onKeyTyped = new EventHandlerProperty<>(
-                bean,
-                "onKeyTyped",
-                KeyEvent.KEY_TYPED);
-        }
-        return onKeyTyped;
-    }
 
 
 
