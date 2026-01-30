@@ -460,7 +460,12 @@ public abstract sealed class Node
     private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_RELEASED = new PKey<>();
     private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_TYPED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_CLICKED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_DONE = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_ENTERED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_EXITED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_DRAGGED = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_OVER = new PKey<>();
+    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_RELEASED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_ENTERED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_EXITED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_MOVED = new PKey<>();
@@ -7608,14 +7613,13 @@ public abstract sealed class Node
         return p;
     }
 
-    public final void setOnMouseDragOver(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragOver(EventHandler<? super MouseDragEvent> value) {
         onMouseDragOverProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragOver() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragOver();
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7625,19 +7629,21 @@ public abstract sealed class Node
      * gesture progresses within this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragOverProperty() {
-        return getEventHandlerProperties().onMouseDragOverProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragOverProperty() {
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_OVER, () -> new EventHandlerProperty<>("onMouseDragOver", MouseDragEvent.MOUSE_DRAG_OVER));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragReleased(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragReleased(EventHandler<? super MouseDragEvent> value) {
         onMouseDragReleasedProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragReleased();
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7647,19 +7653,21 @@ public abstract sealed class Node
      * gesture ends (by releasing mouse button) within this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragReleasedProperty() {
-        return getEventHandlerProperties().onMouseDragReleasedProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragReleasedProperty() {
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_RELEASED, () -> new EventHandlerProperty<>("onMouseDragReleased", MouseDragEvent.MOUSE_DRAG_RELEASED));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragEntered(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragEntered(EventHandler<? super MouseDragEvent> value) {
         onMouseDragEnteredProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragEntered() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragEntered();
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7669,19 +7677,21 @@ public abstract sealed class Node
      * gesture enters this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragEnteredProperty() {
-        return getEventHandlerProperties().onMouseDragEnteredProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragEnteredProperty() {
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_ENTERED, () -> new EventHandlerProperty<>("onMouseDragEntered", MouseDragEvent.MOUSE_DRAG_ENTERED));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragExited(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragExited(EventHandler<? super MouseDragEvent> value) {
         onMouseDragExitedProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragExited() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragExited();
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7691,9 +7701,12 @@ public abstract sealed class Node
      * gesture leaves this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragExitedProperty() {
-        return getEventHandlerProperties().onMouseDragExitedProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragExitedProperty() {
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_EXITED, () -> new EventHandlerProperty<>("onMouseDragExited", MouseDragEvent.MOUSE_DRAG_EXITED));
+        }
+        return p;
     }
 
     public final void setOnMouseDragDone(EventHandler<? super MouseDragEvent> value) {
@@ -7701,7 +7714,8 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragDone() {
-        return (eventHandlerProperties == null) ? null : eventHandlerProperties.getOnMouseDragDone();
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7712,7 +7726,11 @@ public abstract sealed class Node
      * @since 26
      */
     public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragDoneProperty() {
-        return getEventHandlerProperties().onMouseDragDoneProperty();
+        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_DONE, () -> new EventHandlerProperty<>("onMouseDragDone", MouseDragEvent.MOUSE_DRAG_DONE));
+        }
+        return p;
     }
 
 
