@@ -28,7 +28,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,22 +48,20 @@ import javafx.util.Duration;
  * statically declared.
  */
 public class FastMap {
-    private final int keyCount;
-    private final ArrayList<PKey<?>> keys;
-    private final ArrayList<Object> values;
-    private static HashMap<PKey<?>,String> keyNames = new HashMap<>();
-    private static HashMap<Class<?>,Integer> counts = new HashMap<>();
-    private static WeakHashMap<FastMap,Object> all = new WeakHashMap(1000);
-    static {
-        init();
-    }
+    /** Enables periodic dumping of utilization statistics to stdout */
+    private static final boolean COLLECT_STATISTICS = true;
 
-    public FastMap(Node node) {
-        this.keyCount = countKeys(node);
+    final ArrayList<PKey<?>> keys;
+    private final ArrayList<Object> values;
+
+    private FastMap(Node node) {
         int capacity = 4;
         keys = new ArrayList<>(capacity);
         values = new ArrayList<>(capacity);
-        all.put(this, null);
+    }
+
+    public static FastMap create(Node node) {
+        return COLLECT_STATISTICS ? new FastMaPWithStats(node) : new FastMap(node);
     }
 
     public <T> T init(PKey<T> key, Supplier<T> generator) {
@@ -103,112 +101,170 @@ public class FastMap {
         return keys.size();
     }
 
-    private static void init() {
-        Platform.runLater(() -> {
-            Timeline t = new Timeline(new KeyFrame(Duration.seconds(10), (ev) -> dump()));
-            t.setDelay(Duration.seconds(5));
-            t.setCycleCount(Timeline.INDEFINITE);
-            t.play();
-        });
-    }
-
-    private static int countKeys(Node node) {
-        Class<?> cls = node.getClass();
-        Integer cached = counts.get(cls);
-        if(cached != null) {
-            return cached.intValue();
+    private static class FastMaPWithStats extends FastMap {
+        record FEntry(String name, int count) { }
+        record HEntry(int size, int count) { }
+        
+        private final int keyCount;
+        private static HashMap<PKey<?>,String> keyNames = new HashMap<>();
+        private static HashMap<Class<?>,Integer> counts = new HashMap<>();
+        private static WeakHashMap<FastMaPWithStats,Object> all = new WeakHashMap(1000);
+        private static Comparator<FEntry> freqComp;
+        private static Comparator<HEntry> histComp;
+        static {
+            init();
         }
 
-        Class<?> c = cls;
-        int count = 0;
-        for (;;) {
-            Field[] fs = c.getDeclaredFields();
-            for (Field f : fs) {
-                if ((f.getType() == PKey.class) && Modifier.isStatic(f.getModifiers())) {
-                    // histogram needs the key name 
-                    String name = c.getSimpleName() + "." + f.getName();
-                    try {
-                        f.setAccessible(true);
-                        PKey k = (PKey)f.get(null);
-                        keyNames.put(k, name);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        public FastMaPWithStats(Node n) {
+            super(n);
+            this.keyCount = countKeys(n);
+            all.put(this, null);
+        }
+
+        private static void init() {
+            freqComp = new Comparator<FEntry>() {
+                @Override
+                public int compare(FEntry a, FEntry b) {
+                    return b.count - a.count;
+                }
+            };
+            histComp = new Comparator<HEntry>() {
+                @Override
+                public int compare(HEntry a, HEntry b) {
+                    return b.size - a.size;
+                }
+            };
+            
+            Platform.runLater(() -> {
+                Timeline t = new Timeline(new KeyFrame(Duration.seconds(10), (ev) -> dump()));
+                t.setDelay(Duration.seconds(5));
+                t.setCycleCount(Timeline.INDEFINITE);
+                t.play();
+            });
+        }
+
+        private static int countKeys(Node node) {
+            Class<?> cls = node.getClass();
+            Integer cached = counts.get(cls);
+            if(cached != null) {
+                return cached.intValue();
+            }
+    
+            Class<?> c = cls;
+            int count = 0;
+            for (;;) {
+                Field[] fs = c.getDeclaredFields();
+                for (Field f : fs) {
+                    if ((f.getType() == PKey.class) && Modifier.isStatic(f.getModifiers())) {
+                        // frequency dump needs the key name 
+                        String name = c.getSimpleName() + "." + f.getName();
+                        try {
+                            f.setAccessible(true);
+                            PKey k = (PKey)f.get(null);
+                            keyNames.put(k, name);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        count++;
                     }
-                    count++;
                 }
+    
+                if (c == Node.class) {
+                    counts.put(cls, Integer.valueOf(count));
+                    return count;
+                }
+                c = c.getSuperclass();
             }
-
-            if (c == Node.class) {
-                counts.put(cls, Integer.valueOf(count));
-                return count;
-            }
-            c = c.getSuperclass();
         }
-    }
+    
+        private static String getName(PKey k) {
+            String s = keyNames.get(k);
+            return (s == null) ? k.toString() : s;
+        }
+    
+        private static void dump() {
+            int count = 0; // number of nodes
+            int used = 0; // number of pointers actually used
+            int max = 0; // max number of possible pointers
+            int top = 0; // largest map size
+            HashMap<PKey, AtomicInteger> freq = new HashMap<>();
+            HashMap<Integer, AtomicInteger> hist = new HashMap<>();
+            for (FastMaPWithStats m : all.keySet()) {
+                if (m != null) {
+                    int sz = m.size();
+                    count++;
+                    used += m.size();
+                    max += m.keyCount;
+                    if (sz > top) {
+                        top = sz;
+                    }
+    
+                    for (PKey k : m.keys) {
+                        AtomicInteger ct = freq.get(k);
+                        if (ct == null) {
+                            ct = new AtomicInteger(1);
+                            freq.put(k, ct);
+                        } else {
+                            ct.incrementAndGet();
+                        }
+                    }
 
-    private static String getName(PKey k) {
-        String s = keyNames.get(k);
-        return (s == null) ? k.toString() : s;
-    }
-
-    private static void dump() {
-        int count = 0; // number of nodes
-        int used = 0; // number of pointers actually used
-        int max = 0; // max number of possible pointers
-        int top = 0; // largest map size
-        HashMap<PKey, AtomicInteger> hist = new HashMap<>();
-        for (FastMap m : all.keySet()) {
-            if (m != null) {
-                count++;
-                used += m.size();
-                max += m.keyCount;
-                if (m.size() > top) {
-                    top = m.size();
-                }
-
-                for (PKey k : m.keys) {
-                    AtomicInteger ct = hist.get(k);
+                    AtomicInteger ct = hist.get(sz);
                     if (ct == null) {
                         ct = new AtomicInteger(1);
-                        hist.put(k, ct);
+                        hist.put(sz, ct);
                     } else {
                         ct.incrementAndGet();
                     }
                 }
             }
+    
+            float ut = used / ((float)max);
+            int sv = (max - used) * 8; // 64 bit pointers
+            float av = used / (float)count;
+            String s = MessageFormat.format("Nodes={0} utilization={1} average={2} top={3} saved={4} bytes", count, ut, av, top, sv);
+            System.out.println(s);
+            System.out.println(frequencies(freq));
+            System.out.println(histogram(hist));
         }
-
-        float ut = used / ((float)max);
-        int sv = (max - used) * 8; // 64 bit pointers
-        float av = used / (float)count;
-        String s = MessageFormat.format("Nodes={0} utilization={1} average={2} top={3} saved={4} bytes", count, ut, av, top, sv);
-        System.out.println(s);
-        System.out.println(histogram(hist));
-    }
-
-    private static String histogram(HashMap<PKey,AtomicInteger> h) {
-        record Entry(String name, int count) implements Comparable<Entry> {
-            @Override
-            public int compareTo(Entry x) {
-                return x.count - count;
+    
+        private static String histogram(HashMap<Integer, AtomicInteger> hist) {
+            ArrayList<HEntry> entries = new ArrayList<>();
+            for(Integer k: hist.keySet()) {
+                int ct = hist.get(k).intValue();
+                entries.add(new HEntry(k, ct));
             }
+            entries.sort(histComp);
+            
+            StringBuilder sb = new StringBuilder();
+            for(HEntry en: entries) {
+                sb.append("   ");
+                sb.append(en.size);
+                sb.append(": ");
+                sb.append(en.count);
+                sb.append("\n");
+            }
+            return sb.toString();
         }
 
-        ArrayList<Entry> hist = new ArrayList<>();
-        for(PKey k: h.keySet()) {
-            int ct = h.get(k).intValue();
-            String name = getName(k);
-            hist.add(new Entry(name, ct));
+        private static String frequencies(HashMap<PKey,AtomicInteger> freq) {
+            ArrayList<FEntry> entries = new ArrayList<>();
+            for(PKey k: freq.keySet()) {
+                int ct = freq.get(k).intValue();
+                String name = getName(k);
+                entries.add(new FEntry(name, ct));
+            }
+            entries.sort(freqComp);
+            
+            StringBuilder sb = new StringBuilder();
+            for(FEntry en: entries) {
+                sb.append("   ");
+                sb.append(en.name);
+                sb.append(": ");
+                sb.append(en.count);
+                sb.append("\n");
+            }
+            return sb.toString();
         }
-        Collections.sort(hist);
-        StringBuilder sb = new StringBuilder();
-        for(Entry en: hist) {
-            sb.append("   ");
-            sb.append(en.name);
-            sb.append(": ");
-            sb.append(en.count);
-            sb.append("\n");
-        }
-        return sb.toString();
     }
 }

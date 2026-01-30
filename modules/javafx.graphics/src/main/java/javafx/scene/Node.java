@@ -460,7 +460,7 @@ public abstract sealed class Node
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
     private static final PKey<BooleanProperty> K_VISIBLE = new PKey<>();
     // TODO
-    private final FastMap props = new FastMap(this);
+    private final FastMap props = FastMap.create(this);
 
     /*
      * Store the singleton instance of the NodeHelper subclass corresponding
