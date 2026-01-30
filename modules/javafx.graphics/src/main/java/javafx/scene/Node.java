@@ -471,6 +471,10 @@ public abstract sealed class Node
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_RELEASED = new PKey<>();
+    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_DOWN = new PKey<>();
+    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_LEFT = new PKey<>();
+    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_RIGHT = new PKey<>();
+    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_UP = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
     private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_RELEASED = new PKey<>();
@@ -7931,14 +7935,13 @@ public abstract sealed class Node
         return (p == null) ? null : p.get();
     }
 
-    public final void setOnSwipeUp(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnSwipeUp( EventHandler<? super SwipeEvent> value) {
         onSwipeUpProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeUp() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeUp();
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7948,19 +7951,21 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeUpProperty() {
-        return getEventHandlerProperties().onSwipeUpProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeUpProperty() {
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_UP, () -> new EventHandlerProperty<>("onSwipeUp", SwipeEvent.SWIPE_UP));
+        }
+        return p;
     }
 
-    public final void setOnSwipeDown(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnSwipeDown(EventHandler<? super SwipeEvent> value) {
         onSwipeDownProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeDown() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeDown();
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7970,19 +7975,21 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeDownProperty() {
-        return getEventHandlerProperties().onSwipeDownProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeDownProperty() {
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_DOWN, () -> new EventHandlerProperty<>("onSwipeDown", SwipeEvent.SWIPE_DOWN));
+        }
+        return p;
     }
 
-    public final void setOnSwipeLeft(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnSwipeLeft(EventHandler<? super SwipeEvent> value) {
         onSwipeLeftProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeLeft() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeLeft();
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7992,19 +7999,21 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeLeftProperty() {
-        return getEventHandlerProperties().onSwipeLeftProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeLeftProperty() {
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_LEFT, () -> new EventHandlerProperty<>("onSwipeLeft", SwipeEvent.SWIPE_LEFT));
+        }
+        return p;
     }
 
-    public final void setOnSwipeRight(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnSwipeRight(EventHandler<? super SwipeEvent> value) {
         onSwipeRightProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeRight() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeRight();
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8014,9 +8023,12 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeRightProperty() {
-        return getEventHandlerProperties().onSwipeRightProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeRightProperty() {
+        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_RIGHT, () -> new EventHandlerProperty<>("onSwipeRight", SwipeEvent.SWIPE_RIGHT));
+        }
+        return p;
     }
 
 

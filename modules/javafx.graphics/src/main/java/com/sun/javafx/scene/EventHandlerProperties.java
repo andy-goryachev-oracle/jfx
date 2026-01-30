@@ -53,15 +53,6 @@ public final class EventHandlerProperties {
 
 
 
-
-
-
-
-
-
-
-
-
     private EventHandlerProperty<ScrollEvent> onScroll;
 
     public final EventHandler<? super ScrollEvent> getOnScroll() {
@@ -157,72 +148,6 @@ public final class EventHandlerProperties {
         }
         return onRotationFinished;
     }
-
-
-    private EventHandlerProperty<SwipeEvent> onSwipeUp;
-
-    public final EventHandler<? super SwipeEvent> getOnSwipeUp() {
-        return (onSwipeUp == null) ? null : onSwipeUp.get();
-    }
-
-    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeUpProperty() {
-        if (onSwipeUp == null) {
-            onSwipeUp = new EventHandlerProperty<>(
-                bean,
-                "onSwipeUp",
-                SwipeEvent.SWIPE_UP);
-        }
-        return onSwipeUp;
-    }
-
-    private EventHandlerProperty<SwipeEvent> onSwipeDown;
-
-    public final EventHandler<? super SwipeEvent> getOnSwipeDown() {
-        return (onSwipeDown == null) ? null : onSwipeDown.get();
-    }
-
-    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeDownProperty() {
-        if (onSwipeDown == null) {
-            onSwipeDown = new EventHandlerProperty<>(
-                bean,
-                "onSwipeDown",
-                SwipeEvent.SWIPE_DOWN);
-        }
-        return onSwipeDown;
-    }
-
-    private EventHandlerProperty<SwipeEvent> onSwipeLeft;
-
-    public final EventHandler<? super SwipeEvent> getOnSwipeLeft() {
-        return (onSwipeLeft == null) ? null : onSwipeLeft.get();
-    }
-
-    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeLeftProperty() {
-        if (onSwipeLeft == null) {
-            onSwipeLeft = new EventHandlerProperty<>(
-                bean,
-                "onSwipeLeft",
-                SwipeEvent.SWIPE_LEFT);
-        }
-        return onSwipeLeft;
-    }
-
-    private EventHandlerProperty<SwipeEvent> onSwipeRight;
-
-    public final EventHandler<? super SwipeEvent> getOnSwipeRight() {
-        return (onSwipeRight == null) ? null : onSwipeRight.get();
-    }
-
-    public ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeRightProperty() {
-        if (onSwipeRight == null) {
-            onSwipeRight = new EventHandlerProperty<>(
-                bean,
-                "onSwipeRight",
-                SwipeEvent.SWIPE_RIGHT);
-        }
-        return onSwipeRight;
-    }
-
 
 
     private final class EventHandlerProperty<T extends Event>
