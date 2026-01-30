@@ -151,7 +151,6 @@ import com.sun.javafx.scene.BoundsAccessor;
 import com.sun.javafx.scene.CameraHelper;
 import com.sun.javafx.scene.CssFlags;
 import com.sun.javafx.scene.DirtyBits;
-import com.sun.javafx.scene.EventHandlerProperties;
 import com.sun.javafx.scene.LayoutFlags;
 import com.sun.javafx.scene.NodeEventDispatcher;
 import com.sun.javafx.scene.NodeHelper;
@@ -448,46 +447,46 @@ public abstract sealed class Node
     private static final PKey<DoubleProperty> K_LAYOUT_Y = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
-    private static final PKey<EventHandlerProperty<ContextMenuEvent>> K_ON_CONTEXT_MENU_REQUESTED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_DRAG_DETECTED = new PKey<>();
-    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_DONE = new PKey<>();
-    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_DROPPED = new PKey<>();
-    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_ENTERED = new PKey<>();
-    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_EXITED = new PKey<>();
-    private static final PKey<EventHandlerProperty<DragEvent>> K_ON_DRAG_OVER = new PKey<>();
-    private static final PKey<EventHandlerProperty<InputMethodEvent>> K_ON_INPUT_METHOD_TEXT_CHANGED = new PKey<>();
-    private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_PRESSED = new PKey<>();
-    private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_RELEASED = new PKey<>();
-    private static final PKey<EventHandlerProperty<KeyEvent>> K_ON_KEY_TYPED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_CLICKED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_DONE = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_ENTERED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_EXITED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_DRAGGED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_OVER = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_RELEASED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_ENTERED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_EXITED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_MOVED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
-    private static final PKey<EventHandlerProperty<MouseEvent>> K_ON_MOUSE_RELEASED = new PKey<>();
-    private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATE = new PKey<>();
-    private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATION_FINISHED = new PKey<>();
-    private static final PKey<EventHandlerProperty<RotateEvent>> K_ON_ROTATION_STARTED = new PKey<>();
-    private static final PKey<EventHandlerProperty<ScrollEvent>> K_ON_SCROLL = new PKey<>();
-    private static final PKey<EventHandlerProperty<ScrollEvent>> K_ON_SCROLL_FINISHED = new PKey<>();
-    private static final PKey<EventHandlerProperty<ScrollEvent>> K_ON_SCROLL_STARTED = new PKey<>();
-    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_DOWN = new PKey<>();
-    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_LEFT = new PKey<>();
-    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_RIGHT = new PKey<>();
-    private static final PKey<EventHandlerProperty<SwipeEvent>> K_ON_SWIPE_UP = new PKey<>();
-    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
-    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
-    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_RELEASED = new PKey<>();
-    private static final PKey<EventHandlerProperty<TouchEvent>> K_ON_TOUCH_STATIONARY = new PKey<>();
-    private static final PKey<EventHandlerProperty<ZoomEvent>> K_ON_ZOOM = new PKey<>();
-    private static final PKey<EventHandlerProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
-    private static final PKey<EventHandlerProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
+    private static final PKey<EHProperty<ContextMenuEvent>> K_ON_CONTEXT_MENU_REQUESTED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_DRAG_DETECTED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_DONE = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_DROPPED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_ENTERED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_EXITED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_OVER = new PKey<>();
+    private static final PKey<EHProperty<InputMethodEvent>> K_ON_INPUT_METHOD_TEXT_CHANGED = new PKey<>();
+    private static final PKey<EHProperty<KeyEvent>> K_ON_KEY_PRESSED = new PKey<>();
+    private static final PKey<EHProperty<KeyEvent>> K_ON_KEY_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<KeyEvent>> K_ON_KEY_TYPED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_CLICKED = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_DONE = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_ENTERED = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_EXITED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_DRAGGED = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_OVER = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_ENTERED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_EXITED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_MOVED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<RotateEvent>> K_ON_ROTATE = new PKey<>();
+    private static final PKey<EHProperty<RotateEvent>> K_ON_ROTATION_FINISHED = new PKey<>();
+    private static final PKey<EHProperty<RotateEvent>> K_ON_ROTATION_STARTED = new PKey<>();
+    private static final PKey<EHProperty<ScrollEvent>> K_ON_SCROLL = new PKey<>();
+    private static final PKey<EHProperty<ScrollEvent>> K_ON_SCROLL_FINISHED = new PKey<>();
+    private static final PKey<EHProperty<ScrollEvent>> K_ON_SCROLL_STARTED = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_DOWN = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_LEFT = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_RIGHT = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_UP = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_STATIONARY = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
@@ -2791,7 +2790,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super DragEvent> getOnDragEntered() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
         return (p == null) ? null : p.get();
     }
 
@@ -2802,9 +2801,9 @@ public abstract sealed class Node
      * {@code Node}
      */
     public final ObjectProperty<EventHandler<? super DragEvent>> onDragEnteredProperty() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
         if (p == null) {
-            p = props.init(K_ON_DRAG_ENTERED, () -> new EventHandlerProperty<>("onDragEntered", DragEvent.DRAG_ENTERED));
+            p = props.init(K_ON_DRAG_ENTERED, () -> new EHProperty<>("onDragEntered", DragEvent.DRAG_ENTERED));
         }
         return p;
     }
@@ -2814,7 +2813,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super DragEvent> getOnDragExited() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
         return (p == null) ? null : p.get();
     }
 
@@ -2825,9 +2824,9 @@ public abstract sealed class Node
      * {@code Node}
      */
     public final ObjectProperty<EventHandler<? super DragEvent>> onDragExitedProperty() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
         if (p == null) {
-            p = props.init(K_ON_DRAG_EXITED, () -> new EventHandlerProperty<>("onDragExited", DragEvent.DRAG_EXITED));
+            p = props.init(K_ON_DRAG_EXITED, () -> new EHProperty<>("onDragExited", DragEvent.DRAG_EXITED));
         }
         return p;
     }
@@ -2837,7 +2836,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super DragEvent> getOnDragOver() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
         return (p == null) ? null : p.get();
     }
 
@@ -2848,9 +2847,9 @@ public abstract sealed class Node
      * within this {@code Node}
      */
     public final ObjectProperty<EventHandler<? super DragEvent>> onDragOverProperty() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
         if (p == null) {
-            p = props.init(K_ON_DRAG_OVER, () -> new EventHandlerProperty<>("onDragOver", DragEvent.DRAG_OVER));
+            p = props.init(K_ON_DRAG_OVER, () -> new EHProperty<>("onDragOver", DragEvent.DRAG_OVER));
         }
         return p;
     }
@@ -2883,7 +2882,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super DragEvent> getOnDragDropped() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
         return (p == null) ? null : p.get();
     }
 
@@ -2896,9 +2895,9 @@ public abstract sealed class Node
      * released on this {@code Node}
      */
     public final ObjectProperty<EventHandler<? super DragEvent>> onDragDroppedProperty() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
         if (p == null) {
-            p = props.init(K_ON_DRAG_DROPPED, () -> new EventHandlerProperty<>("onDragDropped", DragEvent.DRAG_DROPPED));
+            p = props.init(K_ON_DRAG_DROPPED, () -> new EHProperty<>("onDragDropped", DragEvent.DRAG_DROPPED));
         }
         return p;
     }
@@ -2908,7 +2907,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super DragEvent> getOnDragDone() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
         return (p == null) ? null : p.get();
     }
 
@@ -2926,9 +2925,9 @@ public abstract sealed class Node
      * and drop gesture source after its data has been dropped on a drop target
      */
     public final ObjectProperty<EventHandler<? super DragEvent>> onDragDoneProperty() {
-        EventHandlerProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
         if (p == null) {
-            p = props.init(K_ON_DRAG_DONE, () -> new EventHandlerProperty<>("onDragDone", DragEvent.DRAG_DONE));
+            p = props.init(K_ON_DRAG_DONE, () -> new EHProperty<>("onDragDone", DragEvent.DRAG_DONE));
         }
         return p;
     }
@@ -6954,25 +6953,6 @@ public abstract sealed class Node
 
     /* *************************************************************************
      *                                                                         *
-     *                        Event Handler Properties                         *
-     *                                                                         *
-     **************************************************************************/
-
-    private EventHandlerProperties eventHandlerProperties;
-
-    private EventHandlerProperties getEventHandlerProperties() {
-        if (eventHandlerProperties == null) {
-            eventHandlerProperties =
-                    new EventHandlerProperties(
-                        getInternalEventDispatcher().getEventHandlerManager(),
-                        this);
-        }
-
-        return eventHandlerProperties;
-    }
-
-    /* *************************************************************************
-     *                                                                         *
      *                       Component Orientation Properties                  *
      *                                                                         *
      **************************************************************************/
@@ -7422,7 +7402,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ContextMenuEvent> getOnContextMenuRequested() {
-        EventHandlerProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
+        EHProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
         return (p == null) ? null : p.get();
     }
 
@@ -7434,9 +7414,9 @@ public abstract sealed class Node
      * @since JavaFX 2.1
      */
     public final ObjectProperty<EventHandler<? super ContextMenuEvent>> onContextMenuRequestedProperty() {
-        EventHandlerProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
+        EHProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
         if (p == null) {
-            p = props.init(K_ON_CONTEXT_MENU_REQUESTED, () -> new EventHandlerProperty<>("onMenuContextRequested", ContextMenuEvent.CONTEXT_MENU_REQUESTED));
+            p = props.init(K_ON_CONTEXT_MENU_REQUESTED, () -> new EHProperty<>("onMenuContextRequested", ContextMenuEvent.CONTEXT_MENU_REQUESTED));
         }
         return p;
     }
@@ -7446,7 +7426,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseClicked() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
         return (p == null) ? null : p.get();
     }
 
@@ -7457,9 +7437,9 @@ public abstract sealed class Node
      * clicked (pressed and released) on this {@code Node}
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseClickedProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_CLICKED, () -> new EventHandlerProperty<>("onMouseClicked", MouseEvent.MOUSE_CLICKED));
+            p = props.init(K_ON_MOUSE_CLICKED, () -> new EHProperty<>("onMouseClicked", MouseEvent.MOUSE_CLICKED));
         }
         return p;
     }
@@ -7469,7 +7449,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseDragged() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
         return (p == null) ? null : p.get();
     }
 
@@ -7480,9 +7460,9 @@ public abstract sealed class Node
      * on this {@code Node} and then dragged
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseDraggedProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_DRAGGED, () -> new EventHandlerProperty<>("onMouseDragged", MouseEvent.MOUSE_DRAGGED));
+            p = props.init(K_ON_MOUSE_DRAGGED, () -> new EHProperty<>("onMouseDragged", MouseEvent.MOUSE_DRAGGED));
         }
         return p;
     }
@@ -7492,7 +7472,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseEntered() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
         return (p == null) ? null : p.get();
     }
 
@@ -7502,9 +7482,9 @@ public abstract sealed class Node
      * {@code Node}
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseEnteredProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_ENTERED, () -> new EventHandlerProperty<>("onMouseEntered", MouseEvent.MOUSE_ENTERED));
+            p = props.init(K_ON_MOUSE_ENTERED, () -> new EHProperty<>("onMouseEntered", MouseEvent.MOUSE_ENTERED));
         }
         return p;
     }
@@ -7514,7 +7494,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseExited() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
         return (p == null) ? null : p.get();
     }
 
@@ -7524,9 +7504,9 @@ public abstract sealed class Node
      * {@code Node}
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseExitedProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_EXITED, () -> new EventHandlerProperty<>("onMouseExited", MouseEvent.MOUSE_EXITED));
+            p = props.init(K_ON_MOUSE_EXITED, () -> new EHProperty<>("onMouseExited", MouseEvent.MOUSE_EXITED));
         }
         return p;
     }
@@ -7536,7 +7516,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseMoved() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
         return (p == null) ? null : p.get();
     }
 
@@ -7547,9 +7527,9 @@ public abstract sealed class Node
      * within this {@code Node} but no buttons have been pushed
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseMovedProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_MOVED, () -> new EventHandlerProperty<>("onMouseMoved", MouseEvent.MOUSE_MOVED));
+            p = props.init(K_ON_MOUSE_MOVED, () -> new EHProperty<>("onMouseMoved", MouseEvent.MOUSE_MOVED));
         }
         return p;
     }
@@ -7561,15 +7541,15 @@ public abstract sealed class Node
      * pressed on this {@code Node}
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMousePressedProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_PRESSED, () -> new EventHandlerProperty<>("onMousePressed", MouseEvent.MOUSE_PRESSED));
+            p = props.init(K_ON_MOUSE_PRESSED, () -> new EHProperty<>("onMousePressed", MouseEvent.MOUSE_PRESSED));
         }
         return p;
     }
 
     public final EventHandler<? super MouseEvent> getOnMousePressed() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
         return (p == null) ? null : p.get();
     }
 
@@ -7582,7 +7562,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseReleased() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
         return (p == null) ? null : p.get();
     }
 
@@ -7593,9 +7573,9 @@ public abstract sealed class Node
      * released on this {@code Node}
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseReleasedProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_RELEASED, () -> new EventHandlerProperty<>("onMouseReleased", MouseEvent.MOUSE_RELEASED));
+            p = props.init(K_ON_MOUSE_RELEASED, () -> new EHProperty<>("onMouseReleased", MouseEvent.MOUSE_RELEASED));
         }
         return p;
     }
@@ -7605,7 +7585,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseEvent> getOnDragDetected() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
+        EHProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
         return (p == null) ? null : p.get();
     }
 
@@ -7616,9 +7596,9 @@ public abstract sealed class Node
      * detected
      */
     public final ObjectProperty<EventHandler<? super MouseEvent>> onDragDetectedProperty() {
-        EventHandlerProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
+        EHProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
         if (p == null) {
-            p = props.init(K_ON_DRAG_DETECTED, () -> new EventHandlerProperty<>("onDragDetected", MouseEvent.DRAG_DETECTED));
+            p = props.init(K_ON_DRAG_DETECTED, () -> new EHProperty<>("onDragDetected", MouseEvent.DRAG_DETECTED));
         }
         return p;
     }
@@ -7628,7 +7608,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragOver() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
         return (p == null) ? null : p.get();
     }
 
@@ -7640,9 +7620,9 @@ public abstract sealed class Node
      * @since JavaFX 2.1
      */
     public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragOverProperty() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_DRAG_OVER, () -> new EventHandlerProperty<>("onMouseDragOver", MouseDragEvent.MOUSE_DRAG_OVER));
+            p = props.init(K_ON_MOUSE_DRAG_OVER, () -> new EHProperty<>("onMouseDragOver", MouseDragEvent.MOUSE_DRAG_OVER));
         }
         return p;
     }
@@ -7652,7 +7632,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragReleased() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
         return (p == null) ? null : p.get();
     }
 
@@ -7664,9 +7644,9 @@ public abstract sealed class Node
      * @since JavaFX 2.1
      */
     public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragReleasedProperty() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_DRAG_RELEASED, () -> new EventHandlerProperty<>("onMouseDragReleased", MouseDragEvent.MOUSE_DRAG_RELEASED));
+            p = props.init(K_ON_MOUSE_DRAG_RELEASED, () -> new EHProperty<>("onMouseDragReleased", MouseDragEvent.MOUSE_DRAG_RELEASED));
         }
         return p;
     }
@@ -7676,7 +7656,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragEntered() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
         return (p == null) ? null : p.get();
     }
 
@@ -7688,9 +7668,9 @@ public abstract sealed class Node
      * @since JavaFX 2.1
      */
     public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragEnteredProperty() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_DRAG_ENTERED, () -> new EventHandlerProperty<>("onMouseDragEntered", MouseDragEvent.MOUSE_DRAG_ENTERED));
+            p = props.init(K_ON_MOUSE_DRAG_ENTERED, () -> new EHProperty<>("onMouseDragEntered", MouseDragEvent.MOUSE_DRAG_ENTERED));
         }
         return p;
     }
@@ -7700,7 +7680,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragExited() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
         return (p == null) ? null : p.get();
     }
 
@@ -7712,9 +7692,9 @@ public abstract sealed class Node
      * @since JavaFX 2.1
      */
     public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragExitedProperty() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_DRAG_EXITED, () -> new EventHandlerProperty<>("onMouseDragExited", MouseDragEvent.MOUSE_DRAG_EXITED));
+            p = props.init(K_ON_MOUSE_DRAG_EXITED, () -> new EHProperty<>("onMouseDragExited", MouseDragEvent.MOUSE_DRAG_EXITED));
         }
         return p;
     }
@@ -7724,7 +7704,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragDone() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
         return (p == null) ? null : p.get();
     }
 
@@ -7736,9 +7716,9 @@ public abstract sealed class Node
      * @since 26
      */
     public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragDoneProperty() {
-        EventHandlerProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
         if (p == null) {
-            p = props.init(K_ON_MOUSE_DRAG_DONE, () -> new EventHandlerProperty<>("onMouseDragDone", MouseDragEvent.MOUSE_DRAG_DONE));
+            p = props.init(K_ON_MOUSE_DRAG_DONE, () -> new EHProperty<>("onMouseDragDone", MouseDragEvent.MOUSE_DRAG_DONE));
         }
         return p;
     }
@@ -7756,7 +7736,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ScrollEvent> getOnScrollStarted() {
-        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
         return (p == null) ? null : p.get();
     }
 
@@ -7767,9 +7747,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollStartedProperty() {
-        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
         if (p == null) {
-            p = props.init(K_ON_SCROLL_STARTED, () -> new EventHandlerProperty<>("onScrollStarted", ScrollEvent.SCROLL_STARTED));
+            p = props.init(K_ON_SCROLL_STARTED, () -> new EHProperty<>("onScrollStarted", ScrollEvent.SCROLL_STARTED));
         }
         return p;
     }
@@ -7779,7 +7759,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ScrollEvent> getOnScroll() {
-        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
         return (p == null) ? null : p.get();
     }
 
@@ -7789,9 +7769,9 @@ public abstract sealed class Node
      * action
      */
     public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollProperty() {
-        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
         if (p == null) {
-            p = props.init(K_ON_SCROLL, () -> new EventHandlerProperty<>("onScroll", ScrollEvent.SCROLL));
+            p = props.init(K_ON_SCROLL, () -> new EHProperty<>("onScroll", ScrollEvent.SCROLL));
         }
         return p;
     }
@@ -7801,7 +7781,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ScrollEvent> getOnScrollFinished() {
-        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
         return (p == null) ? null : p.get();
     }
 
@@ -7811,9 +7791,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollFinishedProperty() {
-        EventHandlerProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
         if (p == null) {
-            p = props.init(K_ON_SCROLL_FINISHED, () -> new EventHandlerProperty<>("onScrollFinished", ScrollEvent.SCROLL_FINISHED));
+            p = props.init(K_ON_SCROLL_FINISHED, () -> new EHProperty<>("onScrollFinished", ScrollEvent.SCROLL_FINISHED));
         }
         return p;
     }
@@ -7823,7 +7803,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super RotateEvent> getOnRotationStarted() {
-        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
         return (p == null) ? null : p.get();
     }
 
@@ -7834,9 +7814,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super RotateEvent>> onRotationStartedProperty() {
-        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
         if (p == null) {
-            p = props.init(K_ON_ROTATION_STARTED, () -> new EventHandlerProperty<>("onRotationStarted", RotateEvent.ROTATION_STARTED));
+            p = props.init(K_ON_ROTATION_STARTED, () -> new EHProperty<>("onRotationStarted", RotateEvent.ROTATION_STARTED));
         }
         return p;
     }
@@ -7846,7 +7826,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super RotateEvent> getOnRotate() {
-        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATE);
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATE);
         return (p == null) ? null : p.get();
     }
 
@@ -7857,9 +7837,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super RotateEvent>> onRotateProperty() {
-        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATE);
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATE);
         if (p == null) {
-            p = props.init(K_ON_ROTATE, () -> new EventHandlerProperty<>("onRotate", RotateEvent.ROTATE));
+            p = props.init(K_ON_ROTATE, () -> new EHProperty<>("onRotate", RotateEvent.ROTATE));
         }
         return p;
     }
@@ -7869,7 +7849,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super RotateEvent> getOnRotationFinished() {
-        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
         return (p == null) ? null : p.get();
     }
 
@@ -7879,9 +7859,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super RotateEvent>> onRotationFinishedProperty() {
-        EventHandlerProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
         if (p == null) {
-            p = props.init(K_ON_ROTATION_FINISHED, () -> new EventHandlerProperty<>("onRotationFinished", RotateEvent.ROTATION_FINISHED));
+            p = props.init(K_ON_ROTATION_FINISHED, () -> new EHProperty<>("onRotationFinished", RotateEvent.ROTATION_FINISHED));
         }
         return p;
     }
@@ -7893,9 +7873,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomStartedProperty() {
-        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
         if (p == null) {
-            p = props.init(K_ON_ZOOM_STARTED, () -> new EventHandlerProperty<>("onZoomStarted", ZoomEvent.ZOOM_STARTED));
+            p = props.init(K_ON_ZOOM_STARTED, () -> new EHProperty<>("onZoomStarted", ZoomEvent.ZOOM_STARTED));
         }
         return p;
     }
@@ -7905,7 +7885,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ZoomEvent> getOnZoomStarted() {
-        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
         return (p == null) ? null : p.get();
     }
 
@@ -7916,15 +7896,15 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomProperty() {
-        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
         if (p == null) {
-            p = props.init(K_ON_ZOOM, () -> new EventHandlerProperty<>("onZoom", ZoomEvent.ZOOM));
+            p = props.init(K_ON_ZOOM, () -> new EHProperty<>("onZoom", ZoomEvent.ZOOM));
         }
         return p;
     }
 
     public final EventHandler<? super ZoomEvent> getOnZoom() {
-        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
         return (p == null) ? null : p.get();
     }
 
@@ -7938,9 +7918,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomFinishedProperty() {
-        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
         if (p == null) {
-            p = props.init(K_ON_ZOOM_FINISHED, () -> new EventHandlerProperty<>("onZoomFinished", ZoomEvent.ZOOM_FINISHED));
+            p = props.init(K_ON_ZOOM_FINISHED, () -> new EHProperty<>("onZoomFinished", ZoomEvent.ZOOM_FINISHED));
         }
         return p;
     }
@@ -7950,7 +7930,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ZoomEvent> getOnZoomFinished() {
-        EventHandlerProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
         return (p == null) ? null : p.get();
     }
 
@@ -7959,7 +7939,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeUp() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
         return (p == null) ? null : p.get();
     }
 
@@ -7971,9 +7951,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeUpProperty() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
         if (p == null) {
-            p = props.init(K_ON_SWIPE_UP, () -> new EventHandlerProperty<>("onSwipeUp", SwipeEvent.SWIPE_UP));
+            p = props.init(K_ON_SWIPE_UP, () -> new EHProperty<>("onSwipeUp", SwipeEvent.SWIPE_UP));
         }
         return p;
     }
@@ -7983,7 +7963,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeDown() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
         return (p == null) ? null : p.get();
     }
 
@@ -7995,9 +7975,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeDownProperty() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
         if (p == null) {
-            p = props.init(K_ON_SWIPE_DOWN, () -> new EventHandlerProperty<>("onSwipeDown", SwipeEvent.SWIPE_DOWN));
+            p = props.init(K_ON_SWIPE_DOWN, () -> new EHProperty<>("onSwipeDown", SwipeEvent.SWIPE_DOWN));
         }
         return p;
     }
@@ -8007,7 +7987,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeLeft() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
         return (p == null) ? null : p.get();
     }
 
@@ -8019,9 +7999,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeLeftProperty() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
         if (p == null) {
-            p = props.init(K_ON_SWIPE_LEFT, () -> new EventHandlerProperty<>("onSwipeLeft", SwipeEvent.SWIPE_LEFT));
+            p = props.init(K_ON_SWIPE_LEFT, () -> new EHProperty<>("onSwipeLeft", SwipeEvent.SWIPE_LEFT));
         }
         return p;
     }
@@ -8031,7 +8011,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeRight() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
         return (p == null) ? null : p.get();
     }
 
@@ -8043,9 +8023,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeRightProperty() {
-        EventHandlerProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
         if (p == null) {
-            p = props.init(K_ON_SWIPE_RIGHT, () -> new EventHandlerProperty<>("onSwipeRight", SwipeEvent.SWIPE_RIGHT));
+            p = props.init(K_ON_SWIPE_RIGHT, () -> new EHProperty<>("onSwipeRight", SwipeEvent.SWIPE_RIGHT));
         }
         return p;
     }
@@ -8063,9 +8043,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchPressedProperty() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
         if (p == null) {
-            p = props.init(K_ON_TOUCH_PRESSED, () -> new EventHandlerProperty<>("onTouchPressed", TouchEvent.TOUCH_PRESSED));
+            p = props.init(K_ON_TOUCH_PRESSED, () -> new EHProperty<>("onTouchPressed", TouchEvent.TOUCH_PRESSED));
         }
         return p;
     }
@@ -8075,7 +8055,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchPressed() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
         return (p == null) ? null : p.get();
     }
 
@@ -8085,15 +8065,15 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchMovedProperty() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
         if (p == null) {
-            p = props.init(K_ON_TOUCH_MOVED, () -> new EventHandlerProperty<>("onTouchMoved", TouchEvent.TOUCH_MOVED));
+            p = props.init(K_ON_TOUCH_MOVED, () -> new EHProperty<>("onTouchMoved", TouchEvent.TOUCH_MOVED));
         }
         return p;
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchMoved() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
         return (p == null) ? null : p.get();
     }
 
@@ -8106,7 +8086,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchReleased() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
         return (p == null) ? null : p.get();
     }
 
@@ -8116,9 +8096,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchReleasedProperty() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
         if (p == null) {
-            p = props.init(K_ON_TOUCH_RELEASED, () -> new EventHandlerProperty<>("onTouchReleased", TouchEvent.TOUCH_RELEASED));
+            p = props.init(K_ON_TOUCH_RELEASED, () -> new EHProperty<>("onTouchReleased", TouchEvent.TOUCH_RELEASED));
         }
         return p;
     }
@@ -8129,7 +8109,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchStationary() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
         return (p == null) ? null : p.get();
     }
 
@@ -8141,9 +8121,9 @@ public abstract sealed class Node
      * @since JavaFX 2.2
      */
     public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchStationaryProperty() {
-        EventHandlerProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
         if (p == null) {
-            p = props.init(K_ON_TOUCH_STATIONARY, () -> new EventHandlerProperty<>("onTouchStationary", TouchEvent.TOUCH_STATIONARY));
+            p = props.init(K_ON_TOUCH_STATIONARY, () -> new EHProperty<>("onTouchStationary", TouchEvent.TOUCH_STATIONARY));
         }
         return p;
     }
@@ -8159,7 +8139,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyPressed() {
-        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
         return (p == null) ? null : p.get();
     }
 
@@ -8172,9 +8152,9 @@ public abstract sealed class Node
      * child {@code Node} has input focus and a key has been pressed
      */
     public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyPressedProperty() {
-        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
         if (p == null) {
-            p = props.init(K_ON_KEY_PRESSED, () -> new EventHandlerProperty<>("onKeyPressed", KeyEvent.KEY_PRESSED));
+            p = props.init(K_ON_KEY_PRESSED, () -> new EHProperty<>("onKeyPressed", KeyEvent.KEY_PRESSED));
         }
         return p;
     }
@@ -8184,7 +8164,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyReleased() {
-        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
         return (p == null) ? null : p.get();
     }
 
@@ -8197,9 +8177,9 @@ public abstract sealed class Node
      * child {@code Node} has input focus and a key has been released
      */
     public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyReleasedProperty() {
-        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
         if (p == null) {
-            p = props.init(K_ON_KEY_RELEASED, () -> new EventHandlerProperty<>("onKeyReleased", KeyEvent.KEY_RELEASED));
+            p = props.init(K_ON_KEY_RELEASED, () -> new EHProperty<>("onKeyReleased", KeyEvent.KEY_RELEASED));
         }
         return p;
     }
@@ -8209,7 +8189,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyTyped() {
-        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
         return (p == null) ? null : p.get();
     }
 
@@ -8222,9 +8202,9 @@ public abstract sealed class Node
      * child {@code Node} has input focus and a key has been typed
      */
     public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyTypedProperty() {
-        EventHandlerProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
         if (p == null) {
-            p = props.init(K_ON_KEY_TYPED, () -> new EventHandlerProperty<>("onKeyTyped", KeyEvent.KEY_TYPED));
+            p = props.init(K_ON_KEY_TYPED, () -> new EHProperty<>("onKeyTyped", KeyEvent.KEY_TYPED));
         }
         return p;
     }
@@ -8240,7 +8220,7 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super InputMethodEvent> getOnInputMethodTextChanged() {
-        EventHandlerProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
+        EHProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
         return (p == null) ? null : p.get();
     }
 
@@ -8258,9 +8238,9 @@ public abstract sealed class Node
      * focus and the input method text has changed
      */
     public final ObjectProperty<EventHandler<? super InputMethodEvent>> onInputMethodTextChangedProperty() {
-        EventHandlerProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
+        EHProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
         if (p == null) {
-            p = props.init(K_ON_INPUT_METHOD_TEXT_CHANGED, () -> new EventHandlerProperty<>("onInputMethodTextChanged", InputMethodEvent.INPUT_METHOD_TEXT_CHANGED));
+            p = props.init(K_ON_INPUT_METHOD_TEXT_CHANGED, () -> new EHProperty<>("onInputMethodTextChanged", InputMethodEvent.INPUT_METHOD_TEXT_CHANGED));
         }
         return p;
     }
@@ -10594,12 +10574,12 @@ public abstract sealed class Node
         }
     }
 
-    // replaces EventHandlerProperties.EventHandlerProperty
-    private class EventHandlerProperty<T extends Event> extends ObjectPropertyBase<EventHandler<? super T>> {
+    // replaced EventHandlerProperties.EventHandlerProperty
+    private class EHProperty<T extends Event> extends ObjectPropertyBase<EventHandler<? super T>> {
         private final String name;
         private final EventType<T> eventType;
 
-        public EventHandlerProperty(String name, EventType<T> eventType) {
+        public EHProperty(String name, EventType<T> eventType) {
             this.name = name;
             this.eventType = eventType;
         }
