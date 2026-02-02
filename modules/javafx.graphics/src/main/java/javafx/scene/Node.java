@@ -487,6 +487,7 @@ public abstract sealed class Node
     private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM = new PKey<>();
     private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
     private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
+    private static final PKey<ObjectProperty<Point3D>> K_ROTATION_AXIS = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
     private static final PKey<DoubleProperty> K_TRANSLATE_X = new PKey<>();
     private static final PKey<DoubleProperty> K_TRANSLATE_Y = new PKey<>();
@@ -6189,7 +6190,7 @@ public abstract sealed class Node
         return p;
     }
 
-    public boolean isTranslateYSettable() {
+    private boolean isTranslateYSettable() {
         DoubleProperty p = props.get(K_TRANSLATE_Y);
         return (p == null) || !p.isBound();
     }
@@ -6248,7 +6249,7 @@ public abstract sealed class Node
         return p;
     }
 
-    public boolean isTranslateZSettable() {
+    private boolean isTranslateZSettable() {
         DoubleProperty p = props.get(K_TRANSLATE_Z);
         return (p == null) || !p.isBound();
     }
@@ -6386,9 +6387,8 @@ public abstract sealed class Node
     }
 
     public final Point3D getRotationAxis() {
-        return (nodeTransformation == null)
-                ? DEFAULT_ROTATION_AXIS
-                : nodeTransformation.getRotationAxis();
+        ObjectProperty<Point3D> p = props.get(K_ROTATION_AXIS);
+        return (p == null) ? DEFAULT_ROTATION_AXIS : p.get();
     }
 
     /**
@@ -6402,7 +6402,26 @@ public abstract sealed class Node
      * @defaultValue Rotate.Z_AXIS
      */
     public final ObjectProperty<Point3D> rotationAxisProperty() {
-        return getNodeTransformation().rotationAxisProperty();
+        ObjectProperty<Point3D> p = props.get(K_ROTATION_AXIS);
+        if (p == null) {
+            p = props.init(K_ROTATION_AXIS, () -> new ObjectPropertyBase<Point3D>(DEFAULT_ROTATION_AXIS) {
+                @Override
+                protected void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "rotationAxis";
+                }
+            });
+        }
+        return p;
     }
 
     /**
@@ -6492,17 +6511,14 @@ public abstract sealed class Node
     private static final double DEFAULT_ROTATE = 0;
     private static final Point3D DEFAULT_ROTATION_AXIS = Rotate.Z_AXIS;
 
-    // TODO
     private final class NodeTransformation {
         private DoubleProperty scaleX;
         private DoubleProperty scaleY;
         private DoubleProperty scaleZ;
         private DoubleProperty rotate;
-        private ObjectProperty<Point3D> rotationAxis;
         private ObservableList<Transform> transforms;
         private LazyTransformProperty localToParentTransform;
         private LazyTransformProperty localToSceneTransform;
-        // TODO should be a part of localToSceneTransform probably?
         private int listenerReasons = 0;
         private InvalidationListener localToSceneInvLstnr;
 
@@ -6837,34 +6853,6 @@ public abstract sealed class Node
                 };
             }
             return rotate;
-        }
-
-        public Point3D getRotationAxis() {
-            return (rotationAxis == null) ? DEFAULT_ROTATION_AXIS
-                                          : rotationAxis.get();
-        }
-
-        public final ObjectProperty<Point3D> rotationAxisProperty() {
-            if (rotationAxis == null) {
-                rotationAxis = new ObjectPropertyBase<Point3D>(
-                                           DEFAULT_ROTATION_AXIS) {
-                    @Override
-                    protected void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "rotationAxis";
-                    }
-                };
-            }
-            return rotationAxis;
         }
 
         public ObservableList<Transform> getTransforms() {
