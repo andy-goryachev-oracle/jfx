@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -71,7 +72,7 @@ public class FastMap {
         return value;
     }
 
-    private int indexOf(PKey<?> key) {
+    int indexOf(PKey<?> key) {
         int sz = keys.size();
         for (int i = 0; i < sz; i++) {
             if (keys.get(i) == key) {
@@ -106,6 +107,7 @@ public class FastMap {
         record HEntry(int size, int count) { }
         
         private final int keyCount;
+        private static final AtomicLong indexOfCount = new AtomicLong();
         private static HashMap<PKey<?>,String> keyNames = new HashMap<>();
         private static HashMap<Class<?>,Integer> counts = new HashMap<>();
         private static WeakHashMap<FastMaPWithStats,Object> all = new WeakHashMap(1000);
@@ -141,6 +143,12 @@ public class FastMap {
                 t.setCycleCount(Timeline.INDEFINITE);
                 t.play();
             });
+        }
+
+        @Override
+        int indexOf(PKey<?> key) {
+            indexOfCount.incrementAndGet();
+            return super.indexOf(key);
         }
 
         private static int countKeys(Class<?> cls) {
@@ -222,7 +230,15 @@ public class FastMap {
             float ut = used / ((float)max);
             int sv = (max - used) * 8; // 64 bit pointers
             float av = used / (float)count;
-            String s = MessageFormat.format("Nodes={0} utilization={1} average={2} top={3} saved={4} bytes", count, ut, av, top, sv);
+            long indof = indexOfCount.get();
+            String s = MessageFormat.format(
+                "Nodes={0} utilization={1} average={2} top={3} indexOf={4} saved={5} bytes",
+                count,
+                ut,
+                av,
+                top,
+                indof,
+                sv);
             System.out.println(s);
             System.out.println(frequencies(freq));
             System.out.println(histogram(hist));
