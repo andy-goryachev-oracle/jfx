@@ -488,6 +488,9 @@ public abstract sealed class Node
     private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
     private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
     private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
+    private static final PKey<DoubleProperty> K_TRANSLATE_X = new PKey<>();
+    private static final PKey<DoubleProperty> K_TRANSLATE_Y = new PKey<>();
+    private static final PKey<DoubleProperty> K_TRANSLATE_Z = new PKey<>();
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
     private static final PKey<BooleanProperty> K_VISIBLE = new PKey<>();
@@ -6084,9 +6087,8 @@ public abstract sealed class Node
     }
 
     public final double getTranslateX() {
-        return (nodeTransformation == null)
-                ? DEFAULT_TRANSLATE_X
-                : nodeTransformation.getTranslateX();
+        DoubleProperty p = props.get(K_TRANSLATE_X);
+        return (p == null) ? DEFAULT_TRANSLATE_X : p.get();
     }
 
     /**
@@ -6104,7 +6106,36 @@ public abstract sealed class Node
      * @defaultValue 0
      */
     public final DoubleProperty translateXProperty() {
-        return getNodeTransformation().translateXProperty();
+        DoubleProperty p = props.get(K_TRANSLATE_X);
+        if (p == null) {
+            p = props.init(K_TRANSLATE_X, () -> new StyleableDoubleProperty(DEFAULT_TRANSLATE_X) {
+                @Override
+                public void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TRANSLATE_X;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "translateX";
+                }
+            });
+        }
+        return p;
+    }
+
+    private boolean isTranslateXSettable() {
+        DoubleProperty p = props.get(K_TRANSLATE_X);
+        return (p == null) || !p.isBound();
     }
 
     public final void setTranslateY(double value) {
@@ -6112,9 +6143,8 @@ public abstract sealed class Node
     }
 
     public final double getTranslateY() {
-        return (nodeTransformation == null)
-                ? DEFAULT_TRANSLATE_Y
-                : nodeTransformation.getTranslateY();
+        DoubleProperty p = props.get(K_TRANSLATE_Y);
+        return (p == null) ? DEFAULT_TRANSLATE_Y : p.get();
     }
 
     /**
@@ -6132,7 +6162,36 @@ public abstract sealed class Node
      * @defaultValue 0
      */
     public final DoubleProperty translateYProperty() {
-        return getNodeTransformation().translateYProperty();
+        DoubleProperty p = props.get(K_TRANSLATE_Y);
+        if (p == null) {
+            p = props.init(K_TRANSLATE_Y, () -> new StyleableDoubleProperty(DEFAULT_TRANSLATE_Y) {
+                @Override
+                public void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TRANSLATE_Y;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "translateY";
+                }
+            });
+        }
+        return p;
+    }
+
+    public boolean isTranslateYSettable() {
+        DoubleProperty p = props.get(K_TRANSLATE_Y);
+        return (p == null) || !p.isBound();
     }
 
     public final void setTranslateZ(double value) {
@@ -6140,9 +6199,8 @@ public abstract sealed class Node
     }
 
     public final double getTranslateZ() {
-        return (nodeTransformation == null)
-                ? DEFAULT_TRANSLATE_Z
-                : nodeTransformation.getTranslateZ();
+        DoubleProperty p = props.get(K_TRANSLATE_Z);
+        return (p == null) ? DEFAULT_TRANSLATE_Z : p.get();
     }
 
     /**
@@ -6163,7 +6221,36 @@ public abstract sealed class Node
      * @defaultValue 0
      */
     public final DoubleProperty translateZProperty() {
-        return getNodeTransformation().translateZProperty();
+        DoubleProperty p = props.get(K_TRANSLATE_Z);
+        if (p == null) {
+            p = props.init(K_TRANSLATE_Z, () -> new StyleableDoubleProperty(DEFAULT_TRANSLATE_Z) {
+                @Override
+                public void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TRANSLATE_Z;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "translateZ";
+                }
+            });
+        }
+        return p;
+    }
+
+    public boolean isTranslateZSettable() {
+        DoubleProperty p = props.get(K_TRANSLATE_Z);
+        return (p == null) || !p.isBound();
     }
 
     public final void setScaleX(double value) {
@@ -6405,10 +6492,8 @@ public abstract sealed class Node
     private static final double DEFAULT_ROTATE = 0;
     private static final Point3D DEFAULT_ROTATION_AXIS = Rotate.Z_AXIS;
 
+    // TODO
     private final class NodeTransformation {
-        private DoubleProperty translateX;
-        private DoubleProperty translateY;
-        private DoubleProperty translateZ;
         private DoubleProperty scaleX;
         private DoubleProperty scaleY;
         private DoubleProperty scaleZ;
@@ -6417,6 +6502,7 @@ public abstract sealed class Node
         private ObservableList<Transform> transforms;
         private LazyTransformProperty localToParentTransform;
         private LazyTransformProperty localToSceneTransform;
+        // TODO should be a part of localToSceneTransform probably?
         private int listenerReasons = 0;
         private InvalidationListener localToSceneInvLstnr;
 
@@ -6629,100 +6715,6 @@ public abstract sealed class Node
             }
         }
 
-        public double getTranslateX() {
-            return (translateX == null) ? DEFAULT_TRANSLATE_X
-                                        : translateX.get();
-        }
-
-        public final DoubleProperty translateXProperty() {
-            if (translateX == null) {
-                translateX = new StyleableDoubleProperty(DEFAULT_TRANSLATE_X) {
-                    @Override
-                    public void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TRANSLATE_X;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "translateX";
-                    }
-                };
-            }
-            return translateX;
-        }
-
-        public double getTranslateY() {
-            return (translateY == null) ? DEFAULT_TRANSLATE_Y : translateY.get();
-        }
-
-        public final DoubleProperty translateYProperty() {
-            if (translateY == null) {
-                translateY = new StyleableDoubleProperty(DEFAULT_TRANSLATE_Y) {
-                    @Override
-                    public void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TRANSLATE_Y;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "translateY";
-                    }
-                };
-            }
-            return translateY;
-        }
-
-        public double getTranslateZ() {
-            return (translateZ == null) ? DEFAULT_TRANSLATE_Z : translateZ.get();
-        }
-
-        public final DoubleProperty translateZProperty() {
-            if (translateZ == null) {
-                translateZ = new StyleableDoubleProperty(DEFAULT_TRANSLATE_Z) {
-                    @Override
-                    public void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TRANSLATE_Z;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "translateZ";
-                    }
-                };
-            }
-            return translateZ;
-        }
-
         public double getScaleX() {
             return (scaleX == null) ? DEFAULT_SCALE_X : scaleX.get();
         }
@@ -6895,18 +6887,6 @@ public abstract sealed class Node
             }
 
             return transforms;
-        }
-
-        public boolean canSetTranslateX() {
-            return (translateX == null) || !translateX.isBound();
-        }
-
-        public boolean canSetTranslateY() {
-            return (translateY == null) || !translateY.isBound();
-        }
-
-        public boolean canSetTranslateZ() {
-            return (translateZ == null) || !translateZ.isBound();
         }
 
         public boolean canSetScaleX() {
@@ -9616,9 +9596,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.nodeTransformation == null
-                        || node.nodeTransformation.translateX == null
-                        || node.nodeTransformation.canSetTranslateX();
+                    return node.isTranslateXSettable();
                 }
 
                 @Override
@@ -9632,9 +9610,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.nodeTransformation == null
-                        || node.nodeTransformation.translateY == null
-                        || node.nodeTransformation.canSetTranslateY();
+                    return node.isTranslateYSettable();
                 }
 
                 @Override
@@ -9648,9 +9624,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.nodeTransformation == null
-                        || node.nodeTransformation.translateZ == null
-                        || node.nodeTransformation.canSetTranslateZ();
+                    return node.isTranslateZSettable();
                 }
 
                 @Override
