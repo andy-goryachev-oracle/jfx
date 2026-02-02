@@ -425,7 +425,6 @@ public abstract sealed class Node
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
     private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_HELP = new PKey<>();
-    private static final PKey<ObjectProperty<AccessibleRole>> K_ACCESSIBLE_ROLE = new PKey<>();
     private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_ROLE_DESCR = new PKey<>();
     private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_TEXT = new PKey<>();
     private static final PKey<ObjectProperty<BlendMode>> K_BLEND_MODE = new PKey<>();
@@ -437,14 +436,11 @@ public abstract sealed class Node
     private static final PKey<ObjectProperty<Cursor>> K_CURSOR = new PKey<>();
     private static final PKey<ObjectProperty<DepthTest>> K_DEPTH_TEST = new PKey<>();
     private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
-    private static final PKey<ReadOnlyBooleanWrapper> K_DISABLED = new PKey<>();
     private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
     private static final PKey<BooleanProperty> K_FOCUS_TRAVERSABLE = new PKey<>();
     private static final PKey<ReadOnlyBooleanWrapper> K_HOVER = new PKey<>();
     private static final PKey<StringProperty> K_ID = new PKey<>();
     private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
-    private static final PKey<DoubleProperty> K_LAYOUT_X = new PKey<>();
-    private static final PKey<DoubleProperty> K_LAYOUT_Y = new PKey<>();
     private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
     private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
     private static final PKey<EHProperty<ContextMenuEvent>> K_ON_CONTEXT_MENU_REQUESTED = new PKey<>();
@@ -2338,14 +2334,12 @@ public abstract sealed class Node
     }
 
     public final boolean isDisabled() {
-        ReadOnlyBooleanWrapper p = props.get(K_DISABLED);
-        return p == null ? false : p.get();
+        return disabled == null ? false : disabled.get();
     }
 
     private ReadOnlyBooleanWrapper disabledPropertyImpl() {
-        ReadOnlyBooleanWrapper p = props.get(K_DISABLED);
-        if (p == null) {
-            p = props.init(K_DISABLED, () -> new ReadOnlyBooleanWrapper() {
+        if (disabled == null) {
+            disabled = new ReadOnlyBooleanWrapper() {
 
                 @Override
                 protected void invalidated() {
@@ -2367,10 +2361,12 @@ public abstract sealed class Node
                 public String getName() {
                     return "disabled";
                 }
-            });
+            };
         }
-        return p;
+        return disabled;
     }
+
+    private ReadOnlyBooleanWrapper disabled;
 
     private void updateDisabled() {
         boolean isDisabled = isDisable();
@@ -3188,9 +3184,8 @@ public abstract sealed class Node
      *
      */
     public final DoubleProperty layoutXProperty() {
-        DoubleProperty p = props.get(K_LAYOUT_X);
-        if (p == null) {
-            p = props.init(K_LAYOUT_X, () -> new DoublePropertyBase(0.0) {
+        if (layoutX == null) {
+            layoutX = new DoublePropertyBase(0.0) {
 
                 @Override
                 protected void invalidated() {
@@ -3219,18 +3214,19 @@ public abstract sealed class Node
                 public String getName() {
                     return "layoutX";
                 }
-            });
+            };
         }
-        return p;
+        return layoutX;
     }
+
+    private DoubleProperty layoutX;
 
     public final void setLayoutX(double value) {
         layoutXProperty().set(value);
     }
 
     public final double getLayoutX() {
-        DoubleProperty p = props.get(K_LAYOUT_X);
-        return p == null ? 0.0 : p.get();
+        return layoutX == null ? 0.0 : layoutX.get();
     }
 
     /**
@@ -3263,9 +3259,8 @@ public abstract sealed class Node
      * @see #layoutBoundsProperty()
      */
     public final DoubleProperty layoutYProperty() {
-        DoubleProperty p = props.get(K_LAYOUT_Y);
-        if (p == null) {
-            p = props.init(K_LAYOUT_Y, () -> new DoublePropertyBase(0.0) {
+        if (layoutY == null) {
+            layoutY = new DoublePropertyBase(0.0) {
 
                 @Override
                 protected void invalidated() {
@@ -3294,18 +3289,19 @@ public abstract sealed class Node
                 public String getName() {
                     return "layoutY";
                 }
-            });
+            };
         }
-        return p;
+        return layoutY;
     }
+
+    private DoubleProperty layoutY;
 
     public final void setLayoutY(double value) {
         layoutYProperty().set(value);
     }
 
     public final double getLayoutY() {
-        DoubleProperty p = props.get(K_LAYOUT_Y);
-        return p == null ? 0.0 : p.get();
+        return layoutY == null ? 0.0 : layoutY.get();
     }
 
     /**
@@ -10284,12 +10280,13 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<AccessibleRole> accessibleRoleProperty() {
-        ObjectProperty<AccessibleRole> p = props.get(K_ACCESSIBLE_ROLE);
-        if (p == null) {
-            p = props.init(K_ACCESSIBLE_ROLE, () -> new SimpleObjectProperty<>(this, "accessibleRole", AccessibleRole.NODE));
+        if (accessibleRole == null) {
+            accessibleRole = new SimpleObjectProperty<>(this, "accessibleRole", AccessibleRole.NODE);
         }
-        return p;
+        return accessibleRole;
     }
+
+    private ObjectProperty<AccessibleRole> accessibleRole;
 
     public final void setAccessibleRole(AccessibleRole value) {
         if (value == null) value = AccessibleRole.NODE;
@@ -10297,8 +10294,7 @@ public abstract sealed class Node
     }
 
     public final AccessibleRole getAccessibleRole() {
-        ObjectProperty<AccessibleRole> p = props.get(K_ACCESSIBLE_ROLE);
-        return (p == null) ? AccessibleRole.NODE : p.get();
+        return (accessibleRole == null) ? AccessibleRole.NODE : accessibleRole.get();
     }
 
     public final void setAccessibleRoleDescription(String value) {
