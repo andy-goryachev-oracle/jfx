@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,26 +25,26 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
 
 /**
  * A utility class to help deal with anchor and caret positions.
  */
 public class SelInfo {
-    private final RichTextArea control;
+    private final AbstractStyledTextArea control;
     private final TextPos caret;
     private final TextPos anchor;
     private final boolean caretAtMin;
 
-    public SelInfo(RichTextArea control, TextPos caret, TextPos anchor, boolean caretAtMin) {
+    public SelInfo(AbstractStyledTextArea control, TextPos caret, TextPos anchor, boolean caretAtMin) {
         this.control = control;
         this.caret = caret;
         this.anchor = anchor;
         this.caretAtMin = caretAtMin;
     }
 
-    public static SelInfo get(RichTextArea control) {
+    public static SelInfo get(AbstractStyledTextArea control) {
         if (control == null) {
             return null;
         }

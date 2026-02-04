@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2025, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -41,6 +41,7 @@ import jfx.incubator.scene.control.input.KeyBinding;
 import jfx.incubator.scene.control.richtext.CodeArea;
 import jfx.incubator.scene.control.richtext.LineNumberDecorator;
 import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.SimpleViewOnlyStyledModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
@@ -182,7 +183,7 @@ public class UsageExamples {
 
         @Override
         public void start(Stage stage) throws Exception {
-            RichTextArea t = true ? appendStyledText() : codeAreaExample();
+            AbstractStyledTextArea t = true ? appendStyledText() : codeAreaExample();
             stage.setScene(new Scene(t));
             t.selectionProperty().addListener((s,p,c) -> {
                 System.out.println("selection: " + c);

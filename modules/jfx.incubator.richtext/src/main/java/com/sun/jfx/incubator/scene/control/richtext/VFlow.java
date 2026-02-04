@@ -60,7 +60,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.SideDecorator;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
@@ -93,7 +93,7 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  */
 public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listener {
     private final RichTextAreaSkin skin;
-    private final RichTextArea control;
+    private final AbstractStyledTextArea control;
     private final ScrollBar vscroll;
     private final ScrollBar hscroll;
     private final ClippedPane leftGutter;

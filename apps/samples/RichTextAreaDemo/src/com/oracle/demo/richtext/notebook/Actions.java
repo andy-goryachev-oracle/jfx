@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -60,6 +60,7 @@ import com.oracle.demo.richtext.util.FX;
 import com.oracle.demo.richtext.util.FxAction;
 import jfx.incubator.scene.control.richtext.CodeArea;
 import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.ContentChange;
@@ -309,7 +310,7 @@ public class Actions {
         });
     }
 
-    private EditorType getEditorType(RichTextArea r) {
+    private EditorType getEditorType(AbstractStyledTextArea r) {
         if (r == null) {
             return EditorType.NONE;
         } else if (r instanceof CodeArea) {
@@ -322,7 +323,7 @@ public class Actions {
         return EditorType.TEXT;
     }
 
-    private boolean isSourceEditor(RichTextArea r) {
+    private boolean isSourceEditor(AbstractStyledTextArea r) {
         EditorType t = getEditorType(r);
         switch (t) {
         case CODE:

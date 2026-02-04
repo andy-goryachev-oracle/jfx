@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,7 +28,7 @@ package com.sun.jfx.incubator.scene.control.richtext;
 import javafx.scene.control.Skin;
 import com.sun.javafx.util.Utils;
 import com.sun.jfx.incubator.scene.control.richtext.util.ListenerHelper;
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 
 /**
@@ -53,7 +53,7 @@ public class RichTextAreaSkinHelper {
         accessor = a;
     }
 
-    public static VFlow getVFlow(RichTextArea t) {
+    public static VFlow getVFlow(AbstractStyledTextArea t) {
         var skin = t.getSkin();
         return accessor.getVFlow(skin);
     }
