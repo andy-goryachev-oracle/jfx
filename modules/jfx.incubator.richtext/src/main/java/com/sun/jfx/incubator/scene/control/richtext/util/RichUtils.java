@@ -65,7 +65,7 @@ import javafx.scene.text.TextFlow;
 import com.sun.javafx.scene.text.TextFlowHelper;
 import com.sun.javafx.scene.text.TextLayout;
 import com.sun.javafx.scene.text.TextLine;
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
@@ -704,7 +704,7 @@ public final class RichUtils {
     }
 
     /** returns true if both control and model are editable */
-    public static boolean canEdit(RichTextArea rta) {
+    public static boolean canEdit(AbstractStyledTextArea rta) {
         if (rta.isEditable()) {
             StyledTextModel m = rta.getModel();
             if (m != null) {

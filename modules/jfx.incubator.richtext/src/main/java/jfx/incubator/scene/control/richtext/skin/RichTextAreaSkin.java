@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -64,7 +64,7 @@ import com.sun.jfx.incubator.scene.control.richtext.TextCell;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.ListenerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.StyleHandlerRegistry;
 import jfx.incubator.scene.control.richtext.StyleResolver;
@@ -85,7 +85,7 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
  *
  * @since 24
  */
-public class RichTextAreaSkin extends SkinBase<RichTextArea> {
+public class RichTextAreaSkin extends SkinBase<AbstractStyledTextArea> {
     private final ListenerHelper listenerHelper;
     private final RichTextAreaBehavior behavior;
     private final VFlow vflow;
@@ -116,7 +116,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
      * Constructs the skin.
      * @param control the owner
      */
-    public RichTextAreaSkin(RichTextArea control) {
+    public RichTextAreaSkin(AbstractStyledTextArea control) {
         super(control);
 
         this.listenerHelper = new ListenerHelper();
@@ -153,7 +153,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
 
     @Override
     public void install() {
-        RichTextArea rta = getSkinnable();
+        AbstractStyledTextArea rta = getSkinnable();
         // TODO fix once SkinInputMap is public
         InputMapHelper.setSkinInputMap(rta.getInputMap(), behavior.getSkinInputMap());
         //rta.getInputMap().setSkinInputMap(behavior.getSkinInputMap());
@@ -218,7 +218,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
 
     @Override
     public void dispose() {
-        RichTextArea rta = getSkinnable();
+        AbstractStyledTextArea rta = getSkinnable();
         if (rta != null) {
             if (rta.getInputMethodRequests() == inputMethodRequests) {
                 rta.setInputMethodRequests(null);
@@ -236,7 +236,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
     }
 
     private void handleInputMethodEvent(InputMethodEvent ev) {
-        RichTextArea rta = getSkinnable();
+        AbstractStyledTextArea rta = getSkinnable();
         if (RichUtils.canEdit(rta) && !rta.isDisabled()) {
             SelectionSegment sel = rta.getSelection();
             if (sel == null) {
@@ -448,7 +448,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
      */
     public void applyStyles(CellContext context, StyleAttributeMap attrs, boolean forParagraph) {
         if (attrs != null) {
-            RichTextArea c = getSkinnable();
+            AbstractStyledTextArea c = getSkinnable();
             StyleHandlerRegistry r = c.getStyleHandlerRegistry();
             for (StyleAttribute a : attrs.getAttributes()) {
                 Object v = attrs.get(a);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
 
@@ -40,11 +40,11 @@ import jfx.incubator.scene.control.richtext.TextPos;
  * String for large models.
  */
 public class RTAccessibilityHelper {
-    private final RichTextArea control;
+    private final AbstractStyledTextArea control;
     private TextPos start;
     private TextPos end;
 
-    public RTAccessibilityHelper(RichTextArea t) {
+    public RTAccessibilityHelper(AbstractStyledTextArea t) {
         this.control = t;
     }
 

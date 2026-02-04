@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -50,6 +50,7 @@ import com.sun.jfx.incubator.scene.control.richtext.Params;
 import com.sun.jfx.incubator.scene.control.richtext.StringBuilderStyledOutput;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.model.CodeTextModel;
+import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 import jfx.incubator.scene.control.richtext.skin.CodeAreaSkin;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
@@ -85,7 +86,7 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  *
  * @since 24
  */
-public class CodeArea extends RichTextArea {
+public class CodeArea extends AbstractStyledTextArea {
     private BooleanProperty lineNumbers;
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
@@ -447,5 +448,10 @@ public class CodeArea extends RichTextArea {
 
     private CodeTextModel codeModel() {
         return (CodeTextModel)getModel();
+    }
+
+    @Override
+    public final StyleAttributeMap getInsertStyles() {
+        return null;
     }
 }

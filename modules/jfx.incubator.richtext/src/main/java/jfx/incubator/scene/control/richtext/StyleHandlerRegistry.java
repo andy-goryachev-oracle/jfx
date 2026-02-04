@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -73,7 +73,7 @@ public class StyleHandlerRegistry {
      * @param a the attribute
      * @param value the attribute value
      */
-    public <C extends RichTextArea, T> void process(C control, boolean forParagraph, CellContext cx, StyleAttribute<T> a, T value) {
+    public <C extends AbstractStyledTextArea, T> void process(C control, boolean forParagraph, CellContext cx, StyleAttribute<T> a, T value) {
         StyleAttributeHandler h = (forParagraph ? parStyleHandlerMap : segStyleHandlerMap).get(a);
         if (h != null) {
             h.apply(control, cx, value);
@@ -98,7 +98,7 @@ public class StyleHandlerRegistry {
          * @param a the attribute
          * @param h the handler
          */
-        public <C extends RichTextArea, T> void setParHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> h) {
+        public <C extends AbstractStyledTextArea, T> void setParHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> h) {
             parStyleHandlerMap.put(a, h);
         }
 
@@ -110,7 +110,7 @@ public class StyleHandlerRegistry {
          * @param a the attribute
          * @param h the handler
          */
-        public <C extends RichTextArea, T> void setSegHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> h) {
+        public <C extends AbstractStyledTextArea, T> void setSegHandler(StyleAttribute<T> a, StyleAttributeHandler<C, T> h) {
             segStyleHandlerMap.put(a, h);
         }
 

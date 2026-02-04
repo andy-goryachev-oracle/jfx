@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -39,9 +39,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-import com.oracle.demo.richtext.rta.RichTextAreaWindow;
 import com.oracle.demo.richtext.util.FX;
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.CodeArea;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.CodeTextModel;
 
@@ -88,7 +87,7 @@ public class CodeAreaWindow extends Stage {
     }
 
     protected void updateStatus() {
-        RichTextArea t = demoPane.control;
+        CodeArea t = demoPane.control;
         TextPos p = t.getCaretPosition();
 
         StringBuilder sb = new StringBuilder();

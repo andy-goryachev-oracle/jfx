@@ -57,7 +57,7 @@ import com.sun.javafx.util.Utils;
 import com.sun.jfx.incubator.scene.control.input.BehaviorBase;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.input.KeyBinding;
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.DataFormatHandler;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
@@ -65,10 +65,10 @@ import jfx.incubator.scene.control.richtext.model.StyledInput;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 
 /**
- * This class provides the RichTextArea behavior by registering input mappings and
+ * This class provides the RichTextAreaBase behavior by registering input mappings and
  * implementing various event handlers.
  */
-public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
+public class RichTextAreaBehavior extends BehaviorBase<AbstractStyledTextArea> {
     private VFlow vflow;
     private final Timeline autoScrollTimer;
     private boolean autoScrollUp;
@@ -79,7 +79,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     private final Duration autoScrollPeriod;
     private ContextMenu contextMenu = new ContextMenu();
 
-    public RichTextAreaBehavior(RichTextArea control) {
+    public RichTextAreaBehavior(AbstractStyledTextArea control) {
         super(control);
 
         autoScrollPeriod = Duration.millis(Params.AUTO_SCROLL_PERIOD);
@@ -95,148 +95,148 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         vflow = RichTextAreaSkinHelper.getVFlow(getControl());
 
         // functions
-        registerFunction(RichTextArea.Tag.BACKSPACE, this::backspace);
-        registerFunction(RichTextArea.Tag.COPY, this::copy);
-        registerFunction(RichTextArea.Tag.CUT, this::cut);
-        registerFunction(RichTextArea.Tag.DELETE, this::delete);
-        registerFunction(RichTextArea.Tag.DELETE_PARAGRAPH, this::deleteParagraph);
-        registerFunction(RichTextArea.Tag.DELETE_PARAGRAPH_START, this::deleteParagraphStart);
-        registerFunction(RichTextArea.Tag.DELETE_WORD_NEXT_END, this::deleteWordNextEnd);
-        registerFunction(RichTextArea.Tag.DELETE_WORD_NEXT_START, this::deleteWordNextBeg);
-        registerFunction(RichTextArea.Tag.DELETE_WORD_PREVIOUS, this::deleteWordPrevious);
-        registerFunction(RichTextArea.Tag.DESELECT, this::deselect);
-        registerFunction(RichTextArea.Tag.FOCUS_NEXT, this::traverseNext);
-        registerFunction(RichTextArea.Tag.FOCUS_PREVIOUS, this::traversePrevious);
-        registerFunction(RichTextArea.Tag.INSERT_LINE_BREAK, this::insertLineBreak);
-        registerFunction(RichTextArea.Tag.INSERT_TAB, this::insertTab);
-        registerFunction(RichTextArea.Tag.MOVE_DOWN, this::moveDown);
-        registerFunction(RichTextArea.Tag.MOVE_LEFT, this::moveLeft);
-        registerFunction(RichTextArea.Tag.MOVE_PARAGRAPH_DOWN, this::moveParagraphDown);
-        registerFunction(RichTextArea.Tag.MOVE_PARAGRAPH_UP, this::moveParagraphUp);
-        registerFunction(RichTextArea.Tag.MOVE_RIGHT, this::moveRight);
-        registerFunction(RichTextArea.Tag.MOVE_TO_DOCUMENT_END, this::moveDocumentEnd);
-        registerFunction(RichTextArea.Tag.MOVE_TO_DOCUMENT_START, this::moveDocumentStart);
-        registerFunction(RichTextArea.Tag.MOVE_TO_LINE_END, this::moveLineEnd);
-        registerFunction(RichTextArea.Tag.MOVE_TO_LINE_START, this::moveLineStart);
-        registerFunction(RichTextArea.Tag.MOVE_TO_PARAGRAPH_END, this::moveParagraphEnd);
-        registerFunction(RichTextArea.Tag.MOVE_TO_PARAGRAPH_START, this::moveParagraphStart);
-        registerFunction(RichTextArea.Tag.MOVE_UP, this::moveUp);
-        registerFunction(RichTextArea.Tag.MOVE_WORD_NEXT_END, this::nextWordEnd);
-        registerFunction(RichTextArea.Tag.MOVE_WORD_NEXT_START, this::nextWord);
-        registerFunction(RichTextArea.Tag.MOVE_WORD_LEFT, this::leftWord);
-        registerFunction(RichTextArea.Tag.MOVE_WORD_PREVIOUS, this::previousWord);
-        registerFunction(RichTextArea.Tag.MOVE_WORD_RIGHT, this::rightWord);
-        registerFunction(RichTextArea.Tag.PAGE_DOWN, this::pageDown);
-        registerFunction(RichTextArea.Tag.PAGE_UP, this::pageUp);
-        registerFunction(RichTextArea.Tag.PASTE, this::paste);
-        registerFunction(RichTextArea.Tag.PASTE_PLAIN_TEXT, this::pastePlainText);
-        registerFunction(RichTextArea.Tag.REDO, this::redo);
-        registerFunction(RichTextArea.Tag.SELECT_ALL, this::selectAll);
-        registerFunction(RichTextArea.Tag.SELECT_DOWN, this::selectDown);
-        registerFunction(RichTextArea.Tag.SELECT_LEFT, this::selectLeft);
-        registerFunction(RichTextArea.Tag.SELECT_PAGE_DOWN, this::selectPageDown);
-        registerFunction(RichTextArea.Tag.SELECT_PAGE_UP, this::selectPageUp);
-        registerFunction(RichTextArea.Tag.SELECT_PARAGRAPH, this::selectParagraph);
-        registerFunction(RichTextArea.Tag.SELECT_PARAGRAPH_DOWN, this::selectParagraphDown);
-        registerFunction(RichTextArea.Tag.SELECT_PARAGRAPH_END, this::selectParagraphEnd);
-        registerFunction(RichTextArea.Tag.SELECT_PARAGRAPH_START, this::selectParagraphStart);
-        registerFunction(RichTextArea.Tag.SELECT_PARAGRAPH_UP, this::selectParagraphUp);
-        registerFunction(RichTextArea.Tag.SELECT_RIGHT, this::selectRight);
-        registerFunction(RichTextArea.Tag.SELECT_TO_DOCUMENT_END, this::selectDocumentEnd);
-        registerFunction(RichTextArea.Tag.SELECT_TO_DOCUMENT_START, this::selectDocumentStart);
-        registerFunction(RichTextArea.Tag.SELECT_TO_LINE_END, this::selectLineEnd);
-        registerFunction(RichTextArea.Tag.SELECT_TO_LINE_START, this::selectLineStart);
-        registerFunction(RichTextArea.Tag.SELECT_UP, this::selectUp);
-        registerFunction(RichTextArea.Tag.SELECT_WORD, this::selectWord);
-        registerFunction(RichTextArea.Tag.SELECT_WORD_LEFT, this::selectWordLeft);
-        registerFunction(RichTextArea.Tag.SELECT_WORD_NEXT, this::selectWordNext);
-        registerFunction(RichTextArea.Tag.SELECT_WORD_NEXT_END, this::selectNextWordEnd);
-        registerFunction(RichTextArea.Tag.SELECT_WORD_PREVIOUS, this::selectWordPrevious);
-        registerFunction(RichTextArea.Tag.SELECT_WORD_RIGHT, this::selectWordRight);
-        registerFunction(RichTextArea.Tag.UNDO, this::undo);
+        registerFunction(AbstractStyledTextArea.Tag.BACKSPACE, this::backspace);
+        registerFunction(AbstractStyledTextArea.Tag.COPY, this::copy);
+        registerFunction(AbstractStyledTextArea.Tag.CUT, this::cut);
+        registerFunction(AbstractStyledTextArea.Tag.DELETE, this::delete);
+        registerFunction(AbstractStyledTextArea.Tag.DELETE_PARAGRAPH, this::deleteParagraph);
+        registerFunction(AbstractStyledTextArea.Tag.DELETE_PARAGRAPH_START, this::deleteParagraphStart);
+        registerFunction(AbstractStyledTextArea.Tag.DELETE_WORD_NEXT_END, this::deleteWordNextEnd);
+        registerFunction(AbstractStyledTextArea.Tag.DELETE_WORD_NEXT_START, this::deleteWordNextBeg);
+        registerFunction(AbstractStyledTextArea.Tag.DELETE_WORD_PREVIOUS, this::deleteWordPrevious);
+        registerFunction(AbstractStyledTextArea.Tag.DESELECT, this::deselect);
+        registerFunction(AbstractStyledTextArea.Tag.FOCUS_NEXT, this::traverseNext);
+        registerFunction(AbstractStyledTextArea.Tag.FOCUS_PREVIOUS, this::traversePrevious);
+        registerFunction(AbstractStyledTextArea.Tag.INSERT_LINE_BREAK, this::insertLineBreak);
+        registerFunction(AbstractStyledTextArea.Tag.INSERT_TAB, this::insertTab);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_DOWN, this::moveDown);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_LEFT, this::moveLeft);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_PARAGRAPH_DOWN, this::moveParagraphDown);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_PARAGRAPH_UP, this::moveParagraphUp);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_RIGHT, this::moveRight);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_TO_DOCUMENT_END, this::moveDocumentEnd);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_TO_DOCUMENT_START, this::moveDocumentStart);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_TO_LINE_END, this::moveLineEnd);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_TO_LINE_START, this::moveLineStart);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_TO_PARAGRAPH_END, this::moveParagraphEnd);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_TO_PARAGRAPH_START, this::moveParagraphStart);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_UP, this::moveUp);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_WORD_NEXT_END, this::nextWordEnd);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_WORD_NEXT_START, this::nextWord);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_WORD_LEFT, this::leftWord);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_WORD_PREVIOUS, this::previousWord);
+        registerFunction(AbstractStyledTextArea.Tag.MOVE_WORD_RIGHT, this::rightWord);
+        registerFunction(AbstractStyledTextArea.Tag.PAGE_DOWN, this::pageDown);
+        registerFunction(AbstractStyledTextArea.Tag.PAGE_UP, this::pageUp);
+        registerFunction(AbstractStyledTextArea.Tag.PASTE, this::paste);
+        registerFunction(AbstractStyledTextArea.Tag.PASTE_PLAIN_TEXT, this::pastePlainText);
+        registerFunction(AbstractStyledTextArea.Tag.REDO, this::redo);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_ALL, this::selectAll);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_DOWN, this::selectDown);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_LEFT, this::selectLeft);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_PAGE_DOWN, this::selectPageDown);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_PAGE_UP, this::selectPageUp);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_PARAGRAPH, this::selectParagraph);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_DOWN, this::selectParagraphDown);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_END, this::selectParagraphEnd);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_START, this::selectParagraphStart);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_UP, this::selectParagraphUp);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_RIGHT, this::selectRight);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_TO_DOCUMENT_END, this::selectDocumentEnd);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_TO_DOCUMENT_START, this::selectDocumentStart);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_TO_LINE_END, this::selectLineEnd);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_TO_LINE_START, this::selectLineStart);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_UP, this::selectUp);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_WORD, this::selectWord);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_WORD_LEFT, this::selectWordLeft);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_WORD_NEXT, this::selectWordNext);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_WORD_NEXT_END, this::selectNextWordEnd);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_WORD_PREVIOUS, this::selectWordPrevious);
+        registerFunction(AbstractStyledTextArea.Tag.SELECT_WORD_RIGHT, this::selectWordRight);
+        registerFunction(AbstractStyledTextArea.Tag.UNDO, this::undo);
 
         // key mappings
-        registerKey(KeyBinding.shortcut(KeyCode.A), RichTextArea.Tag.SELECT_ALL);
-        registerKey(KeyCode.BACK_SPACE, RichTextArea.Tag.BACKSPACE);
-        registerKey(KeyBinding.shift(KeyCode.BACK_SPACE), RichTextArea.Tag.BACKSPACE);
-        registerKey(KeyBinding.shortcut(KeyCode.C), RichTextArea.Tag.COPY);
-        registerKey(KeyCode.COPY, RichTextArea.Tag.COPY);
-        registerKey(KeyBinding.shortcut(KeyCode.D), RichTextArea.Tag.DELETE_PARAGRAPH);
-        registerKey(KeyCode.DELETE, RichTextArea.Tag.DELETE);
-        registerKey(KeyCode.DOWN, RichTextArea.Tag.MOVE_DOWN);
-        registerKey(KeyBinding.shift(KeyCode.DOWN), RichTextArea.Tag.SELECT_DOWN);
-        registerKey(KeyCode.END, RichTextArea.Tag.MOVE_TO_LINE_END);
-        registerKey(KeyBinding.control(KeyCode.END), RichTextArea.Tag.MOVE_TO_DOCUMENT_END);
-        registerKey(KeyBinding.controlShift(KeyCode.END), RichTextArea.Tag.SELECT_TO_DOCUMENT_END);
-        registerKey(KeyBinding.shift(KeyCode.END), RichTextArea.Tag.SELECT_TO_LINE_END);
-        registerKey(KeyCode.ENTER, RichTextArea.Tag.INSERT_LINE_BREAK);
-        registerKey(KeyCode.HOME, RichTextArea.Tag.MOVE_TO_LINE_START);
-        registerKey(KeyBinding.control(KeyCode.HOME), RichTextArea.Tag.MOVE_TO_DOCUMENT_START);
-        registerKey(KeyBinding.controlShift(KeyCode.HOME), RichTextArea.Tag.SELECT_TO_DOCUMENT_START);
-        registerKey(KeyBinding.shift(KeyCode.HOME), RichTextArea.Tag.SELECT_TO_LINE_START);
-        registerKey(KeyBinding.shift(KeyCode.INSERT), RichTextArea.Tag.PASTE);
-        registerKey(KeyBinding.shortcut(KeyCode.INSERT), RichTextArea.Tag.COPY);
-        registerKey(KeyCode.LEFT, RichTextArea.Tag.MOVE_LEFT);
-        registerKey(KeyBinding.shift(KeyCode.LEFT), RichTextArea.Tag.SELECT_LEFT);
-        registerKey(KeyCode.PAGE_DOWN, RichTextArea.Tag.PAGE_DOWN);
-        registerKey(KeyBinding.shift(KeyCode.PAGE_DOWN), RichTextArea.Tag.SELECT_PAGE_DOWN);
-        registerKey(KeyCode.PAGE_UP, RichTextArea.Tag.PAGE_UP);
-        registerKey(KeyBinding.shift(KeyCode.PAGE_UP), RichTextArea.Tag.SELECT_PAGE_UP);
-        registerKey(KeyCode.PASTE, RichTextArea.Tag.PASTE);
-        registerKey(KeyCode.RIGHT, RichTextArea.Tag.MOVE_RIGHT);
-        registerKey(KeyBinding.shift(KeyCode.RIGHT), RichTextArea.Tag.SELECT_RIGHT);
-        registerKey(KeyCode.TAB, RichTextArea.Tag.INSERT_TAB);
-        registerKey(KeyBinding.control(KeyCode.TAB), RichTextArea.Tag.FOCUS_NEXT);
-        registerKey(KeyBinding.controlShift(KeyCode.TAB), RichTextArea.Tag.FOCUS_PREVIOUS);
-        registerKey(KeyBinding.shift(KeyCode.TAB), RichTextArea.Tag.FOCUS_PREVIOUS);
-        registerKey(KeyCode.UP, RichTextArea.Tag.MOVE_UP);
-        registerKey(KeyBinding.shift(KeyCode.UP), RichTextArea.Tag.SELECT_UP);
-        registerKey(KeyBinding.shortcut(KeyCode.V), RichTextArea.Tag.PASTE);
-        registerKey(KeyBinding.shiftShortcut(KeyCode.V), RichTextArea.Tag.PASTE_PLAIN_TEXT);
-        registerKey(KeyBinding.shortcut(KeyCode.X), RichTextArea.Tag.CUT);
-        registerKey(KeyCode.CUT, RichTextArea.Tag.CUT);
-        registerKey(KeyBinding.shortcut(KeyCode.Z), RichTextArea.Tag.UNDO);
+        registerKey(KeyBinding.shortcut(KeyCode.A), AbstractStyledTextArea.Tag.SELECT_ALL);
+        registerKey(KeyCode.BACK_SPACE, AbstractStyledTextArea.Tag.BACKSPACE);
+        registerKey(KeyBinding.shift(KeyCode.BACK_SPACE), AbstractStyledTextArea.Tag.BACKSPACE);
+        registerKey(KeyBinding.shortcut(KeyCode.C), AbstractStyledTextArea.Tag.COPY);
+        registerKey(KeyCode.COPY, AbstractStyledTextArea.Tag.COPY);
+        registerKey(KeyBinding.shortcut(KeyCode.D), AbstractStyledTextArea.Tag.DELETE_PARAGRAPH);
+        registerKey(KeyCode.DELETE, AbstractStyledTextArea.Tag.DELETE);
+        registerKey(KeyCode.DOWN, AbstractStyledTextArea.Tag.MOVE_DOWN);
+        registerKey(KeyBinding.shift(KeyCode.DOWN), AbstractStyledTextArea.Tag.SELECT_DOWN);
+        registerKey(KeyCode.END, AbstractStyledTextArea.Tag.MOVE_TO_LINE_END);
+        registerKey(KeyBinding.control(KeyCode.END), AbstractStyledTextArea.Tag.MOVE_TO_DOCUMENT_END);
+        registerKey(KeyBinding.controlShift(KeyCode.END), AbstractStyledTextArea.Tag.SELECT_TO_DOCUMENT_END);
+        registerKey(KeyBinding.shift(KeyCode.END), AbstractStyledTextArea.Tag.SELECT_TO_LINE_END);
+        registerKey(KeyCode.ENTER, AbstractStyledTextArea.Tag.INSERT_LINE_BREAK);
+        registerKey(KeyCode.HOME, AbstractStyledTextArea.Tag.MOVE_TO_LINE_START);
+        registerKey(KeyBinding.control(KeyCode.HOME), AbstractStyledTextArea.Tag.MOVE_TO_DOCUMENT_START);
+        registerKey(KeyBinding.controlShift(KeyCode.HOME), AbstractStyledTextArea.Tag.SELECT_TO_DOCUMENT_START);
+        registerKey(KeyBinding.shift(KeyCode.HOME), AbstractStyledTextArea.Tag.SELECT_TO_LINE_START);
+        registerKey(KeyBinding.shift(KeyCode.INSERT), AbstractStyledTextArea.Tag.PASTE);
+        registerKey(KeyBinding.shortcut(KeyCode.INSERT), AbstractStyledTextArea.Tag.COPY);
+        registerKey(KeyCode.LEFT, AbstractStyledTextArea.Tag.MOVE_LEFT);
+        registerKey(KeyBinding.shift(KeyCode.LEFT), AbstractStyledTextArea.Tag.SELECT_LEFT);
+        registerKey(KeyCode.PAGE_DOWN, AbstractStyledTextArea.Tag.PAGE_DOWN);
+        registerKey(KeyBinding.shift(KeyCode.PAGE_DOWN), AbstractStyledTextArea.Tag.SELECT_PAGE_DOWN);
+        registerKey(KeyCode.PAGE_UP, AbstractStyledTextArea.Tag.PAGE_UP);
+        registerKey(KeyBinding.shift(KeyCode.PAGE_UP), AbstractStyledTextArea.Tag.SELECT_PAGE_UP);
+        registerKey(KeyCode.PASTE, AbstractStyledTextArea.Tag.PASTE);
+        registerKey(KeyCode.RIGHT, AbstractStyledTextArea.Tag.MOVE_RIGHT);
+        registerKey(KeyBinding.shift(KeyCode.RIGHT), AbstractStyledTextArea.Tag.SELECT_RIGHT);
+        registerKey(KeyCode.TAB, AbstractStyledTextArea.Tag.INSERT_TAB);
+        registerKey(KeyBinding.control(KeyCode.TAB), AbstractStyledTextArea.Tag.FOCUS_NEXT);
+        registerKey(KeyBinding.controlShift(KeyCode.TAB), AbstractStyledTextArea.Tag.FOCUS_PREVIOUS);
+        registerKey(KeyBinding.shift(KeyCode.TAB), AbstractStyledTextArea.Tag.FOCUS_PREVIOUS);
+        registerKey(KeyCode.UP, AbstractStyledTextArea.Tag.MOVE_UP);
+        registerKey(KeyBinding.shift(KeyCode.UP), AbstractStyledTextArea.Tag.SELECT_UP);
+        registerKey(KeyBinding.shortcut(KeyCode.V), AbstractStyledTextArea.Tag.PASTE);
+        registerKey(KeyBinding.shiftShortcut(KeyCode.V), AbstractStyledTextArea.Tag.PASTE_PLAIN_TEXT);
+        registerKey(KeyBinding.shortcut(KeyCode.X), AbstractStyledTextArea.Tag.CUT);
+        registerKey(KeyCode.CUT, AbstractStyledTextArea.Tag.CUT);
+        registerKey(KeyBinding.shortcut(KeyCode.Z), AbstractStyledTextArea.Tag.UNDO);
 
         if (isMac()) {
-            registerKey(KeyBinding.option(KeyCode.BACK_SPACE), RichTextArea.Tag.DELETE_WORD_PREVIOUS);
-            registerKey(KeyBinding.shortcut(KeyCode.BACK_SPACE), RichTextArea.Tag.DELETE_PARAGRAPH_START);
-            registerKey(KeyBinding.option(KeyCode.DELETE), RichTextArea.Tag.DELETE_WORD_NEXT_END);
-            registerKey(KeyBinding.option(KeyCode.DOWN), RichTextArea.Tag.MOVE_PARAGRAPH_DOWN);
-            registerKey(KeyBinding.shiftOption(KeyCode.DOWN), RichTextArea.Tag.SELECT_PARAGRAPH_DOWN);
-            registerKey(KeyBinding.shiftShortcut(KeyCode.DOWN), RichTextArea.Tag.SELECT_TO_DOCUMENT_END);
-            registerKey(KeyBinding.shortcut(KeyCode.DOWN), RichTextArea.Tag.MOVE_TO_DOCUMENT_END);
-            registerKey(KeyBinding.option(KeyCode.LEFT), RichTextArea.Tag.MOVE_WORD_LEFT);
-            registerKey(KeyBinding.shiftOption(KeyCode.LEFT), RichTextArea.Tag.SELECT_WORD_LEFT);
-            registerKey(KeyBinding.shiftShortcut(KeyCode.LEFT), RichTextArea.Tag.SELECT_TO_LINE_START);
-            registerKey(KeyBinding.shortcut(KeyCode.LEFT), RichTextArea.Tag.MOVE_TO_LINE_START);
-            registerKey(KeyBinding.option(KeyCode.RIGHT), RichTextArea.Tag.MOVE_WORD_RIGHT);
-            registerKey(KeyBinding.shiftOption(KeyCode.RIGHT), RichTextArea.Tag.SELECT_WORD_RIGHT);
-            registerKey(KeyBinding.shiftShortcut(KeyCode.RIGHT), RichTextArea.Tag.SELECT_TO_LINE_END);
-            registerKey(KeyBinding.shortcut(KeyCode.RIGHT), RichTextArea.Tag.MOVE_TO_LINE_END);
-            registerKey(KeyBinding.builder(KeyCode.TAB).control().option().shift().build(), RichTextArea.Tag.FOCUS_NEXT);
-            registerKey(KeyBinding.option(KeyCode.UP), RichTextArea.Tag.MOVE_PARAGRAPH_UP);
-            registerKey(KeyBinding.shiftOption(KeyCode.UP), RichTextArea.Tag.SELECT_PARAGRAPH_UP);
-            registerKey(KeyBinding.shiftShortcut(KeyCode.UP), RichTextArea.Tag.SELECT_TO_DOCUMENT_START);
-            registerKey(KeyBinding.shortcut(KeyCode.UP), RichTextArea.Tag.MOVE_TO_DOCUMENT_START);
-            registerKey(KeyBinding.builder(KeyCode.Z).shift().command().build(), RichTextArea.Tag.REDO);
+            registerKey(KeyBinding.option(KeyCode.BACK_SPACE), AbstractStyledTextArea.Tag.DELETE_WORD_PREVIOUS);
+            registerKey(KeyBinding.shortcut(KeyCode.BACK_SPACE), AbstractStyledTextArea.Tag.DELETE_PARAGRAPH_START);
+            registerKey(KeyBinding.option(KeyCode.DELETE), AbstractStyledTextArea.Tag.DELETE_WORD_NEXT_END);
+            registerKey(KeyBinding.option(KeyCode.DOWN), AbstractStyledTextArea.Tag.MOVE_PARAGRAPH_DOWN);
+            registerKey(KeyBinding.shiftOption(KeyCode.DOWN), AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_DOWN);
+            registerKey(KeyBinding.shiftShortcut(KeyCode.DOWN), AbstractStyledTextArea.Tag.SELECT_TO_DOCUMENT_END);
+            registerKey(KeyBinding.shortcut(KeyCode.DOWN), AbstractStyledTextArea.Tag.MOVE_TO_DOCUMENT_END);
+            registerKey(KeyBinding.option(KeyCode.LEFT), AbstractStyledTextArea.Tag.MOVE_WORD_LEFT);
+            registerKey(KeyBinding.shiftOption(KeyCode.LEFT), AbstractStyledTextArea.Tag.SELECT_WORD_LEFT);
+            registerKey(KeyBinding.shiftShortcut(KeyCode.LEFT), AbstractStyledTextArea.Tag.SELECT_TO_LINE_START);
+            registerKey(KeyBinding.shortcut(KeyCode.LEFT), AbstractStyledTextArea.Tag.MOVE_TO_LINE_START);
+            registerKey(KeyBinding.option(KeyCode.RIGHT), AbstractStyledTextArea.Tag.MOVE_WORD_RIGHT);
+            registerKey(KeyBinding.shiftOption(KeyCode.RIGHT), AbstractStyledTextArea.Tag.SELECT_WORD_RIGHT);
+            registerKey(KeyBinding.shiftShortcut(KeyCode.RIGHT), AbstractStyledTextArea.Tag.SELECT_TO_LINE_END);
+            registerKey(KeyBinding.shortcut(KeyCode.RIGHT), AbstractStyledTextArea.Tag.MOVE_TO_LINE_END);
+            registerKey(KeyBinding.builder(KeyCode.TAB).control().option().shift().build(), AbstractStyledTextArea.Tag.FOCUS_NEXT);
+            registerKey(KeyBinding.option(KeyCode.UP), AbstractStyledTextArea.Tag.MOVE_PARAGRAPH_UP);
+            registerKey(KeyBinding.shiftOption(KeyCode.UP), AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_UP);
+            registerKey(KeyBinding.shiftShortcut(KeyCode.UP), AbstractStyledTextArea.Tag.SELECT_TO_DOCUMENT_START);
+            registerKey(KeyBinding.shortcut(KeyCode.UP), AbstractStyledTextArea.Tag.MOVE_TO_DOCUMENT_START);
+            registerKey(KeyBinding.builder(KeyCode.Z).shift().command().build(), AbstractStyledTextArea.Tag.REDO);
         } else {
-            registerKey(KeyBinding.control(KeyCode.BACK_SLASH), RichTextArea.Tag.DESELECT);
-            registerKey(KeyBinding.control(KeyCode.BACK_SPACE), RichTextArea.Tag.DELETE_WORD_PREVIOUS);
-            registerKey(KeyBinding.control(KeyCode.DELETE), RichTextArea.Tag.DELETE_WORD_NEXT_START);
-            registerKey(KeyBinding.control(KeyCode.DOWN), RichTextArea.Tag.MOVE_PARAGRAPH_DOWN);
-            registerKey(KeyBinding.controlShift(KeyCode.DOWN), RichTextArea.Tag.SELECT_PARAGRAPH_DOWN);
-            registerKey(KeyBinding.control(KeyCode.H), RichTextArea.Tag.BACKSPACE);
-            registerKey(KeyBinding.control(KeyCode.LEFT), RichTextArea.Tag.MOVE_WORD_LEFT);
-            registerKey(KeyBinding.controlShift(KeyCode.LEFT), RichTextArea.Tag.SELECT_WORD_LEFT);
-            registerKey(KeyBinding.control(KeyCode.RIGHT), RichTextArea.Tag.MOVE_WORD_RIGHT);
-            registerKey(KeyBinding.controlShift(KeyCode.RIGHT), RichTextArea.Tag.SELECT_WORD_RIGHT);
-            registerKey(KeyBinding.control(KeyCode.UP), RichTextArea.Tag.MOVE_PARAGRAPH_UP);
-            registerKey(KeyBinding.controlShift(KeyCode.UP), RichTextArea.Tag.SELECT_PARAGRAPH_UP);
+            registerKey(KeyBinding.control(KeyCode.BACK_SLASH), AbstractStyledTextArea.Tag.DESELECT);
+            registerKey(KeyBinding.control(KeyCode.BACK_SPACE), AbstractStyledTextArea.Tag.DELETE_WORD_PREVIOUS);
+            registerKey(KeyBinding.control(KeyCode.DELETE), AbstractStyledTextArea.Tag.DELETE_WORD_NEXT_START);
+            registerKey(KeyBinding.control(KeyCode.DOWN), AbstractStyledTextArea.Tag.MOVE_PARAGRAPH_DOWN);
+            registerKey(KeyBinding.controlShift(KeyCode.DOWN), AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_DOWN);
+            registerKey(KeyBinding.control(KeyCode.H), AbstractStyledTextArea.Tag.BACKSPACE);
+            registerKey(KeyBinding.control(KeyCode.LEFT), AbstractStyledTextArea.Tag.MOVE_WORD_LEFT);
+            registerKey(KeyBinding.controlShift(KeyCode.LEFT), AbstractStyledTextArea.Tag.SELECT_WORD_LEFT);
+            registerKey(KeyBinding.control(KeyCode.RIGHT), AbstractStyledTextArea.Tag.MOVE_WORD_RIGHT);
+            registerKey(KeyBinding.controlShift(KeyCode.RIGHT), AbstractStyledTextArea.Tag.SELECT_WORD_RIGHT);
+            registerKey(KeyBinding.control(KeyCode.UP), AbstractStyledTextArea.Tag.MOVE_PARAGRAPH_UP);
+            registerKey(KeyBinding.controlShift(KeyCode.UP), AbstractStyledTextArea.Tag.SELECT_PARAGRAPH_UP);
 
             if (isWindows()) {
-                registerKey(KeyBinding.control(KeyCode.Y), RichTextArea.Tag.REDO);
+                registerKey(KeyBinding.control(KeyCode.Y), AbstractStyledTextArea.Tag.REDO);
             } else {
-                registerKey(KeyBinding.controlShift(KeyCode.Z), RichTextArea.Tag.REDO);
+                registerKey(KeyBinding.controlShift(KeyCode.Z), AbstractStyledTextArea.Tag.REDO);
             }
         }
 
@@ -280,7 +280,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     protected boolean handleTypedChar(String typed) {
         if (canEdit()) {
-            RichTextArea control = getControl();
+            AbstractStyledTextArea control = getControl();
             StyledTextModel m = control.getModel();
             TextPos start = control.getCaretPosition();
             if (start != null) {
@@ -342,7 +342,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     public void insertLineBreak() {
         if (canEdit()) {
-            RichTextArea control = getControl();
+            AbstractStyledTextArea control = getControl();
             StyledTextModel m = control.getModel();
             TextPos start = control.getCaretPosition();
             if (start == null) {
@@ -385,7 +385,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
         vflow.setSuppressBlink(true);
 
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         if (ev.isShiftDown()) {
             // expand selection from the anchor point to the current position
             // clearing existing selection
@@ -439,7 +439,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     private void handleScrollEvent(ScrollEvent ev) {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         double dx = ev.getDeltaX();
         if (dx != 0.0) {
             // horizontal
@@ -506,7 +506,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     protected void autoScroll() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         if (control.isUseContentHeight()) {
             return;
         }
@@ -574,7 +574,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         moveCaret(true, this::paragraphUp);
     }
 
-    private TextPos paragraphDown(RichTextArea control, TextPos caret) {
+    private TextPos paragraphDown(AbstractStyledTextArea control, TextPos caret) {
         int ix = caret.index();
         TextPos end = control.getParagraphEnd(ix);
         if (caret.isSameInsertionIndex(end)) {
@@ -587,7 +587,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         return end;
     }
 
-    public TextPos paragraphUp(RichTextArea control, TextPos caret) {
+    public TextPos paragraphUp(AbstractStyledTextArea control, TextPos caret) {
         int ix = caret.index();
         TextPos p = TextPos.ofLeading(ix, 0);
         if (caret.isSameInsertionIndex(p)) {
@@ -600,13 +600,13 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         return p;
     }
 
-    private TextPos paragraphEnd(RichTextArea control, TextPos caret) {
+    private TextPos paragraphEnd(AbstractStyledTextArea control, TextPos caret) {
         int ix = caret.index();
         return control.getParagraphEnd(ix);
     }
 
-    private void moveCaret(boolean extSelection, BiFunction<RichTextArea, TextPos, TextPos> h) {
-        RichTextArea control = getControl();
+    private void moveCaret(boolean extSelection, BiFunction<AbstractStyledTextArea, TextPos, TextPos> h) {
+        AbstractStyledTextArea control = getControl();
         TextPos caret = control.getCaretPosition();
         if (caret != null) {
             TextPos p = h.apply(control, caret);
@@ -617,7 +617,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
     }
 
-    private TextPos paragraphStart(RichTextArea control, TextPos caret) {
+    private TextPos paragraphStart(AbstractStyledTextArea control, TextPos caret) {
         return TextPos.ofLeading(caret.index(), 0);
     }
 
@@ -633,7 +633,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
      * Moves the caret to before the first character of the text, also clearing the selection.
      */
     public void moveDocumentStart() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         control.select(TextPos.ZERO);
     }
 
@@ -641,7 +641,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
      * Moves the caret to after the last character of the text, also clearing the selection.
      */
     public void moveDocumentEnd() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos pos = control.getDocumentEnd();
         control.select(pos);
     }
@@ -714,7 +714,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     protected void moveCharacter(boolean moveRight, boolean extendSelection) {
         // TODO bidi
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos caret = control.getCaretPosition();
         if (caret == null) {
             return;
@@ -747,7 +747,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             moveRight = !moveRight;
         }
 
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextCell cell = vflow.getCell(start.index());
         int cix = start.offset();
         if (moveRight) {
@@ -802,7 +802,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
      * @param extendSelection specifies whether to clear (false) or extend (true) any existing selection
      */
     protected void moveCaret(TextPos p, boolean extendSelection) {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         if (extendSelection) {
             control.extendSelection(p);
         } else {
@@ -847,7 +847,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void selectAll() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos end = control.getDocumentEnd();
         control.select(TextPos.ZERO, end);
         clearPhantomX();
@@ -860,13 +860,13 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     /** selects from the anchor position to the document end */
     public void selectDocumentEnd() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos pos = control.getDocumentEnd();
         control.extendSelection(pos);
     }
 
     public void selectWord() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos caret = control.getCaretPosition();
         if (caret == null) {
             return;
@@ -903,7 +903,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void selectParagraph() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos p = control.getCaretPosition();
         if (p != null) {
             int ix = p.index();
@@ -915,7 +915,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     public void backspace() {
         if (canEdit()) {
-            RichTextArea control = getControl();
+            AbstractStyledTextArea control = getControl();
             if (control.hasNonEmptySelection()) {
                 deleteSelection();
             } else {
@@ -950,7 +950,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     public void delete() {
         if (canEdit()) {
-            RichTextArea control = getControl();
+            AbstractStyledTextArea control = getControl();
             if (control.hasNonEmptySelection()) {
                 deleteSelection();
             } else {
@@ -982,7 +982,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
                 TextPos p0 = TextPos.ofLeading(ix0, 0);
                 TextPos p1 = clamp(TextPos.ofLeading(ix1 + 1, 0));
-                RichTextArea control = getControl();
+                AbstractStyledTextArea control = getControl();
                 control.getModel().replace(vflow, p0, p1, StyledInput.EMPTY);
                 clearPhantomX();
                 moveCaret(p0, false);
@@ -999,7 +999,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         if (sel != null) {
             TextPos start = sel.getMin();
             TextPos end = sel.getMax();
-            RichTextArea control = getControl();
+            AbstractStyledTextArea control = getControl();
             control.getModel().replace(vflow, start, end, StyledInput.EMPTY);
             clearPhantomX();
             moveCaret(start, false);
@@ -1007,7 +1007,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     protected void deselect() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos p = control.getCaretPosition();
         if (p != null) {
             clearPhantomX();
@@ -1017,7 +1017,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     // see TextAreaBehavior:338
     public void contextMenuRequested(ContextMenuEvent ev) {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         if (contextMenu.isShowing()) {
             contextMenu.hide();
         } else if (control.getContextMenu() == null && control.getOnContextMenuRequested() == null) {
@@ -1081,7 +1081,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
     // TODO this might belong to the control!
     protected void populateContextMenu() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         boolean sel = control.hasNonEmptySelection();
         boolean paste = (findFormatForPaste() != null);
         boolean editable = canEdit();
@@ -1171,7 +1171,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     private void pasteLocal(DataFormat f) {
         SelInfo sel = sel();
         if (sel != null) {
-            RichTextArea control = getControl();
+            AbstractStyledTextArea control = getControl();
             TextPos start = sel.getMin();
             TextPos end = sel.getMax();
 
@@ -1196,7 +1196,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     protected void copyWithCut(boolean cut) {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         if (control.hasNonEmptySelection()) {
             StyledTextModel m = control.getModel(); // non null at this point
             List<DataFormat> fs = m.getSupportedDataFormats(true);
@@ -1236,7 +1236,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void copyWithFormat(DataFormat f) {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         try {
             if (control.hasNonEmptySelection()) {
                 StyledTextModel m = control.getModel(); // not null at this point
@@ -1365,7 +1365,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
     }
 
-    protected TextPos toPreviousWord(RichTextArea control, TextPos pos) {
+    protected TextPos toPreviousWord(AbstractStyledTextArea control, TextPos pos) {
         int index = pos.index();
         int offset = pos.offset();
         BreakIterator br = null;
@@ -1404,7 +1404,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     // skips empty paragraphs
-    protected TextPos nextWordBeg(RichTextArea control, TextPos pos) {
+    protected TextPos nextWordBeg(AbstractStyledTextArea control, TextPos pos) {
         int index = pos.index();
         int offset = pos.offset();
         boolean skipEmpty = true;
@@ -1457,7 +1457,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     // skips empty paragraphs
-    protected TextPos toWordEnd(RichTextArea control, TextPos pos) {
+    protected TextPos toWordEnd(AbstractStyledTextArea control, TextPos pos) {
         int index = pos.index();
         int offset = pos.offset();
         boolean skipEmpty = true;
@@ -1515,7 +1515,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void redo() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         StyledTextModel m = control.getModel();
         if (m != null) {
             TextPos[] sel = m.redo(vflow);
@@ -1526,7 +1526,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     public void undo() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         StyledTextModel m = control.getModel();
         if (m != null) {
             TextPos[] sel = m.undo(vflow);
@@ -1545,7 +1545,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
     }
 
     private String getTextAtCaret() {
-        RichTextArea control = getControl();
+        AbstractStyledTextArea control = getControl();
         TextPos p = control.getCaretPosition();
         if (p != null) {
             String s = control.getPlainText(p.index());
@@ -1580,9 +1580,9 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         deleteIgnoreSelection(this::toPreviousWord);
     }
 
-    private void deleteIgnoreSelection(BiFunction<RichTextArea, TextPos, TextPos> getter) {
+    private void deleteIgnoreSelection(BiFunction<AbstractStyledTextArea, TextPos, TextPos> getter) {
         if (canEdit()) {
-            RichTextArea control = getControl();
+            AbstractStyledTextArea control = getControl();
             TextPos caret = control.getCaretPosition();
             if (caret != null) {
                 TextPos p = getter.apply(control, caret);

@@ -25,7 +25,7 @@
 package test.jfx.incubator.scene.control.richtext;
 
 import com.sun.jfx.incubator.scene.control.richtext.RichTextAreaHelper;
-import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.AbstractStyledTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
 
@@ -39,7 +39,7 @@ public class RichTestUtil {
      * @param sel the selection segment
      * @return the plain text string for the given selection segment
      */
-    public static String getText(RichTextArea r, SelectionSegment sel) {
+    public static String getText(AbstractStyledTextArea r, SelectionSegment sel) {
         if (sel == null) {
             return null;
         }
@@ -52,7 +52,7 @@ public class RichTestUtil {
      * @param end the end position
      * @return the plain text string between the given text positions
      */
-    public static String getText(RichTextArea r, TextPos start, TextPos end) {
+    public static String getText(AbstractStyledTextArea r, TextPos start, TextPos end) {
         StringBuilder sb = new StringBuilder();
         RichTextAreaHelper.getText(r, start, end, sb, Integer.MAX_VALUE);
         return sb.toString();
