@@ -27,8 +27,13 @@
 
 package jfx.incubator.scene.control.richtext;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.EventHandler;
+import javafx.scene.text.TabStopPolicy;
+import javafx.scene.transform.TransformChangedEvent;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
@@ -144,7 +149,6 @@ public class RichTextArea extends AbstractStyledTextArea {
 
     // Properties
 
-
     /**
      * Specifies the styles to be in effect for the characters to be inserted via user input.
      * The value can be {@code null}, in which case the styles are determined by the model.
@@ -172,14 +176,91 @@ public class RichTextArea extends AbstractStyledTextArea {
         insertStylesProperty().set(v);
     }
 
+    /**
+     * Determines the default tab stop positions for this {@code RichTextArea}.
+     * <p>
+     * The default tab stops may be overridden by the model via
+     * the {@link jfx.incubator.scene.control.richtext.model.StyleAttributeMap#TAB_STOPS StyleAttributeMap.TAB_STOPS}
+     * paragraph attribute.
+     *
+     * @defaultValue null
+     * @since 27
+     */
+    private SimpleObjectProperty<TabStopPolicy> tabStopPolicy;
+
+    public final ObjectProperty<TabStopPolicy> tabStopPolicyProperty() {
+        if (tabStopPolicy == null) {
+            tabStopPolicy = new SimpleObjectProperty<>() {
+
+                // TODO or maybe introduce a mechanism to subscribe when this property is instantiated,
+                // upon demand
+                class Monitor implements InvalidationListener, EventHandler<TransformChangedEvent> {
+                    @Override
+                    public void invalidated(Observable p) {
+                        updateTabAdvancePolicy();
+                    }
+
+                    @Override
+                    public void handle(TransformChangedEvent ev) {
+                        updateTabAdvancePolicy();
+                    }
+                };
+
+                private Monitor monitor = new Monitor();
+                private TabStopPolicy old;
+
+                {
+                    sceneProperty().addListener(monitor);
+                    localToSceneTransformProperty().addListener(monitor);
+                }
+
+                @Override
+                public Object getBean() {
+                    return RichTextArea.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "tabStopPolicy";
+                }
+
+                @Override
+                protected void invalidated() {
+                    if (old != null) {
+                        old.tabStops().removeListener(monitor);
+                        old.defaultIntervalProperty().removeListener(monitor);
+                    }
+
+                    TabStopPolicy p = get();
+                    if (p != null) {
+                        // FIX does this create a memory leak?
+                        p.tabStops().addListener(monitor);
+                        p.defaultIntervalProperty().addListener(monitor);
+                    }
+                    old = p;
+                    updateTabAdvancePolicy();
+                }
+
+                private void updateTabAdvancePolicy() {
+                    // TODO reflow
+                }
+            };
+        }
+        return tabStopPolicy;
+    }
+
+    public final TabStopPolicy getTabStopPolicy() {
+        return tabStopPolicy == null ? null : tabStopPolicy.get();
+    }
+
+    public final void setTabStopPolicy(TabStopPolicy policy) {
+        tabStopPolicyProperty().set(policy);
+    }
+
     // Non-public Methods
 
     @Override
     protected RichTextAreaSkin createDefaultSkin() {
         return new RichTextAreaSkin(this);
-    }
-
-    private RichTextAreaSkin richTextAreaSkin() {
-        return (RichTextAreaSkin)getSkin();
     }
 }
