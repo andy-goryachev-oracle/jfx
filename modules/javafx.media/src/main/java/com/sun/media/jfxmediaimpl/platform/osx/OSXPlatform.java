@@ -60,7 +60,8 @@ public final class OSXPlatform extends Platform {
         "http",
         "https",
         "jrt",
-        "resource"
+        "resource",
+        "input-stream"
     };
 
     private static final class OSXPlatformInitializer {

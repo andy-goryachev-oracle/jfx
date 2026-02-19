@@ -324,8 +324,10 @@ JNIEXPORT void JNICALL Java_com_sun_media_jfxmediaimpl_platform_osx_OSXMediaPlay
     // AVFoundation will read data directly. For JAR/JRT we will use Locator to
     // read data.
     NSString *scheme = [mediaURL scheme];
+    // TODO mabe it's better to create a new method isUseLocator() ?
     if ([scheme caseInsensitiveCompare:@"jar"] == NSOrderedSame ||
-        [scheme caseInsensitiveCompare:@"jrt"] == NSOrderedSame) {
+        [scheme caseInsensitiveCompare:@"jrt"] == NSOrderedSame ||
+        [scheme caseInsensitiveCompare:@"input-stream"] == NSOrderedSame) {
         CJavaInputStreamCallbacks *callbacks = new (nothrow) CJavaInputStreamCallbacks();
         jobject jConnectionHolder = CLocator::CreateConnectionHolder(env, jLocator);
         if (callbacks == NULL || jConnectionHolder == NULL) {
