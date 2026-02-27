@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -495,6 +496,11 @@ public abstract class StyledTextModel {
             end = p;
         }
 
+        Map<String, String> dp = documentProperties();
+        if ((dp != null) && (!dp.isEmpty())) {
+            out.consume(StyledSegment.ofDocumentProperties(dp));
+        }
+
         int ix0 = start.index();
         int ix1 = end.index();
         if (ix0 == ix1) {
@@ -532,6 +538,16 @@ public abstract class StyledTextModel {
         }
 
         out.flush();
+    }
+
+    /**
+     * This method is invoked by {@link #export(TextPos, TextPos, StyledOutput) to allow for exporting
+     * document properties, if any.
+     * @return the document properties, or null
+     * @since 27
+     */
+    protected Map<String,String> documentProperties() {
+        return null;
     }
 
     /**

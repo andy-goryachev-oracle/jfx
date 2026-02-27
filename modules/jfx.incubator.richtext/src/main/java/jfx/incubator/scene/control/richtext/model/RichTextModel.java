@@ -28,6 +28,7 @@ package jfx.incubator.scene.control.richtext.model;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import javafx.beans.property.DoubleProperty;
@@ -46,6 +47,10 @@ import jfx.incubator.scene.control.richtext.TextPos;
  * @since 24
  */
 public class RichTextModel extends StyledTextModel {
+
+    private static final String VERSION_1 = "v1";
+    private static final String PROP_TABS = "tabs";
+    private static final String PROP_VERSION = "version";
     private final ArrayList<RParagraph> paragraphs = new ArrayList<>();
     private final HashMap<StyleAttributeMap,StyleAttributeMap> styleCache = new HashMap<>();
     private DoubleProperty defaultTabStops;
@@ -253,6 +258,14 @@ public class RichTextModel extends StyledTextModel {
             out.println("    {text=\"" + s.text() + "\", attr=" + s.getStyleAttributeMap() + "},");
         }
         out.println("  ]}");
+    }
+
+    @Override
+    protected Map<String,String> documentProperties() {
+        return Map.of(
+            PROP_VERSION, VERSION_1,
+            PROP_TABS, Double.toString(getDefaultTabStops())
+        );
     }
 
     /**

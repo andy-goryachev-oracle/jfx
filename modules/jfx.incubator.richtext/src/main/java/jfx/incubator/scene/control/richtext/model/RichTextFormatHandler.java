@@ -33,9 +33,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 import javafx.scene.input.DataFormat;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TabStop;
@@ -45,6 +44,7 @@ import javafx.util.converter.DoubleStringConverter;
 import com.sun.jfx.incubator.scene.control.richtext.Converters;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
+import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 
@@ -307,7 +307,30 @@ public class RichTextFormatHandler extends DataFormatHandler {
                     wr.write(text);
                 }
                 break;
+            case DOCUMENT_PROPERTIES:
+                Map<String,String> dp = seg.getDocumentProperties();
+                emitDocumentProperties(dp);
+                break;
             }
+        }
+
+        private void emitDocumentProperties(Map<String, String> props) throws IOException {
+            wr.write("{#");
+            ArrayList<String> keys = new ArrayList<>(props.keySet());
+            keys.sort(RichUtils.stringComparator());
+            boolean sep = false;
+            for (String k : keys) {
+                String v = props.get(k);
+                if (sep) {
+                    wr.write("|");
+                } else {
+                    sep = true;
+                }
+                wr.write(encode(k));
+                wr.write("|");
+                wr.write(encode(v));
+            }
+            wr.write("}");
         }
 
         private void emitAttributes(StyleAttributeMap attrs, boolean forParagraph) throws IOException {
@@ -322,15 +345,8 @@ public class RichTextFormatHandler extends DataFormatHandler {
                     ArrayList<StyleAttribute<?>> as = new ArrayList<>(attrs.getAttributes());
                     // sort by name to make serialized output stable
                     // the overhead is very low since this is done once per style
-                    Collections.sort(as, new Comparator<StyleAttribute<?>>() {
-                        @Override
-                        public int compare(StyleAttribute<?> a, StyleAttribute<?> b) {
-                            String sa = a.getName();
-                            String sb = b.getName();
-                            return sa.compareTo(sb);
-                        }
-                    });
-
+                    as.sort(RichUtils.styleAttributesComparator());
+ 
                     for (StyleAttribute<?> a : as) {
                         Handler h = handlers.get(a);
                         try {
