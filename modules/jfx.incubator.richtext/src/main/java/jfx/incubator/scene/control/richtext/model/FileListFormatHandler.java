@@ -39,12 +39,16 @@ import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 
 /**
- * @since 999 TODO
+ * Facilitates importing of file lists into the RichTextModel.
+ * @since 27
  */
 public class FileListFormatHandler extends DataFormatHandler {
 
     private static final FileListFormatHandler instance = new FileListFormatHandler();
 
+    /**
+     * Constructor.
+     */
     public FileListFormatHandler() {
         super(DataFormat.FILES);
     }
@@ -65,13 +69,12 @@ public class FileListFormatHandler extends DataFormatHandler {
 
     @Override
     public Object copy(StyledTextModel model, StyleResolver r, TextPos start, TextPos end) throws IOException {
-        // TODO
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void save(StyledTextModel model, StyleResolver r, TextPos start, TextPos end, OutputStream out) throws IOException {
-        // TODO
+        throw new UnsupportedOperationException();
     }
 
     private static class FileListStyledInput implements StyledInput {

@@ -60,7 +60,7 @@ public class RichTextModel extends StyledTextModel {
      * Constructs the empty model.
      */
     public RichTextModel() {
-        registerDataFormatHandler(FileListFormatHandler.getInstance(), true, true, 3000);
+        registerDataFormatHandler(FileListFormatHandler.getInstance(), false, true, 3000);
         registerDataFormatHandler(RichTextFormatHandler.getInstance(), true, true, 2000);
         registerDataFormatHandler(RtfFormatHandler.getInstance(), true, true, 1000);
         registerDataFormatHandler(HtmlExportFormatHandler.getInstance(), true, false, 100);
@@ -680,7 +680,9 @@ public class RichTextModel extends StyledTextModel {
                     remove(ix0);
                     if (size() == 0) {
                         // keep attributes in a zero width segment
-                        add(new RSegment("", seg.getStyleAttributeMap()));
+                        StyleAttributeMap a = seg.getStyleAttributeMap();
+                        a = RichUtils.filterOutNodeAttributes(a);
+                        add(new RSegment("", a));
                     }
                 }
             } else {
