@@ -35,6 +35,7 @@ import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
 import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
+import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 
@@ -94,16 +95,18 @@ public class FileListFormatHandler extends DataFormatHandler {
         public StyledSegment nextSegment() {
             while (index < files.size()) {
                 File f = files.get(index++);
-
-                try {
-                    byte[] b = Files.readAllBytes(f.toPath());
-                    Image im = new Image(new ByteArrayInputStream(b), false);
-                    if (!im.isError()) {
-                        EmbeddedImage em = new EmbeddedImage(b, EmbeddedImage.FIT_WIDTH);
-                        StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, em);
-                        return StyledSegment.of(" ", a);
+                if (f.isFile()) {
+                    try {
+                        byte[] b = Files.readAllBytes(f.toPath());
+                        Image im = new Image(new ByteArrayInputStream(b), false);
+                        if (!im.isError()) {
+                            EmbeddedImage em = new EmbeddedImage(b, EmbeddedImage.FIT_WIDTH);
+                            StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, em);
+                            return StyledSegment.of(" ", a);
+                        }
+                    } catch (Throwable e) {
+                        RichUtils.log(e);
                     }
-                } catch (Throwable e) {
                 }
                 // in case of any error, insert the file name into the document
                 return StyledSegment.of(f.getName());

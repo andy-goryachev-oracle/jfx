@@ -32,9 +32,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.Supplier;
 import javax.imageio.ImageIO;
 import javafx.application.ColorScheme;
 import javafx.application.ConditionalFeature;
@@ -77,6 +79,7 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
  */
 public final class RichUtils {
 
+    private static final boolean DEBUG = Boolean.getBoolean("jfx.incubator.richtext.DEBUG");
     private static final DecimalFormat format = new DecimalFormat("#0.##");
 
     private RichUtils() {
@@ -809,5 +812,31 @@ public final class RichUtils {
             }
         }
         return map;
+    }
+
+    public static void log(Throwable e) {
+        if (DEBUG) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void log(Object x) {
+        if (DEBUG) {
+            System.out.println(x);
+        }
+    }
+
+    public static void log(String format, Object... items) {
+        if (DEBUG) {
+            String s = MessageFormat.format(format, items);
+            System.out.println(s);
+        }
+    }
+
+    public static void log(Supplier<Object> x) {
+        if (DEBUG) {
+            Object v = x.get();
+            System.out.println(v);
+        }
     }
 }

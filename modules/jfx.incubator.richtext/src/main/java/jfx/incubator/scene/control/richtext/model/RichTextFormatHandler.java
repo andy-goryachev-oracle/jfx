@@ -47,6 +47,7 @@ import com.sun.jfx.incubator.scene.control.richtext.Converters;
 import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
+import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 
@@ -115,9 +116,8 @@ import jfx.incubator.scene.control.richtext.TextPos;
  * @since 24
  */
 public class RichTextFormatHandler extends DataFormatHandler {
-    static { initAccessor(); }
 
-    private static final boolean DEBUG = Boolean.getBoolean("jfx.incubator.richtext.RichTextFormatHandler");
+    static { initAccessor(); }
 
     /** The data format identifier */
     public static final DataFormat DATA_FORMAT = new DataFormat("application/x-com-oracle-editable-rich-text");
@@ -274,12 +274,6 @@ public class RichTextFormatHandler extends DataFormatHandler {
         addHandler(new Handler<String>(a, id, STRING_CONVERTER));
     }
 
-    private static void log(Object x) {
-        if (DEBUG) {
-            System.err.println(x);
-        }
-    }
-
     private static Comparator<StyleAttribute<?>> initStyleAttributeComparator() {
         return new Comparator<StyleAttribute<?>>() {
             @Override
@@ -328,10 +322,10 @@ public class RichTextFormatHandler extends DataFormatHandler {
                             wr.write(text);
                         }
                     } else {
-                        log("ignoring embedded node");
+                        RichUtils.log("ignoring embedded node");
                     }
                 } else {
-                    log("ignoring embedded node");
+                    RichUtils.log("ignoring embedded node");
                 }
                 break;
             case LINE_BREAK:
@@ -422,10 +416,10 @@ public class RichTextFormatHandler extends DataFormatHandler {
                                 continue;
                             }
                         } catch (Exception e) {
-                            log(e);
+                            RichUtils.log(e);
                         }
                         // ignoring this attribute
-                        log("failed to emit " + a + ", skipping");
+                        RichUtils.log("failed to emit {0}, skipping", a);
                     }
                 } else {
                     // cached style, emit the id
@@ -553,7 +547,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
                 String text = decodeText();
                 return StyledSegment.of(text);
             } catch (IOException e) {
-                log(e);
+                RichUtils.log(e);
                 return null;
             }
         }
@@ -631,7 +625,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
                     Handler h = handlers.get(name);
                     if (h == null) {
                         // silently ignore the attribute
-                        log("ignoring attribute: " + name);
+                        RichUtils.log("ignoring attribute: {0}", name);
                     } else {
                         Object v = h.read(args);
                         StyleAttribute a = h.getStyleAttribute();
@@ -641,7 +635,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
                             }
                             b.set(a, v);
                         } else {
-                            log("ignoring attribute: " + name);
+                            RichUtils.log("ignoring attribute: {0}", name);
                         }
                     }
                     index = ix + 1;
