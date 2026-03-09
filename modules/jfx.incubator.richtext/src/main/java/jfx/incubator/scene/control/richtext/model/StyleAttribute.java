@@ -86,6 +86,28 @@ public abstract class StyleAttribute<T> {
     }
 
     /**
+     * Creates an inline node character attribute.
+     * @param <P> the attribute value type
+     * @param name the attribute name
+     * @param type the attribute value type
+     * @return the new attribute instance
+     * @since 27
+     */
+    public static <P> StyleAttribute<P> inlineNode(String name, Class<P> type) {
+        return new StyleAttribute<P>(name, type) {
+            @Override
+            public boolean isCharacterAttribute() {
+                return true;
+            }
+
+            @Override
+            public boolean isInlineNode() {
+                return true;
+            }
+        };
+    }
+
+    /**
      * Creates a paragraph attribute.
      * @param <P> the attribute value type
      * @param name the attribute name
@@ -135,6 +157,15 @@ public abstract class StyleAttribute<T> {
      * @since 27
      */
     public boolean isDocumentAttribute() {
+        return false;
+    }
+
+    /**
+     * Returns true if this instance is an inline node character attribute.
+     * @return true for an inline node attribute
+     * @since 27
+     */
+    public boolean isInlineNode() {
         return false;
     }
 

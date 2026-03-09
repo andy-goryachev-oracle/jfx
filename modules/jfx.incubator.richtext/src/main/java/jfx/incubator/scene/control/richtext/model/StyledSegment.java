@@ -239,9 +239,10 @@ public abstract class StyledSegment {
     /**
      * Creates a StyledSegment which consists of a single inline Node.
      * @param generator the code to create a Node instance
+     * @param a the segment styles, can be null
      * @return the StyledSegment instance
      */
-    public static StyledSegment ofInlineNode(Supplier<Node> generator) {
+    public static StyledSegment ofInlineNode(Supplier<Node> generator, StyleAttributeMap a) {
         return new StyledSegment() {
             @Override
             public Type getType() {
@@ -266,6 +267,11 @@ public abstract class StyledSegment {
             @Override
             public StyledSegment subSegment(int start, int end) {
                 return this;
+            }
+
+            @Override
+            public StyleAttributeMap getStyleAttributeMap(StyleResolver resolver) {
+                return a;
             }
         };
     }

@@ -379,7 +379,24 @@ public abstract class RichParagraph {
          * @return this {@code Builder} instance
          */
         public Builder addInlineNode(Supplier<Node> generator) {
-            StyledSegment seg = StyledSegment.ofInlineNode(generator);
+            return addInlineNode(generator, null);
+        }
+
+        /**
+         * Adds an inline node.
+         * <p>
+         * The supplied generator must not cache or keep reference to the created Node,
+         * but the created Node can keep a reference to the model or some property therein.
+         * <p>
+         * For example, a bidirectional binding between an inline control and some property in the model
+         * would synchronize the model with all the views that use it.
+         * @param generator the generator that provides the actual {@code Node}
+         * @param a the segment styles
+         * @return this {@code Builder} instance
+         * @since 27
+         */
+        public Builder addInlineNode(Supplier<Node> generator, StyleAttributeMap a) {
+            StyledSegment seg = StyledSegment.ofInlineNode(generator, a);
             segments().add(seg);
             return this;
         }

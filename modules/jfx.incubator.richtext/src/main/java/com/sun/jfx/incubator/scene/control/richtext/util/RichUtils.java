@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import javax.imageio.ImageIO;
 import javafx.application.ColorScheme;
 import javafx.application.ConditionalFeature;
@@ -67,6 +68,7 @@ import com.sun.javafx.scene.text.TextLayout;
 import com.sun.javafx.scene.text.TextLine;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 
@@ -757,5 +759,55 @@ public final class RichUtils {
             node = node.getParent();
         }
         return null;
+    }
+
+    // removes inline node attributes
+    public static StyleAttributeMap filterOutNodeAttributes(StyleAttributeMap map) {
+        if (containsInlineNodes(map)) {
+            StyleAttributeMap.Builder b = StyleAttributeMap.builder();
+            for (StyleAttribute a : map.getAttributes()) {
+                if (!a.isInlineNode()) {
+                    Object v = map.get(a);
+                    b.set(a, v);
+                }
+            }
+            return b.build();
+        }
+        return map;
+    }
+
+    private static boolean containsInlineNodes(StyleAttributeMap map) {
+        for (StyleAttribute<?> a : map.getAttributes()) {
+            if (a.isInlineNode()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static StyleAttributeMap filterUnsupportedAttributes(StyleAttributeMap map, Set<StyleAttribute<?>> supported) {
+        if (supported != null) {
+            Set<StyleAttribute<?>> as = map.getAttributes();
+            // attributes sourced from the same model are all supported, so typically the process
+            // ends without filtering and re-allocation
+            boolean filter = false;
+            for (StyleAttribute a : as) {
+                if (!supported.contains(a)) {
+                    filter = true;
+                    break;
+                }
+            }
+            // but we must filter out unsupported attributes that come from a different model
+            if (filter) {
+                StyleAttributeMap.Builder b = StyleAttributeMap.builder();
+                for (StyleAttribute a : as) {
+                    if (supported.contains(a)) {
+                        b.set(a, map.get(a));
+                    }
+                }
+                return b.build();
+            }
+        }
+        return map;
     }
 }

@@ -44,6 +44,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import com.sun.jfx.incubator.scene.control.richtext.Converters;
+import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
 import jfx.incubator.scene.control.richtext.StyleResolver;
@@ -116,7 +117,7 @@ import jfx.incubator.scene.control.richtext.TextPos;
 public class RichTextFormatHandler extends DataFormatHandler {
     static { initAccessor(); }
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = Boolean.getBoolean("jfx.incubator.richtext.RichTextFormatHandler");
 
     /** The data format identifier */
     public static final DataFormat DATA_FORMAT = new DataFormat("application/x-com-oracle-editable-rich-text");
@@ -159,11 +160,12 @@ public class RichTextFormatHandler extends DataFormatHandler {
         addHandler(StyleAttributeMap.TEXT_ALIGNMENT, "alignment", TEXT_ALIGNMENT_CONVERTER);
         addHandler(StyleAttributeMap.TEXT_COLOR, "tc", COLOR_CONVERTER);
         addHandlerBoolean(StyleAttributeMap.UNDERLINE, "u");
+        addHandler(EmbeddedImage.ATTRIBUTE, "img", EmbeddedImage.CONVERTER);
     }
 
     /**
-     * Returns the singleton instance of {@code RtfFormatHandler}.
-     * @return the singleton instance of {@code RtfFormatHandler}
+     * Returns the singleton instance of {@code RichTextFormatHandler}.
+     * @return the singleton instance of {@code RichTextFormatHandler}
      */
     public static final RichTextFormatHandler getInstance() {
         return instance;
@@ -179,8 +181,9 @@ public class RichTextFormatHandler extends DataFormatHandler {
     }
 
     @Override
-    public StyledInput createStyledInput(String input, StyleAttributeMap attr) {
-        return new RichStyledInput(input);
+    public StyledInput createStyledInput(Object input, StyleAttributeMap attr) {
+        String text = input.toString();
+        return new RichStyledInput(text);
     }
 
     @Override
@@ -312,8 +315,24 @@ public class RichTextFormatHandler extends DataFormatHandler {
         public void consume(StyledSegment seg) throws IOException {
             switch (seg.getType()) {
             case INLINE_NODE:
-                // TODO
-                log("ignoring embedded node");
+                StyleAttributeMap a = seg.getStyleAttributeMap(null);
+                if (a != null) {
+                    EmbeddedImage em = a.get(EmbeddedImage.ATTRIBUTE);
+                    if (em != null) {
+                        {
+                            StyleAttributeMap attrs = seg.getStyleAttributeMap(resolver);
+                            emitAttributes(attrs, false);
+    
+                            String text = seg.getText();
+                            text = encode(text);
+                            wr.write(text);
+                        }
+                    } else {
+                        log("ignoring embedded node");
+                    }
+                } else {
+                    log("ignoring embedded node");
+                }
                 break;
             case LINE_BREAK:
                 wr.write("\n");

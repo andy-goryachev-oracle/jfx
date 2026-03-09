@@ -293,6 +293,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
                 if (a == null) {
                     a = m.getStyleAttributeMap(vflow, start);
                 }
+                a = RichUtils.filterOutNodeAttributes(a);
+
                 StyledInput in = StyledInput.of(typed, a);
                 TextPos p = m.replace(vflow, start, end, in);
                 moveCaret(p, false);
@@ -1177,16 +1179,9 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
             StyledTextModel m = control.getModel();
             DataFormatHandler h = m.getDataFormatHandler(f, false);
-            Object x = Clipboard.getSystemClipboard().getContent(f);
-            String text;
-            if (x instanceof String s) {
-                text = s;
-            } else {
-                return;
-            }
-
+            Object data = Clipboard.getSystemClipboard().getContent(f);
             StyleAttributeMap a = control.getActiveStyleAttributeMap();
-            try (StyledInput in = h.createStyledInput(text, a)) {
+            try (StyledInput in = h.createStyledInput(data, a)) {
                 TextPos p = m.replace(vflow, start, end, in);
                 moveCaret(p, false);
             } catch (IOException e) {

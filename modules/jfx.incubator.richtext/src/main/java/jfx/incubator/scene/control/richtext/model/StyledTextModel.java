@@ -762,7 +762,7 @@ public abstract class StyledTextModel {
                 if (a == null) {
                     a = StyleAttributeMap.EMPTY;
                 } else {
-                    a = filterUnsupportedAttributes(a);
+                    a = RichUtils.filterUnsupportedAttributes(a, getSupportedAttributes());
                 }
                 int len = insertTextSegment(index, offset, text, a);
                 if (index == start.index()) {
@@ -773,6 +773,8 @@ public abstract class StyledTextModel {
                 break;
             case DOCUMENT_PROPERTIES:
                 handleDocumentProperties(seg.getDocumentProperties(), completeReplacement);
+                break;
+            case INLINE_NODE:
                 break;
             }
         }
@@ -822,7 +824,7 @@ public abstract class StyledTextModel {
             end = p;
         }
 
-        attrs = filterUnsupportedAttributes(attrs);
+        attrs = RichUtils.filterUnsupportedAttributes(attrs, getSupportedAttributes());
 
         TextPos evStart;
         TextPos evEnd;
@@ -883,27 +885,6 @@ public abstract class StyledTextModel {
                 add(ch, end);
             }
         }
-    }
-
-    /**
-     * Removes unsupported attributes per {@link #getSupportedAttributes()}.
-     *
-     * @param attrs the input attributes
-     * @return the attributes that exclude unsupported ones
-     */
-    private StyleAttributeMap filterUnsupportedAttributes(StyleAttributeMap attrs) {
-        Set<StyleAttribute<?>> supported = getSupportedAttributes();
-        if (supported == null) {
-            return attrs;
-        }
-
-        StyleAttributeMap.Builder b = StyleAttributeMap.builder();
-        for (StyleAttribute a : attrs.getAttributes()) {
-            if (supported.contains(a)) {
-                b.set(a, attrs.get(a));
-            }
-        }
-        return b.build();
     }
 
     /**

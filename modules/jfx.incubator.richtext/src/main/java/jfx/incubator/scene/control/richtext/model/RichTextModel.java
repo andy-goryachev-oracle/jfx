@@ -34,6 +34,8 @@ import java.util.function.Supplier;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.layout.Region;
+import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
+import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 
@@ -58,6 +60,7 @@ public class RichTextModel extends StyledTextModel {
      * Constructs the empty model.
      */
     public RichTextModel() {
+        registerDataFormatHandler(FileListFormatHandler.getInstance(), true, true, 3000);
         registerDataFormatHandler(RichTextFormatHandler.getInstance(), true, true, 2000);
         registerDataFormatHandler(RtfFormatHandler.getInstance(), true, true, 1000);
         registerDataFormatHandler(HtmlExportFormatHandler.getInstance(), true, false, 100);
@@ -567,12 +570,14 @@ public class RichTextModel extends StyledTextModel {
             if (size() == 0) {
                 if (next.size() > 0) {
                     StyleAttributeMap a = next.get(0).getStyleAttributeMap();
+                    a = RichUtils.filterOutNodeAttributes(a);
                     add(new RSegment("", a));
                 }
             }
             if (next.size() == 0) {
                 if (size() > 0) {
                     StyleAttributeMap a = get(size() - 1).getStyleAttributeMap();
+                    a = RichUtils.filterOutNodeAttributes(a);
                     next.add(new RSegment("", a));
                 }
             }
@@ -877,9 +882,14 @@ public class RichTextModel extends StyledTextModel {
         private RichParagraph.Builder buildParagraph() {
             RichParagraph.Builder b = RichParagraph.builder();
             for (RSegment seg : this) {
-                String text = seg.text();
                 StyleAttributeMap a = seg.attrs();
-                b.addSegment(text, a);
+                EmbeddedImage im = a.get(EmbeddedImage.ATTRIBUTE);
+                if (im == null) {
+                    String text = seg.text();
+                    b.addSegment(text, a);
+                } else {
+                    b.addInlineNode(im::getImageView, a);
+                }
             }
             b.setParagraphAttributes(paragraphAttrs);
             return b;
