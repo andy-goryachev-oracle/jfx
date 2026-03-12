@@ -36,6 +36,7 @@ import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
 import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
+import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 
@@ -78,6 +79,11 @@ public class FileListFormatHandler extends DataFormatHandler {
         throw new UnsupportedOperationException();
     }
 
+    public static void handleDrop(RichTextArea r, double sceneX, double sceneY, List<File> files) {
+        System.out.println(sceneX + " " + sceneY + " " + files); // FIX
+    }
+
+    // This StyledInput converts a list of files into text segments 
     private static class FileListStyledInput implements StyledInput {
 
         private final List<File> files;

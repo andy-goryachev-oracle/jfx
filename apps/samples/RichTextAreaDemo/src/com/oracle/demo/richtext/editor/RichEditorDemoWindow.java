@@ -33,17 +33,21 @@
 package com.oracle.demo.richtext.editor;
 
 import java.io.File;
+import java.util.List;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jfx.incubator.scene.control.input.KeyBinding;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.FileListFormatHandler;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
 
 /**
@@ -66,6 +70,28 @@ public class RichEditorDemoWindow extends Stage {
         // example of a custom function
         editor.getInputMap().register(KeyBinding.shortcut(KeyCode.W), () -> {
             System.out.println("Custom function: W key is pressed");
+        });
+
+        // support image drag and drop
+        editor.getInputMap().addHandler(DragEvent.DRAG_OVER, (ev) -> {
+            if (ev.getDragboard().hasFiles()) {
+                // TODO show drop target under mouse pointer
+                System.out.println("TODO show drop target");
+                // check for image types using extension maybe?
+                ev.acceptTransferModes(TransferMode.COPY);
+                ev.consume();
+            }
+        });
+        editor.getInputMap().addHandler(DragEvent.DRAG_EXITED, (ev) -> {
+            // TODO hide drop target
+            System.out.println("TODO hide drop target");
+        });
+        editor.getInputMap().addHandler(DragEvent.DRAG_DROPPED, (ev) -> {
+            if (ev.getDragboard().hasFiles()) {
+                List<File> files = ev.getDragboard().getFiles();
+                FileListFormatHandler.handleDrop(editor, ev.getSceneX(), ev.getSceneY(), files);
+                ev.consume();
+            }
         });
 
         status = new Label();
