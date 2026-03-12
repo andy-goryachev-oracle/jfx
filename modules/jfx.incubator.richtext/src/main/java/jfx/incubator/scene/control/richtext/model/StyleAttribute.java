@@ -84,17 +84,7 @@ public sealed abstract class StyleAttribute<T> {
      * @since 27
      */
     public static <P> StyleAttribute<P> inlineNode(String name, Class<P> type) {
-        return new StyleAttribute<P>(name, type) {
-            @Override
-            public boolean isCharacterAttribute() {
-                return true;
-            }
-
-            @Override
-            public boolean isInlineNode() {
-                return true;
-            }
-        };
+        return new InlineNodeStyleAttribute<P>(name, type);
     }
 
     /**
@@ -210,6 +200,23 @@ public sealed abstract class StyleAttribute<T> {
 
         @Override
         public boolean isDocumentAttribute() {
+            return true;
+        }
+    }
+
+    /// inline node style attribute
+    private static final class InlineNodeStyleAttribute<X> extends StyleAttribute<X> {
+        InlineNodeStyleAttribute(String name, Class<X> type) {
+            super(name, type);
+        }
+
+        @Override
+        public boolean isCharacterAttribute() {
+            return true;
+        }
+
+        @Override
+        public boolean isInlineNode() {
             return true;
         }
     }
