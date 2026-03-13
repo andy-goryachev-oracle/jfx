@@ -83,13 +83,16 @@ public class FileListFormatHandler extends DataFormatHandler {
      * Inserts the dropped files as inline images into the {@link RichTextModel}.
      * TODO set scale
      * If a file cannot be loaded as an image, this function inserts the file name as text.
+     * This method clears existing selection.
      *
      * @param ed the drop target
      * @param p the text position
      * @param files the list of files to be inserted
      */
     public static void handleDrop(RichTextArea ed, TextPos p, List<File> files) {
-        System.out.println("FileListFormatHandler.handleDrop" + p); // FIX
+        FileListStyledInput in = new FileListStyledInput(files);
+        ed.clearSelection();
+        ed.replaceText(p, p, in);
     }
 
     // This StyledInput converts a list of files into text segments 
