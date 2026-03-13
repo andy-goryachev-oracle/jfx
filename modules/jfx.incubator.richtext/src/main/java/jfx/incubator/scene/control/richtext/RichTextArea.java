@@ -307,6 +307,7 @@ public class RichTextArea extends Control {
     private ReadOnlyBooleanWrapper undoable;
     private ReadOnlyBooleanWrapper redoable;
     private ReadOnlyObjectWrapper<Bounds> documentArea;
+    private ReadOnlyObjectWrapper<TextPos> dropTarget;
     // styleables
     private SimpleStyleableObjectProperty<Duration> caretBlinkPeriod;
     private SimpleStyleableObjectProperty<Insets> contentPadding;
@@ -540,6 +541,54 @@ public class RichTextArea extends Control {
 
     public final boolean isDisplayCaret() {
         return displayCaret == null ? Params.DEFAULT_DISPLAY_CARET : displayCaret.get();
+    }
+
+    /**
+     * This property indicates the target text position during the drag-and-drop operations.
+     *
+     * @return the drop target property
+     * @defaultValue null
+     * @since 27
+     */
+    public final ReadOnlyProperty<TextPos> dropTargetProperty() {
+        return dropTarget().getReadOnlyProperty();
+    }
+
+    public final TextPos getDropTarget() {
+        return (dropTarget == null) ? null : dropTarget.get();
+    }
+
+    /**
+     * Attempts to set the drop target position at the specified screen coordinates.
+     * If the drop target is visible, the value of the
+     * {@link #dropTargetProperty() dropTarget} property will be updated to reflect the insertion point in the model,
+     * otherwise it will be set to {@code null}.
+     *
+     * @param screenX the screen x coordinate
+     * @param screenY the screen y coordinate
+     * @since 27
+     */
+    public final void setDropTarget(double screenX, double screenY) {
+        TextPos p = getTextPosition(screenX, screenY);
+        dropTarget().set(p);
+    }
+
+    /**
+     * Sets the value of the {@link #dropTargetProperty() dropTarget} property to {@code null}.
+     * @since 27
+     */
+    public final void clearDropTarget() {
+        if (dropTarget != null) {
+            dropTarget.set(null);
+        }
+    }
+
+    private ReadOnlyObjectWrapper<TextPos> dropTarget() {
+        // TODO always called by the skin, so can be instantiated in the constructor
+        if (dropTarget == null) {
+            dropTarget = new ReadOnlyObjectWrapper();
+        }
+        return dropTarget;
     }
 
     /**

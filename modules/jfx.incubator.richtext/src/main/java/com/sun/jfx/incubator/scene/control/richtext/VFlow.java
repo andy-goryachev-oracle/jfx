@@ -61,6 +61,7 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+import javafx.util.Subscription;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SideDecorator;
@@ -88,6 +89,7 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  *        ├─ horizontal ScrollBar
  *        └─ view port (ClippedPane) .vport
  *            └─ content (StackPane) .content
+ *                ├─ dropTarget (Path) .drop-target
  *                ├─ caret (Path) .caret
  *                ├─ cells[]
  *                ├─ selection highlight (Path) .selection-highlight
@@ -106,6 +108,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private final Path caretPath;
     private final Path caretLineHighlight;
     private final Path selectionHighlight;
+    private Path dropTarget;
     private final SimpleBooleanProperty caretVisible = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
     private final SimpleDoubleProperty offsetX = new SimpleDoubleProperty(0.0);
@@ -129,8 +132,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private double viewPortWidth;
     private double viewPortHeight;
     private double vportH;
+    private Subscription subscriptions;
     private static final Text measurer = makeMeasurer();
     private static final VFlowCellContext context = new VFlowCellContext();
+    // visual ordering (cells are at 0)
+    private static final int DROP_TARGET_ORDER = -20;
+    private static final int CARET_ORDER = -10;
+    private static final int SELECTION_ORDER = 10;
+    private static final int CARET_LINE_ORDER = 20;
 
     public VFlow(RichTextAreaSkin skin, ScrollBar vsb, ScrollBar hsb) {
         this.skin = skin;
@@ -185,10 +194,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         getChildren().addAll(leftGutter, rightGutter, vscroll, hscroll, vport);
         vport.getChildren().addAll(content);
         content.getChildren().addAll(caretLineHighlight, selectionHighlight, caretPath);
-        // caret on top, then the cells (visual order = 0), then the selection highlight, then the caret line
-        caretPath.setViewOrder(-10);
-        selectionHighlight.setViewOrder(10);
-        caretLineHighlight.setViewOrder(20);
+        // drop target on top, then caret, cells (visual order = 0), then the selection highlight, then the caret line
+        caretPath.setViewOrder(CARET_ORDER);
+        selectionHighlight.setViewOrder(SELECTION_ORDER);
+        caretLineHighlight.setViewOrder(CARET_LINE_ORDER);
 
         caretAnimation = new Timeline();
         caretAnimation.setCycleCount(Animation.INDEFINITE);
@@ -218,6 +227,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         origin.addListener((p) -> handleOriginChange());
         widthProperty().addListener((p) -> handleWidthChange());
         heightProperty().addListener((p) -> handleHeightChange());
+        // there might be more subscriptions
+        subscriptions = control.dropTargetProperty().subscribe(this::handleDropTarget);
 
         vscroll.addEventFilter(MouseEvent.ANY, this::handleVScrollMouseEvent);
 
@@ -226,6 +237,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public void dispose() {
+        subscriptions.unsubscribe();
         caretPath.visibleProperty().unbind();
     }
 
@@ -1739,5 +1751,27 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return m.getDefaultTabStops();
         }
         return 0.0;
+    }
+
+    private void handleDropTarget(TextPos p) {
+        CaretInfo c = getCaretInfo(p);
+        if (c == null) {
+            if (dropTarget != null) {
+                dropTarget.setVisible(false);
+            }
+        } else {
+            if (dropTarget == null) {
+                dropTarget = new Path();
+                dropTarget.getStyleClass().add("drop-target");
+                dropTarget.setManaged(false);
+                dropTarget.setViewOrder(DROP_TARGET_ORDER);
+                content.getChildren().add(dropTarget);
+            }
+
+            FxPathBuilder b = new FxPathBuilder();
+            createCaretPath(b, p);
+            dropTarget.getElements().setAll(b.getPathElements());
+            dropTarget.setVisible(true);
+        }
     }
 }

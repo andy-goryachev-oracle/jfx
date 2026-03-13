@@ -75,21 +75,20 @@ public class RichEditorDemoWindow extends Stage {
         // support image drag and drop
         editor.getInputMap().addHandler(DragEvent.DRAG_OVER, (ev) -> {
             if (ev.getDragboard().hasFiles()) {
-                // TODO show drop target under mouse pointer
-                System.out.println("TODO show drop target");
+                editor.setDropTarget(ev.getScreenX(), ev.getScreenY());
                 // check for image types using extension maybe?
                 ev.acceptTransferModes(TransferMode.COPY);
                 ev.consume();
             }
         });
         editor.getInputMap().addHandler(DragEvent.DRAG_EXITED, (ev) -> {
-            // TODO hide drop target
-            System.out.println("TODO hide drop target");
+            editor.clearDropTarget();
         });
         editor.getInputMap().addHandler(DragEvent.DRAG_DROPPED, (ev) -> {
             if (ev.getDragboard().hasFiles()) {
                 List<File> files = ev.getDragboard().getFiles();
-                FileListFormatHandler.handleDrop(editor, ev.getSceneX(), ev.getSceneY(), files);
+                TextPos p = editor.getDropTarget();
+                FileListFormatHandler.handleDrop(editor, p, files);
                 ev.consume();
             }
         });

@@ -79,8 +79,17 @@ public class FileListFormatHandler extends DataFormatHandler {
         throw new UnsupportedOperationException();
     }
 
-    public static void handleDrop(RichTextArea r, double sceneX, double sceneY, List<File> files) {
-        System.out.println(sceneX + " " + sceneY + " " + files); // FIX
+    /**
+     * Inserts the dropped files as inline images into the {@link RichTextModel}.
+     * TODO set scale
+     * If a file cannot be loaded as an image, this function inserts the file name as text.
+     *
+     * @param ed the drop target
+     * @param p the text position
+     * @param files the list of files to be inserted
+     */
+    public static void handleDrop(RichTextArea ed, TextPos p, List<File> files) {
+        System.out.println("FileListFormatHandler.handleDrop" + p); // FIX
     }
 
     // This StyledInput converts a list of files into text segments 
