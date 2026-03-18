@@ -890,7 +890,7 @@ public class RichTextModel extends StyledTextModel {
                     String text = seg.text();
                     b.addSegment(text, a);
                 } else {
-                    b.addInlineNode(im::getImageView, a);
+                    b.addInlineNode(im::getNode, a);
                 }
             }
             b.setParagraphAttributes(paragraphAttrs);

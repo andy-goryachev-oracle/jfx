@@ -1774,4 +1774,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             dropTarget.setVisible(true);
         }
     }
+
+    public boolean isWrapText() {
+        return control.isWrapText();
+    }
 }
