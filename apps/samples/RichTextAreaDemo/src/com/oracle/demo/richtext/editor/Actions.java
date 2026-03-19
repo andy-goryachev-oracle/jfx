@@ -269,7 +269,6 @@ public class Actions {
         FX.checkItem(m, "Show Line Numbers", lineNumbers);
         FX.checkItem(m, "Show Ruler", rulerVisible);
         FX.checkItem(m, "Wrap Text", wrapText);
-        // TODO line spacing
 
         // tools
         FX.menu(m, "Tools");
@@ -335,6 +334,10 @@ public class Actions {
         return file.get();
     }
 
+    private final void setFile(File f) {
+        file.set(f);
+    }
+
     private void handleEdit() {
         setModified(true);
     }
@@ -364,6 +367,7 @@ public class Actions {
         if (askToSave()) {
             return;
         }
+        setFile(null);
         editor.setModel(new RichTextModel());
         setModified(false);
     }
@@ -401,7 +405,7 @@ public class Actions {
             }
         }
 
-        file.set(f);
+        setFile(f);
         try {
             writeFile(f);
         } catch (Exception e) {
@@ -412,7 +416,7 @@ public class Actions {
     private boolean saveAs() {
         File f = chooseFileForSave();
         if (f != null) {
-            file.set(f);
+            setFile(f);
             try {
                 writeFile(f);
                 return true;
@@ -443,7 +447,7 @@ public class Actions {
     private void readFile(File f, DataFormat fmt) throws Exception {
         try (FileInputStream in = new FileInputStream(f)) {
             editor.read(fmt, in);
-            file.set(f);
+            setFile(f);
             editor.setEditable(f.canWrite());
             setModified(false);
         }
@@ -453,7 +457,7 @@ public class Actions {
         DataFormat fmt = guessFormat(f);
         try (FileOutputStream out = new FileOutputStream(f)) {
             editor.write(fmt, out);
-            file.set(f);
+            setFile(f);
             setModified(false);
         }
     }
@@ -765,7 +769,6 @@ public class Actions {
     }
 
     private void handleTabStopChange() {
-        // TODO update default tabs if changed
         SelectionSegment sel = editor.getSelection();
         if (sel != null) {
             TabStop[] ts = tabPolicy.tabStops().toArray(TabStop[]::new);
