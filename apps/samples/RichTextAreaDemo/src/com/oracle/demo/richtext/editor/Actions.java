@@ -363,12 +363,14 @@ public class Actions {
         apply(StyleAttributeMap.TEXT_COLOR, color);
     }
 
-    private void newDocument() {
+    public void newDocument() {
         if (askToSave()) {
             return;
         }
         setFile(null);
-        editor.setModel(new RichTextModel());
+        RichTextModel m = new RichTextModel();
+        m.setDefaultTabStops(Settings.DEFAULT_TAB_STOPS);
+        editor.setModel(m);
         setModified(false);
     }
 
