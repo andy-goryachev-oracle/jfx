@@ -1121,7 +1121,7 @@ public class RichTextAreaTest {
         }
         return Double.NaN;
     }
-    
+
     private void assertX(int line, int off, double expected) {
         assertEquals(expected, pos(line, off), EPSILON);
     }
