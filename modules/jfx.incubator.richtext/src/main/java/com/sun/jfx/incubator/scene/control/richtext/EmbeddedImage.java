@@ -34,7 +34,6 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -57,12 +56,12 @@ public class EmbeddedImage {
     public static final StringConverter<EmbeddedImage> CONVERTER = new Converter();
 
     private final byte[] bytes;
-    private double width;
+    private final double width;
 
     // TODO height? keep aspect ratio?
     public EmbeddedImage(byte[] bytes, double width) {
         this.bytes = bytes;
-        this.width = FIT_WIDTH; // FIX width;
+        this.width = width;
     }
 
     public byte[] getBytes() {
@@ -75,20 +74,11 @@ public class EmbeddedImage {
 
     public Node getNode() {
         Image im = new Image(new ByteArrayInputStream(bytes));
-        //return new EmbeddedImageViewScaled(this, im);
-        return new EmbeddedImageViewPref(this, im);
-    }
-
-    private static double availableWidth(VFlow f) {
-        // TODO if wrapped?
-        if (f != null) {
-            Insets m = f.contentPadding();
-            double w = f.getDocumentArea().getWidth() - m.getLeft() - m.getRight();
-            if (w > 0.0) {
-                return w;
-            }
+        if(width < 0) {
+            return new Flex(im);
+        } else {
+            return new Scaled(im);
         }
-        return -1.0;
     }
 
     /// Converter
@@ -130,7 +120,7 @@ public class EmbeddedImage {
 
     /// Image Container
     /// Label[[ImageView]..space..]
-    public final class EmbeddedImageViewPref extends Label {
+    public final class Flex extends Label {
 
         private final Image image;
         private final boolean useImageScale;
@@ -139,44 +129,58 @@ public class EmbeddedImage {
         private BooleanBinding wrap;
         private ObjectBinding<VFlow> vflow;
 
-        public EmbeddedImageViewPref(EmbeddedImage src, Image im) {
+        public Flex(Image im) {
             this.image = im;
 
             ImageView v = new ImageView(im);
             v.setSmooth(true);
             v.setPreserveRatio(true);
             
-            double width = src.getWidth();
             useImageScale = (width < 0.0);
             fullWidth = (width == FULL_PARAGRAPH);
             
-            if(useImageScale) {
+            if (useImageScale) {
                 // if use image scale, bind imageview width to prop1=(min(vflow.available, image.width))
                 v.fitWidthProperty().bind(Bindings.createDoubleBinding(
-                    this::computeImageWidth,
+                    () -> {
+                        double w = image.getWidth();
+                        double av = available().get();
+                        if ((av > 0.0) && (w > av)) {
+                            return av;
+                        }
+                        return w;
+                    },
                     available()));
             }
-            if(fullWidth) {
+            if (fullWidth) {
                 // if full width, bind label width to prop2=(vflow.available)
-                // TODO but only if wrapped!
                 prefWidthProperty().bind(Bindings.createDoubleBinding(
-                    this::computeContainerWidth,
+                    () -> {
+                        if (wrap().get()) {
+                            double av = available().get();
+                            if (av > 0.0) {
+                                return av;
+                            }
+                        }
+                        return Region.USE_PREF_SIZE;
+                    },
                     available(),
                     wrap()));
             }
             
-            // TODO set the scale instead!  see ImageCellPane
-
             setGraphic(v);
             setMaxWidth(Double.MAX_VALUE);
-            setMinWidth(1);
-            setMinHeight(1);
-            setBackground(Background.fill(Color.LIGHTCORAL)); // FIX
-            setPadding(new Insets(2)); // FIX
+            setMinWidth(2);
+            setMinHeight(2);
             
-            widthProperty().addListener((_) -> {
-                System.out.println("w=" + getWidth());
-            });
+            // debug FIX
+            {
+                setBackground(Background.fill(Color.LIGHTCORAL)); // FIX
+                setPadding(new Insets(2)); // FIX
+                widthProperty().addListener((_) -> {
+                    IO.println("w=" + getWidth());
+                });
+            }
         }
 
         private ObjectBinding<VFlow> vflow() {
@@ -187,7 +191,6 @@ public class EmbeddedImage {
                     },
                     sceneProperty()
                 );
-                
             }
             return vflow;
         }
@@ -197,15 +200,25 @@ public class EmbeddedImage {
                 available = Bindings.createDoubleBinding(
                     () -> {
                         VFlow f = vflow().get();
-                        // TODO move here?
-                        return EmbeddedImage.availableWidth(f);
+                        if (f != null) {
+                            // FIX if !wrap
+                            Insets m = f.contentPadding();
+                            double w = f.getDocumentArea().getWidth() - m.getLeft() - m.getRight();
+                            if (w > 0.0) {
+                                return w;
+                            }
+                        }
+                        return -1.0;
                     },
                     vflow()
+                    // TODO vflow.wrap property!
                 );
             }
             return available;
         }
 
+        // TODO maybe fold it into available()
+        @Deprecated
         private BooleanBinding wrap() {
             if (wrap == null) {
                 wrap = Bindings.createBooleanBinding(
@@ -213,153 +226,31 @@ public class EmbeddedImage {
                         VFlow f = vflow().get();
                         return f == null ? false : f.isWrapText();
                     },
+                    // FIX this does not track runtime change of RTA.wrapText property!
                     vflow()
                 );
             }
             return wrap;
         }
-
-        // depends on available()
-        private double computeImageWidth() {
-            double w = image.getWidth();
-            double av = available().get();
-            return (w > av) ? av : w;
-        }
-
-        // depends on available, wrap
-        private double computeContainerWidth() {
-            if (wrap().get()) {
-                double av = available().get();
-                return av;
-            }
-            return Region.USE_PREF_SIZE;
-        }
-
-        private VFlow getVFlow() {
-            return RichUtils.getParentOfClass(VFlow.class, this);
-        }
-
-        private double computeScale() {
-            if (width < 0.0) {
-                //VFlow f = flow.get();
-                // TODO can be optimized
-                //double available = availableWidth(f);
-                double available = availableWidth();
-                IO.print("computeScale available=" + available);
-                if (available > 0.0) {
-                    // defaults to FIT_WIDTH
-                    double w = image().getWidth();
-                    if(w > available) {
-                        return available / w;
-                    }
-                }
-            }
-            return 1.0;
-        }
-
-        private double availableWidth() {
-            Parent p = getParent();
-            if (p instanceof Region r) {
-                // FIX TextFlow, returns 0
-                return r.getWidth() - r.snappedLeftInset() - r.snappedRightInset();
-            }
-            return -1.0;
-        }
-
-        public EmbeddedImage getSource() {
-            return EmbeddedImage.this;
-        }
-
-        private Image image() {
-            return image;
-            //return ((ImageView)getGraphic()).getImage();
-        }
-
-        /*
-        @Override
-        protected double computePrefWidth(double h) {
-            double w = computePrefWidth();
-            IO.println("computePrefWidth=" + w); // FIX
-            if (w > 0.0) {
-                return w;
-            }
-            return super.computePrefWidth(h);
-        }
-
-        /// returns preferred width or -1
-        private double computePrefWidth() {
-            if (width < 0.0) {
-                //VFlow f = RichUtils.getParentOfClass(VFlow.class, this);
-                double available = availableWidth();
-                if (available <= 0.0) {
-                    return -1.0;
-                }
-                // defaults to FIT_WIDTH
-                double w = image().getWidth();
-                return (w > available) ? available : w;
-            }
-            return -1.0;
-        }
-        */
     }
 
     /// Image Container with scaled image
-    @Deprecated
-    public final class EmbeddedImageViewScaled extends Label {
+    public final class Scaled extends Label {
 
         private final Image image;
-        private SimpleObjectProperty<VFlow> flow = new SimpleObjectProperty<>();
 
-        public EmbeddedImageViewScaled(EmbeddedImage src, Image im) {
+        public Scaled(Image im) {
             this.image = im;
-
-            flow.bind(Bindings.createObjectBinding(
-                this::getVFlow,
-                parentProperty(),
-                widthProperty()));
 
             ImageView v = new ImageView(im);
             v.setSmooth(true);
-            v.fitWidthProperty().bind(widthProperty());
+            v.setFitWidth(width);
             v.setPreserveRatio(true);
-            v.scaleXProperty().bind(Bindings.createDoubleBinding(
-                this::computeScale,
-                flow));
-            v.scaleYProperty().bind(v.scaleXProperty());
-            // TODO set the scale instead!  see ImageCellPane
 
             setGraphic(v);
             setMaxWidth(USE_PREF_SIZE);
-            setPrefWidth(77); //USE_COMPUTED_SIZE); FIX
-            // TODO context menu: undo? size
-        }
-
-        private VFlow getVFlow() {
-            return RichUtils.getParentOfClass(VFlow.class, this);
-        }
-
-        private double computeScale() {
-            if (width < 0.0) {
-                VFlow f = flow.get();
-                // TODO can be optimized
-                double available = availableWidth(f);
-                if (available > 0.0) {
-                    // defaults to FIT_WIDTH
-                    double w = image().getWidth();
-                    if(w > available) {
-                        return available / w;
-                    }
-                }
-            }
-            return 1.0;
-        }
-
-        public EmbeddedImage getSource() {
-            return EmbeddedImage.this;
-        }
-
-        private Image image() {
-            return image;
+            setMinWidth(2);
+            setMinHeight(2);
         }
     }
 }
