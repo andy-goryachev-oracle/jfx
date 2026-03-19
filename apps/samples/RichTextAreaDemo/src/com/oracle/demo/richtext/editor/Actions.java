@@ -67,7 +67,6 @@ import jfx.incubator.scene.control.richtext.LineNumberDecorator;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
-import jfx.incubator.scene.control.richtext.model.ContentChange;
 import jfx.incubator.scene.control.richtext.model.RichTextFormatHandler;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
@@ -119,12 +118,14 @@ public class Actions {
     private final RichEditorToolbar toolbar;
     private final RichTextArea editor;
     private final TabStopPolicy tabPolicy = new TabStopPolicy();
+    private final StyledTextModel.Listener changeListener = (ch) -> handleEdit();
 
     public Actions(RichEditorToolbar tb, RichTextArea ed) {
         this.toolbar = tb;
         this.editor = ed;
 
         // undo/redo actions
+
         redo.disabledProperty().bind(editor.redoableProperty().not());
         undo.disabledProperty().bind(editor.undoableProperty().not());
 
@@ -140,10 +141,12 @@ public class Actions {
 
         // editor
 
-        editor.getModel().addListener(new StyledTextModel.Listener() {
-            @Override
-            public void onContentChange(ContentChange ch) {
-                handleEdit();
+        editor.modelProperty().subscribe((prev, m) -> {
+            if (prev != null) {
+                prev.removeListener(changeListener);
+            }
+            if (m != null) {
+                m.addListener(changeListener);
             }
         });
 
@@ -347,8 +350,10 @@ public class Actions {
         cut.setEnabled(sel);
         copy.setEnabled(sel);
 
-        StyleAttributeMap a = editor.getActiveStyleAttributeMap();
-        toolbar.updateStyles(a);
+        if (!sel) {
+            StyleAttributeMap a = editor.getActiveStyleAttributeMap();
+            toolbar.updateStyles(a);
+        }
     }
 
     public void setFontSize(Double size) {
@@ -390,6 +395,7 @@ public class Actions {
         File f = ch.showOpenDialog(parentWindow());
         if (f != null) {
             try {
+                newDocument();
                 DataFormat fmt = guessFormat(f);
                 readFile(f, fmt);
             } catch (Exception e) {
