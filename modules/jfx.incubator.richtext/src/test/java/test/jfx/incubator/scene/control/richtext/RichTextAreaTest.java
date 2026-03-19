@@ -52,6 +52,8 @@ import javafx.scene.input.InputMethodTextRun;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
+import javafx.scene.text.TabStop;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import com.sun.javafx.tk.Toolkit;
+import com.sun.jfx.incubator.scene.control.richtext.CaretInfo;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
 import jfx.incubator.scene.control.richtext.LineEnding;
 import jfx.incubator.scene.control.richtext.RichTextArea;
@@ -94,6 +98,8 @@ public class RichTextAreaTest {
     private static final StyleAttributeMap BOLD = StyleAttributeMap.builder().setBold(true).build();
     private static final StyleAttributeMap ITALIC = StyleAttributeMap.builder().setItalic(true).build();
     private static final String NL = System.getProperty("line.separator");
+    private static final double EPSILON = 0.00001;
+    private Stage stage;
 
     @BeforeEach
     public void beforeEach() {
@@ -105,6 +111,10 @@ public class RichTextAreaTest {
 
     @AfterEach
     public void afterEach() {
+        if (stage != null) {
+            stage.hide();
+            stage = null;
+        }
         TUtil.removeUncaughtExceptionHandler();
     }
 
@@ -1098,5 +1108,86 @@ public class RichTextAreaTest {
 
         String s = RichTestUtil.getText(control, sel);
         assertEquals(text, s);
+    }
+
+    private double pos(int line, int off) {
+        TextPos p = TextPos.ofLeading(line, off);
+        VFlow f = RichTextAreaShim.vflow(control);
+        if (f != null) {
+            CaretInfo c = f.getCaretInfo(p);
+            if (c != null) {
+                return c.getMinX();
+            }
+        }
+        return Double.NaN;
+    }
+    
+    private void assertX(int line, int off, double expected) {
+        assertEquals(expected, pos(line, off), EPSILON);
+    }
+
+    @Test
+    public void tabStops() {
+        Scene scene = new Scene(control, 1000, 1000);
+        stage = new Stage();
+        stage.setScene(scene);
+        stage.show();
+
+        RichTextModel m = new RichTextModel();
+        control.setModel(m);
+        control.setContentPadding(new Insets(0));
+        control.appendText("\t1\t2\t3\n\t1\t2\t3\n 1 2 3\n");
+        control.layout();
+
+        Toolkit.getToolkit().firePulse();
+        Toolkit.getToolkit().firePulse();
+        assertEquals(1000.0, control.getWidth(), EPSILON);
+
+        // default tab stops = 0 is equivalent to single space
+        // keep in mind there is +2.5 pixels added for borders and padding
+        assertX(0, 1, 12.5);
+        assertX(0, 3, 36.5);
+        assertX(0, 5, 60.5);
+
+        assertX(1, 1, 12.5);
+        assertX(1, 3, 36.5);
+        assertX(1, 5, 60.5);
+
+        assertX(2, 1, 12.5);
+        assertX(2, 3, 36.5);
+        assertX(2, 5, 60.5);
+
+        // default tab stops = 100
+        m.setDefaultTabStops(100);
+        assertX(0, 1, 100.5);
+        assertX(0, 3, 200.5);
+        assertX(0, 5, 300.5);
+
+        assertX(1, 1, 100.5);
+        assertX(1, 3, 200.5);
+        assertX(1, 5, 300.5);
+
+        assertX(2, 1, 12.5);
+        assertX(2, 3, 36.5);
+        assertX(2, 5, 60.5);
+
+        // change the second paragraph tab stops
+        StyleAttributeMap a = StyleAttributeMap.of(StyleAttributeMap.TAB_STOPS, new TabStop[] {
+            new TabStop(55),
+            new TabStop(77),
+            new TabStop(99)
+        });
+        control.applyStyle(TextPos.ofLeading(1, 0), TextPos.ofLeading(1, 999), a);
+        assertX(0, 1, 100.5);
+        assertX(0, 3, 200.5);
+        assertX(0, 5, 300.5);
+
+        assertX(1, 1, 55.5);
+        assertX(1, 3, 77.5);
+        assertX(1, 5, 99.5);
+
+        assertX(2, 1, 12.5);
+        assertX(2, 3, 36.5);
+        assertX(2, 5, 60.5);
     }
 }
