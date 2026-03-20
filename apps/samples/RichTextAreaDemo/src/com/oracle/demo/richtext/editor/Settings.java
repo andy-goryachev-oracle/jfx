@@ -42,6 +42,9 @@ import com.oracle.demo.richtext.editor.settings.EndKey;
  * NOTE: these settings are not persisted across launches due to limitations of FxSettings in this project.
  */
 public final class Settings {
+
+    public static final double DEFAULT_TAB_STOPS = 70;
+
     // navigation
     public static final SimpleObjectProperty<EndKey> endKey = new SimpleObjectProperty<>(EndKey.END_OF_TEXT);
 

@@ -67,7 +67,6 @@ import jfx.incubator.scene.control.richtext.LineNumberDecorator;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
-import jfx.incubator.scene.control.richtext.model.ContentChange;
 import jfx.incubator.scene.control.richtext.model.RichTextFormatHandler;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
@@ -119,12 +118,14 @@ public class Actions {
     private final RichEditorToolbar toolbar;
     private final RichTextArea editor;
     private final TabStopPolicy tabPolicy = new TabStopPolicy();
+    private final StyledTextModel.Listener changeListener = (ch) -> handleEdit();
 
     public Actions(RichEditorToolbar tb, RichTextArea ed) {
         this.toolbar = tb;
         this.editor = ed;
 
         // undo/redo actions
+
         redo.disabledProperty().bind(editor.redoableProperty().not());
         undo.disabledProperty().bind(editor.undoableProperty().not());
 
@@ -140,10 +141,12 @@ public class Actions {
 
         // editor
 
-        editor.getModel().addListener(new StyledTextModel.Listener() {
-            @Override
-            public void onContentChange(ContentChange ch) {
-                handleEdit();
+        editor.modelProperty().subscribe((prev, m) -> {
+            if (prev != null) {
+                prev.removeListener(changeListener);
+            }
+            if (m != null) {
+                m.addListener(changeListener);
             }
         });
 
@@ -269,7 +272,6 @@ public class Actions {
         FX.checkItem(m, "Show Line Numbers", lineNumbers);
         FX.checkItem(m, "Show Ruler", rulerVisible);
         FX.checkItem(m, "Wrap Text", wrapText);
-        // TODO line spacing
 
         // tools
         FX.menu(m, "Tools");
@@ -335,6 +337,10 @@ public class Actions {
         return file.get();
     }
 
+    private final void setFile(File f) {
+        file.set(f);
+    }
+
     private void handleEdit() {
         setModified(true);
     }
@@ -344,8 +350,10 @@ public class Actions {
         cut.setEnabled(sel);
         copy.setEnabled(sel);
 
-        StyleAttributeMap a = editor.getActiveStyleAttributeMap();
-        toolbar.updateStyles(a);
+        if (!sel) {
+            StyleAttributeMap a = editor.getActiveStyleAttributeMap();
+            toolbar.updateStyles(a);
+        }
     }
 
     public void setFontSize(Double size) {
@@ -360,11 +368,14 @@ public class Actions {
         apply(StyleAttributeMap.TEXT_COLOR, color);
     }
 
-    private void newDocument() {
+    public void newDocument() {
         if (askToSave()) {
             return;
         }
-        editor.setModel(new RichTextModel());
+        setFile(null);
+        RichTextModel m = new RichTextModel();
+        m.setDefaultTabStops(Settings.DEFAULT_TAB_STOPS);
+        editor.setModel(m);
         setModified(false);
     }
 
@@ -384,6 +395,7 @@ public class Actions {
         File f = ch.showOpenDialog(parentWindow());
         if (f != null) {
             try {
+                newDocument();
                 DataFormat fmt = guessFormat(f);
                 readFile(f, fmt);
             } catch (Exception e) {
@@ -401,7 +413,7 @@ public class Actions {
             }
         }
 
-        file.set(f);
+        setFile(f);
         try {
             writeFile(f);
         } catch (Exception e) {
@@ -412,7 +424,7 @@ public class Actions {
     private boolean saveAs() {
         File f = chooseFileForSave();
         if (f != null) {
-            file.set(f);
+            setFile(f);
             try {
                 writeFile(f);
                 return true;
@@ -443,7 +455,7 @@ public class Actions {
     private void readFile(File f, DataFormat fmt) throws Exception {
         try (FileInputStream in = new FileInputStream(f)) {
             editor.read(fmt, in);
-            file.set(f);
+            setFile(f);
             editor.setEditable(f.canWrite());
             setModified(false);
         }
@@ -453,7 +465,7 @@ public class Actions {
         DataFormat fmt = guessFormat(f);
         try (FileOutputStream out = new FileOutputStream(f)) {
             editor.write(fmt, out);
-            file.set(f);
+            setFile(f);
             setModified(false);
         }
     }
@@ -765,7 +777,6 @@ public class Actions {
     }
 
     private void handleTabStopChange() {
-        // TODO update default tabs if changed
         SelectionSegment sel = editor.getSelection();
         if (sel != null) {
             TabStop[] ts = tabPolicy.tabStops().toArray(TabStop[]::new);

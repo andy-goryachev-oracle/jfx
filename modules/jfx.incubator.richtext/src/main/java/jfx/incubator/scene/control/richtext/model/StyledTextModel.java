@@ -230,7 +230,6 @@ public abstract class StyledTextModel {
 
     /**
      * Applies style to the specified text range within a single paragraph.
-     * The new attributes override any existing attributes.
      * The {@code end} argument may exceed the paragraph length, in which case the outcome should be the same
      * as supplying the paragraph length value.
      *
@@ -238,7 +237,7 @@ public abstract class StyledTextModel {
      * @param start the start offset
      * @param end the end offset
      * @param a the character attributes
-     * @param merge determines whether to merge with or overwrite the existing attributes
+     * @param merge determines whether to merge with or completely replace the existing attribute map
      * @throws UnsupportedOperationException if the model is not {@link #isWritable() writable}
      */
     protected abstract void applyStyle(int index, int start, int end, StyleAttributeMap a, boolean merge);
@@ -803,13 +802,13 @@ public abstract class StyledTextModel {
      * {@link #isUndoRedoEnabled()} returns {@code true}.
      * <p>
      * Depending on {@code mergeAttributes} parameter, the attributes will either be merged with (true) or completely
-     * replace the existing attributes within the range.  The affected range might be wider than the range specified
+     * replace the existing attribute map within the range.  The affected range might be wider than the range specified
      * when applying the paragraph attributes.
      *
      * @param start the start of text range
      * @param end the end of text range
      * @param attrs the style attributes to set
-     * @param mergeAttributes whether to merge or replace the attributes
+     * @param mergeAttributes whether to merge or replace the attribute map
      * @throws UnsupportedOperationException if the model is not {@link #isWritable() writable}
      */
     public final void applyStyle(TextPos start, TextPos end, StyleAttributeMap attrs, boolean mergeAttributes) {

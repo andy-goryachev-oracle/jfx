@@ -62,9 +62,7 @@ public class RichEditorDemoWindow extends Stage {
     public final Label status;
 
     public RichEditorDemoWindow() {
-        RichTextModel m = new RichTextModel();
-        m.setDefaultTabStops(70);
-        editor = new RichTextArea(m);
+        editor = new RichTextArea();
         toolbar = new RichEditorToolbar();
 
         // example of a custom function
@@ -133,6 +131,7 @@ public class RichEditorDemoWindow extends Stage {
             actions.fileNameProperty()
         ));
 
+        actions.newDocument();
         editor.setContextMenu(actions.createContextMenu());
         editor.requestFocus();
         editor.select(TextPos.ZERO);
