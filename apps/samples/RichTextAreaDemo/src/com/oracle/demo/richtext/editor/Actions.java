@@ -35,6 +35,7 @@ package com.oracle.demo.richtext.editor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.List;
 import java.util.Locale;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -394,13 +395,24 @@ public class Actions {
 
         File f = ch.showOpenDialog(parentWindow());
         if (f != null) {
-            try {
-                newDocument();
-                DataFormat fmt = guessFormat(f);
-                readFile(f, fmt);
-            } catch (Exception e) {
-                new ExceptionDialog(editor, e).open();
-            }
+            doOpen(f);
+        }
+    }
+
+    public void openFile(File f) {
+        if (askToSave()) {
+            return;
+        }
+        doOpen(f);
+    }
+
+    private void doOpen(File f) {
+        try {
+            newDocument();
+            DataFormat fmt = guessFormat(f);
+            readFile(f, fmt);
+        } catch (Exception e) {
+            new ExceptionDialog(editor, e).open();
         }
     }
 
@@ -606,13 +618,24 @@ public class Actions {
     }
 
     private static DataFormat guessFormat(File f) {
-        String name = f.getName().toLowerCase(Locale.ENGLISH);
+        String name = f.getName().toLowerCase(Locale.ROOT);
         if (name.endsWith(".rich")) {
             return RichTextFormatHandler.DATA_FORMAT;
         } else if (name.endsWith(".rtf")) {
             return DataFormat.RTF;
         }
         return DataFormat.PLAIN_TEXT;
+    }
+
+    public File fileToOpen(List<File> files) {
+        if (files.size() == 1) {
+            File f = files.get(0);
+            String name = f.getName().toLowerCase(Locale.ROOT);
+            if (name.endsWith(".rich")) {
+                return f;
+            }
+        }
+        return null;
     }
 
     public void quit() {

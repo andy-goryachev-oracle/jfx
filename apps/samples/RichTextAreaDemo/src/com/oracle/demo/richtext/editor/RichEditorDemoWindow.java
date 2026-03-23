@@ -65,6 +65,26 @@ public class RichEditorDemoWindow extends Stage {
         editor = new RichTextArea();
         toolbar = new RichEditorToolbar();
 
+        status = new Label();
+        status.setPadding(new Insets(2, 10, 2, 10));
+
+        actions = new Actions(toolbar, editor);
+
+        BorderPane cp = new BorderPane();
+        cp.setTop(toolbar);
+        cp.setCenter(editor);
+
+        BorderPane bp = new BorderPane();
+        bp.setTop(actions.createMenu());
+        bp.setCenter(cp);
+        bp.setBottom(status);
+
+        Scene scene = new Scene(bp);
+
+        setScene(scene);
+        setWidth(1200);
+        setHeight(600);
+
         // example of a custom function
         editor.getInputMap().register(KeyBinding.shortcut(KeyCode.W), () -> {
             System.out.println("Custom function: W key is pressed");
@@ -85,31 +105,16 @@ public class RichEditorDemoWindow extends Stage {
         editor.getInputMap().addHandler(DragEvent.DRAG_DROPPED, (ev) -> {
             if (ev.getDragboard().hasFiles()) {
                 List<File> files = ev.getDragboard().getFiles();
-                TextPos p = editor.getDropTarget();
-                FileListFormatHandler.handleDrop(editor, p, files);
+                File f = actions.fileToOpen(files);
+                if (f != null) {
+                    actions.openFile(f);
+                } else {
+                    TextPos p = editor.getDropTarget();
+                    FileListFormatHandler.handleDrop(editor, p, files);
+                }
                 ev.consume();
             }
         });
-
-        status = new Label();
-        status.setPadding(new Insets(2, 10, 2, 10));
-
-        actions = new Actions(toolbar, editor);
-
-        BorderPane cp = new BorderPane();
-        cp.setTop(toolbar);
-        cp.setCenter(editor);
-
-        BorderPane bp = new BorderPane();
-        bp.setTop(actions.createMenu());
-        bp.setCenter(cp);
-        bp.setBottom(status);
-
-        Scene scene = new Scene(bp);
-
-        setScene(scene);
-        setWidth(1200);
-        setHeight(600);
 
         addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (ev) -> {
             if (actions.askToSave()) {
