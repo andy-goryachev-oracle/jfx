@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -60,6 +59,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionModel;
@@ -76,7 +76,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.shape.Path;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -1345,11 +1344,8 @@ public class TabPaneTest {
 
     private ContextMenu setupMenuGraphicFactory() {
         TabPaneSkin skin = new TabPaneSkin(tabPane);
-        skin.setMenuGraphicFactory(new Function<Tab, Node>() {
-            @Override
-            public Node apply(Tab t) {
-                return new Path();
-            }
+        skin.setMenuGraphicFactory((tab) -> {
+            return new Label(tab.getText());
         });
         tabPane.setSkin(skin);
 
@@ -1369,7 +1365,9 @@ public class TabPaneTest {
     public void menuGraphicFactory() {
         ContextMenu menu = setupMenuGraphicFactory();
         for (MenuItem mi : menu.getItems()) {
-            assertTrue(mi.getGraphic() instanceof Path);
+            Node g = mi.getGraphic();
+            assertTrue(g instanceof Label);
+            assertEquals(mi.getText(), ((Label)g).getText());
         }
     }
 

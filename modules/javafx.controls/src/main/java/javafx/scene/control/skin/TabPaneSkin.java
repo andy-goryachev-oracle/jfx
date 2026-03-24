@@ -29,7 +29,6 @@ import static com.sun.javafx.scene.control.skin.resources.ControlResources.getSt
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -92,6 +91,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
+import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import com.sun.javafx.scene.control.LambdaMultiplePropertyChangeListenerHandler;
@@ -163,7 +163,7 @@ public class TabPaneSkin extends SkinBase<TabPane> {
 
     /**
      * Creates a new TabPaneSkin instance, installing the necessary child
-     * nodes into the Control {@link TabPane#getChildren() children} list, as
+     * nodes into the Control {@link javafx.scene.control.Control#getChildren() children} list, as
      * well as the necessary input mappings for handling key, mouse, etc events.
      *
      * @param control The TabPane that this skin should be installed onto.
@@ -269,9 +269,9 @@ public class TabPaneSkin extends SkinBase<TabPane> {
      * @since 27
      * @defaultValue null
      */
-    private ObjectProperty<Function<Tab, Node>> menuGraphicFactory;
+    private ObjectProperty<Callback<Tab, Node>> menuGraphicFactory;
 
-    public final ObjectProperty<Function<Tab, Node>> menuGraphicFactoryProperty() {
+    public final ObjectProperty<Callback<Tab, Node>> menuGraphicFactoryProperty() {
         if (menuGraphicFactory == null) {
             menuGraphicFactory = new SimpleObjectProperty<>() {
                 @Override
@@ -288,11 +288,11 @@ public class TabPaneSkin extends SkinBase<TabPane> {
         return menuGraphicFactory;
     }
 
-    public final Function<Tab,Node> getMenuGraphicFactory() {
+    public final Callback<Tab,Node> getMenuGraphicFactory() {
         return menuGraphicFactory == null ? null : menuGraphicFactory.get();
     }
 
-    public final void setMenuGraphicFactory(Function<Tab,Node> f) {
+    public final void setMenuGraphicFactory(Callback<Tab,Node> f) {
         menuGraphicFactoryProperty().set(f);
     }
 
@@ -525,23 +525,23 @@ public class TabPaneSkin extends SkinBase<TabPane> {
         }
     }
 
-    private Node prepareGraphic(Tab t) {
-        Function<Tab, Node> f = getMenuGraphicFactory();
+    private Node createGraphic(Tab t) {
+        Callback<Tab, Node> f = getMenuGraphicFactory();
         if (f != null) {
-            return f.apply(t);
+            return f.call(t);
         }
 
         Node n = t.getGraphic();
-        return extractGraphic(n);
+        return copyGraphic(n);
     }
 
-    private Node extractGraphic(Node n) {
+    private Node copyGraphic(Node n) {
         if (n instanceof ImageView v) {
             ImageView imageview = new ImageView();
             imageview.imageProperty().bind(v.imageProperty());
             return imageview;
         } else if (n instanceof Label l) {
-            Label label = new Label(l.getText(), extractGraphic(l.getGraphic()));
+            Label label = new Label(l.getText(), copyGraphic(l.getGraphic()));
             label.textProperty().bind(l.textProperty());
             return label;
         } else {
@@ -1965,7 +1965,7 @@ public class TabPaneSkin extends SkinBase<TabPane> {
             ToggleGroup group = new ToggleGroup();
             ObservableList<RadioMenuItem> menuitems = FXCollections.<RadioMenuItem>observableArrayList();
             for (final Tab tab : getSkinnable().getTabs()) {
-                Node graphic = prepareGraphic(tab);
+                Node graphic = createGraphic(tab);
                 TabMenuItem item = new TabMenuItem(tab, graphic);
                 item.setToggleGroup(group);
                 item.setOnAction(t -> getSkinnable().getSelectionModel().select(tab));
@@ -2018,7 +2018,6 @@ public class TabPaneSkin extends SkinBase<TabPane> {
             return tab;
         }
 
-        // is this really necessary?
         public void dispose() {
             textProperty().unbind();
             disableProperty().unbind();
