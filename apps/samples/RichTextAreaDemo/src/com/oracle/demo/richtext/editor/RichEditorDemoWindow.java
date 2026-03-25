@@ -40,15 +40,17 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import jfx.incubator.scene.control.input.KeyBinding;
 import jfx.incubator.scene.control.richtext.RichTextArea;
+import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.FileListFormatHandler;
-import jfx.incubator.scene.control.richtext.model.RichTextModel;
 
 /**
  * Rich Editor Demo window.
@@ -89,6 +91,8 @@ public class RichEditorDemoWindow extends Stage {
         editor.getInputMap().register(KeyBinding.shortcut(KeyCode.W), () -> {
             System.out.println("Custom function: W key is pressed");
         });
+        
+        editor.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressFilter);
 
         // support image drag and drop
         editor.getInputMap().addHandler(DragEvent.DRAG_OVER, (ev) -> {
@@ -140,6 +144,22 @@ public class RichEditorDemoWindow extends Stage {
         editor.setContextMenu(actions.createContextMenu());
         editor.requestFocus();
         editor.select(TextPos.ZERO);
+    }
+
+    private void handleMousePressFilter(MouseEvent ev) {
+        // select under right click, unless extended selection exists
+        if (ev.getButton() == MouseButton.SECONDARY) {
+            if (ev.isAltDown() || ev.isControlDown() || ev.isMetaDown() || ev.isShiftDown() || ev.isShortcutDown()) {
+                return;
+            }
+            SelectionSegment sel = editor.getSelection();
+            if ((sel == null) || sel.isCollapsed()) {
+                TextPos p = editor.getTextPosition(ev.getScreenX(), ev.getScreenY());
+                if (p != null) {
+                    editor.select(p);
+                }
+            }
+        }
     }
 
     private String statusString(TextPos p) {
