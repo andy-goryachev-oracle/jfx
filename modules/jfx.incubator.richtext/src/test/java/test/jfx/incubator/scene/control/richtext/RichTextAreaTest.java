@@ -1242,6 +1242,10 @@ public class RichTextAreaTest {
         aa(1, 999, true, true, UNDER);
         aa(1, 999, false, true, UNDER);
 
+        // beyond eof
+        aa(999, 999, false, false, StyleAttributeMap.EMPTY);
+        aa(999, 999, false, true, StyleAttributeMap.EMPTY);
+
         // TODO grapheme clusters
     }
 }
