@@ -291,7 +291,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
                 StyleAttributeMap a = control.getInsertStyles();
                 if (a == null) {
-                    a = m.getStyleAttributeMap(vflow, start);
+                    a = m.getStyleAttributeMap(vflow, start, true);
                 }
                 a = RichUtils.filterOutNodeAttributes(a);
 

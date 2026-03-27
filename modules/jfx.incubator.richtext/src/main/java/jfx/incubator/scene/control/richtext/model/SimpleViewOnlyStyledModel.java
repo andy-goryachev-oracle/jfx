@@ -327,7 +327,8 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
     }
 
     @Override
-    public StyleAttributeMap getStyleAttributeMap(StyleResolver r, TextPos pos) {
+    // TODO z! test
+    public StyleAttributeMap getStyleAttributeMap(StyleResolver r, TextPos pos, boolean forInsert) {
         int index = pos.index();
         if (index < paragraphs.size()) {
             int off = pos.offset();

@@ -34,7 +34,6 @@ import java.util.function.Supplier;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.layout.Region;
-import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
@@ -219,13 +218,14 @@ public class RichTextModel extends StyledTextModel {
     }
 
     @Override
-    public StyleAttributeMap getStyleAttributeMap(StyleResolver resolver, TextPos pos) {
+    public StyleAttributeMap getStyleAttributeMap(StyleResolver resolver, TextPos pos, boolean forInsert) {
         int index = pos.index();
         if (index < paragraphs.size()) {
-            int off = pos.offset();
             RParagraph par = paragraphs.get(index);
             StyleAttributeMap pa = par.getParagraphAttributes();
-            StyleAttributeMap a = par.getStyleAttributeMap(off);
+            int cix = pos.charIndex();
+            boolean leading = pos.isLeading();
+            StyleAttributeMap a = par.getStyleAttributeMap(cix, leading, forInsert);
             if (pa == null) {
                 return a;
             } else {
@@ -355,7 +355,7 @@ public class RichTextModel extends StyledTextModel {
     /**
      * Model paragraph is a list of RSegments.
      */
-    static class RParagraph extends ArrayList<RSegment> {
+    private static class RParagraph extends ArrayList<RSegment> {
 
         private StyleAttributeMap paragraphAttrs;
 
@@ -396,11 +396,14 @@ public class RichTextModel extends StyledTextModel {
         }
 
         /**
-         * Retrieves the style attributes at the specified offset.
-         * @param offset the offset
-         * @return the style info
+         * Retrieves the style attributes at the specified position.
+         * @param charIndex the character index
+         * @param leading the leading/trailing bias
+         * @param forInsert whether to pick preceding style at the segment boundary
+         * @return the style attributes, non-null
+         * @since 27
          */
-        public StyleAttributeMap getStyleAttributeMap(int offset) {
+        public StyleAttributeMap getStyleAttributeMap(int charIndex, boolean leading, boolean forInsert) {
             int pos = 0;
             int ct = size();
             int last = ct - 1;
@@ -408,7 +411,18 @@ public class RichTextModel extends StyledTextModel {
                 RSegment seg = get(i);
                 int len = seg.getTextLength();
                 pos += len;
-                if ((offset <= pos) || (i == last)) {
+
+                boolean use;
+                if (i == last) {
+                    use = true;
+                } else if (charIndex == pos) {
+                    // forInsert ? leading : false;
+                    use = forInsert && leading;
+                } else {
+                    use = charIndex < pos;
+                }
+
+                if (use) {
                     return seg.getStyleAttributeMap();
                 }
             }
@@ -890,7 +904,7 @@ public class RichTextModel extends StyledTextModel {
                     String text = seg.text();
                     b.addSegment(text, a);
                 } else {
-                    b.addInlineNode(im::getNode, a);
+                    b.addInlineNode(im::createNode, a);
                 }
             }
             b.setParagraphAttributes(paragraphAttrs);

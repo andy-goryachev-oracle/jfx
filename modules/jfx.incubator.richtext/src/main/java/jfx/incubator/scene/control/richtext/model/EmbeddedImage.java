@@ -23,7 +23,7 @@
  * questions.
  */
 
-package com.sun.jfx.incubator.scene.control.richtext;
+package jfx.incubator.scene.control.richtext.model;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
@@ -31,7 +31,6 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -41,40 +40,66 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
+import com.sun.jfx.incubator.scene.control.richtext.VFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
-import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 
-public class EmbeddedImage {
+/**
+ * An attribute which allows to embed an image into the {@link RichTextModel}.
+ */
+public final class EmbeddedImage {
 
-    /// Limits the width of the inline to the wrapped text width.
+    /** Limits the width of the inline to the wrapped text width. */
     public static final double FIT_WIDTH = -1.0;
-    /// Limits the width of the inline to the wrapped text width, and prevents other elements from being placed
-    /// in the same visual line.
-    public static final double FULL_PARAGRAPH = -2.0;
-    
+
+    // TODO remove? has issues.
+    // Limits the width of the inline to the wrapped text width, and prevents other elements from being placed
+    // in the same visual line.
+    private static final double FULL_PARAGRAPH = -2.0;
+
+    /**
+     * The attribute descriptor.
+     */
     public static final StyleAttribute<EmbeddedImage> ATTRIBUTE = StyleAttribute.inlineNode("img", EmbeddedImage.class);
+
+    /**
+     * The attribute String converter.
+     */
     public static final StringConverter<EmbeddedImage> CONVERTER = new Converter();
 
     private final byte[] bytes;
     private final double width;
 
+    /**
+     * Constructor.
+     *
+     * @param bytes the image source
+     * @param width the width of an image, also accepts FIT_WIDTH
+     */
     // TODO height? keep aspect ratio?
     public EmbeddedImage(byte[] bytes, double width) {
         this.bytes = bytes;
         this.width = width;
     }
 
-    public byte[] getBytes() {
+    private byte[] getBytes() {
         return bytes;
     }
 
+    /**
+     * Returns the image width specification, including {@link #FIT_WIDTH}.
+     * @return the image width
+     */
     public double getWidth() {
         return width;
     }
 
-    public Node getNode() {
+    /**
+     * Creates the Node to be inserted into RichTextArea.
+     * @return the node instance
+     */
+    public Node createNode() {
         Image im = new Image(new ByteArrayInputStream(bytes));
-        if(width < 0) {
+        if (width < 0) {
             return new Flex(im);
         } else {
             return new Scaled(im);
@@ -82,7 +107,7 @@ public class EmbeddedImage {
     }
 
     /// Converter
-    public static class Converter extends StringConverter<EmbeddedImage> {
+    private static class Converter extends StringConverter<EmbeddedImage> {
 
         @Override
         public String toString(EmbeddedImage em) {
@@ -120,7 +145,7 @@ public class EmbeddedImage {
 
     /// Image Container
     /// Label[[ImageView]..space..]
-    public final class Flex extends Label {
+    private final class Flex extends Label {
 
         private final Image image;
         private final boolean useImageScale;
@@ -173,12 +198,12 @@ public class EmbeddedImage {
             setMinWidth(2);
             setMinHeight(2);
             
-            // debug FIX
+            // debug FIX z!
             {
                 setBackground(Background.fill(Color.LIGHTCORAL)); // FIX
                 setPadding(new Insets(2)); // FIX
                 widthProperty().addListener((_) -> {
-                    IO.println("w=" + getWidth());
+                    IO.println("EI.w=" + getWidth());
                 });
             }
         }
@@ -235,7 +260,7 @@ public class EmbeddedImage {
     }
 
     /// Image Container with scaled image
-    public final class Scaled extends Label {
+    private final class Scaled extends Label {
 
         private final Image image;
 

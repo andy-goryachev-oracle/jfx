@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
-import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.StyleResolver;

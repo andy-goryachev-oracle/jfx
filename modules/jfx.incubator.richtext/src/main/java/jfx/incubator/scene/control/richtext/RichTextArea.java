@@ -1496,8 +1496,35 @@ public class RichTextArea extends Control {
      * @return the non-null {@code StyleAttributeMap} instance
      */
     public final StyleAttributeMap getActiveStyleAttributeMap() {
+        SelectionSegment sel = getSelection();
+        if (sel != null) {
+            TextPos pos = sel.getMax();
+            StyleResolver r = resolver();
+            return getModelStyleAttrs(r, pos, true);
+        }
+        return StyleAttributeMap.EMPTY;
+    }
+
+    /**
+     * Returns the {@link StyleAttributeMap} of the character at the specified position's {@code charIndex}.
+     * <p>
+     * When position points to the boundary between two text segments with different attributes,
+     * the value of {@code forInsert} determines which segment will be used: when {@code true}, the preceding
+     * segment's attributes will be returned so as to make the inserted/typed text to have the same style as
+     * preceding text.  When {@code forInsert} is {@code false}, the returned attributes correspond exactly
+     * to the symbol indicated by the specified position.
+     * <p>
+     * This method returns the attributes of the last character at the end of the document.
+     * An empty {@code StyleAttributeMap} is returned for a {@code null} model.
+     *
+     * @param pos the text position
+     * @param forInsert whether to pick preceding style at the segment boundary
+     * @return the style attributes, non-null
+     * @since 27
+     */
+    public final StyleAttributeMap getStyleAttributeMap(TextPos pos, boolean forInsert) {
         StyleResolver r = resolver();
-        return getModelStyleAttrs(r);
+        return getModelStyleAttrs(r, pos, forInsert);
     }
 
     /**
@@ -2429,14 +2456,10 @@ public class RichTextArea extends Control {
         return null;
     }
 
-    private StyleAttributeMap getModelStyleAttrs(StyleResolver r) {
+    private StyleAttributeMap getModelStyleAttrs(StyleResolver r, TextPos pos, boolean forInsert) {
         StyledTextModel m = getModel();
         if (m != null) {
-            SelectionSegment sel = getSelection();
-            if (sel != null) {
-                TextPos pos = sel.getMax();
-                return m.getStyleAttributeMap(r, pos);
-            }
+            return m.getStyleAttributeMap(r, pos, forInsert);
         }
         return StyleAttributeMap.EMPTY;
     }

@@ -46,6 +46,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import com.oracle.demo.richtext.util.FX;
 import jfx.incubator.scene.control.input.KeyBinding;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
@@ -141,7 +142,7 @@ public class RichEditorDemoWindow extends Stage {
         ));
 
         actions.newDocument();
-        editor.setContextMenu(actions.createContextMenu());
+        FX.setPopupMenu(editor, actions::createContextMenu);
         editor.requestFocus();
         editor.select(TextPos.ZERO);
     }

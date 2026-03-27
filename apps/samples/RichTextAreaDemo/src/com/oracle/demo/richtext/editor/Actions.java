@@ -50,6 +50,7 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCombination;
@@ -68,6 +69,7 @@ import jfx.incubator.scene.control.richtext.LineNumberDecorator;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.EmbeddedImage;
 import jfx.incubator.scene.control.richtext.model.RichTextFormatHandler;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
@@ -287,6 +289,41 @@ public class Actions {
 
     public ContextMenu createContextMenu() {
         ContextMenu m = new ContextMenu();
+
+        // otherwise the menu won't be shown
+        FX.item(m, "Dummy");
+
+        m.setOnShowing((ev) -> {
+            populate(m);
+        });
+        return m;
+    }
+
+    // returns caret position only if selection exists and collapsed, otherwise null
+    private TextPos caretAtPopup() {
+        SelectionSegment sel = editor.getSelection();
+        if (sel != null) {
+            if (sel.isCollapsed()) {
+                return sel.getMin();
+            }
+        }
+        return null;
+    }
+
+    private EmbeddedImage embeddedImageAt(TextPos p) {
+        if(p != null) {
+            StyleAttributeMap a = editor.getStyleAttributeMap(p, false);
+            return a.get(EmbeddedImage.ATTRIBUTE);
+        }
+        return null;
+    }
+
+    private void populate(ContextMenu m) {
+        m.getItems().clear();
+
+        TextPos p = caretAtPopup();
+        EmbeddedImage im = embeddedImageAt(p);
+
         FX.item(m, "Undo", undo);
         FX.item(m, "Redo", redo);
         FX.separator(m);
@@ -299,7 +336,12 @@ public class Actions {
         FX.separator(m);
         // TODO Font...
         FX.item(m, "Paragraph...", paragraphStyle);
-        return m;
+        if (im != null) {
+            Menu m2 = FX.menu(m, "Image");
+            FX.item(m2, "Fit to Width"); // TODO z!
+            FX.item(m2, "Full Paragraph"); // TODO
+            FX.item(m2, "Original Size"); // TODO
+        }
     }
 
     private ContextMenu createRulerPopupMenu() {

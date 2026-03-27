@@ -44,7 +44,6 @@ import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import com.sun.jfx.incubator.scene.control.richtext.Converters;
-import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImage;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;

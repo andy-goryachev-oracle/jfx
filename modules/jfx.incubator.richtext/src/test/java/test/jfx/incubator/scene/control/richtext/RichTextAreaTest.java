@@ -97,6 +97,7 @@ public class RichTextAreaTest {
     private RichTextArea control;
     private static final StyleAttributeMap BOLD = StyleAttributeMap.builder().setBold(true).build();
     private static final StyleAttributeMap ITALIC = StyleAttributeMap.builder().setItalic(true).build();
+    private static final StyleAttributeMap UNDER = StyleAttributeMap.builder().setUnderline(true).build();
     private static final String NL = System.getProperty("line.separator");
     private static final double EPSILON = 0.00001;
     private Stage stage;
@@ -521,7 +522,6 @@ public class RichTextAreaTest {
         assertEquals(new TextPos(2, 3, 2, false), control.getParagraphEnd(2));
 
         control.setModel(null);
-        // TODO this should throw an IOOBE
         assertEquals(TextPos.ZERO, control.getParagraphEnd(0));
     }
 
@@ -916,16 +916,6 @@ public class RichTextAreaTest {
         assertEquals("1 bold", new String(b, StandardCharsets.US_ASCII));
     }
 
-    /**
-     * Tests the shim.
-     */
-    // TODO remove once a real test which needs the shim is added.
-    @Test
-    public void testShim() {
-        RichTextArea t = new RichTextArea();
-        VFlow f = RichTextAreaShim.vflow(t);
-    }
-
     @Test
     public void undoRedoEnabled() {
         // api
@@ -1189,5 +1179,69 @@ public class RichTextAreaTest {
         assertX(2, 1, 12.5);
         assertX(2, 3, 36.5);
         assertX(2, 5, 60.5);
+    }
+
+    private void aa(int index, int charIndex, boolean leading, boolean forInsert, StyleAttributeMap expected) {
+        int off = charIndex + (leading ? 0 : 1); 
+        TextPos p = new TextPos(index, off, charIndex, leading);
+        StyleAttributeMap a = control.getStyleAttributeMap(p, forInsert);
+        assertEquals(expected, a);
+    }
+
+    @Test
+    public void getStyleAttributeMap() {
+        control.appendText("BB", BOLD);
+        control.appendText("II", ITALIC);
+        control.appendText("\n");
+        control.appendText("X", UNDER);
+
+        // exact
+        aa(0, 0, true, false, BOLD);
+        aa(0, 0, false, false, BOLD);
+        aa(0, 1, true, false, BOLD);
+        aa(0, 1, false, false, BOLD);
+        aa(0, 2, true, false, ITALIC);
+        aa(0, 2, false, false, ITALIC);
+        aa(0, 3, true, false, ITALIC);
+        aa(0, 3, false, false, ITALIC);
+        aa(0, 4, true, false, ITALIC);
+        aa(0, 4, false, false, ITALIC);
+        aa(0, 999, true, false, ITALIC);
+        aa(0, 999, false, false, ITALIC);
+
+        // for insert
+        aa(0, 0, true, true, BOLD);
+        aa(0, 0, false, true, BOLD);
+        aa(0, 1, true, true, BOLD);
+        aa(0, 1, false, true, BOLD);
+        aa(0, 2, true, true, BOLD);
+        aa(0, 2, false, true, ITALIC); // sic!
+        aa(0, 3, true, true, ITALIC);
+        aa(0, 3, false, true, ITALIC);
+        aa(0, 4, true, true, ITALIC);
+        aa(0, 4, false, true, ITALIC);
+        aa(0, 999, true, true, ITALIC);
+        aa(0, 999, false, true, ITALIC);
+
+        // line 2
+
+        // exact
+        aa(1, 0, true, false, UNDER);
+        aa(1, 0, false, false, UNDER);
+        aa(1, 1, true, false, UNDER);
+        aa(1, 1, false, false, UNDER);
+        aa(1, 999, true, false, UNDER);
+        aa(1, 999, false, false, UNDER);
+        
+        // for insert
+        
+        aa(1, 0, true, true, UNDER);
+        aa(1, 0, false, true, UNDER);
+        aa(1, 1, true, true, UNDER);
+        aa(1, 1, false, true, UNDER);
+        aa(1, 999, true, true, UNDER);
+        aa(1, 999, false, true, UNDER);
+
+        // TODO grapheme clusters
     }
 }
