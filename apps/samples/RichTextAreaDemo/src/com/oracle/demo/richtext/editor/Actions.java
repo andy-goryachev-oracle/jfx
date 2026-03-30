@@ -65,6 +65,7 @@ import com.oracle.demo.richtext.editor.settings.EndKey;
 import com.oracle.demo.richtext.util.ExceptionDialog;
 import com.oracle.demo.richtext.util.FX;
 import com.oracle.demo.richtext.util.FxAction;
+import com.oracle.demo.richtext.util.Utils;
 import jfx.incubator.scene.control.richtext.LineNumberDecorator;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
@@ -338,10 +339,18 @@ public class Actions {
         FX.item(m, "Paragraph...", paragraphStyle);
         if (im != null) {
             Menu m2 = FX.menu(m, "Image");
-            FX.item(m2, "Fit to Width"); // TODO z!
-            FX.item(m2, "Full Paragraph"); // TODO
-            FX.item(m2, "Original Size"); // TODO
+            FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH));
+            //FX.item(m2, "Full Paragraph");
+            FX.item(m2, "Original Size", () -> formatImage(p, im, im.getWidth()));
         }
+    }
+
+    private void formatImage(TextPos p, EmbeddedImage im, double targetWidth) {
+        TextPos start = Utils.leading(p);
+        TextPos end = Utils.trailing(p);
+        EmbeddedImage updated = im.setTargetWidth(targetWidth);
+        StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, updated);
+        editor.applyStyle(start, end, a);
     }
 
     private ContextMenu createRulerPopupMenu() {

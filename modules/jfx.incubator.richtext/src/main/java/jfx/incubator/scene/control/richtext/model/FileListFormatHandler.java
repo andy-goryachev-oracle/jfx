@@ -117,7 +117,9 @@ public class FileListFormatHandler extends DataFormatHandler {
                         byte[] b = Files.readAllBytes(f.toPath());
                         Image im = new Image(new ByteArrayInputStream(b), false);
                         if (!im.isError()) {
-                            EmbeddedImage em = new EmbeddedImage(b, EmbeddedImage.FIT_WIDTH);
+                            double w = im.getWidth();
+                            double h = im.getHeight();
+                            EmbeddedImage em = new EmbeddedImage(b, w, h, EmbeddedImage.FIT_WIDTH);
                             StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, em);
                             return StyledSegment.of(" ", a);
                         }

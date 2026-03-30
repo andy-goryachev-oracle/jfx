@@ -45,6 +45,7 @@ import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 
 /**
  * An attribute which allows to embed an image into the {@link RichTextModel}.
+ * @since 27
  */
 public final class EmbeddedImage {
 
@@ -68,17 +69,23 @@ public final class EmbeddedImage {
 
     private final byte[] bytes;
     private final double width;
+    private final double height;
+    private final double targetWidth;
 
     /**
      * Constructor.
      *
      * @param bytes the image source
-     * @param width the width of an image, also accepts FIT_WIDTH
+     * @param width the original image width
+     * @param height the original image height
+     * @param targetWidth target image width, or {link #FIT_WIDTH}
      */
-    // TODO height? keep aspect ratio?
-    public EmbeddedImage(byte[] bytes, double width) {
+    // TODO target height? to enable changing the aspect ratio?
+    public EmbeddedImage(byte[] bytes, double width, double height, double targetWidth) {
         this.bytes = bytes;
         this.width = width;
+        this.height = height;
+        this.targetWidth = targetWidth;
     }
 
     private byte[] getBytes() {
@@ -86,11 +93,37 @@ public final class EmbeddedImage {
     }
 
     /**
-     * Returns the image width specification, including {@link #FIT_WIDTH}.
+     * Returns the original image width.
      * @return the image width
      */
     public double getWidth() {
         return width;
+    }
+
+    /**
+     * Returns the original image height.
+     * @return the image height
+     */
+    public double getHeight() {
+        return height;
+    }
+
+    /**
+     * Returns the target image width specification: positive when specifying the final width,
+     * or {@link #FIT_WIDTH} to make the image not to exceed the viewport width.
+     * @return the image width
+     */
+    public double getTargetWidth() {
+        return targetWidth;
+    }
+
+    /**
+     * Creates a copy of this {@code EmbeddedImage} with the specified target width.
+     * @param target the new target width
+     * @return the new instance
+     */
+    public EmbeddedImage setTargetWidth(double target) {
+        return new EmbeddedImage(bytes, width, height, target);
     }
 
     /**
@@ -99,21 +132,27 @@ public final class EmbeddedImage {
      */
     public Node createNode() {
         Image im = new Image(new ByteArrayInputStream(bytes));
-        if (width < 0) {
+        if (targetWidth < 0) {
             return new Flex(im);
         } else {
             return new Scaled(im);
         }
     }
 
-    /// Converter
+    /// Embedded Image StringConverter.
     private static class Converter extends StringConverter<EmbeddedImage> {
 
         @Override
         public String toString(EmbeddedImage em) {
             byte[] b = em.getBytes();
             double w = em.getWidth();
-            return "w," + w + ",b," + Base64.getEncoder().encodeToString(b);
+            double h = em.getHeight();
+            double tw = em.getTargetWidth();
+            return
+                "w," + w +
+                ",h," + h +
+                ",tw," + tw +
+                ",b," + Base64.getEncoder().encodeToString(b);
         }
 
         @Override
@@ -121,35 +160,44 @@ public final class EmbeddedImage {
             String[] ss = s.split(",");
             byte[] b = null;
             double w = Double.NaN;
+            double h = Double.NaN;
+            double tw = FIT_WIDTH;
             for (int i = 0; i < ss.length;) {
                 String k = ss[i++];
                 String v = ss[i++];
                 switch (k) {
-                case "w":
-                    w = Double.parseDouble(v);
-                    break;
                 case "b":
                     b = Base64.getDecoder().decode(v);
+                    break;
+                case "h":
+                    h = Double.parseDouble(v);
+                    break;
+                case "tw":
+                    tw = Double.parseDouble(v);
+                    break;
+                case "w":
+                    w = Double.parseDouble(v);
                     break;
                 default:
                     throw new IllegalArgumentException("unknown field " + k);
                 }
             }
-            if ((b == null) || Double.isNaN(w)) {
+            if ((b == null) || Double.isNaN(w) || Double.isNaN(h)) {
                 // exception could include first N characters for debugging purposes
                 throw new IllegalArgumentException("failed to parse EmbeddedImage");
             }
-            return new EmbeddedImage(b, w);
+            return new EmbeddedImage(b, w, h, tw);
         }
     }
 
-    /// Image Container
-    /// Label[[ImageView]..space..]
+    /// Image Container.
+    ///
+    /// `Label[[ImageView]..space..]`
     private final class Flex extends Label {
 
         private final Image image;
         private final boolean useImageScale;
-        private final boolean fullWidth;
+        private final boolean fullWidth; // TODO remove?
         private DoubleBinding available;
         private BooleanBinding wrap;
         private ObjectBinding<VFlow> vflow;
@@ -161,8 +209,8 @@ public final class EmbeddedImage {
             v.setSmooth(true);
             v.setPreserveRatio(true);
             
-            useImageScale = (width < 0.0);
-            fullWidth = (width == FULL_PARAGRAPH);
+            useImageScale = (targetWidth < 0.0);
+            fullWidth = (targetWidth == FULL_PARAGRAPH);
             
             if (useImageScale) {
                 // if use image scale, bind imageview width to prop1=(min(vflow.available, image.width))
@@ -198,7 +246,7 @@ public final class EmbeddedImage {
             setMinWidth(2);
             setMinHeight(2);
             
-            // debug FIX z!
+            // debug FIX qq!
             {
                 setBackground(Background.fill(Color.LIGHTCORAL)); // FIX
                 setPadding(new Insets(2)); // FIX
@@ -269,7 +317,7 @@ public final class EmbeddedImage {
 
             ImageView v = new ImageView(im);
             v.setSmooth(true);
-            v.setFitWidth(width);
+            v.setFitWidth(targetWidth);
             v.setPreserveRatio(true);
 
             setGraphic(v);
