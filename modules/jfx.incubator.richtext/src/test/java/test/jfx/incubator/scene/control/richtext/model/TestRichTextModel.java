@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javafx.scene.paint.Color;
@@ -50,13 +51,26 @@ import test.jfx.incubator.scene.control.richtext.support.RTUtil;
  */
 public class TestRichTextModel {
 
-    /** standard document properties for in version v1 */
-    public static final String DOC_PROPS = "{#tabs|0.0|version|v2}";
+    /** current RichTextModel.VERSION value */
+    public static final String VERSION = initVersion();
+
+    /** standard document properties */
+    public static final String DOC_PROPS = "{#tabs|0.0|version|" + VERSION + "}";
 
     private static final StyleAttributeMap BOLD = StyleAttributeMap.builder().setBold(true).build();
     private static final StyleAttributeMap BULLET = StyleAttributeMap.builder().setBullet("x").build();
     private static final StyleAttributeMap ITALIC = StyleAttributeMap.builder().setItalic(true).build();
     private static final StyleAttributeMap RED = StyleAttributeMap.builder().setBackground(Color.RED).build();
+
+    private static String initVersion() {
+        class M extends RichTextModel {
+            @Override
+            public Map<String,String> documentProperties() {
+                return super.documentProperties();
+            }
+        };
+        return new M().documentProperties().get("version");
+    }
 
     @Test
     public void insertLineBreak() {

@@ -48,7 +48,7 @@ import jfx.incubator.scene.control.richtext.TextPos;
  */
 public class RichTextModel extends StyledTextModel {
 
-    private static final String VERSION_2 = "v3";
+    private static final String VERSION_3 = "v3";
     private static final String PROP_TABS = "tabs";
     private static final String PROP_VERSION = "version";
     private final ArrayList<RParagraph> paragraphs = new ArrayList<>();
@@ -265,7 +265,7 @@ public class RichTextModel extends StyledTextModel {
     @Override
     protected Map<String,String> documentProperties() {
         return Map.of(
-            PROP_VERSION, VERSION_2,
+            PROP_VERSION, VERSION_3,
             PROP_TABS, Double.toString(getDefaultTabStops())
         );
     }
