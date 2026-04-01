@@ -64,7 +64,7 @@ public final class TextCell extends BorderPane {
     private double height;
     private double y;
     private boolean embedsNode;
-    private List<VFlowContext.Client> clients;
+    private List<RequiresComplexLayout> clients;
 
     /**
      * Creates a text cell with the specified {@code Region} as its content.
@@ -115,11 +115,11 @@ public final class TextCell extends BorderPane {
     }
 
     private void checkClient(Node n) {
-        if (n instanceof VFlowContext.Client c) {
+        if (n instanceof RequiresComplexLayout r) {
             if (clients == null) {
                 clients = new CopyOnWriteArrayList<>();
             }
-            clients.add(c);
+            clients.add(r);
         }
     }
 
@@ -495,10 +495,10 @@ public final class TextCell extends BorderPane {
         }
     }
 
-    public void updateVFlowContext(VFlowContext cx) {
+    public void updateVFlowContext(VFlow f) {
         if (clients != null) {
-            for (VFlowContext.Client c : clients) {
-                c.updateVFlowContext(cx);
+            for (RequiresComplexLayout r : clients) {
+                r.updateVFlowContext(f);
             }
         }
     }

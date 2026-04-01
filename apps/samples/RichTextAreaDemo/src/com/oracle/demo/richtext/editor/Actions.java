@@ -340,7 +340,6 @@ public class Actions {
         if (im != null) {
             Menu m2 = FX.menu(m, "Image");
             FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH));
-            //FX.item(m2, "Full Paragraph");
             FX.item(m2, "Original Size", () -> formatImage(p, im, im.getWidth()));
         }
     }

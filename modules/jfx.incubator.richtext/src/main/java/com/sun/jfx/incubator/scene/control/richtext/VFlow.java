@@ -129,11 +129,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private double rightSide;
     private boolean inReflow;
     private double unwrappedContentWidth;
+    private double availableWidth;
     private double viewPortWidth;
     private double viewPortHeight;
     private double vportH;
-    // TODO qq! might as well pass VFlow instance...
-    private final VFlowContext flowContext = new VFlowContext();
     private Subscription subscriptions;
     private static final Text measurer = makeMeasurer();
     private static final VFlowCellContext context = new VFlowCellContext();
@@ -1326,7 +1325,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     // performs the cell layout
     // adds cell to arrangement
     private TextCell prepareCell(int modelIndex, double maxWidth, double defaultInterval) {
-        IO.println("VF.prepareCell maxWidth=" + maxWidth); // FIX qq!
         TextCell cell = cellCache.get(modelIndex);
         if (cell == null) {
             RichParagraph rp = control.getModel().getParagraph(modelIndex);
@@ -1334,10 +1332,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             cellCache.add(cell.getIndex(), cell);
         }
 
-        // TODO pass defaultInterval too?
-        cell.updateVFlowContext(flowContext);
+        cell.updateVFlowContext(this);
 
-        // TODO skip computation if layout width is the same
         Region r = cell.getContent();
         cell.setMaxWidth(maxWidth);
         cell.setMaxHeight(USE_COMPUTED_SIZE);
@@ -1347,6 +1343,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         cell.layout();
         arrangement.addCell(cell);
         return cell;
+    }
+
+    /// When wrapped, returns the available text cell width (document width minus all the decorations and padding).
+    /// When not wrapped, returns -1.
+    /// This value is valid only within layoutCells().
+    public double availableWidth() {
+        return availableWidth;
     }
 
     /**
@@ -1385,13 +1388,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
 
-        double forWidth; // to be used for cell sizing in prefHeight()
         double maxWidth; // max width to apply before the layout (or replace with cell's preferred width?)
         if (wrap) {
-            forWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
-            maxWidth = forWidth;
+            availableWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
+            maxWidth = availableWidth;
         } else {
-            forWidth = -1.0;
+            availableWidth = -1.0;
             maxWidth = Params.MAX_WIDTH_FOR_LAYOUT;
         }
 
@@ -1404,16 +1406,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         int bottomMargin = 0;;
         int count = 0;
         boolean cellOnScreen = true;
-        double defaultInterval = getDefaultInterval(); // TODO move to flow context
-
-        flowContext.set(forWidth);
+        double defaultInterval = getDefaultInterval();
 
         // populating visible part of the sliding window + bottom margin
         int i = topCellIndex();
         for ( ; i < paragraphCount; i++) {
             TextCell cell = prepareCell(i, maxWidth, defaultInterval);
 
-            double h = cell.prefHeight(forWidth) + getLineSpacing(cell.getContent());
+            double h = cell.prefHeight(availableWidth) + getLineSpacing(cell.getContent());
             h = snapSizeY(h);
             cell.setPosition(y, h);
 
@@ -1529,7 +1529,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         for (i = topCellIndex() - 1; i >= 0; i--) {
             TextCell cell = prepareCell(i, maxWidth, defaultInterval);
 
-            double h = cell.prefHeight(forWidth) + getLineSpacing(cell.getContent());
+            double h = cell.prefHeight(availableWidth) + getLineSpacing(cell.getContent());
             h = snapSizeY(h);
             y = snapPositionY(y - h);
             cell.setPosition(y, h);

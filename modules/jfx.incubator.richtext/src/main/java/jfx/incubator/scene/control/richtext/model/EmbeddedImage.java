@@ -27,19 +27,13 @@ package jfx.incubator.scene.control.richtext.model;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.ObjectBinding;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
+import com.sun.jfx.incubator.scene.control.richtext.RequiresComplexLayout;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
-import com.sun.jfx.incubator.scene.control.richtext.VFlowContext;
 
 /**
  * An attribute which allows to embed an image into the {@link RichTextModel}.
@@ -49,11 +43,6 @@ public final class EmbeddedImage {
 
     /** Limits the width of the inline to the wrapped text width. */
     public static final double FIT_WIDTH = -1.0;
-
-    // TODO remove? has issues.
-    // Limits the width of the inline to the wrapped text width, and prevents other elements from being placed
-    // in the same visual line.
-    private static final double FULL_PARAGRAPH = -2.0;
 
     /**
      * The attribute descriptor.
@@ -78,7 +67,6 @@ public final class EmbeddedImage {
      * @param height the original image height
      * @param targetWidth target image width, or {link #FIT_WIDTH}
      */
-    // TODO target height? to enable changing the aspect ratio?
     public EmbeddedImage(byte[] bytes, double width, double height, double targetWidth) {
         this.bytes = bytes;
         this.width = width;
@@ -131,9 +119,9 @@ public final class EmbeddedImage {
     public Node createNode() {
         Image im = new Image(new ByteArrayInputStream(bytes));
         if (targetWidth < 0) {
-            return new Flex(im);
-        } else {
             return new Scaled(im);
+        } else {
+            return new Fixed(im);
         }
     }
 
@@ -188,183 +176,42 @@ public final class EmbeddedImage {
         }
     }
 
-    /// Image Container.
-    ///
-    /// `Label[[ImageView]..space..]`
-    private final class Flex extends Label implements VFlowContext.Client {
+    /// Image Container that scales so as not to exceed the document width.
+    private final class Scaled extends Label implements RequiresComplexLayout {
 
-        private final Image image;
         private final ImageView view;
-        private final boolean useImageScale;
-        private final boolean fullWidth; // TODO remove?
-        private DoubleBinding available;
-        private BooleanBinding wrap;
-        private ObjectBinding<VFlow> vflow;
 
-        public Flex(Image im) {
-            this.image = im;
-
+        public Scaled(Image im) {
             view = new ImageView(im);
             view.setSmooth(true);
             view.setPreserveRatio(true);
             
-            useImageScale = (targetWidth < 0.0);
-            fullWidth = (targetWidth == FULL_PARAGRAPH);
-
-/*
-            // TODO qq!
-            
-            if (useImageScale) {
-                // if use image scale, bind imageview width to prop1=(min(vflow.available, image.width))
-                v.fitWidthProperty().bind(Bindings.createDoubleBinding(
-                    () -> {
-                        double w = image.getWidth();
-                        double av = available().get();
-                        if ((av > 0.0) && (w > av)) {
-                            return av;
-                        }
-                        return w;
-                    },
-                    available()));
-            }
-            if (fullWidth) {
-                // if full width, bind label width to prop2=(vflow.available)
-                prefWidthProperty().bind(Bindings.createDoubleBinding(
-                    () -> {
-                        if (wrap().get()) {
-                            double av = available().get();
-                            if (av > 0.0) {
-                                return av;
-                            }
-                        }
-                        return Region.USE_PREF_SIZE;
-                    },
-                    available(),
-                    wrap()));
-            }
-            */
             setGraphic(view);
             setMaxWidth(Double.MAX_VALUE);
             setMinWidth(2);
             setMinHeight(2);
-            
-            // debug FIX qq!
-            {
-                setBackground(Background.fill(Color.LIGHTCORAL)); // FIX
-                //setPadding(new Insets(2)); // FIX
-                widthProperty().addListener((_) -> {
-                    IO.println("EI.w=" + getWidth());
-                });
-            }
         }
 
         @Override
-        public void updateVFlowContext(VFlowContext cx) {
-            double av = cx.availableWidth();
-            if (useImageScale) {
-                double w = image.getWidth();
-                double fitWidth = ((av > 0.0) && (w > av)) ? av : w;
+        public void updateVFlowContext(VFlow f) {
+            double av = f.availableWidth();
+            if (targetWidth < 0.0) {
+                double fitWidth = ((av > 0.0) && (width > av)) ? av : width;
                 view.setFitWidth(fitWidth);
             }
-            if (fullWidth) {
-                double pref = av < 0.0 ? Region.USE_PREF_SIZE : av;
-            }
         }
-
-        /* qq!
-        private ObjectBinding<VFlow> vflow() {
-            if (vflow == null) {
-                // here we take advantage of the fact that VFlow creates this node
-                // to install it into its content pane
-                vflow = Bindings.createObjectBinding(
-                    () -> {
-                        return getScene() == null ? null : RichUtils.getParentOfClass(VFlow.class, this);
-                    },
-                    sceneProperty()
-                );
-            }
-            return vflow;
-        }
-
-        private ObjectBinding<RichTextArea> control;
-        private ObjectBinding<RichTextArea> control() {
-            if (control == null) {
-                // here we take advantage of the fact that VFlow creates this node
-                // to install it into its content pane
-                control = Bindings.createObjectBinding(
-                    () -> {
-                        return getScene() == null ? null : RichUtils.getParentOfClass(RichTextArea.class, this);
-                    },
-                    sceneProperty()
-                );
-            }
-            return control;
-        }
-
-        // TODO
-        // OR, alternative: instanceof node in TextCell, pass document width/wrap other things!
-        
-        // control.documentArea + control.wrapText (perhaps make a property of the skin)
-        private DoubleBinding available() {
-            if (available == null) {
-                available = Bindings.createDoubleBinding(
-                    () -> {
-                        VFlow f = vflow().get();
-                        
-                        // TODO if null->f: add dependency
-                        // else: remove dependency
-                        
-                        if (f != null) {
-                            // FIX if !wrap
-                            Insets m = f.contentPadding();
-                            // FIX can't monitor changes to the document width!
-                            // control.documentArea
-                            double w = f.documentArea().getWidth() - m.getLeft() - m.getRight();
-                            if (w > 0.0) {
-                                return w;
-                            }
-                        }
-                        return -1.0;
-                    },
-                    vflow()
-                    // TODO vflow.wrap property!
-                );
-            }
-            return available;
-        }
-
-        // TODO maybe fold it into available()
-        @Deprecated
-        private BooleanBinding wrap() {
-            if (wrap == null) {
-                wrap = Bindings.createBooleanBinding(
-                    () -> {
-                        VFlow f = vflow().get();
-                        return f == null ? false : f.isWrapText();
-                    },
-                    // FIX this does not track runtime change of RTA.wrapText property!
-                    vflow()
-                );
-            }
-            return wrap;
-        }
-        */
     }
 
-    /// Image Container with scaled image
-    private final class Scaled extends Label {
+    /// Image Container with a fixed image.
+    private final class Fixed extends Label {
 
-        private final Image image;
+        public Fixed(Image im) {
+            ImageView view = new ImageView(im);
+            view.setSmooth(true);
+            view.setPreserveRatio(true);
+            view.setFitWidth(targetWidth);
 
-        public Scaled(Image im) {
-            this.image = im;
-
-            ImageView v = new ImageView(im);
-            v.setSmooth(true);
-            v.setFitWidth(targetWidth);
-            v.setPreserveRatio(true);
-
-            setGraphic(v);
+            setGraphic(view);
             setMaxWidth(USE_PREF_SIZE);
             setMinWidth(2);
             setMinHeight(2);

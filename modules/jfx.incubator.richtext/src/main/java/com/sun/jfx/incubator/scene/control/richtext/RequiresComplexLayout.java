@@ -25,25 +25,7 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
-public class VFlowContext {
+public interface RequiresComplexLayout {
 
-    public static interface Client {
-        public void updateVFlowContext(VFlowContext cx);
-    }
-
-    private double availableWidth;
-
-    public VFlowContext() {
-    }
-    
-    public void set(double availableWidth) {
-        this.availableWidth = availableWidth;
-    }
-    
-    /**
-     * Available width for text cell, or -1 of not wrapped.
-     */
-    public double availableWidth() {
-        return availableWidth;
-    }
+    public void updateVFlowContext(VFlow flow);
 }
