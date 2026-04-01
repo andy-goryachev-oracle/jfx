@@ -27,7 +27,9 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -62,6 +64,7 @@ public final class TextCell extends BorderPane {
     private double height;
     private double y;
     private boolean embedsNode;
+    private List<VFlowContext.Client> clients;
 
     /**
      * Creates a text cell with the specified {@code Region} as its content.
@@ -76,6 +79,7 @@ public final class TextCell extends BorderPane {
         this.embedsNode = embedsNode;
         setManaged(false);
         setCenter(content);
+        checkClient(content);
     }
 
     /**
@@ -107,6 +111,16 @@ public final class TextCell extends BorderPane {
     public void add(Node node) {
         flow().getChildren().add(node);
         embedsNode = true;
+        checkClient(node);
+    }
+
+    private void checkClient(Node n) {
+        if (n instanceof VFlowContext.Client c) {
+            if (clients == null) {
+                clients = new CopyOnWriteArrayList<>();
+            }
+            clients.add(c);
+        }
     }
 
     /**
@@ -474,7 +488,17 @@ public final class TextCell extends BorderPane {
         if (embedsNode) {
             VFlow vf = RichUtils.getParentOfClass(VFlow.class, this);
             if (vf != null) {
-                vf.requestLayout();
+                if (!vf.inReflow()) {
+                    vf.requestLayout();
+                }
+            }
+        }
+    }
+
+    public void updateVFlowContext(VFlowContext cx) {
+        if (clients != null) {
+            for (VFlowContext.Client c : clients) {
+                c.updateVFlowContext(cx);
             }
         }
     }

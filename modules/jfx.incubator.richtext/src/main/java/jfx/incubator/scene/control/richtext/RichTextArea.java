@@ -2649,7 +2649,7 @@ public class RichTextArea extends Control {
     private final ReadOnlyObjectWrapper<Bounds> documentAreaPropertyImpl() {
         if (documentArea == null) {
             VFlow f = vflow();
-            Bounds v = (f == null) ? null : f.getDocumentArea();
+            Bounds v = (f == null) ? null : f.documentArea();
             documentArea = new ReadOnlyObjectWrapper<>(this, "documentArea", v);
         }
         return documentArea;

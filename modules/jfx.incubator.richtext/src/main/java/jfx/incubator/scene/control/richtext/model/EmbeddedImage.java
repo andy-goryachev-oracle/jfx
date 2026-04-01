@@ -27,11 +27,9 @@ package jfx.incubator.scene.control.richtext.model;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
-import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -41,7 +39,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
-import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
+import com.sun.jfx.incubator.scene.control.richtext.VFlowContext;
 
 /**
  * An attribute which allows to embed an image into the {@link RichTextModel}.
@@ -193,9 +191,10 @@ public final class EmbeddedImage {
     /// Image Container.
     ///
     /// `Label[[ImageView]..space..]`
-    private final class Flex extends Label {
+    private final class Flex extends Label implements VFlowContext.Client {
 
         private final Image image;
+        private final ImageView view;
         private final boolean useImageScale;
         private final boolean fullWidth; // TODO remove?
         private DoubleBinding available;
@@ -205,12 +204,15 @@ public final class EmbeddedImage {
         public Flex(Image im) {
             this.image = im;
 
-            ImageView v = new ImageView(im);
-            v.setSmooth(true);
-            v.setPreserveRatio(true);
+            view = new ImageView(im);
+            view.setSmooth(true);
+            view.setPreserveRatio(true);
             
             useImageScale = (targetWidth < 0.0);
             fullWidth = (targetWidth == FULL_PARAGRAPH);
+
+/*
+            // TODO qq!
             
             if (useImageScale) {
                 // if use image scale, bind imageview width to prop1=(min(vflow.available, image.width))
@@ -240,8 +242,8 @@ public final class EmbeddedImage {
                     available(),
                     wrap()));
             }
-            
-            setGraphic(v);
+            */
+            setGraphic(view);
             setMaxWidth(Double.MAX_VALUE);
             setMinWidth(2);
             setMinHeight(2);
@@ -249,15 +251,31 @@ public final class EmbeddedImage {
             // debug FIX qq!
             {
                 setBackground(Background.fill(Color.LIGHTCORAL)); // FIX
-                setPadding(new Insets(2)); // FIX
+                //setPadding(new Insets(2)); // FIX
                 widthProperty().addListener((_) -> {
                     IO.println("EI.w=" + getWidth());
                 });
             }
         }
 
+        @Override
+        public void updateVFlowContext(VFlowContext cx) {
+            double av = cx.availableWidth();
+            if (useImageScale) {
+                double w = image.getWidth();
+                double fitWidth = ((av > 0.0) && (w > av)) ? av : w;
+                view.setFitWidth(fitWidth);
+            }
+            if (fullWidth) {
+                double pref = av < 0.0 ? Region.USE_PREF_SIZE : av;
+            }
+        }
+
+        /* qq!
         private ObjectBinding<VFlow> vflow() {
             if (vflow == null) {
+                // here we take advantage of the fact that VFlow creates this node
+                // to install it into its content pane
                 vflow = Bindings.createObjectBinding(
                     () -> {
                         return getScene() == null ? null : RichUtils.getParentOfClass(VFlow.class, this);
@@ -268,15 +286,40 @@ public final class EmbeddedImage {
             return vflow;
         }
 
+        private ObjectBinding<RichTextArea> control;
+        private ObjectBinding<RichTextArea> control() {
+            if (control == null) {
+                // here we take advantage of the fact that VFlow creates this node
+                // to install it into its content pane
+                control = Bindings.createObjectBinding(
+                    () -> {
+                        return getScene() == null ? null : RichUtils.getParentOfClass(RichTextArea.class, this);
+                    },
+                    sceneProperty()
+                );
+            }
+            return control;
+        }
+
+        // TODO
+        // OR, alternative: instanceof node in TextCell, pass document width/wrap other things!
+        
+        // control.documentArea + control.wrapText (perhaps make a property of the skin)
         private DoubleBinding available() {
             if (available == null) {
                 available = Bindings.createDoubleBinding(
                     () -> {
                         VFlow f = vflow().get();
+                        
+                        // TODO if null->f: add dependency
+                        // else: remove dependency
+                        
                         if (f != null) {
                             // FIX if !wrap
                             Insets m = f.contentPadding();
-                            double w = f.getDocumentArea().getWidth() - m.getLeft() - m.getRight();
+                            // FIX can't monitor changes to the document width!
+                            // control.documentArea
+                            double w = f.documentArea().getWidth() - m.getLeft() - m.getRight();
                             if (w > 0.0) {
                                 return w;
                             }
@@ -305,6 +348,7 @@ public final class EmbeddedImage {
             }
             return wrap;
         }
+        */
     }
 
     /// Image Container with scaled image
