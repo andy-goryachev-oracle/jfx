@@ -458,6 +458,7 @@ public class Actions {
 
     private void doOpen(File f) {
         try {
+            setModified(false);
             newDocument();
             DataFormat fmt = guessFormat(f);
             readFile(f, fmt);
