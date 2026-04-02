@@ -62,8 +62,8 @@ public class RichTextModel extends StyledTextModel {
         registerDataFormatHandler(RichTextFormatHandler.getInstance(), true, true, 1000);
         registerDataFormatHandler(RtfFormatHandler.getInstance(), true, true, 300);
         registerDataFormatHandler(HtmlExportFormatHandler.getInstance(), true, false, 200);
-        registerDataFormatHandler(PlainTextFormatHandler.getInstance(), true, true, 100);
-        registerDataFormatHandler(FileListFormatHandler.getInstance(), false, true, 0);
+        registerDataFormatHandler(FileListFormatHandler.getInstance(), false, true, 100);
+        registerDataFormatHandler(PlainTextFormatHandler.getInstance(), true, true, 0);
         // always has at least one paragraph
         paragraphs.add(new RParagraph());
     }
