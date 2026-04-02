@@ -103,6 +103,11 @@ public final class EmbeddedImage {
         return targetWidth;
     }
 
+    @Override
+    public String toString() {
+        return "EmbeddedImage{target=" + targetWidth + "}";
+    }
+
     /**
      * Creates a copy of this {@code EmbeddedImage} with the specified target width.
      * @param target the new target width

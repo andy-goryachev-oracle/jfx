@@ -727,6 +727,7 @@ public abstract class StyledTextModel {
 
     // only UndoableChange is allowed to disable undo/redo records
     private final TextPos replace(StyleResolver resolver, TextPos start, TextPos end, StyledInput input, boolean allowUndo, boolean isEdit) {
+        RichUtils.log("start={0} end={1}", start, end);
         checkWritable();
 
         // clamp and normalize
@@ -754,6 +755,7 @@ public abstract class StyledTextModel {
 
         StyledSegment seg;
         while ((seg = input.nextSegment()) != null) {
+            RichUtils.log("seg={0}", seg);
             switch (seg.getType()) {
             case LINE_BREAK:
                 insertLineBreak(index, offset);
@@ -773,6 +775,7 @@ public abstract class StyledTextModel {
                 insertParagraph(index, gen);
                 break;
             case TEXT:
+            case INLINE_NODE:
                 String text = seg.getText();
                 StyleAttributeMap a = seg.getStyleAttributeMap(resolver);
                 if (a == null) {
@@ -789,8 +792,6 @@ public abstract class StyledTextModel {
                 break;
             case DOCUMENT_PROPERTIES:
                 handleDocumentProperties(seg.getDocumentProperties(), completeReplacement);
-                break;
-            case INLINE_NODE:
                 break;
             }
         }

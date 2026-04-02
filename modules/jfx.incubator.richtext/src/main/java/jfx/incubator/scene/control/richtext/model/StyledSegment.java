@@ -252,7 +252,7 @@ public abstract class StyledSegment {
 
             @Override
             public String getText() {
-                return " ";
+                return " "; // maybe it should be "\ufffd"
             }
 
             @Override
@@ -273,6 +273,11 @@ public abstract class StyledSegment {
             @Override
             public StyleAttributeMap getStyleAttributeMap(StyleResolver resolver) {
                 return a;
+            }
+
+            @Override
+            public String toString() {
+                return "StyledSegment{type=INLINE_NODE, attrs=" + a + "}";
             }
         };
     }

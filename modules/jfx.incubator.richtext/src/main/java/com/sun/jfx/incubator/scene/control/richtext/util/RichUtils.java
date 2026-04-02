@@ -79,6 +79,9 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
  */
 public final class RichUtils {
 
+    // includes fileName:lineNumber
+    private static final boolean CALLER = Boolean.getBoolean("jfx.incubator.richtext.CALLER");
+    
     private static final boolean DEBUG = Boolean.getBoolean("jfx.incubator.richtext.DEBUG");
     private static final DecimalFormat format = new DecimalFormat("#0.##");
 
@@ -822,21 +825,34 @@ public final class RichUtils {
 
     public static void log(Object x) {
         if (DEBUG) {
-            System.out.println(x);
+            output(x);
         }
     }
 
     public static void log(String format, Object... items) {
         if (DEBUG) {
             String s = MessageFormat.format(format, items);
-            System.out.println(s);
+            output(s);
         }
     }
 
     public static void log(Supplier<Object> x) {
         if (DEBUG) {
             Object v = x.get();
-            System.out.println(v);
+            output(v);
+        }
+    }
+
+    private static void output(Object x) {
+        if (CALLER) {
+            StackTraceElement em = new Throwable().getStackTrace()[2];
+            String f = em.getFileName();
+            if (f.endsWith(".java")) {
+                f = f.substring(0, f.length() - 5);
+            }
+            System.out.println(f + ":" + em.getLineNumber() + " " + x);
+        } else {
+            System.out.println(x);
         }
     }
 }
