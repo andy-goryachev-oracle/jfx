@@ -508,6 +508,7 @@ public class Actions {
         ch.setTitle("Save File");
         ch.getExtensionFilters().addAll(
             filterRich(),
+            filterHtml(),
             filterRtf(),
             filterTxt()
         );
@@ -660,6 +661,10 @@ public class Actions {
         return new FileChooser.ExtensionFilter("Rich Text Files", "*.rich");
     }
 
+    private static FileChooser.ExtensionFilter filterHtml() {
+        return new FileChooser.ExtensionFilter("HTML Files", "*.html");
+    }
+
     private static FileChooser.ExtensionFilter filterRtf() {
         return new FileChooser.ExtensionFilter("RTF Files", "*.rtf");
     }
@@ -674,6 +679,8 @@ public class Actions {
             return RichTextFormatHandler.DATA_FORMAT;
         } else if (name.endsWith(".rtf")) {
             return DataFormat.RTF;
+        } else if (name.endsWith(".html")) {
+            return DataFormat.HTML;
         }
         return DataFormat.PLAIN_TEXT;
     }

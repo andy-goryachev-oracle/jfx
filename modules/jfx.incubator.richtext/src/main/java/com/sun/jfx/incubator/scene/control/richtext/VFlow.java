@@ -1141,7 +1141,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         try {
             n.applyCss();
             if (n instanceof Region r) {
-                double w = unwrappedContentWidth;
+                double w = r.prefWidth(-1.0);
                 double h = r.prefHeight(w);
                 RichUtils.layoutInArea(r, 0, -h, w, h);
             }
