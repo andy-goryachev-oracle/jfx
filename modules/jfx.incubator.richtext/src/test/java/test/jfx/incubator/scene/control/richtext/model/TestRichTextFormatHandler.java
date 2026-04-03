@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.EmbeddedImage;
 import jfx.incubator.scene.control.richtext.model.ParagraphDirection;
 import jfx.incubator.scene.control.richtext.model.RichTextFormatHandler;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
@@ -299,19 +301,29 @@ public class TestRichTextFormatHandler {
 
     @Test
     public void load() {
+        String props = "{#tabs|156.0|version|" + TestRichTextModel.VERSION + "}";
         String input =
             """
-            {#tabs|156.0|version|" + TestRichTextModel.VERSION + "}{ff}{tc}1{!}
+            {ff}{tc}1{!}
             {0}2{!}
             {0}3{!}
             {!}
             """;
         RichTextFormatHandler h = RichTextFormatHandler.getInstance();
-        StyledInput in = h.createStyledInput(input, null);
+        StyledInput in = h.createStyledInput(props + input, null);
         RichTextModel m = new RichTextModel();
         m.replace(null, TextPos.ZERO, m.getDocumentEnd(), in);
 
         assertEquals(5, m.size());
         assertEquals(156.0, m.getDefaultTabStops());
+    }
+
+    @Test
+    public void embeddedImage() throws IOException {
+        String RED_PNG_32x32 = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVR4Xu3OoQEAAAjDsP3/NPgdACaVVck8lx7XAQAAAAAAAAAAAAAAAAAALJf68OJSymrlAAAAAElFTkSuQmCC";
+        byte[] bytes = Base64.getDecoder().decode(RED_PNG_32x32);
+        testRoundTrip(
+            s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, new EmbeddedImage(bytes, 32, 32, 32)))
+            );
     }
 }

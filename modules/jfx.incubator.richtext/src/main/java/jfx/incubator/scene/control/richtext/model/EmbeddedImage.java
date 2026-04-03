@@ -26,7 +26,9 @@
 package jfx.incubator.scene.control.richtext.model;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Objects;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -106,6 +108,30 @@ public final class EmbeddedImage {
     @Override
     public String toString() {
         return "EmbeddedImage{target=" + targetWidth + "}";
+    }
+
+    @Override
+    public boolean equals(Object x) {
+        if (x == this) {
+            return true;
+        } else if (x instanceof EmbeddedImage im) {
+            return
+                (width == im.width) &&
+                (height == im.height) &&
+                (targetWidth == im.targetWidth) &&
+                Arrays.equals(bytes, im.bytes);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int h = EmbeddedImage.class.hashCode();
+        h = 31 * h + Objects.hashCode(bytes);
+        h = 31 * h + Double.hashCode(width);
+        h = 31 * h + Double.hashCode(height);
+        h = 31 * h + Double.hashCode(targetWidth);
+        return h;
     }
 
     /**

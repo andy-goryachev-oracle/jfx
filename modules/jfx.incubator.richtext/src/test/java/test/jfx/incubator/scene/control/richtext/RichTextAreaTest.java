@@ -1181,7 +1181,7 @@ public class RichTextAreaTest {
         assertX(2, 5, 60.5);
     }
 
-    private void aa(int index, int charIndex, boolean leading, boolean forInsert, StyleAttributeMap expected) {
+    private void assertAttrs(int index, int charIndex, boolean leading, boolean forInsert, StyleAttributeMap expected) {
         int off = charIndex + (leading ? 0 : 1); 
         TextPos p = new TextPos(index, off, charIndex, leading);
         StyleAttributeMap a = control.getStyleAttributeMap(p, forInsert);
@@ -1196,55 +1196,55 @@ public class RichTextAreaTest {
         control.appendText("X", UNDER);
 
         // exact
-        aa(0, 0, true, false, BOLD);
-        aa(0, 0, false, false, BOLD);
-        aa(0, 1, true, false, BOLD);
-        aa(0, 1, false, false, BOLD);
-        aa(0, 2, true, false, ITALIC);
-        aa(0, 2, false, false, ITALIC);
-        aa(0, 3, true, false, ITALIC);
-        aa(0, 3, false, false, ITALIC);
-        aa(0, 4, true, false, ITALIC);
-        aa(0, 4, false, false, ITALIC);
-        aa(0, 999, true, false, ITALIC);
-        aa(0, 999, false, false, ITALIC);
+        assertAttrs(0, 0, true, false, BOLD);
+        assertAttrs(0, 0, false, false, BOLD);
+        assertAttrs(0, 1, true, false, BOLD);
+        assertAttrs(0, 1, false, false, BOLD);
+        assertAttrs(0, 2, true, false, ITALIC);
+        assertAttrs(0, 2, false, false, ITALIC);
+        assertAttrs(0, 3, true, false, ITALIC);
+        assertAttrs(0, 3, false, false, ITALIC);
+        assertAttrs(0, 4, true, false, ITALIC);
+        assertAttrs(0, 4, false, false, ITALIC);
+        assertAttrs(0, 999, true, false, ITALIC);
+        assertAttrs(0, 999, false, false, ITALIC);
 
         // for insert
-        aa(0, 0, true, true, BOLD);
-        aa(0, 0, false, true, BOLD);
-        aa(0, 1, true, true, BOLD);
-        aa(0, 1, false, true, BOLD);
-        aa(0, 2, true, true, BOLD);
-        aa(0, 2, false, true, ITALIC); // sic!
-        aa(0, 3, true, true, ITALIC);
-        aa(0, 3, false, true, ITALIC);
-        aa(0, 4, true, true, ITALIC);
-        aa(0, 4, false, true, ITALIC);
-        aa(0, 999, true, true, ITALIC);
-        aa(0, 999, false, true, ITALIC);
+        assertAttrs(0, 0, true, true, BOLD);
+        assertAttrs(0, 0, false, true, BOLD);
+        assertAttrs(0, 1, true, true, BOLD);
+        assertAttrs(0, 1, false, true, BOLD);
+        assertAttrs(0, 2, true, true, BOLD);
+        assertAttrs(0, 2, false, true, ITALIC); // sic!
+        assertAttrs(0, 3, true, true, ITALIC);
+        assertAttrs(0, 3, false, true, ITALIC);
+        assertAttrs(0, 4, true, true, ITALIC);
+        assertAttrs(0, 4, false, true, ITALIC);
+        assertAttrs(0, 999, true, true, ITALIC);
+        assertAttrs(0, 999, false, true, ITALIC);
 
         // line 2
 
         // exact
-        aa(1, 0, true, false, UNDER);
-        aa(1, 0, false, false, UNDER);
-        aa(1, 1, true, false, UNDER);
-        aa(1, 1, false, false, UNDER);
-        aa(1, 999, true, false, UNDER);
-        aa(1, 999, false, false, UNDER);
+        assertAttrs(1, 0, true, false, UNDER);
+        assertAttrs(1, 0, false, false, UNDER);
+        assertAttrs(1, 1, true, false, UNDER);
+        assertAttrs(1, 1, false, false, UNDER);
+        assertAttrs(1, 999, true, false, UNDER);
+        assertAttrs(1, 999, false, false, UNDER);
         
         // for insert
         
-        aa(1, 0, true, true, UNDER);
-        aa(1, 0, false, true, UNDER);
-        aa(1, 1, true, true, UNDER);
-        aa(1, 1, false, true, UNDER);
-        aa(1, 999, true, true, UNDER);
-        aa(1, 999, false, true, UNDER);
+        assertAttrs(1, 0, true, true, UNDER);
+        assertAttrs(1, 0, false, true, UNDER);
+        assertAttrs(1, 1, true, true, UNDER);
+        assertAttrs(1, 1, false, true, UNDER);
+        assertAttrs(1, 999, true, true, UNDER);
+        assertAttrs(1, 999, false, true, UNDER);
 
         // beyond eof
-        aa(999, 999, false, false, StyleAttributeMap.EMPTY);
-        aa(999, 999, false, true, StyleAttributeMap.EMPTY);
+        assertAttrs(999, 999, false, false, StyleAttributeMap.EMPTY);
+        assertAttrs(999, 999, false, true, StyleAttributeMap.EMPTY);
 
         // TODO grapheme clusters
     }
