@@ -300,7 +300,7 @@ public class CustomStage extends Stage {
         onTopButton.setOnAction((_) -> {
             setAlwaysOnTop(!onTopButton.getText().contains("✓"));
         });
-        
+
         Button closeButton = new Button("Close");
         closeButton.setOnAction((_) -> {
             hide();
@@ -312,7 +312,7 @@ public class CustomStage extends Stage {
             Modality mod = conf.modality.get();
             CustomStage own = conf.owner.get() ? this : null;
             Position pos = getPosition(conf.location.get());
-            
+
             StringBuilder sb = new StringBuilder();
             if ((mod != null) && (mod != Modality.NONE)) {
                 sb.append(mod).append(" ");
