@@ -121,7 +121,7 @@ public class StagePage extends TestPaneBase {
         op.option(new BooleanOption("reducedData", "reduced data", conf.reducedData));
         op.option(new BooleanOption("reducedMotion", "reduced motion", conf.reducedMotion));
         op.option(new BooleanOption("reducedTransparency", "reduced transparency", conf.reducedTransparency));
-        
+
         // init
         op.section("Stage Initialization");
         op.option(new BooleanOption("alwaysOnTop", "always on top", conf.alwaysOnTop));

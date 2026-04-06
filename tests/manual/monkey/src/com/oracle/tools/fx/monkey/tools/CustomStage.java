@@ -118,7 +118,7 @@ public class CustomStage extends Stage {
 
         setWidth(700);
         setHeight(500);
-        
+
         setContent(content, h);
     }
 

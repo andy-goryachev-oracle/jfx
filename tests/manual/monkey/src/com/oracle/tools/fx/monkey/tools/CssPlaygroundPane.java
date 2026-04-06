@@ -269,10 +269,6 @@ public class CssPlaygroundPane extends BorderPane {
         }
     }
 
-    private void reloadStylesheets() {
-        
-    }
-
     private void reset() {
         for (Window w: Window.getWindows()) {
             removeStylesheets(w);

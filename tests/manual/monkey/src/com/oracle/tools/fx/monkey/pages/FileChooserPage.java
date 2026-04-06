@@ -59,7 +59,7 @@ public class FileChooserPage extends TestPaneBase {
     private static final FileChooser.ExtensionFilter EF_JPG = new FileChooser.ExtensionFilter("*.jpg", "*.jpg", "*.jpeg");
     private static final FileChooser.ExtensionFilter EF_TXT = new FileChooser.ExtensionFilter("*.txt", "*.txt");
     private static final FileChooser.ExtensionFilter EF_UNK = new FileChooser.ExtensionFilter("*.unk", "*.unk");
-    
+
     @FunctionalInterface
     interface FCMethod {
         public Object call(FileChooser fc, Window w);
