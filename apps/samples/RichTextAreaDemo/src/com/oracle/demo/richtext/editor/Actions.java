@@ -300,25 +300,6 @@ public class Actions {
         return m;
     }
 
-    // returns caret position only if selection exists and collapsed, otherwise null
-    private TextPos caretAtPopup() {
-        SelectionSegment sel = editor.getSelection();
-        if (sel != null) {
-            if (sel.isCollapsed()) {
-                return sel.getMin();
-            }
-        }
-        return null;
-    }
-
-    private EmbeddedImage embeddedImageAt(TextPos p) {
-        if(p != null) {
-            StyleAttributeMap a = editor.getStyleAttributeMap(p, false);
-            return a.get(EmbeddedImage.ATTRIBUTE);
-        }
-        return null;
-    }
-
     private void populate(ContextMenu m) {
         m.getItems().clear();
 
@@ -341,7 +322,27 @@ public class Actions {
             Menu m2 = FX.menu(m, "Image");
             FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH));
             FX.item(m2, "Original Size", () -> formatImage(p, im, im.getWidth()));
+            FX.item(m2, "200 px", () -> formatImage(p, im, 200));
         }
+    }
+
+    // returns caret position only if selection exists and collapsed, otherwise null
+    private TextPos caretAtPopup() {
+        SelectionSegment sel = editor.getSelection();
+        if (sel != null) {
+            if (sel.isCollapsed()) {
+                return sel.getMin();
+            }
+        }
+        return null;
+    }
+
+    private EmbeddedImage embeddedImageAt(TextPos p) {
+        if(p != null) {
+            StyleAttributeMap a = editor.getStyleAttributeMap(p, false);
+            return a.get(EmbeddedImage.ATTRIBUTE);
+        }
+        return null;
     }
 
     private void formatImage(TextPos p, EmbeddedImage im, double targetWidth) {
