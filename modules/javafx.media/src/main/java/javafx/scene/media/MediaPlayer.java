@@ -1742,7 +1742,7 @@ public final class MediaPlayer {
                     || error.getType() == MediaException.Type.MEDIA_UNSUPPORTED
                     || error.getType() == MediaException.Type.MEDIA_INACCESSIBLE
                     || error.getType() == MediaException.Type.MEDIA_UNAVAILABLE) {
-                media._setError(error.getType(), error.getMessage());
+                media.setError(new MediaException(error.getType(), error.getMessage()));
             }
         });
     }
