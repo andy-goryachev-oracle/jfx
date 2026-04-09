@@ -4193,6 +4193,46 @@ project(":web") {
     addValidateSourceSets(project, sourceSets)
 }
 
+project(":manualTests") {
+    project.ext.buildModule = false
+    //project.ext.includeSources = false
+    project.ext.moduleRuntime = false
+    project.ext.moduleName = "manualTests"
+
+    sourceSets {
+        main
+    }
+
+    project.ext.moduleSourcePath = defaultModuleSourcePath
+
+    // We need to skip setting compiler.options.release for system tests,
+    // since the tests export an internal package from java.desktop, which
+    // is disallowed by "--release NN". This will fall back to using
+    // "-source NN -target NN" for the system tests.
+    project.ext.skipJavaCompilerOptionRelease = true
+
+    def dependentProjects = [
+        'base',
+        'graphics',
+        'controls',
+        // Add an entry for each incubator module here, leaving the incubator
+        // placeholder lines as an example.
+        // BEGIN: incubator placeholder
+        //'incubator.mymod',
+        // END: incubator placeholder
+        'incubator.input',
+        'incubator.richtext',
+        'media',
+        'jsobject',
+        'web',
+        'swing',
+        'fxml'
+    ]
+    commonModuleSetup(project, dependentProjects)
+
+    addValidateSourceSets(project, sourceSets)
+}
+
 // This project is for system tests that need to run with a full SDK.
 // Most of them display a stage or do other things that preclude running
 // them in a shared JVM or as part of the "smoke test" run (which must
@@ -4885,6 +4925,10 @@ task copyAppsArtifacts() {
     dependsOn(appsjar)
 }
 
+task manualTests {
+    dependsOn(sdk)
+}
+
 task apps() {
     dependsOn(sdk)
     dependsOn(appsjar)
@@ -4932,7 +4976,7 @@ task zips() {
 }
 
 task all() {
-    dependsOn(sdk, shims, publicExports, apps, perf, zips)
+    dependsOn(sdk, shims, publicExports, manualTests, apps, perf, zips)
 }
 
 
