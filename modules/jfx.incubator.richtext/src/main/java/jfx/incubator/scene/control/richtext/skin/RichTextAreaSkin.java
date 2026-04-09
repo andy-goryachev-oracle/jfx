@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -525,7 +525,9 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
                     int start = (Integer)parameters[0];
                     int end = (Integer)parameters[1];
                     PathElement[] elements = getVFlow().getRangeShape(p.index(), start, end + 1);
-                    return RichUtils.pathToBoundsArray(getVFlow(), elements);
+                    if (elements != null) {
+                        return RichUtils.pathToBoundsArray(getVFlow(), elements);
+                    }
                 }
                 return null;
             }

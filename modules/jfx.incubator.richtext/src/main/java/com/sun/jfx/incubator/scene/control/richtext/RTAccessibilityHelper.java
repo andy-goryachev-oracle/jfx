@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -48,24 +48,14 @@ public class RTAccessibilityHelper {
         this.control = t;
     }
 
-    // FIX to be removed later
-    private void p(String fmt, Object... args) {
-        if (false) {
-            System.out.println(String.format(fmt, args));
-        }
-    }
-
     /** clear a11y cache */
     public void handleModelChange() {
-        p("handleModelChange");
         start = null;
         end = null;
     }
 
     /** returns true if update is within the a11y window */
     public boolean handleTextUpdate(TextPos p0, TextPos p1) {
-        p("handleTextUpdate %s %s", start, end);
-
         if ((start != null) && (end != null)) {
             if (p0.compareTo(end) >= 0) {
                 return false;
