@@ -4192,10 +4192,10 @@ project(":web") {
 }
 
 project(":manualTests") {
-    //project.ext.buildModule = false
+    project.ext.buildModule = false
     //project.ext.includeSources = false
-    //project.ext.moduleRuntime = false
-    project.ext.moduleName = "manual_tests"
+    project.ext.moduleRuntime = false
+    project.ext.moduleName = "manualTests"
 
     sourceSets {
         main
