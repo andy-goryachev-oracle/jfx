@@ -25,9 +25,14 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
+import java.util.Objects;
+import javafx.beans.value.ChangeListener;
+import javafx.scene.AccessibleAttribute;
+import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 
 /**
  * The purpose of this class is to maintain a small String segment
@@ -43,15 +48,27 @@ public class RTAccessibilityHelper {
     private final RichTextArea control;
     private TextPos start;
     private TextPos end;
+    private final StyledTextModel.Listener modelListener;
 
     public RTAccessibilityHelper(RichTextArea t) {
         this.control = t;
+
+        // we can get rid of this pointer by making RTAccessibilityHelper extend StyledTextModel.Listener
+        modelListener = (ch) -> {
+            if (ch.isEdit()) {
+                if (handleTextUpdate(ch.getStart(), ch.getEnd())) {
+                    control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+                }
+            }
+        };
     }
 
-    /** clear a11y cache */
-    public void handleModelChange() {
-        start = null;
-        end = null;
+    public void registerModel(StyledTextModel m) {
+        m.addListener(modelListener);
+    }
+
+    public void unregisterModel(StyledTextModel m) {
+        m.removeListener(modelListener);
     }
 
     /** returns true if update is within the a11y window */
@@ -67,16 +84,35 @@ public class RTAccessibilityHelper {
 
     /**
      * Handles selection changes.
-     * @return true if a11y window has shifted and TEXT attribute needs to be sent to the platform
      */
-    public boolean handleSelectionChange(SelectionSegment sel) {
+    public void handleSelectionChange(SelectionSegment old, SelectionSegment cur) {
+        TextPos min0 = old == null ? null : old.getMin();
+        TextPos max0 = old == null ? null : old.getMax();
+        TextPos min2 = cur == null ? null : cur.getMin();
+        TextPos max2 = cur == null ? null : cur.getMax();
+
+        if (shouldUpdateTextAttribute(cur)) {
+            control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+        }
+
+        if (!Objects.equals(min0, min2)) {
+            control.notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
+        }
+
+        if (!Objects.equals(max0, max2)) {
+            control.notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
+        }
+    }
+
+    // TODO: this might be wrong...
+    private boolean shouldUpdateTextAttribute(SelectionSegment sel) {
         if (sel == null) {
             return false;
         }
 
         // no start/end: create window, return true
         // selection outside of the window: change window, return true
-        if((start == null) || (end == null) || isOutside(sel.getMin(), sel.getMax())) {
+        if ((start == null) || (end == null) || isOutside(sel.getMin(), sel.getMax())) {
             createWindow();
             return true;
         }
@@ -92,6 +128,8 @@ public class RTAccessibilityHelper {
         return false;
     }
 
+    // TODO maybe this is unnecessary:
+    // use the current caret/selection
     private void createWindow() {
         // selection is small: create window around selection
         // selection is large: create window around the caret
@@ -102,10 +140,17 @@ public class RTAccessibilityHelper {
 
         start = TextPos.ofLeading(ix0, 0);
         end = control.getParagraphEnd(ix1);
+        RichUtils.log("start={0} end={1}", start, end); // FIX
     }
 
     public String getText() {
+        String s = getText2();
+        RichUtils.log("text=[{0}]", s);
+        return s;
+    }
+    private String getText2() {
         if ((start == null) && (end == null)) {
+            // TODO maybe from the start?
             return null;
         }
 

@@ -505,7 +505,6 @@ public class RichTextAreaTest {
         assertEquals(new TextPos(2, 3, 2, false), control.getParagraphEnd(2));
 
         control.setModel(null);
-        // TODO this should throw an IOOBE
         assertEquals(TextPos.ZERO, control.getParagraphEnd(0));
     }
 
