@@ -798,7 +798,7 @@ public final class RichUtils {
             if (f.endsWith(".java")) {
                 f = f.substring(0, f.length() - 5);
             }
-            System.out.println(f + ":" + em.getLineNumber() + " " + x);
+            System.out.println(f + "." + em.getMethodName() + ":" + em.getLineNumber() + " " + x);
         } else {
             System.out.println(x);
         }

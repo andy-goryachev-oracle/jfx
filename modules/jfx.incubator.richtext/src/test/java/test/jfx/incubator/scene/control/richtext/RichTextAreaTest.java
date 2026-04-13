@@ -53,7 +53,6 @@ import javafx.scene.input.InputMethodTextRun;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
-import javafx.scene.text.Font;
 import javafx.util.Duration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,6 +61,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
+import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.LineEnding;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.RichTextAreaShim;
@@ -1105,6 +1105,7 @@ public class RichTextAreaTest {
         assertEquals(null, control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
         control.select(TextPos.ZERO);
         assertEquals("\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
+        RichUtils.log("appendText"); // FIX
         control.appendText("1\n2\n");
         assertEquals("1\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
         control.select(TextPos.ofLeading(1, 0));

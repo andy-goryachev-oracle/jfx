@@ -26,7 +26,6 @@
 package com.sun.jfx.incubator.scene.control.richtext;
 
 import java.util.Objects;
-import javafx.beans.value.ChangeListener;
 import javafx.scene.AccessibleAttribute;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
@@ -56,6 +55,7 @@ public class RTAccessibilityHelper {
         // we can get rid of this pointer by making RTAccessibilityHelper extend StyledTextModel.Listener
         modelListener = (ch) -> {
             if (ch.isEdit()) {
+                RichUtils.log("ch={0}", ch);
                 if (handleTextUpdate(ch.getStart(), ch.getEnd())) {
                     control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
                 }
@@ -71,8 +71,8 @@ public class RTAccessibilityHelper {
         m.removeListener(modelListener);
     }
 
-    /** returns true if update is within the a11y window */
-    public boolean handleTextUpdate(TextPos p0, TextPos p1) {
+    // returns true if update is within the a11y window 
+    private boolean handleTextUpdate(TextPos p0, TextPos p1) {
         if ((start != null) && (end != null)) {
             if (p0.compareTo(end) >= 0) {
                 return false;
@@ -86,6 +86,7 @@ public class RTAccessibilityHelper {
      * Handles selection changes.
      */
     public void handleSelectionChange(SelectionSegment old, SelectionSegment cur) {
+        RichUtils.log("sel={0}", cur);
         TextPos min0 = old == null ? null : old.getMin();
         TextPos max0 = old == null ? null : old.getMax();
         TextPos min2 = cur == null ? null : cur.getMin();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -72,11 +72,25 @@ public abstract class ContentChange {
     }
 
     /**
-     * Returns the end position.
-     * @return the end position
+     * Returns the end position before the change.
+     * @return the end position before the change
      */
     public TextPos getEnd() {
         return end;
+    }
+
+    /**
+     * Returns the end position after the change.
+     * @return the end position after the change
+     * @since 27
+     */
+    public TextPos getEndAfter() {
+        int ix = end.index() + getLinesAdded();
+        int added = getCharsAddedBottom();
+        int off = end.offset() + added;
+        int cix = end.charIndex() + added;
+        // TODO this needs to be tested: call replace() a number of times and compare
+        return new TextPos(ix, off, cix, end.isLeading());
     }
 
     /**
@@ -137,6 +151,17 @@ public abstract class ContentChange {
             public int getCharsAddedBottom() {
                 return charsAddedBottom;
             }
+
+            @Override
+            public String toString() {
+                return
+                    "ContentChange.edit{start=" + start +
+                    ", end=" + end +
+                    ", top=" + charsAddedTop +
+                    ", lines=" + linesAdded +
+                    ", btm=" + charsAddedBottom +
+                    "}";
+            }
         };
     }
 
@@ -152,6 +177,14 @@ public abstract class ContentChange {
             @Override
             public boolean isEdit() {
                 return false;
+            }
+
+            @Override
+            public String toString() {
+                return
+                    "ContentChange.style{start=" + start +
+                    ", end=" + end +
+                    "}";
             }
         };
     }
