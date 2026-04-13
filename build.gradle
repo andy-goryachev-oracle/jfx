@@ -2141,9 +2141,8 @@ allprojects {
     if (project == rootProject) {
        return
     }
-    if (project.path.startsWith(":apps")) {
-        // Lets handle the apps tree differently, as it is a collection of ant builds,
-        // and the ant importer collides with the 'apply plugin:java'
+    // Lets handle ant builds differently, since the ant importer collides with the 'apply plugin:java'
+    if (project.path.startsWith(":apps") || project.path.startsWith(":manualTests")) {
         return
     }
 
@@ -4194,44 +4193,38 @@ project(":web") {
 }
 
 project(":manualTests") {
-    project.ext.buildModule = false
-    //project.ext.includeSources = false
-    project.ext.moduleRuntime = false
-    project.ext.moduleName = "manualTests"
+    
+    // there is a build.xml file in tests/manual
+    // which has the following tasks [clean,all], wired to the main build
+    // it compiles class files in build/classes
+    // and produces a ManualTests.jar file in build/jars (then copies it to dist/)
+    // TODO these could possibly be changed to rt/build
 
-    sourceSets {
-        main
+    // FIX the following code does not work!
+    // gradle says:
+    // Skipping task ':manualTests' as it has no actions.
+
+    tasks.register('antBuildManualTests') {
+        group = 'build'
+        
+        doLast {
+            ant.with {
+                build(file: 'build.xml')
+                ant.project.executeTarget('compile')
+            }
+        }
     }
 
-    project.ext.moduleSourcePath = defaultModuleSourcePath
-
-    // We need to skip setting compiler.options.release for system tests,
-    // since the tests export an internal package from java.desktop, which
-    // is disallowed by "--release NN". This will fall back to using
-    // "-source NN -target NN" for the system tests.
-    project.ext.skipJavaCompilerOptionRelease = true
-
-    def dependentProjects = [
-        'base',
-        'graphics',
-        'controls',
-        // Add an entry for each incubator module here, leaving the incubator
-        // placeholder lines as an example.
-        // BEGIN: incubator placeholder
-        //'incubator.mymod',
-        // END: incubator placeholder
-        'incubator.input',
-        'incubator.richtext',
-        'media',
-        'jsobject',
-        'web',
-        'swing',
-        'fxml'
-    ]
-    commonModuleSetup(project, dependentProjects)
-
-    addValidateSourceSets(project, sourceSets)
+    tasks.register('build') {
+        group = 'build'
+        dependsOn tasks.named('antBuildManualTests') // dnw
+        dependsOn antBuildManualTests // dnw
+    }
 }
+// TODO end
+
+
+
 
 // This project is for system tests that need to run with a full SDK.
 // Most of them display a stage or do other things that preclude running
