@@ -110,10 +110,15 @@ public class TestRunnerApp extends Application {
         MenuBar mb = new MenuBar();
         Menu m;
         MenuItem mi;
+        // file
         mb.getMenus().add(m = new Menu("File"));
         mb.getMenus().add(m = new Menu("Log"));
         m.getItems().add(mi = new MenuItem("Clear"));
         mi.setOnAction((_) -> clearLog());
+        // test
+        mb.getMenus().add(m = new Menu("Test"));
+        m.getItems().add(mi = new MenuItem("Run a Snippet"));
+        mi.setOnAction((_) -> openSnippetWindow(stage));
 
         SplitPane split = new SplitPane(table, log);
         split.setOrientation(Orientation.VERTICAL);
@@ -254,5 +259,9 @@ public class TestRunnerApp extends Application {
         String path = ProcessHandle.current().info().command().orElseThrow();
         IO.println(path);
         return path;
+    }
+
+    private void openSnippetWindow(Stage parent) {
+        new SnippetWindow(parent).show();
     }
 }
