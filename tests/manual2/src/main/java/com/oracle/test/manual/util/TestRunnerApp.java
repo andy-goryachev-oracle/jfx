@@ -112,13 +112,14 @@ public class TestRunnerApp extends Application {
         MenuItem mi;
         // file
         mb.getMenus().add(m = new Menu("File"));
+        // log
         mb.getMenus().add(m = new Menu("Log"));
         m.getItems().add(mi = new MenuItem("Clear"));
         mi.setOnAction((_) -> clearLog());
         // test
         mb.getMenus().add(m = new Menu("Test"));
-        m.getItems().add(mi = new MenuItem("Run a Snippet"));
-        mi.setOnAction((_) -> openSnippetWindow(stage));
+        m.getItems().add(mi = new MenuItem("Run"));
+        mi.setOnAction((_) -> runTest());
 
         SplitPane split = new SplitPane(table, log);
         split.setOrientation(Orientation.VERTICAL);
@@ -147,7 +148,9 @@ public class TestRunnerApp extends Application {
 
     private void runTest() {
         DataRow d = table.getSelectionModel().getSelectedItem();
-        execute(d);
+        if (d != null) {
+            execute(d);
+        }
     }
 
     private static class DataRow {
@@ -259,9 +262,5 @@ public class TestRunnerApp extends Application {
         String path = ProcessHandle.current().info().command().orElseThrow();
         IO.println(path);
         return path;
-    }
-
-    private void openSnippetWindow(Stage parent) {
-        new SnippetWindow(parent).show();
     }
 }
