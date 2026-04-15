@@ -288,17 +288,27 @@ public class TestRichTextFormatHandler {
     public void save() throws IOException {
         RichTextModel m = new RichTextModel();
         m.setDefaultTabStops(155);
+        String s = save(m);
+        assertEquals("{#tabs|155.0|version|v2}{}{!}", s);
 
+        m.setDefaultTabStops(77);
+        s = save(m);
+        assertEquals("{#tabs|77.0|version|v2}{}{!}", s);
+    }
+
+    private static String save(RichTextModel m) throws IOException {
         RichTextFormatHandler h = RichTextFormatHandler.getInstance();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         h.save(m, null, TextPos.ZERO, m.getDocumentEnd(), out);
         byte[] b = out.toByteArray();
-        String s = new String(b, StandardCharsets.UTF_8);
-        assertEquals("{#tabs|155.0|version|v2}{}{!}", s);
+        return new String(b, StandardCharsets.UTF_8);
     }
 
     @Test
     public void load() {
+        RichTextModel m = new RichTextModel();
+        assertEquals(0.0, m.getDefaultTabStops());
+
         String input =
             """
             {#tabs|156.0|version|v2}{ff}{tc}1{!}
@@ -308,7 +318,6 @@ public class TestRichTextFormatHandler {
             """;
         RichTextFormatHandler h = RichTextFormatHandler.getInstance();
         StyledInput in = h.createStyledInput(input, null);
-        RichTextModel m = new RichTextModel();
         m.replace(null, TextPos.ZERO, m.getDocumentEnd(), in);
 
         assertEquals(5, m.size());

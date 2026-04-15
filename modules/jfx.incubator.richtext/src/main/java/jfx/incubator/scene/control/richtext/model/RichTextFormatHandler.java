@@ -672,9 +672,9 @@ public class RichTextFormatHandler extends DataFormatHandler {
                 switch (c) {
                 case '%':
                     // decoding hex
-                    if(sb == null) {
+                    if (sb == null) {
                         sb = new StringBuilder(sz);
-                        if(i > 0) {
+                        if (i > 0) {
                             sb.append(text, 0, i);
                         }
                     }

@@ -50,7 +50,10 @@ import jfx.incubator.scene.control.richtext.StyleResolver;
 public abstract class StyledSegment {
     /** StyledSegment type */
     public enum Type {
-        /** Identifies a segment which contains the document properties */
+        /**
+         * Identifies a segment which contains the document properties.
+         * @since 27
+         */
         DOCUMENT_PROPERTIES,
         /** Identifies a segment which contains an inline node. */
         INLINE_NODE,

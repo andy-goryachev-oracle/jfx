@@ -62,8 +62,8 @@ public class TestRichExport {
 
     @Test
     public void simpleTextModel() {
-        append("1/n2");
-        verify("{}1/n2{!}");
+        append("1\n2");
+        verify("{}1{!}\n{}2{!}");
     }
 
     @Test
