@@ -2142,7 +2142,7 @@ allprojects {
        return
     }
     // Lets handle ant builds differently, since the ant importer collides with the 'apply plugin:java'
-    if (project.path.startsWith(":apps") || project.path.startsWith(":manualTests")) {
+    if (project.path.startsWith(":apps") || project.path.startsWith(":manualApps")) {
         return
     }
 
@@ -4192,33 +4192,41 @@ project(":web") {
     addValidateSourceSets(project, sourceSets)
 }
 
-project(":manualTests") {
-    
-    // there is a build.xml file in tests/manual
-    // which has the following tasks [clean,all], wired to the main build
-    // it compiles class files in build/classes
-    // and produces a ManualTests.jar file in build/jars (then copies it to dist/)
-    // TODO these could possibly be changed to rt/build
+project(":manualApps") {
+    // This build is Ant based, we will exec ant from gradle.
 
-    // FIX the following code does not work!
-    // gradle says:
-    // Skipping task ':manualTests' as it has no actions.
+    compileTargets { t ->
+        List<String> params = []
 
-    tasks.register('antBuildManualTests') {
-        group = 'build'
-        
-        doLast {
-            ant.with {
-                build(file: 'build.xml')
-                ant.project.executeTarget('compile')
+        params << "-DtargetBld=$t.name"
+
+        if (!rootProject.ext[t.upper].compileSwing) {
+            params << "-DJFX_CORE_ONLY=true"
+        }
+        params << "-Dplatforms.JDK_1.9.home=${rootProject.ext.JDK_HOME}"
+        params << "-Dcompile.patch=@${rootProject.buildDir}/${COMPILEARGSFILE}"
+        params << "-Drun.patch=@${rootProject.buildDir}/${RUNARGSFILE}"
+
+        def manualAppsJar = project.task("manualAppsJar${t.capital}") {
+            dependsOn(sdk)
+            doLast() {
+                ant(t.name,
+                    projectDir.path,
+                    "manualAppsJar",
+                    params);
             }
         }
-    }
+        rootProject.manualappsjar.dependsOn(manualAppsJar)
 
-    tasks.register('build') {
-        group = 'build'
-        dependsOn tasks.named('antBuildManualTests') // dnw
-        dependsOn antBuildManualTests // dnw
+        def manualAppsClean = project.task("clean${t.capital}") {
+            doLast() {
+                ant(t.name,
+                    project.projectDir.path,
+                    "clean",
+                    params);
+            }
+        }
+        rootProject.clean.dependsOn(manualAppsClean)
     }
 }
 // TODO end
@@ -4918,14 +4926,20 @@ task copyAppsArtifacts() {
     dependsOn(appsjar)
 }
 
-task manualTests {
-    dependsOn(sdk)
-}
-
 task apps() {
     dependsOn(sdk)
     dependsOn(appsjar)
     dependsOn(copyAppsArtifacts)
+}
+
+task manualappsjar() {
+    dependsOn(sdk)
+    // Note: the jar dependencies get added elsewhere see project(":manualApps")
+}
+
+task manualApps {
+    dependsOn(sdk)
+    dependsOn(manualappsjar)
 }
 
 task findbugs() {
@@ -4969,7 +4983,7 @@ task zips() {
 }
 
 task all() {
-    dependsOn(sdk, shims, publicExports, manualTests, apps, perf, zips)
+    dependsOn(sdk, shims, publicExports, manualApps, apps, perf, zips)
 }
 
 
