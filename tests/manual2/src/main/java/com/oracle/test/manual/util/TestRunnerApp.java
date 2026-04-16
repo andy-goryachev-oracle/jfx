@@ -23,13 +23,9 @@
  * questions.
  */
 package com.oracle.test.manual.util;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.Future;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -53,9 +49,9 @@ import com.oracle.test.manual.text.EmojiTest;
 
 public class TestRunnerApp extends Application {
 
-    private static final String javaExecutablePath = initJavaExecutablePath();
     private TableView<DataRow> table;
     private TextArea log;
+    private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     
     public static void main(String args[]) throws Exception {
         Application.launch(TestRunnerApp.class, args);
@@ -149,118 +145,43 @@ public class TestRunnerApp extends Application {
     private void runTest() {
         DataRow d = table.getSelectionModel().getSelectedItem();
         if (d != null) {
-            execute(d);
-        }
-    }
-
-    private static class DataRow {
-        public final Class<?> test;
-        public final StringProperty name = new SimpleStringProperty();
-        public final StringProperty status = new SimpleStringProperty();
-        public final StringProperty lastRun = new SimpleStringProperty();
-
-        public DataRow(Class<?> test) {
-            this.test = test;
-            name.set(test.getSimpleName());
-        }
-    }
-
-    private void execute(DataRow d) {
-        // locations
-        File processDir = new File(".");
-        String classPath = "build/classes";
-        
-        String[] cmd = {
-            javaExecutablePath,
-            "-ea",
-            "-Djavafx.enablePreview=true",
-            "--enable-native-access=javafx.graphics",
-            "-Dfile.encoding=UTF-8",
-            "-Dstdout.encoding=UTF-8",
-            "-Dstderr.encoding=UTF-8",
-            "-p", "../../build/sdk/lib",
-            "--add-modules=javafx.base,javafx.graphics,javafx.controls,javafx.fxml",
-            "-cp", classPath,
-            d.test.getName()
-        };
-        String[] env = {
-        };
-        try {
-            Process p = Runtime.getRuntime().exec(cmd, env, processDir);
-            new Monitor(p.getErrorStream(), System.err).start();
-            new Monitor(p.getInputStream(), System.out).start();
-            new StatusTracker(p.onExit(), d).start();
-        } catch(Throwable e) {
-            e.printStackTrace();
-        }
-    }
-
-    private class StatusTracker extends Thread {
-        private final Future<Process> future;
-        private final DataRow data;
-        
-        public StatusTracker(Future<Process> f, DataRow d) {
-            this.future = f;
-            this.data = d;
-        }
-        
-        @Override
-        public void run() {
-            try {
-                Process p = future.get();
-                int result = p.exitValue();
-                setResult(result == 0 ? "Pass" : "Fail");
-            } catch(Throwable e) {
-                e.printStackTrace();
-                setResult("Error");
-            }
-        }
-
-        private void setResult(String result) {
-            DateTimeFormatter f = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
-            String time = f.format(LocalDateTime.now());
-            
-            Platform.runLater(() -> {
-                data.status.set(result);
-                data.lastRun.set(time);
-            });
-        }
-    }
-    
-    private class Monitor extends Thread {
-        private final InputStream in;
-        private final PrintStream out;
-        
-        public Monitor(InputStream in, PrintStream out) {
-            this.in = in;
-            this.out = out;
-        }
-        
-        @Override
-        public void run() {
-            try {
-                for (;;) {
-                    int c = in.read();
-                    if (c < 0) {
-                        return;
+            TestRunner.execute(d.testClass.getName(), new TestRunner.Client() {
+                @Override
+                public void onProcessFinished(int exitCode, Throwable error, LocalDateTime time) {
+                    String t = DATE_TIME_FMT.format(time);
+                    String result;
+                    if (error == null) {
+                        result = (exitCode == 0) ? "Pass" : "Fail";
+                    } else {
+                        result = "Error";
+                        error.printStackTrace();
                     }
-                    char ch = (char)c;
-                    out.append(ch);
-                    
+                    Platform.runLater(() -> {
+                        d.status.set(result);
+                        d.lastRun.set(t);
+                    });
+                }
+
+                @Override
+                public void onOutput(char ch, boolean stdout) {
                     // TODO optimize
                     Platform.runLater(() -> {
                         log.appendText(String.valueOf(ch));
                     });
                 }
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
+            });
         }
     }
 
-    private static String initJavaExecutablePath() {
-        String path = ProcessHandle.current().info().command().orElseThrow();
-        IO.println(path);
-        return path;
+    private static class DataRow {
+        public final Class<?> testClass;
+        public final StringProperty name = new SimpleStringProperty();
+        public final StringProperty status = new SimpleStringProperty();
+        public final StringProperty lastRun = new SimpleStringProperty();
+
+        public DataRow(Class<?> test) {
+            this.testClass = test;
+            name.set(test.getSimpleName());
+        }
     }
 }
