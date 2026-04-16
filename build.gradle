@@ -4192,48 +4192,6 @@ project(":web") {
     addValidateSourceSets(project, sourceSets)
 }
 
-project(":manualApps") {
-    // This build is Ant based, we will exec ant from gradle.
-
-    compileTargets { t ->
-        List<String> params = []
-
-        params << "-DtargetBld=$t.name"
-
-        if (!rootProject.ext[t.upper].compileSwing) {
-            params << "-DJFX_CORE_ONLY=true"
-        }
-        params << "-Dplatforms.JDK_1.9.home=${rootProject.ext.JDK_HOME}"
-        params << "-Dcompile.patch=@${rootProject.buildDir}/${COMPILEARGSFILE}"
-        params << "-Drun.patch=@${rootProject.buildDir}/${RUNARGSFILE}"
-
-        def manualAppsJar = project.task("manualAppsJar${t.capital}") {
-            dependsOn(sdk)
-            doLast() {
-                ant(t.name,
-                    projectDir.path,
-                    "manualAppsJar",
-                    params);
-            }
-        }
-        rootProject.manualappsjar.dependsOn(manualAppsJar)
-
-        def manualAppsClean = project.task("clean${t.capital}") {
-            doLast() {
-                ant(t.name,
-                    project.projectDir.path,
-                    "clean",
-                    params);
-            }
-        }
-        rootProject.clean.dependsOn(manualAppsClean)
-    }
-}
-// TODO end
-
-
-
-
 // This project is for system tests that need to run with a full SDK.
 // Most of them display a stage or do other things that preclude running
 // them in a shared JVM or as part of the "smoke test" run (which must
@@ -5096,6 +5054,44 @@ project(":apps") {
             }
         }
         rootProject.clean.dependsOn(appsClean)
+    }
+}
+
+project(":manualApps") {
+    // This build is Ant based, we will exec ant from gradle.
+
+    compileTargets { t ->
+        List<String> params = []
+
+        params << "-DtargetBld=$t.name"
+
+        if (!rootProject.ext[t.upper].compileSwing) {
+            params << "-DJFX_CORE_ONLY=true"
+        }
+        params << "-Dplatforms.JDK_1.9.home=${rootProject.ext.JDK_HOME}"
+        params << "-Dcompile.patch=@${rootProject.buildDir}/${COMPILEARGSFILE}"
+        params << "-Drun.patch=@${rootProject.buildDir}/${RUNARGSFILE}"
+
+        def manualAppsJar = project.task("manualAppsJar${t.capital}") {
+            dependsOn(sdk)
+            doLast() {
+                ant.with {
+                    build(file: 'build.xml')
+                    ant.project.executeTarget('jar')
+                }
+            }
+        }
+        rootProject.manualappsjar.dependsOn(manualAppsJar)
+
+        def manualAppsClean = project.task("clean${t.capital}") {
+            doLast() {
+                ant.with {
+                    build(file: 'build.xml')
+                    ant.project.executeTarget('clean')
+                }
+            }
+        }
+        rootProject.clean.dependsOn(manualAppsClean)
     }
 }
 
