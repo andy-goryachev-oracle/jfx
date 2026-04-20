@@ -60,7 +60,7 @@ public class TestRunnerApp extends Application {
     private TextArea log;
     private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
     private static final FileChooser.ExtensionFilter TXT = new FileChooser.ExtensionFilter("*.txt", "*.txt");
-    
+
     public static void main(String args[]) throws Exception {
         Application.launch(TestRunnerApp.class, args);
     }
@@ -91,7 +91,7 @@ public class TestRunnerApp extends Application {
             c.setPrefWidth(70);
             table.getColumns().add(c);
         }
-        
+
         Button runButton = new Button("▶ Run");
         runButton.disableProperty().bind(Bindings.createBooleanBinding(
             () -> {
@@ -129,11 +129,11 @@ public class TestRunnerApp extends Application {
 
         SplitPane split = new SplitPane(table, log);
         split.setOrientation(Orientation.VERTICAL);
-        
+
         BorderPane bp = new BorderPane(split);
         bp.setTop(new VBox(mb, tb));
         Scene scene = new Scene(bp, 1100, 500);
-        
+
         stage.setTitle("Manual Test Runner");
         stage.setScene(scene);
         stage.show();
@@ -141,7 +141,7 @@ public class TestRunnerApp extends Application {
         Platform.runLater(() -> {
             Map<String, String> args = getParameters().getNamed();
             String plan = args.get("plan");
-            if(plan == null) {
+            if (plan == null) {
                 System.out.println("Loading default test plan: " + DEFAULT_TEST_PLAN);
                 plan = DEFAULT_TEST_PLAN;
             }
@@ -153,10 +153,8 @@ public class TestRunnerApp extends Application {
     private void loadTestPlan(File f) {
         try {
             List<String> lines = Files.readAllLines(f.toPath());
-            table.getItems().setAll(lines.stream().
-                map(DataRow::new).
-                toList());
-        } catch(Exception e) {
+            table.getItems().setAll(lines.stream().map(DataRow::new).toList());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -171,7 +169,7 @@ public class TestRunnerApp extends Application {
             loadTestPlan(f);
         }
     }
-    
+
     private void clearLog() {
         log.clear();
     }
