@@ -5076,10 +5076,15 @@ project(":manualApps") {
         def manualAppsJar = project.task("manualAppsJar${t.capital}") {
             dependsOn(sdk)
 
+            def antFile = file('build.xml')
+            def jarOutput = file('dist/ManualTest.jar')
+            inputs.file(antFile)
+            outputs.file(jarOutput)
+
             doLast() {
                 ant(t.name,
-                    project.projectDir.path,
-                    "build-all",
+                    projectDir.path,
+                    "jar",
                     params);
             }
         }
@@ -5088,7 +5093,7 @@ project(":manualApps") {
         def manualAppsClean = project.task("clean${t.capital}") {
             doLast() {
                 ant(t.name,
-                    project.projectDir.path,
+                    projectDir.path,
                     "clean",
                     params);
             }
