@@ -344,13 +344,6 @@ public class RichTextArea extends Control {
         getStyleClass().add("rich-text-area");
         setAccessibleRole(AccessibleRole.TEXT_AREA);
         setAccessibleRoleDescription("Rich Text Area");
-
-        selectionModel.selectionProperty().addListener((s, old, cur) -> {
-            if (accessibilityHelper != null) {
-                accessibilityHelper.handleSelectionChange(old, cur);
-            }
-        });
-
         setModel(model);
     }
 

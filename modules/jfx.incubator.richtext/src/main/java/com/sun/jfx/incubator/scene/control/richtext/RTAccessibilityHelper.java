@@ -34,14 +34,13 @@ import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 
 /**
- * The purpose of this class is to maintain a small String segment
- * around the RichTextArea caret to use with the accessibility API.
+ * The purpose of this class is to link the RichTextArea to the accessibility API.
  * <p>
  * These APIs generally accept a single String and integer offsets for caret position
  * and selection, which is totally impossible to implement in the context of a large
- * virtualized text model, as it a) uses TextPos for encapsulating the text position
- * instead of an int, and it may not be possible to represent selected text as a
- * String for large models.
+ * virtualized text model, as it
+ * a) uses TextPos for encapsulating the text position instead of an int, and
+ * b) it may not be possible to represent selected text as a single String for large models.
  */
 public class RTAccessibilityHelper {
     private final RichTextArea control;
@@ -61,6 +60,10 @@ public class RTAccessibilityHelper {
                 }
             }
         };
+
+        t.selectionProperty().addListener((s, old, cur) -> {
+            handleSelectionChange(old, cur);
+        });
     }
 
     public void registerModel(StyledTextModel m) {
@@ -82,10 +85,7 @@ public class RTAccessibilityHelper {
         return false;
     }
 
-    /**
-     * Handles selection changes.
-     */
-    public void handleSelectionChange(SelectionSegment old, SelectionSegment cur) {
+    private void handleSelectionChange(SelectionSegment old, SelectionSegment cur) {
         RichUtils.log("sel={0}", cur);
         TextPos min0 = old == null ? null : old.getMin();
         TextPos max0 = old == null ? null : old.getMax();
