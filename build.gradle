@@ -5063,28 +5063,17 @@ project(":manualApps") {
 
     compileTargets { t ->
         List<String> params = []
-
         params << "-DtargetBld=$t.name"
-
-        if (!rootProject.ext[t.upper].compileSwing) {
-            params << "-DJFX_CORE_ONLY=true"
-        }
-        params << "-Dplatforms.JDK_1.9.home=${rootProject.ext.JDK_HOME}"
         params << "-Dcompile.patch=@${rootProject.buildDir}/${COMPILEARGSFILE}"
         params << "-Drun.patch=@${rootProject.buildDir}/${RUNARGSFILE}"
 
         def manualAppsJar = project.task("manualAppsJar${t.capital}") {
             dependsOn(sdk)
 
-            def antFile = file('build.xml')
-            def jarOutput = file('dist/ManualTest.jar')
-            inputs.file(antFile)
-            outputs.file(jarOutput)
-
             doLast() {
                 ant(t.name,
                     projectDir.path,
-                    "jar",
+                    "build-all",
                     params);
             }
         }
