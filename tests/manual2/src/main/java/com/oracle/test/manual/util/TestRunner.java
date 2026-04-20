@@ -46,7 +46,7 @@ public class TestRunner {
         // locations
         File processDir = new File(".");
         String classPath = "build/classes";
-        
+
         String[] cmd = {
             javaExecutablePath,
             "-ea",
@@ -66,7 +66,7 @@ public class TestRunner {
             new Monitor(p.getInputStream(), true, client).start();
             new Monitor(p.getErrorStream(), false, client).start();
             new StatusTracker(p.onExit(), client).start();
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }
@@ -74,19 +74,19 @@ public class TestRunner {
     private static class StatusTracker extends Thread {
         private final Future<Process> future;
         private final Client client;
-        
+
         public StatusTracker(Future<Process> f, Client client) {
             this.future = f;
             this.client = client;
         }
-        
+
         @Override
         public void run() {
             try {
                 Process p = future.get();
                 int result = p.exitValue();
                 setResult(result, null);
-            } catch(Throwable e) {
+            } catch (Throwable e) {
                 setResult(-1, e);
             }
         }
@@ -95,18 +95,18 @@ public class TestRunner {
             client.onProcessFinished(result, err, LocalDateTime.now());
         }
     }
-    
+
     private static class Monitor extends Thread {
         private final InputStream in;
         private final boolean stdout;
         private final Client client;
-        
+
         public Monitor(InputStream in, boolean stdout, Client client) {
             this.in = in;
             this.stdout = stdout;
             this.client = client;
         }
-        
+
         @Override
         public void run() {
             try {

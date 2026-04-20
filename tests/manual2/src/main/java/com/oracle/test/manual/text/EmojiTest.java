@@ -33,10 +33,6 @@ import javafx.scene.text.Text;
 import com.oracle.test.manual.util.ManualTestWindow;
 
 public class EmojiTest extends ManualTestWindow {
-    
-    public static void main(String[] args) {
-        launch(args);
-    }
 
     public EmojiTest() {
         super(
