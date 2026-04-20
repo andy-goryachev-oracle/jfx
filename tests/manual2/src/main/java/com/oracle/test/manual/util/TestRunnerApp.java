@@ -48,6 +48,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class TestRunnerApp extends Application {
@@ -58,6 +59,7 @@ public class TestRunnerApp extends Application {
     private TableView<DataRow> table;
     private TextArea log;
     private static final DateTimeFormatter DATE_TIME_FMT = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    private static final FileChooser.ExtensionFilter TXT = new FileChooser.ExtensionFilter("*.txt", "*.txt");
     
     public static void main(String args[]) throws Exception {
         Application.launch(TestRunnerApp.class, args);
@@ -114,6 +116,8 @@ public class TestRunnerApp extends Application {
         MenuItem mi;
         // file
         mb.getMenus().add(m = new Menu("File"));
+        m.getItems().add(mi = new MenuItem("Open Test Plan"));
+        mi.setOnAction((_) -> openTestPlan());
         // log
         mb.getMenus().add(m = new Menu("Log"));
         m.getItems().add(mi = new MenuItem("Clear"));
@@ -134,28 +138,20 @@ public class TestRunnerApp extends Application {
         stage.setScene(scene);
         stage.show();
 
-        Platform.runLater(this::loadTestPlan);
-    }
-
-    private void loadTestPlan() {
-        Map<String, String> args = getParameters().getNamed();
-        if (args.isEmpty()) {
-            // load default list
-            loadTestPlan(DEFAULT_TEST_PLAN);
-        } else {
+        Platform.runLater(() -> {
+            Map<String, String> args = getParameters().getNamed();
             String plan = args.get("plan");
-            if (plan != null) {
-                loadTestPlan(plan);
-            } else {
-                usage();
+            if(plan == null) {
+                System.out.println("Loading default test plan: " + DEFAULT_TEST_PLAN);
+                plan = DEFAULT_TEST_PLAN;
             }
-        }
+            File f = new File(plan);
+            loadTestPlan(f);
+        });
     }
 
-    private void loadTestPlan(String name) {
+    private void loadTestPlan(File f) {
         try {
-            table.getItems().clear();
-            File f = new File(name);
             List<String> lines = Files.readAllLines(f.toPath());
             table.getItems().setAll(lines.stream().
                 map(DataRow::new).
@@ -165,14 +161,15 @@ public class TestRunnerApp extends Application {
         }
     }
 
-    private void usage() {
-        System.out.println(
-            """
-            Usage:
-              java -jar ManualTests.jar [options]
-            Options
-              -plan <TEST_PLAN_FILE>
-            """);
+    private void openTestPlan() {
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().setAll(TXT);
+        fc.setSelectedExtensionFilter(TXT);
+        fc.setInitialDirectory(new File("."));
+        File f = fc.showOpenDialog(Utils.parentWindow(table));
+        if (f != null) {
+            loadTestPlan(f);
+        }
     }
     
     private void clearLog() {
@@ -182,7 +179,7 @@ public class TestRunnerApp extends Application {
     private void runTest() {
         DataRow d = table.getSelectionModel().getSelectedItem();
         if (d != null) {
-            TestRunner.execute(d.getTestClass(), new TestRunner.Client() {
+            TestRunner.execute(d.testClass, new TestRunner.Client() {
                 @Override
                 public void onProcessFinished(int exitCode, Throwable error, LocalDateTime time) {
                     String t = DATE_TIME_FMT.format(time);
@@ -218,10 +215,6 @@ public class TestRunnerApp extends Application {
         public DataRow(String testClass) {
             this.testClass = testClass;
             name.set(testClass);
-        }
-
-        public String getTestClass() {
-            return testClass;
         }
     }
 }
