@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -2787,6 +2787,7 @@ project(":graphics") {
             file("$project.buildDir/hlsl/Prism").mkdirs()
             file("$project.buildDir/gensrc/jsl-prism").mkdirs()
             file("$project.buildDir/gensrc/jsl-decora").mkdirs()
+            file("$project.buildDir/msl").mkdirs()
         }
     }
     project.processShaders.dependsOn(initShaderDirs)
@@ -3001,6 +3002,7 @@ project(":incubator.input") {
     }
 
     test {
+        jvmArgs enableNativeGraphics
         jvmArgs "-Djavafx.toolkit=test.com.sun.javafx.pgstub.StubToolkit"
     }
 
@@ -3060,6 +3062,7 @@ project(":incubator.richtext") {
     }
 
     test {
+        jvmArgs enableNativeGraphics
         jvmArgs "-Djavafx.toolkit=test.com.sun.javafx.pgstub.StubToolkit"
     }
 
@@ -5485,7 +5488,7 @@ compileTargets { t ->
 
     // Zip module sources for standalone SDK
     //
-    // NOTE: the input is taken from the modular-sdk/modules_src dir
+    // Note: the input is taken from the modular-sdk/modules_src dir
     // so that we don't have to duplicate the logic and create another
     // temporary directory. This is somewhat inelegant, since the bundled sdk
     // and the standalone sdk should be independent of one another, but seems
