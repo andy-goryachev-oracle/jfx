@@ -23,9 +23,13 @@
  * questions.
  */
 package com.oracle.test.manual.util;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -45,9 +49,11 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import com.oracle.test.manual.text.EmojiTest;
 
 public class TestRunnerApp extends Application {
+
+    /** Default test plain in the project root directory */
+    public static final String DEFAULT_TEST_PLAN = "test-plan.txt";
 
     private TableView<DataRow> table;
     private TextArea log;
@@ -132,10 +138,41 @@ public class TestRunnerApp extends Application {
     }
 
     private void loadTestPlan() {
-        // TODO
-        table.getItems().addAll(
-            new DataRow(EmojiTest.class)
-        );
+        Map<String, String> args = getParameters().getNamed();
+        if (args.isEmpty()) {
+            // load default list
+            loadTestPlan(DEFAULT_TEST_PLAN);
+        } else {
+            String plan = args.get("plan");
+            if (plan != null) {
+                loadTestPlan(plan);
+            } else {
+                usage();
+            }
+        }
+    }
+
+    private void loadTestPlan(String name) {
+        try {
+            table.getItems().clear();
+            File f = new File(name);
+            List<String> lines = Files.readAllLines(f.toPath());
+            table.getItems().setAll(lines.stream().
+                map(DataRow::new).
+                toList());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void usage() {
+        System.out.println(
+            """
+            Usage:
+              java -jar ManualTests.jar [options]
+            Options
+              -plan <TEST_PLAN_FILE>
+            """);
     }
     
     private void clearLog() {
@@ -145,7 +182,7 @@ public class TestRunnerApp extends Application {
     private void runTest() {
         DataRow d = table.getSelectionModel().getSelectedItem();
         if (d != null) {
-            TestRunner.execute(d.testClass.getName(), new TestRunner.Client() {
+            TestRunner.execute(d.getTestClass(), new TestRunner.Client() {
                 @Override
                 public void onProcessFinished(int exitCode, Throwable error, LocalDateTime time) {
                     String t = DATE_TIME_FMT.format(time);
@@ -164,7 +201,6 @@ public class TestRunnerApp extends Application {
 
                 @Override
                 public void onOutput(char ch, boolean stdout) {
-                    // TODO optimize
                     Platform.runLater(() -> {
                         log.appendText(String.valueOf(ch));
                     });
@@ -174,14 +210,18 @@ public class TestRunnerApp extends Application {
     }
 
     private static class DataRow {
-        public final Class<?> testClass;
+        public final String testClass;
         public final StringProperty name = new SimpleStringProperty();
         public final StringProperty status = new SimpleStringProperty();
         public final StringProperty lastRun = new SimpleStringProperty();
 
-        public DataRow(Class<?> test) {
-            this.testClass = test;
-            name.set(test.getSimpleName());
+        public DataRow(String testClass) {
+            this.testClass = testClass;
+            name.set(testClass);
+        }
+
+        public String getTestClass() {
+            return testClass;
         }
     }
 }
