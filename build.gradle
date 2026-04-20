@@ -5076,27 +5076,21 @@ project(":manualApps") {
         def manualAppsJar = project.task("manualAppsJar${t.capital}") {
             dependsOn(sdk)
 
-            def antFile = file('build.xml')
-            def jarOutput = file('dist/ManualTest.jar')
-            inputs.file(antFile)
-            outputs.file(jarOutput)
-
-            // FIX this does not work either: Skipping task ':manualApps' as it has no actions.
             doLast() {
-                ant.ant(
-                    antfile: antFile,
-                    target: 'jar'
-                )
+                ant(t.name,
+                    project.projectDir.path,
+                    "build-all",
+                    params);
             }
         }
         rootProject.manualappsjar.dependsOn(manualAppsJar)
 
         def manualAppsClean = project.task("clean${t.capital}") {
             doLast() {
-                ant.with {
-                    build(file: 'build.xml')
-                    ant.project.executeTarget('clean')
-                }
+                ant(t.name,
+                    project.projectDir.path,
+                    "clean",
+                    params);
             }
         }
         rootProject.clean.dependsOn(manualAppsClean)
