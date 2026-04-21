@@ -1102,6 +1102,7 @@ public class RichTextAreaTest {
 
     @Test
     public void queryAccessibilityText() {
+        control.setLineEnding(LineEnding.LF);
         assertEquals(null, control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
         control.select(TextPos.ZERO);
         assertEquals("\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
@@ -1118,6 +1119,7 @@ public class RichTextAreaTest {
     @Test
     public void queryAccessibilitySelectionAndCaret() {
         control.appendText("111\n222\n");
+        control.setLineEnding(LineEnding.LF);
 
         control.select(TextPos.ZERO);
         assertEquals(0, control.queryAccessibleAttribute(AccessibleAttribute.SELECTION_START));
@@ -1139,19 +1141,21 @@ public class RichTextAreaTest {
             setFontSize(size).
             build();
 
+        control.setLineEnding(LineEnding.LF);
         control.appendText("111\n222\n");
+        control.layout();
         control.applyStyle(TextPos.ZERO, control.getDocumentEnd(), FONT);
         control.select(TextPos.ZERO);
         
-        assertEquals(null, control.queryAccessibleAttribute(AccessibleAttribute.BOUNDS_FOR_RANGE, 0, 1));
-
+        // looking for the font size only since the platform may substitute
         assertEquals(size, ((Font)control.queryAccessibleAttribute(AccessibleAttribute.FONT)).getSize());
 
-//        HORIZONTAL_SCROLLBAR
-//        LINE_FOR_OFFSET
-//        LINE_START
-//        LINE_END
-//        OFFSET_AT_POINT
-//        VERTICAL_SCROLLBAR
+        Object hsb = control.lookup(".scroll-bar:horizontal");
+        assertNotNull(hsb);
+        assertEquals(hsb, control.queryAccessibleAttribute(AccessibleAttribute.HORIZONTAL_SCROLLBAR));
+
+        Object vsb = control.lookup(".scroll-bar:vertical");
+        assertNotNull(vsb);
+        assertEquals(vsb, control.queryAccessibleAttribute(AccessibleAttribute.VERTICAL_SCROLLBAR));
     }
 }

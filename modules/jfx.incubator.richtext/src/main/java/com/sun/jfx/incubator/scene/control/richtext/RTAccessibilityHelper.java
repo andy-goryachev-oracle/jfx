@@ -27,7 +27,6 @@ package com.sun.jfx.incubator.scene.control.richtext;
 
 import java.util.Objects;
 import javafx.scene.AccessibleAttribute;
-import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.TextPos;
@@ -53,7 +52,6 @@ public class RTAccessibilityHelper {
         // we can get rid of this listener pointer by making RTAccessibilityHelper extend StyledTextModel.Listener
         modelListener = (ch) -> {
             if (ch.isEdit()) {
-                RichUtils.log("ch={0}", ch);
                 if (isAccSegmentAffected(ch.getStart(), ch.getEnd())) {
                     segment = null;
                     control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
@@ -67,11 +65,6 @@ public class RTAccessibilityHelper {
     }
 
     public String getText() {
-        String s = getText2();
-        RichUtils.log("text=[{0}]", s);
-        return s;
-    }
-    private String getText2() { // FIX
         AccessibilitySegment a = segment();
         if (a == null) {
             return null;
@@ -155,7 +148,6 @@ public class RTAccessibilityHelper {
     }
 
     private void handleSelectionChange(SelectionSegment old, SelectionSegment cur) {
-        RichUtils.log("sel={0}", cur);
         TextPos min0 = old == null ? null : old.getMin();
         TextPos max0 = old == null ? null : old.getMax();
         TextPos min2 = cur == null ? null : cur.getMin();
@@ -191,6 +183,7 @@ public class RTAccessibilityHelper {
         return seg == null ? null : seg.computeOffset(p);
     }
 
+    // accessibility segment: either the selection, or 
     private class AccessibilitySegment {
         private final TextPos start;
         private final TextPos end;

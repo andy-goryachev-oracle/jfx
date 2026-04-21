@@ -60,7 +60,6 @@ import com.sun.jfx.incubator.scene.control.richtext.Params;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextAreaBehavior;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextAreaHelper;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextAreaSkinHelper;
-import com.sun.jfx.incubator.scene.control.richtext.TextCell;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.ListenerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
@@ -518,6 +517,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
     @Override
     protected Object queryAccessibleAttribute(AccessibleAttribute attribute, Object... parameters) {
         switch (attribute) {
+        /* Not supported due to virtualization
         case BOUNDS_FOR_RANGE:
             {
                 TextPos p = getSkinnable().getCaretPosition();
@@ -531,22 +531,6 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
                 }
                 return null;
             }
-        case FONT:
-            {
-                StyleAttributeMap a = getSkinnable().getActiveStyleAttributeMap();
-                if (a != null) {
-                    String family = a.getFontFamily();
-                    if (family != null) {
-                        Double size = a.getFontSize();
-                        if (size != null) {
-                            return Font.font(family, size);
-                        }
-                    }
-                }
-                return null;
-            }
-        case HORIZONTAL_SCROLLBAR:
-            return hscroll;
         case LINE_FOR_OFFSET:
             {
                 TextPos p = getSkinnable().getCaretPosition();
@@ -589,6 +573,23 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
                 TextPos p = getSkinnable().getTextPosition(screenPoint.getX(), screenPoint.getY());
                 return p == null ? null : p.charIndex();
             }
+        */
+        case FONT:
+        {
+            StyleAttributeMap a = getSkinnable().getActiveStyleAttributeMap();
+            if (a != null) {
+                String family = a.getFontFamily();
+                if (family != null) {
+                    Double size = a.getFontSize();
+                    if (size != null) {
+                        return Font.font(family, size);
+                    }
+                }
+            }
+            return null;
+        }
+        case HORIZONTAL_SCROLLBAR:
+            return hscroll;
         case VERTICAL_SCROLLBAR:
             return vscroll;
         default:
