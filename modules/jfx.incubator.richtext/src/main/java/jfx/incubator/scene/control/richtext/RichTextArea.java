@@ -708,7 +708,9 @@ public class RichTextArea extends Control {
                     old = m;
 
                     selectionModel.clear();
-                    notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+                    if (accessibilityHelper != null) {
+                        accessibilityHelper.handleModelChange();
+                    }
                 }
             };
         }

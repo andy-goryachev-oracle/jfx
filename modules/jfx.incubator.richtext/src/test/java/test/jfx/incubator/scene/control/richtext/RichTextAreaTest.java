@@ -53,6 +53,7 @@ import javafx.scene.input.InputMethodTextRun;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +62,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
-import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.LineEnding;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.RichTextAreaShim;
@@ -1094,29 +1094,29 @@ public class RichTextAreaTest {
     }
 
     @Test
-    public void accessibilityEditable() {
+    public void queryAccessibilityEditable() {
         assertEquals(true, control.queryAccessibleAttribute(AccessibleAttribute.EDITABLE));
         control.setEditable(false);
         assertEquals(false, control.queryAccessibleAttribute(AccessibleAttribute.EDITABLE));
     }
 
     @Test
-    public void accessibilityText() {
+    public void queryAccessibilityText() {
         assertEquals(null, control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
         control.select(TextPos.ZERO);
         assertEquals("\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
-        RichUtils.log("appendText"); // FIX
         control.appendText("1\n2\n");
         assertEquals("1\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
         control.select(TextPos.ofLeading(1, 0));
-        assertEquals("2\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT)); // FIX
+        assertEquals("2\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
         control.select(TextPos.ofLeading(999, 0));
+        assertEquals("\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
+        control.select(TextPos.ofLeading(1, 1), new TextPos(1, 1, 1, false));
         assertEquals("2\n", control.queryAccessibleAttribute(AccessibleAttribute.TEXT));
     }
 
-// FIX
-//    @Test
-    public void accessibilitySelectionAndCaret() {
+    @Test
+    public void queryAccessibilitySelectionAndCaret() {
         control.appendText("111\n222\n");
 
         control.select(TextPos.ZERO);
@@ -1130,14 +1130,23 @@ public class RichTextAreaTest {
         assertEquals(6, control.queryAccessibleAttribute(AccessibleAttribute.CARET_OFFSET));
     }
 
- // FIX
-//    @Test
-    public void accessibilitySkin() {
+    @Test
+    public void queryAccessibilitySkin() {
+        double size = 16.0;
+        Font f = Font.getDefault();
+        StyleAttributeMap FONT = StyleAttributeMap.builder().
+            setFontFamily(f.getFamily()).
+            setFontSize(size).
+            build();
+
         control.appendText("111\n222\n");
-        control.applyStyle(TextPos.ZERO, control.getDocumentEnd(), BOLD);
+        control.applyStyle(TextPos.ZERO, control.getDocumentEnd(), FONT);
         control.select(TextPos.ZERO);
+        
         assertEquals(null, control.queryAccessibleAttribute(AccessibleAttribute.BOUNDS_FOR_RANGE, 0, 1));
-        assertEquals(BOLD, control.queryAccessibleAttribute(AccessibleAttribute.FONT));
+
+        assertEquals(size, ((Font)control.queryAccessibleAttribute(AccessibleAttribute.FONT)).getSize());
+
 //        HORIZONTAL_SCROLLBAR
 //        LINE_FOR_OFFSET
 //        LINE_START

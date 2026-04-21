@@ -32,8 +32,8 @@ import javafx.util.Duration;
  * Various constants.
  */
 public class Params {
-    /** number of paragraph for accessibility window */
-    public static final int ACCESSIBILITY_WINDOW_SIZE = 64;
+    /** number of paragraphs for accessibility segment */
+    public static final int ACCESSIBILITY_SEGMENT_SIZE = 64;
 
     /** autoscroll animation period, milliseconds. */
     public static final int AUTO_SCROLL_PERIOD = 100;

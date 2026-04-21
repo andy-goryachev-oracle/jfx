@@ -44,18 +44,18 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
  */
 public class RTAccessibilityHelper {
     private final RichTextArea control;
-    private TextPos start;
-    private TextPos end;
     private final StyledTextModel.Listener modelListener;
+    private AccessibilitySegment segment;
 
     public RTAccessibilityHelper(RichTextArea t) {
         this.control = t;
 
-        // we can get rid of this pointer by making RTAccessibilityHelper extend StyledTextModel.Listener
+        // we can get rid of this listener pointer by making RTAccessibilityHelper extend StyledTextModel.Listener
         modelListener = (ch) -> {
             if (ch.isEdit()) {
                 RichUtils.log("ch={0}", ch);
-                if (handleTextUpdate(ch.getStart(), ch.getEnd())) {
+                if (isAccSegmentAffected(ch.getStart(), ch.getEnd())) {
+                    segment = null;
                     control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
                 }
             }
@@ -66,103 +66,17 @@ public class RTAccessibilityHelper {
         });
     }
 
-    public void registerModel(StyledTextModel m) {
-        m.addListener(modelListener);
-    }
-
-    public void unregisterModel(StyledTextModel m) {
-        m.removeListener(modelListener);
-    }
-
-    // returns true if update is within the a11y window 
-    private boolean handleTextUpdate(TextPos p0, TextPos p1) {
-        if ((start != null) && (end != null)) {
-            if (p0.compareTo(end) >= 0) {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    private void handleSelectionChange(SelectionSegment old, SelectionSegment cur) {
-        RichUtils.log("sel={0}", cur);
-        TextPos min0 = old == null ? null : old.getMin();
-        TextPos max0 = old == null ? null : old.getMax();
-        TextPos min2 = cur == null ? null : cur.getMin();
-        TextPos max2 = cur == null ? null : cur.getMax();
-
-        if (shouldUpdateTextAttribute(cur)) {
-            control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
-        }
-
-        if (!Objects.equals(min0, min2)) {
-            control.notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
-        }
-
-        if (!Objects.equals(max0, max2)) {
-            control.notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
-        }
-    }
-
-    // TODO: this might be wrong...
-    private boolean shouldUpdateTextAttribute(SelectionSegment sel) {
-        if (sel == null) {
-            return false;
-        }
-
-        // no start/end: create window, return true
-        // selection outside of the window: change window, return true
-        if ((start == null) || (end == null) || isOutside(sel.getMin(), sel.getMax())) {
-            createWindow();
-            return true;
-        }
-
-        // selection within the window: no-op, return false
-        return false;
-    }
-
-    private boolean isOutside(TextPos p0, TextPos p1) {
-        if ((start.compareTo(p1) >= 0) || (end.compareTo(p0) <= 0)) {
-            return true;
-        }
-        return false;
-    }
-
-    // TODO maybe this is unnecessary:
-    // use the current caret/selection
-    private void createWindow() {
-        // selection is small: create window around selection
-        // selection is large: create window around the caret
-        SelectionSegment sel = control.getSelection();
-        TextPos cp = sel.getCaret();
-        int ix0 = Math.max(0, cp.index() - (Params.ACCESSIBILITY_WINDOW_SIZE / 2));
-        int ix1 = Math.min(control.getParagraphCount() - 1, ix0 + Params.ACCESSIBILITY_WINDOW_SIZE);
-
-        start = TextPos.ofLeading(ix0, 0);
-        end = control.getParagraphEnd(ix1);
-        RichUtils.log("start={0} end={1}", start, end); // FIX
-    }
-
     public String getText() {
         String s = getText2();
         RichUtils.log("text=[{0}]", s);
         return s;
     }
-    private String getText2() {
-        if ((start == null) && (end == null)) {
-            // TODO maybe from the start?
+    private String getText2() { // FIX
+        AccessibilitySegment a = segment();
+        if (a == null) {
             return null;
         }
-
-        // alternative: use model.export()
-        StringBuilder sb = new StringBuilder();
-        int mx = end.index();
-        for (int ix = start.index(); ix <= mx; ix++) {
-            String s = control.getPlainText(ix);
-            sb.append(s).append("\n");
-        }
-        return sb.toString();
+        return a.text();
     }
 
     public Integer selectionStart() {
@@ -189,23 +103,143 @@ public class RTAccessibilityHelper {
         return computeOffset(sel.getCaret());
     }
 
-    private Integer computeOffset(TextPos p) {
-        if (
-            (start == null) ||
-            (end == null) ||
-            (p.compareTo(start) < 0) ||
-            (p.compareTo(end) > 0)
-        ) {
+    public void registerModel(StyledTextModel m) {
+        m.addListener(modelListener);
+    }
+
+    public void unregisterModel(StyledTextModel m) {
+        m.removeListener(modelListener);
+    }
+
+    public void handleModelChange() {
+        control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+    }
+
+    private AccessibilitySegment segment() {
+        SelectionSegment sel = control.getSelection();
+        if (sel == null) {
+            segment = null;
             return null;
         }
 
-        int off = 0;
-        int index = start.index();
-        while (index < p.index()) {
-            String s = control.getPlainText(index);
-            off += (s.length() + 1); // plus newline character
-            index++;
+        TextPos start;
+        TextPos end;
+        if (sel.isCollapsed()) {
+            // collapsed selection: report paragraph
+            int ix = sel.getMin().index();
+            start = TextPos.ofLeading(ix, 0);
+            end = control.getParagraphEnd(ix);
+        } else {
+            // selection: report selection with limit?
+            start = sel.getMin();
+            end = sel.getMax();
+            int ct = end.index() - start.index();
+            if (ct > Params.ACCESSIBILITY_SEGMENT_SIZE) {
+                end = control.getParagraphEnd(start.index() + Params.ACCESSIBILITY_SEGMENT_SIZE);
+            }
         }
-        return off + p.offset();
+
+        if (segment != null) {
+            // check if can reuse the existing segment
+            if (start.equals(segment.start) && end.equals(segment.end)) {
+                return segment;
+            }
+        }
+
+        return (segment = new AccessibilitySegment(start, end));
+    }
+
+    // returns true if the edit is within the a11y segment 
+    private boolean isAccSegmentAffected(TextPos start, TextPos end) {
+        return (segment == null) ? false : segment.isAffected(start, end);
+    }
+
+    private void handleSelectionChange(SelectionSegment old, SelectionSegment cur) {
+        RichUtils.log("sel={0}", cur);
+        TextPos min0 = old == null ? null : old.getMin();
+        TextPos max0 = old == null ? null : old.getMax();
+        TextPos min2 = cur == null ? null : cur.getMin();
+        TextPos max2 = cur == null ? null : cur.getMax();
+
+        if (shouldUpdateTextAttribute(cur)) {
+            control.notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+        }
+
+        if (!Objects.equals(min0, min2)) {
+            control.notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
+        }
+
+        if (!Objects.equals(max0, max2)) {
+            control.notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
+        }
+    }
+
+    private boolean shouldUpdateTextAttribute(SelectionSegment sel) {
+        if (sel == null) {
+            // was there a segment before?
+            if (segment != null) {
+                segment = null;
+                return true;
+            }
+            return false;
+        }
+        return segment().isAffected(sel.getMin(), sel.getMax());
+    }
+
+    private Integer computeOffset(TextPos p) {
+        AccessibilitySegment seg = segment();
+        return seg == null ? null : seg.computeOffset(p);
+    }
+
+    private class AccessibilitySegment {
+        private final TextPos start;
+        private final TextPos end;
+        private String text;
+
+        public AccessibilitySegment(TextPos start, TextPos end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public String text() {
+            if (text == null) {
+                // alternative: use model.export()
+                StringBuilder sb = new StringBuilder();
+                String nl = control.getLineEnding().getText();
+                int mx = end.index();
+                for (int ix = start.index(); ix <= mx; ix++) {
+                    String s = control.getPlainText(ix);
+                    sb.append(s);
+                    sb.append(nl);
+                }
+                text = sb.toString();
+            }
+            return text;
+        }
+
+        public boolean isAffected(TextPos updStart, TextPos updEnd) {
+            if (updEnd.index() < start.index()) {
+                return false;
+            } else if (updStart.index() > end.index()) {
+                return false;
+            }
+            return true;
+        }
+
+        private Integer computeOffset(TextPos p) {
+            if ((p.compareTo(start) < 0) || (p.compareTo(end) > 0)) {
+                return null;
+            }
+
+            int nl = control.getLineEnding().getText().length();
+            int off = 0;
+            int index = start.index();
+            while (index < p.index()) {
+                String s = control.getPlainText(index);
+                off += (s.length() + nl);
+                index++;
+            }
+            return off + p.offset();
+        }
     }
 }
