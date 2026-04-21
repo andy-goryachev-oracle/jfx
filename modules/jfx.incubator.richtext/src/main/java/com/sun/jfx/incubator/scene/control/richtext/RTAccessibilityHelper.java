@@ -127,8 +127,8 @@ public class RTAccessibilityHelper {
             start = sel.getMin();
             end = sel.getMax();
             int ct = end.index() - start.index();
-            if (ct > Params.ACCESSIBILITY_SEGMENT_SIZE) {
-                end = control.getParagraphEnd(start.index() + Params.ACCESSIBILITY_SEGMENT_SIZE);
+            if (ct > Params.ACCESSIBILITY_TEXT_MAX_PARAGRAPHS) {
+                end = control.getParagraphEnd(start.index() + Params.ACCESSIBILITY_TEXT_MAX_PARAGRAPHS);
             }
         }
 
@@ -142,7 +142,7 @@ public class RTAccessibilityHelper {
         return (segment = new AccessibilitySegment(start, end));
     }
 
-    // returns true if the edit is within the a11y segment 
+    // returns true if the edit is within the a11y segment
     private boolean isAccSegmentAffected(TextPos start, TextPos end) {
         return (segment == null) ? false : segment.isAffected(start, end);
     }
@@ -183,7 +183,7 @@ public class RTAccessibilityHelper {
         return seg == null ? null : seg.computeOffset(p);
     }
 
-    // accessibility segment: either the selection, or 
+    // accessibility segment: either selected text, or the current paragraph
     private class AccessibilitySegment {
         private final TextPos start;
         private final TextPos end;

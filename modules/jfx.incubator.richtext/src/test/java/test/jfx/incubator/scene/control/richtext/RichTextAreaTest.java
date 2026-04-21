@@ -1146,7 +1146,7 @@ public class RichTextAreaTest {
         control.layout();
         control.applyStyle(TextPos.ZERO, control.getDocumentEnd(), FONT);
         control.select(TextPos.ZERO);
-        
+
         // looking for the font size only since the platform may substitute
         assertEquals(size, ((Font)control.queryAccessibleAttribute(AccessibleAttribute.FONT)).getSize());
 
