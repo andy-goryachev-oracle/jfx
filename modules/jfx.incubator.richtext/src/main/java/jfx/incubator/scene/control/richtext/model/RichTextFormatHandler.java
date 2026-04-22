@@ -201,13 +201,10 @@ public class RichTextFormatHandler extends DataFormatHandler {
 
     private StyledOutput createStyledOutput(StyleResolver r, Writer wr) {
         Charset cs = Charset.forName("utf-8");
-        boolean buffered = isBuffered(wr);
-        if (buffered) {
-            return new RichStyledOutput(r, wr);
-        } else {
+        if (!isBuffered(wr)) {
             wr = new BufferedWriter(wr);
-            return new RichStyledOutput(r, wr);
         }
+        return new RichStyledOutput(r, wr);
     }
 
     private static boolean isBuffered(Writer x) {
