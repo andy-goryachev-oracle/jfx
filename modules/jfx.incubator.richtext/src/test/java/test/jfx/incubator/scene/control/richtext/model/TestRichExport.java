@@ -233,7 +233,7 @@ public class TestRichExport {
 
     private void verify(String expected, boolean addDocProps) {
         if (addDocProps) {
-            expected = TestRichTextModel.DOC_PROPS + expected;
+            expected = TestRichTextModel.header() + expected;
         }
         Object v;
         try {

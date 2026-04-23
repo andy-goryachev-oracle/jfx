@@ -289,11 +289,11 @@ public class TestRichTextFormatHandler {
         RichTextModel m = new RichTextModel();
         m.setDefaultTabStops(155);
         String s = save(m);
-        assertEquals("{#tabs|155.0|version|v2}{}{!}", s);
+        assertEquals(TestRichTextModel.VERSION + "{#tabs|155.0}{}{!}", s);
 
         m.setDefaultTabStops(77);
         s = save(m);
-        assertEquals("{#tabs|77.0|version|v2}{}{!}", s);
+        assertEquals(TestRichTextModel.VERSION + "{#tabs|77.0}{}{!}", s);
     }
 
     private static String save(RichTextModel m) throws IOException {

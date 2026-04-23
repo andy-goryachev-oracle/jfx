@@ -18,6 +18,7 @@ into the JavaFX core.
 
 In short, the format is plain text which contains a sequence of segments representing:
 
+- format version
 - document properties
 - character attributes
 - paragraph attributes
@@ -31,7 +32,7 @@ As an example, the following rich text
 is represented by the following file:
 
 ```
-{#tabs|99.5|version|v2}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
+{@RichText-v2-incubator}{#tabs|99.5}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
 {0}default tabs:	1	2	3{!}
 {ff|System}{fs|12.0}{tc|669966}green{!}
 {b}{ff|System}{fs|12.0}bold {ff|System}{fs|12.0}{i}italic {ff|System}{fs|12.0}{ss}strikethrough{4} {ff|System}{fs|12.0}{u}underline{!}
@@ -55,21 +56,30 @@ the paragraph text segments, paragraph attribute segment(s), also one segment pe
 terminatedby a single `LF` character.
 
 
+### Format Version Segment
+
+The first segment determines the format version, enclosed in `{@ ... }`.
+There could be only one such segment and it must be the first one.
+
+Example:
+
+`{@RichText-v2-incubator}`
+
+
 ### Document Properties Segment
 
-The first segment is a document properties segment which contains a pipe-delimited key-value pairs enclosed in `{# ... }`.
+The second segment is a document properties segment which contains a pipe-delimited key-value pairs enclosed in `{# ... }`.
 There is only one document properties segment per file.
 
 Example: 
 
-`{#tabs|99.5|version|v2}`
+`{#tabs|99.5}`
 
 specifies the following properties:
 
 |Key     |Value      |Comment
 |:-------|:----------|:-----------
 |tabs    |99.5       |default tab stops in pixels
-|version |v2         |format version, currently `v2`
 
 
 ### Character Attribute Segment

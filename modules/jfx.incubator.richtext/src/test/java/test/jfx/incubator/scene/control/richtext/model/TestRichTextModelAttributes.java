@@ -131,7 +131,7 @@ public class TestRichTextModelAttributes {
                 StyledOutput out = RichTextFormatHandlerHelper.createStyledOutput(h, null, wr);
                 m.export(TextPos.ZERO, end, out);
                 String s = wr.toString();
-                Assertions.assertEquals(TestRichTextModel.DOC_PROPS + initial, s, "problem setting initial text");
+                Assertions.assertEquals(TestRichTextModel.header() + initial, s, "problem setting initial text");
             }
 
             op.accept(m);
@@ -143,7 +143,7 @@ public class TestRichTextModelAttributes {
                 TextPos end = m.getDocumentEnd();
                 m.export(TextPos.ZERO, end, out);
                 String s = wr.toString();
-                Assertions.assertEquals(TestRichTextModel.DOC_PROPS + expected, s, "operation failed");
+                Assertions.assertEquals(TestRichTextModel.header() + expected, s, "operation failed");
             }
         } catch(IOException e) {
             Assertions.fail(e);

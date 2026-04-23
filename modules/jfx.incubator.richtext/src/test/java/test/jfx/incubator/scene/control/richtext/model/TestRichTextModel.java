@@ -50,8 +50,10 @@ import test.jfx.incubator.scene.control.richtext.support.RTUtil;
  */
 public class TestRichTextModel {
 
-    /** standard document properties for in version v1 */
-    public static final String DOC_PROPS = "{#tabs|0.0|version|v2}";
+    /** RichTextModel version string */
+    public static final String VERSION = "{@RichText-v2-incubator}";
+    /** standard document properties */
+    public static final String DOC_PROPS = "{#tabs|0.0}";
 
     private static final StyleAttributeMap BOLD = StyleAttributeMap.builder().setBold(true).build();
     private static final StyleAttributeMap BULLET = StyleAttributeMap.builder().setBullet("x").build();
@@ -354,5 +356,9 @@ public class TestRichTextModel {
         assertEquals(1, counter.get());
         String text = p.getPlainText();
         assertEquals("1yo!", text);
+    }
+
+    public static String header() {
+        return VERSION + DOC_PROPS;
     }
 }
