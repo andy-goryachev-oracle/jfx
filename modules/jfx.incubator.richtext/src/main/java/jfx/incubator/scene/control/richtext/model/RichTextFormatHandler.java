@@ -60,7 +60,7 @@ import jfx.incubator.scene.control.richtext.TextPos;
  * PARAGRAPH[]
  *
  * VERSION_STRING*: {
- *     "{@"
+ *     "{\@"
  *     version
  *     "}"
  * }
