@@ -29,7 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javafx.scene.paint.Color;
@@ -51,26 +50,15 @@ import test.jfx.incubator.scene.control.richtext.support.RTUtil;
  */
 public class TestRichTextModel {
 
-    /** current RichTextModel.VERSION value */
-    public static final String VERSION = initVersion();
-
+    /** RichTextModel version string */
+    public static final String VERSION = "{@RichText-v3-incubator}";
     /** standard document properties */
-    public static final String DOC_PROPS = "{#tabs|0.0|version|" + VERSION + "}";
+    public static final String DOC_PROPS = "{#tabs|0.0}";
 
     private static final StyleAttributeMap BOLD = StyleAttributeMap.builder().setBold(true).build();
     private static final StyleAttributeMap BULLET = StyleAttributeMap.builder().setBullet("x").build();
     private static final StyleAttributeMap ITALIC = StyleAttributeMap.builder().setItalic(true).build();
     private static final StyleAttributeMap RED = StyleAttributeMap.builder().setBackground(Color.RED).build();
-
-    private static String initVersion() {
-        class M extends RichTextModel {
-            @Override
-            public Map<String,String> documentProperties() {
-                return super.documentProperties();
-            }
-        };
-        return new M().documentProperties().get("version");
-    }
 
     @Test
     public void insertLineBreak() {
@@ -368,5 +356,9 @@ public class TestRichTextModel {
         assertEquals(1, counter.get());
         String text = p.getPlainText();
         assertEquals("1yo!", text);
+    }
+
+    public static String header() {
+        return VERSION + DOC_PROPS;
     }
 }

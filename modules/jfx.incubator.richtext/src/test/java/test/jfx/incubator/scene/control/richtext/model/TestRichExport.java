@@ -62,8 +62,8 @@ public class TestRichExport {
 
     @Test
     public void simpleTextModel() {
-        append("1/n2");
-        verify("{}1/n2{!}");
+        append("1\n2");
+        verify("{}1{!}\n{}2{!}");
     }
 
     @Test
@@ -233,7 +233,7 @@ public class TestRichExport {
 
     private void verify(String expected, boolean addDocProps) {
         if (addDocProps) {
-            expected = TestRichTextModel.DOC_PROPS + expected;
+            expected = TestRichTextModel.header() + expected;
         }
         Object v;
         try {

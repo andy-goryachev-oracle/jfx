@@ -432,7 +432,7 @@ public class RichTextAreaTest {
         String s = Clipboard.getSystemClipboard().getString();
         assertEquals(null, s);
         Object v = Clipboard.getSystemClipboard().getContent(fmt);
-        assertEquals(TestRichTextModel.DOC_PROPS + "{}a{!}", v);
+        assertEquals(TestRichTextModel.header() + "{}a{!}", v);
     }
 
     @Test
@@ -902,7 +902,7 @@ public class RichTextAreaTest {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         control.write(out);
         byte[] b = out.toByteArray();
-        assertEquals(TestRichTextModel.DOC_PROPS + "{}1 {b}bold{!}", new String(b, StandardCharsets.US_ASCII));
+        assertEquals(TestRichTextModel.header() + "{}1 {b}bold{!}", new String(b, StandardCharsets.US_ASCII));
     }
 
     @Test

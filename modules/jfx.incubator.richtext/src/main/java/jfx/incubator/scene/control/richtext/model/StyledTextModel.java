@@ -504,6 +504,11 @@ public abstract class StyledTextModel {
             end = p;
         }
 
+        String ver = versionString();
+        if (ver != null) {
+            out.consume(StyledSegment.ofVersion(ver));
+        }
+
         Map<String, String> dp = documentProperties();
         if ((dp != null) && (!dp.isEmpty())) {
             out.consume(StyledSegment.ofDocumentProperties(dp));
@@ -546,6 +551,17 @@ public abstract class StyledTextModel {
         }
 
         out.flush();
+    }
+
+    /**
+     * This method is called by {@link #export(TextPos, TextPos, StyledOutput)}
+     * to export the model's version string, if any.
+     *
+     * @return the model version string, or null
+     * @since 27
+     */
+    protected String versionString() {
+        return null;
     }
 
     /**

@@ -56,8 +56,15 @@ import jfx.incubator.scene.control.richtext.TextPos;
  * The handler uses a simple text-based format:<p>
  * (*) denotes an optional element.
  * <pre>
+ * VERSION_STRING
  * DOCUMENT_PROPERTIES
  * PARAGRAPH[]
+ *
+ * VERSION_STRING*: {
+ *     "{\@"
+ *     version
+ *     "}"
+ * }
  *
  * DOCUMENT_PROPERTIES: {
  *     "{#"
@@ -203,13 +210,10 @@ public class RichTextFormatHandler extends DataFormatHandler {
 
     private StyledOutput createStyledOutput(StyleResolver r, Writer wr) {
         Charset cs = Charset.forName("utf-8");
-        boolean buffered = isBuffered(wr);
-        if (buffered) {
-            return new RichStyledOutput(r, wr);
-        } else {
+        if (!isBuffered(wr)) {
             wr = new BufferedWriter(wr);
-            return new RichStyledOutput(r, wr);
         }
+        return new RichStyledOutput(r, wr);
     }
 
     private static boolean isBuffered(Writer x) {
@@ -353,7 +357,18 @@ public class RichTextFormatHandler extends DataFormatHandler {
                 Map<String,String> dp = seg.getDocumentProperties();
                 emitDocumentProperties(dp);
                 break;
+            case VERSION:
+                String ver = seg.getVersion();
+                emitVersion(ver);
+                break;
             }
+        }
+
+        private void emitVersion(String ver) throws IOException {
+            wr.write("{@");
+            ver = encode(ver);
+            wr.write(ver);
+            wr.write("}");
         }
 
         private void emitDocumentProperties(Map<String, String> props) throws IOException {
@@ -507,6 +522,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
         private StringBuilder sb;
         private final ArrayList<StyleAttributeMap> styles = new ArrayList<>();
         private int line = 1;
+        private String version;
 
         public RichStyledInput(String text) {
             this.text = text;
@@ -524,12 +540,23 @@ public class RichTextFormatHandler extends DataFormatHandler {
                     line++;
                     return StyledSegment.LINE_BREAK;
                 case '{':
-                    if (charAt(1) == '#') {
-                        index += 2;
+                    switch (charAt(1)) {
+                    case '#':
                         // document properties
+                        index += 2;
                         Map<String,String> dp = parseDocumentProperties();
                         return StyledSegment.ofDocumentProperties(dp);
-                    } else {
+                    case '@':
+                        // version string
+                        index += 2;
+                        // TODO check if already exists
+                        String ver = parseString();
+                        if(version != null) {
+                            throw err("Invalid format");
+                        }
+                        version = ver;
+                        return StyledSegment.ofVersion(ver);
+                    default:
                         StyleAttributeMap a = parseAttributes(true);
                         if (a != null) {
                             if (a.isEmpty()) {
@@ -555,18 +582,23 @@ public class RichTextFormatHandler extends DataFormatHandler {
         public void close() throws IOException {
         }
 
-        private Map<String, String> parseDocumentProperties() throws IOException {
+        private String parseString() throws IOException {
             int ix = text.indexOf('}', index);
             if (ix < 0) {
                 throw err("missing }");
             }
             String s = text.substring(index, ix);
+            index = ix + 1;
+            return s;
+        }
+
+        private Map<String, String> parseDocumentProperties() throws IOException {
+            String s = parseString();
             String[] ss = s.split("\\|");
             int sz = ss.length;
             if ((sz & 0x01) != 0) {
                 throw err("malformed document properties");
             }
-            index = ix + 1;
             HashMap<String, String> m = new HashMap<>(sz / 2);
             for (int i = 0; i < sz;) {
                 String k = decode(ss[i++]);
@@ -684,9 +716,9 @@ public class RichTextFormatHandler extends DataFormatHandler {
                 switch (c) {
                 case '%':
                     // decoding hex
-                    if(sb == null) {
+                    if (sb == null) {
                         sb = new StringBuilder(sz);
-                        if(i > 0) {
+                        if (i > 0) {
                             sb.append(text, 0, i);
                         }
                     }

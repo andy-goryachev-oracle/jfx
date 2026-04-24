@@ -50,7 +50,10 @@ import jfx.incubator.scene.control.richtext.StyleResolver;
 public abstract class StyledSegment {
     /** StyledSegment type */
     public enum Type {
-        /** Identifies a segment which contains the document properties */
+        /**
+         * Identifies a segment which contains the document properties.
+         * @since 27
+         */
         DOCUMENT_PROPERTIES,
         /** Identifies a segment which contains an inline node. */
         INLINE_NODE,
@@ -61,7 +64,12 @@ public abstract class StyledSegment {
         /** Identifies a segment which contains a single paragraph containing a {@code Region}. */
         REGION,
         /** Identifies a text segment */
-        TEXT
+        TEXT,
+        /**
+         * Identifies the document version segment.
+         * @since 27
+         */
+        VERSION
     }
 
     /**
@@ -124,6 +132,14 @@ public abstract class StyledSegment {
      * @since 27
      */
     public Map<String,String> getDocumentProperties() { return null; }
+
+    /**
+     * Returns the document version or {@code null} if the segment type
+     * is not {@link Type#VERSION}.
+     * @return the version string or null
+     * @since 27
+     */
+    public String getVersion() { return null; }
 
     private StyledSegment() {
     }
@@ -233,6 +249,36 @@ public abstract class StyledSegment {
             @Override
             public String toString() {
                 return "StyledSegment{doc.props=" + props + "}";
+            }
+        };
+    }
+
+    /**
+     * Creates a StyledSegment that contains the document version.
+     * @param version the document version
+     * @return the StyledSegment instance
+     * @since 27
+     */
+    public static StyledSegment ofVersion(String version) {
+        return new StyledSegment() {
+            @Override
+            public Type getType() {
+                return Type.VERSION;
+            }
+
+            @Override
+            public String getVersion() {
+                return version;
+            }
+
+            @Override
+            public StyledSegment subSegment(int start, int end) {
+                return this;
+            }
+
+            @Override
+            public String toString() {
+                return "StyledSegment{version=" + version + "}";
             }
         };
     }

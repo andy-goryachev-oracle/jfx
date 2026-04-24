@@ -290,28 +290,37 @@ public class TestRichTextFormatHandler {
     public void save() throws IOException {
         RichTextModel m = new RichTextModel();
         m.setDefaultTabStops(155);
+        String s = save(m);
+        assertEquals(TestRichTextModel.VERSION + "{#tabs|155.0}{}{!}", s);
 
+        m.setDefaultTabStops(77);
+        s = save(m);
+        assertEquals(TestRichTextModel.VERSION + "{#tabs|77.0}{}{!}", s);
+    }
+
+    private static String save(RichTextModel m) throws IOException {
         RichTextFormatHandler h = RichTextFormatHandler.getInstance();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         h.save(m, null, TextPos.ZERO, m.getDocumentEnd(), out);
         byte[] b = out.toByteArray();
-        String s = new String(b, StandardCharsets.UTF_8);
-        assertEquals("{#tabs|155.0|version|" + TestRichTextModel.VERSION + "}{}{!}", s);
+        return new String(b, StandardCharsets.UTF_8);
     }
 
     @Test
     public void load() {
-        String props = "{#tabs|156.0|version|" + TestRichTextModel.VERSION + "}";
+        RichTextModel m = new RichTextModel();
+        assertEquals(0.0, m.getDefaultTabStops());
+
         String input =
+            TestRichTextModel.VERSION +
             """
-            {ff}{tc}1{!}
+            {#tabs|156.0}{ff}{tc}1{!}
             {0}2{!}
             {0}3{!}
             {!}
             """;
         RichTextFormatHandler h = RichTextFormatHandler.getInstance();
-        StyledInput in = h.createStyledInput(props + input, null);
-        RichTextModel m = new RichTextModel();
+        StyledInput in = h.createStyledInput(input, null);
         m.replace(null, TextPos.ZERO, m.getDocumentEnd(), in);
 
         assertEquals(5, m.size());
