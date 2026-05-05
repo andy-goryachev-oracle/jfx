@@ -79,10 +79,10 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
  */
 public final class RichUtils {
 
-    // includes fileName:lineNumber
-    private static final boolean CALLER = Boolean.getBoolean("jfx.incubator.richtext.CALLER");
-    
+    /// enables debug output
     private static final boolean DEBUG = Boolean.getBoolean("jfx.incubator.richtext.DEBUG");
+    /// includes FILE.METHOD:LINE in the debug output
+    private static final boolean CALLER = Boolean.getBoolean("jfx.incubator.richtext.CALLER");
     private static final DecimalFormat format = new DecimalFormat("#0.##");
 
     private RichUtils() {
@@ -360,37 +360,6 @@ public final class RichUtils {
 
     public static String formatDouble(Double value) {
         return format.format(value);
-    }
-
-    @Deprecated // FIX remove
-    public static char encodeAlignment(TextAlignment a) {
-        switch (a) {
-        case CENTER:
-            return 'C';
-        case JUSTIFY:
-            return 'J';
-        case RIGHT:
-            return 'R';
-        case LEFT:
-        default:
-            return 'L';
-        }
-    }
-
-    @Deprecated // FIX remove
-    public static TextAlignment decodeAlignment(int c) throws IOException {
-        switch (c) {
-        case 'C':
-            return TextAlignment.CENTER;
-        case 'J':
-            return TextAlignment.JUSTIFY;
-        case 'L':
-            return TextAlignment.LEFT;
-        case 'R':
-            return TextAlignment.RIGHT;
-        default:
-            throw new IOException("failed parsing alignment (" + (char)c + ")");
-        }
     }
 
     /**
@@ -850,7 +819,7 @@ public final class RichUtils {
             if (f.endsWith(".java")) {
                 f = f.substring(0, f.length() - 5);
             }
-            System.out.println(f + ":" + em.getLineNumber() + " " + x);
+            System.out.println(f + "." + em.getMethodName() + ":" + em.getLineNumber() + " " + x);
         } else {
             System.out.println(x);
         }
