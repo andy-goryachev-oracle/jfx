@@ -65,6 +65,11 @@ public class FastMap {
         return COLLECT_STATISTICS ? new FastMaPWithStats(node, cls) : new FastMap(node);
     }
 
+    // TODO remove after experiment is over
+    public static FastMap createForExperiment() {
+        return new FastMap(null);
+    }
+
     public <T> T init(PKey<T> key, Supplier<T> generator) {
         T value = generator.get();
         keys.add(key);
