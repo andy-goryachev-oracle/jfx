@@ -38,7 +38,8 @@ public class FastMapTest {
     @Test
     public void testFound() {
         int testCount = 500_000;
-        IO.println("-- Accessing existing values, nanoseconds per single call.");
+        IO.println("| Size | FastMap | FasterMap | HashMap |");
+        IO.println("| ---: | ------: | --------: | ------: |");
 
         for (int n = 0; n < 8; n++) {
             int size = 1 << n;
@@ -95,8 +96,9 @@ public class FastMapTest {
             }
             double elapsed3 = (System.nanoTime() - start) / (double)testCount;
 
-            IO.println("size=" + size + " FastMap=" + elapsed + " FasterMap=" + elapsed3 + " HashMap=" + elapsed2);
+            IO.println("| " + size + " | " + elapsed + " | " + elapsed3 + " | " + elapsed2);
         }
+        IO.println();
     }
     
     @Test
