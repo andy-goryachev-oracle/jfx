@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2025, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -43,6 +43,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import jfx.incubator.scene.control.richtext.model.RichTextFormatHandler;
 import jfx.incubator.scene.control.richtext.model.SimpleViewOnlyStyledModel;
+import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 
 /**
  * RichTextArea demo model.
@@ -132,6 +133,11 @@ public class DemoModel extends SimpleViewOnlyStyledModel {
         addSegment("Styled with CSS");
         addWavyUnderline(0, 6, "squiggly-css");
         highlight(12, 3, "highlight1", "highlight2");
+        nl();
+        addSegment("Highlights via StyleAttribute: ");
+        addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
+        addSegment(" ");
+        addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
         nl(2);
 
         addParagraph(this::createRect);

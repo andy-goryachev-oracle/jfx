@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 package jfx.incubator.scene.control.richtext.skin;
 
 import javafx.scene.Node;
+import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 
 /**
@@ -60,4 +61,17 @@ public interface CellContext {
      * @return the current attributes.
      */
     public StyleAttributeMap getAttributes();
+
+    /**
+     * Decorates the current segment with the specified attribute value, merging adjacent runs
+     * when the value is the same.  This method is used when the visual representation requires
+     * uninterrupted segments instead of several adjacent ones, for example in the case of
+     * wavy underline, in order to avoid breaks in the wave.
+     *
+     * @param <T> the attribute type
+     * @param a the attribute
+     * @param value the attribute value
+     * @since 27
+     */
+    public <T> void decorateRun(StyleAttribute<T> a, T value);
 }

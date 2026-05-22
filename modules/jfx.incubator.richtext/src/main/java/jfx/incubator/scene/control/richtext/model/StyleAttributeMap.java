@@ -95,9 +95,45 @@ public final class StyleAttributeMap {
     /** Text color attribute. */
     public static final StyleAttribute<Color> TEXT_COLOR = StyleAttribute.character("TEXT_COLOR", Color.class);
 
+    /**
+     * Text highlight (background color 1) character attribute.
+     * @since 27
+     */
+    public static final StyleAttribute<Color> TEXT_HIGHLIGHT_1 = StyleAttribute.character("TEXT_HIGHLIGHT_1", Color.class);
+
+    /**
+     * Text highlight (background color 2) character attribute.
+     * @since 27
+     */
+    public static final StyleAttribute<Color> TEXT_HIGHLIGHT_2 = StyleAttribute.character("TEXT_HIGHLIGHT_2", Color.class);
+
+    /**
+     * Text highlight (background color 3) character attribute.
+     * @since 27
+     */
+    public static final StyleAttribute<Color> TEXT_HIGHLIGHT_3 = StyleAttribute.character("TEXT_HIGHLIGHT_3", Color.class);
+
+    /**
+     * Text highlight (background color 4) character attribute.
+     * @since 27
+     */
+    public static final StyleAttribute<Color> TEXT_HIGHLIGHT_4 = StyleAttribute.character("TEXT_HIGHLIGHT_4", Color.class);
+
     /** Underline text attribute. */
     public static final StyleAttribute<Boolean> UNDERLINE = StyleAttribute.character("UNDERLINE", Boolean.class);
 
+    /**
+     * Wavy underline, color 1 character attribute.
+     * @since 27
+     */
+    public static final StyleAttribute<Boolean> UNDERLINE_WAVY_1 = StyleAttribute.character("UNDERLINE_WAVY_1", Boolean.class);
+    
+    /**
+     * Wavy underline, color 2 character attribute.
+     * @since 27
+     */
+    public static final StyleAttribute<Boolean> UNDERLINE_WAVY_2 = StyleAttribute.character("UNDERLINE_WAVY_2", Boolean.class);
+    
     /** Empty attribute set. */
     public static final StyleAttributeMap EMPTY = new StyleAttributeMap(Collections.emptyMap());
 

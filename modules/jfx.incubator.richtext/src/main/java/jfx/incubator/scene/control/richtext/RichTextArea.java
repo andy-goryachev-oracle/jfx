@@ -2528,6 +2528,10 @@ public class RichTextArea extends Control {
             }
         });
 
+        b.setSegHandler(StyleAttributeMap.UNDERLINE_WAVY_1, (cc, cx, v) -> {
+            cx.decorateRun(StyleAttributeMap.UNDERLINE_WAVY_1, v);
+        });
+
         return b.build();
     }
 

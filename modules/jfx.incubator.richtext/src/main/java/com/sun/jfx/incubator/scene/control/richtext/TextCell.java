@@ -27,6 +27,8 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -44,6 +46,7 @@ import javafx.scene.text.TabStopPolicy;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
+import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 
 /**
@@ -64,6 +67,7 @@ public final class TextCell extends BorderPane {
     private double height;
     private double y;
     private boolean embedsNode;
+    private Decorator decorator;
     private List<RequiresComplexLayout> clients;
 
     /**
@@ -151,7 +155,7 @@ public final class TextCell extends BorderPane {
     }
 
     private TextFlow flow() {
-        if(content instanceof TextFlow f) {
+        if (content instanceof TextFlow f) {
             return f;
         } else {
             throw new IllegalArgumentException("Not a TextFlow: " + content.getClass());
@@ -500,6 +504,85 @@ public final class TextCell extends BorderPane {
             for (RequiresComplexLayout r : clients) {
                 r.updateVFlowContext(f);
             }
+        }
+    }
+
+    // collects and coalesces decorations that run over more than one segment
+    public <T> void decorateRun(StyleAttribute<T> a, T value, Text segment) {
+        if (decorator == null) {
+            decorator = new Decorator(flow());
+        }
+        decorator.add(a, value, segment);
+    }
+
+    public void applyDecorations() {
+        if (decorator != null) {
+            for (V v : decorator.runs) {
+                // TODO
+                IO.println(v.start + " - " + v.end);
+            }
+            decorator = null;
+        }
+    }
+
+    private static class V {
+        private final int start;
+        private int end;
+
+        public V(int start, int length) {
+            this.start = start;
+            this.end = start + length;
+        }
+
+        public void extend(int length) {
+            end += length;
+        }
+    }
+
+    // keeps track of coalesced decorated runs
+    private static class Decorator {
+        private final TextFlow flow;
+        private int length;
+        private int lastCount;
+        final ArrayList<V> runs = new ArrayList<>(4);
+        private HashMap<StyleAttribute<?>,V> byType = new HashMap<>();
+        
+        public Decorator(TextFlow flow) {
+            this.flow = flow;
+        }
+
+        // TODO add operation (type, style)
+        public <T> void add(StyleAttribute<T> a, T value, Text segment) {
+            int count = flow.getChildren().size();
+            V v;
+            if(lastCount < count) {
+                // no need to coalesce
+                byType.clear();
+                v = null;
+                // account for skipped segments
+                for(int i=lastCount; i<count; i++) {
+                    Node n = flow.getChildren().get(i);
+                    if(n instanceof Text t) {
+                        length += t.getText().length();
+                    } else {
+                        length++;
+                    }
+                }
+                lastCount = count;
+            } else {
+                v = byType.get(a);
+            }
+
+            int len = segment.getText().length();
+            if(v == null) {
+                v = new V(length, len);
+                runs.add(v);
+                byType.put(a, v);
+            } else {
+                v.extend(len);
+            }
+            
+            IO.println("TODO: " + a + " " + value); // FIX
         }
     }
 }
