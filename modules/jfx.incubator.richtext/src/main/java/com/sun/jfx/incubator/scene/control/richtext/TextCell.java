@@ -48,6 +48,7 @@ import javafx.scene.text.TextFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
+import jfx.incubator.scene.control.richtext.skin.CellContext;
 
 /**
  * Provides a visual representation of a paragraph.
@@ -508,16 +509,25 @@ public final class TextCell extends BorderPane {
     }
 
     // collects and coalesces decorations that run over more than one segment
-    public <T> void decorateRun(StyleAttribute<T> a, T value, Text segment) {
+    public void decorateRun(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, Object value) {
         if (decorator == null) {
             decorator = new Decorator(flow());
         }
-        decorator.add(a, value, segment);
+        decorator.add(segment, a, type, value);
     }
 
     public void applyDecorations() {
         if (decorator != null) {
             for (V v : decorator.runs) {
+                Operation op = v.operation;
+                switch (op.type()) {
+                case WAVY_UNDERLINE:
+                    if (op.value instanceof Color c) {
+                        addSquiggly(v.start, v.end, c);
+                    } else if (op.value instanceof String s) {
+                        addSquiggly(v.start, v.end, s);
+                    }
+                }
                 // TODO
                 IO.println(v.start + " - " + v.end);
             }
@@ -526,10 +536,12 @@ public final class TextCell extends BorderPane {
     }
 
     private static class V {
+        private final Operation operation;
         private final int start;
         private int end;
 
-        public V(int start, int length) {
+        public V(Operation op, int start, int length) {
+            this.operation = op;
             this.start = start;
             this.end = start + length;
         }
@@ -539,7 +551,10 @@ public final class TextCell extends BorderPane {
         }
     }
 
-    // keeps track of coalesced decorated runs
+    /// represents an operation to perform on the text run
+    private record Operation(CellContext.RunDecor type, Object value) { }
+
+    /// keeps track of coalesced decorated runs
     private static class Decorator {
         private final TextFlow flow;
         private int length;
@@ -551,8 +566,7 @@ public final class TextCell extends BorderPane {
             this.flow = flow;
         }
 
-        // TODO add operation (type, style)
-        public <T> void add(StyleAttribute<T> a, T value, Text segment) {
+        public void add(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, Object value) {
             int count = flow.getChildren().size();
             V v;
             if(lastCount < count) {
@@ -568,21 +582,21 @@ public final class TextCell extends BorderPane {
                         length++;
                     }
                 }
-                lastCount = count;
+                lastCount = count + 1;
             } else {
                 v = byType.get(a);
             }
 
             int len = segment.getText().length();
             if(v == null) {
-                v = new V(length, len);
+                v = new V(new Operation(type, value), length, len);
                 runs.add(v);
                 byType.put(a, v);
             } else {
                 v.extend(len);
             }
             
-            IO.println("TODO: " + a + " " + value); // FIX
+            IO.println("TODO: " + a + " type=" + type + " value=" + value); // FIX
         }
     }
 }

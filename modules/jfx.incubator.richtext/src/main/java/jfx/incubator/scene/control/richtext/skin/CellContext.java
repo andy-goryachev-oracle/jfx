@@ -38,6 +38,11 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
  * @since 24
  */
 public interface CellContext {
+
+    public enum RunDecor {
+        WAVY_UNDERLINE
+    }
+
     /**
      * Adds an inline style.
      * <p>
@@ -70,8 +75,9 @@ public interface CellContext {
      *
      * @param <T> the attribute type
      * @param a the attribute
+     * @param type the decoration type
      * @param value the attribute value
      * @since 27
      */
-    public <T> void decorateRun(StyleAttribute<T> a, T value);
+    public <T> void decorateRun(StyleAttribute<T> a, CellContext.RunDecor type, Object value);
 }

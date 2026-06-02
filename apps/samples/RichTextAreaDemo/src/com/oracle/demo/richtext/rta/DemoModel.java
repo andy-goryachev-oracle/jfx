@@ -135,9 +135,10 @@ public class DemoModel extends SimpleViewOnlyStyledModel {
         highlight(12, 3, "highlight1", "highlight2");
         nl();
         addSegment("Highlights via StyleAttribute: ");
-        addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
+        //addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
         addSegment(" ");
         addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
+        addSegment("-no-break", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
         nl(2);
 
         addParagraph(this::createRect);

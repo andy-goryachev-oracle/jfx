@@ -59,6 +59,7 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.Control;
 import javafx.scene.input.DataFormat;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import com.sun.jfx.incubator.scene.control.input.InputMapHelper;
 import com.sun.jfx.incubator.scene.control.richtext.CssStyles;
@@ -75,6 +76,7 @@ import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledInput;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
+import jfx.incubator.scene.control.richtext.skin.CellContext;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 
 /**
@@ -2529,7 +2531,9 @@ public class RichTextArea extends Control {
         });
 
         b.setSegHandler(StyleAttributeMap.UNDERLINE_WAVY_1, (cc, cx, v) -> {
-            cx.decorateRun(StyleAttributeMap.UNDERLINE_WAVY_1, v);
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.UNDERLINE_WAVY_1, CellContext.RunDecor.WAVY_UNDERLINE, Color.GREEN);
+            }
         });
 
         return b.build();
