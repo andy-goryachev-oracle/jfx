@@ -3519,6 +3519,31 @@ is being used to size a border should also be in pixels.
     -fx-cursor: text;
 }
 
+.vflow .text-highlight-1 {
+    -fx-fill: #e7ff0077;
+    -fx-stroke-width: 0; 
+}
+
+.vflow .text-highlight-2 {
+    -fx-fill: #64ff0077;
+    -fx-stroke-width: 0; 
+}
+
+.vflow .text-highlight-3 {
+    -fx-fill: #5fe8ff77;
+    -fx-stroke-width: 0; 
+}
+
+.vflow .text-highlight-4 {
+    -fx-fill: #fc49ab77;
+    -fx-stroke-width: 0; 
+}
+
+.vflow .text-highlight-5 {
+    -fx-fill: #ff730077;
+    -fx-stroke-width: 0; 
+}
+
 .vflow .underline-wavy-1 {
     -fx-stroke: red;
 }

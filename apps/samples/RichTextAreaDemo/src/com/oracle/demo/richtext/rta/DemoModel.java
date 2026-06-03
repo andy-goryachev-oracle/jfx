@@ -134,9 +134,9 @@ public class DemoModel extends SimpleViewOnlyStyledModel {
         addWavyUnderline(0, 6, "squiggly-css");
         highlight(12, 3, "highlight1", "highlight2");
         nl();
-        addSegment("Highlights via StyleAttribute: ");
+        addSegment("Highlights via StyleAttributes:");
+        nl();
         //addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
-        addSegment(" ");
         addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
         addSegment("-no-break", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
         addSegment("wavy2", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_2, Boolean.TRUE));
@@ -146,6 +146,19 @@ public class DemoModel extends SimpleViewOnlyStyledModel {
         addSegment("high2", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_2, Boolean.TRUE));
         addSegment("high3", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_3, Boolean.TRUE));
         addSegment("high4", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_4, Boolean.TRUE));
+        addSegment("high5", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_5, Boolean.TRUE));
+        nl();
+        // FIX remove, debug
+        addSegment("w1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
+        addSegment("w1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
+        addSegment("w2", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_2, Boolean.TRUE));
+        addSegment("w3", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_3, Boolean.TRUE));
+        addSegment("---");
+        addSegment("11", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_1, Boolean.TRUE));
+        addSegment("22", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_2, Boolean.TRUE));
+        addSegment("33", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_3, Boolean.TRUE));
+        addSegment("44", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_4, Boolean.TRUE));
+        addSegment("55", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_5, Boolean.TRUE));
         nl(2);
 
         addParagraph(this::createRect);

@@ -2523,6 +2523,36 @@ public class RichTextArea extends Control {
             cx.addStyle("-fx-fill:" + color + ";");
         });
 
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_1, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_1, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_1);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_2, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_2, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_2);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_3, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_3, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_3);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_4, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_4, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_4);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_5, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_5, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_5);
+            }
+        });
+
         b.setSegHandler(StyleAttributeMap.UNDERLINE, (cc, cx, v) -> {
             if (v) {
                 cx.addStyle("-fx-underline:true;");
