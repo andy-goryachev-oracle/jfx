@@ -509,38 +509,39 @@ public final class TextCell extends BorderPane {
     }
 
     // collects and coalesces decorations that run over more than one segment
-    public void decorateRun(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, Object value) {
+    public void decorateRun(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
         if (decorator == null) {
             decorator = new Decorator(flow());
         }
-        decorator.add(segment, a, type, value);
+        decorator.add(segment, a, type, styleName);
     }
 
     public void applyDecorations() {
         if (decorator != null) {
-            for (V v : decorator.runs) {
-                Operation op = v.operation;
+            for (Decor d : decorator.runs) {
+                Operation op = d.operation;
                 switch (op.type()) {
+                case HIGHLIGHT:
+                    addHighlight(d.start, d.end, op.styleName);
+                    break;
                 case WAVY_UNDERLINE:
-                    if (op.value instanceof Color c) {
-                        addSquiggly(v.start, v.end, c);
-                    } else if (op.value instanceof String s) {
-                        addSquiggly(v.start, v.end, s);
-                    }
+                    addSquiggly(d.start, d.end, op.styleName);
+                    break;
+                default:
+                    // silently ignore
                 }
-                // TODO
-                IO.println(v.start + " - " + v.end);
+                IO.println("applyDecorations " + op.styleName + " " + d.start + " - " + d.end); // FIX
             }
             decorator = null;
         }
     }
 
-    private static class V {
+    private static class Decor {
         private final Operation operation;
         private final int start;
         private int end;
 
-        public V(Operation op, int start, int length) {
+        public Decor(Operation op, int start, int length) {
             this.operation = op;
             this.start = start;
             this.end = start + length;
@@ -552,51 +553,53 @@ public final class TextCell extends BorderPane {
     }
 
     /// represents an operation to perform on the text run
-    private record Operation(CellContext.RunDecor type, Object value) { }
+    private record Operation(CellContext.RunDecor type, String styleName) { }
 
     /// keeps track of coalesced decorated runs
     private static class Decorator {
         private final TextFlow flow;
         private int length;
         private int lastCount;
-        final ArrayList<V> runs = new ArrayList<>(4);
-        private HashMap<StyleAttribute<?>,V> byType = new HashMap<>();
+        final ArrayList<Decor> runs = new ArrayList<>(4);
+        private HashMap<StyleAttribute<?>,Decor> byType = new HashMap<>();
         
         public Decorator(TextFlow flow) {
             this.flow = flow;
         }
 
-        public void add(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, Object value) {
+        public void add(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
             int count = flow.getChildren().size();
-            V v;
-            if(lastCount < count) {
+            Decor d;
+            if ((lastCount + 1) == count) {
+                // coalesce runs
+                d = byType.get(a);
+            } else {
                 // no need to coalesce
                 byType.clear();
-                v = null;
+                d = null;
                 // account for skipped segments
-                for(int i=lastCount; i<count; i++) {
+                for (int i = lastCount; i < count; i++) {
                     Node n = flow.getChildren().get(i);
-                    if(n instanceof Text t) {
+                    if (n instanceof Text t) {
                         length += t.getText().length();
                     } else {
                         length++;
                     }
                 }
-                lastCount = count + 1;
-            } else {
-                v = byType.get(a);
             }
+            lastCount = count;
 
             int len = segment.getText().length();
-            if(v == null) {
-                v = new V(new Operation(type, value), length, len);
-                runs.add(v);
-                byType.put(a, v);
+            if(d == null) {
+                d = new Decor(new Operation(type, styleName), length, len);
+                runs.add(d);
+                byType.put(a, d);
             } else {
-                v.extend(len);
+                d.extend(len);
             }
+            length += len;
             
-            IO.println("TODO: " + a + " type=" + type + " value=" + value); // FIX
+            IO.println("add: " + a + " type=" + type + " styleName=" + styleName); // FIX
         }
     }
 }

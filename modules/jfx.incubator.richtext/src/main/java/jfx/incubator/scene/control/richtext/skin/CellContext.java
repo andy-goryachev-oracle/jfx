@@ -39,7 +39,14 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
  */
 public interface CellContext {
 
+    /**
+     * Specifies the decoration type to be applied to multiple text segments.
+     * @since 27
+     */
     public enum RunDecor {
+        /** Text background (highlight) decoration. */
+        HIGHLIGHT,
+        /** Wavy underline decoration. */
         WAVY_UNDERLINE
     }
 
@@ -68,16 +75,19 @@ public interface CellContext {
     public StyleAttributeMap getAttributes();
 
     /**
-     * Decorates the current segment with the specified attribute value, merging adjacent runs
-     * when the value is the same.  This method is used when the visual representation requires
+     * Decorates the current segment with the specified attribute, coalescing the adjacent runs into
+     * one decoration pass.
+     * <p>
+     * This method is used when the visual representation requires
      * uninterrupted segments instead of several adjacent ones, for example in the case of
      * wavy underline, in order to avoid breaks in the wave.
+     * This method expects that for any attribute the corresponding type and styleName are the same.
      *
      * @param <T> the attribute type
      * @param a the attribute
      * @param type the decoration type
-     * @param value the attribute value
+     * @param styleName the style name
      * @since 27
      */
-    public <T> void decorateRun(StyleAttribute<T> a, CellContext.RunDecor type, Object value);
+    public <T> void decorateRun(StyleAttribute<T> a, CellContext.RunDecor type, String styleName);
 }

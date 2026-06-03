@@ -120,4 +120,13 @@ public class Params {
 
     /** The number of paragraphs to lay out before and after the view point in VFlow. */
     public static final int SLIDING_WINDOW_EXTENT = 100;
+
+    /** Style name for underline wavy color 1 */
+    public static final String UNDERLINE_WAVY_1 = "underline-wavy-1";
+
+    /** Style name for underline wavy color 2 */
+    public static final String UNDERLINE_WAVY_2 = "underline-wavy-2";
+
+    /** Style name for underline wavy color 3 */
+    public static final String UNDERLINE_WAVY_3 = "underline-wavy-3";
 }
