@@ -513,7 +513,7 @@ public final class TextCell extends BorderPane {
         if (decorator == null) {
             decorator = new Decorator(flow());
         }
-        decorator.add(segment, a, type, styleName);
+        decorator.addRun(segment, a, type, styleName);
     }
 
     public void applyDecorations() {
@@ -558,7 +558,7 @@ public final class TextCell extends BorderPane {
     /// keeps track of coalesced decorated runs
     private static class Decorator {
         private final TextFlow flow;
-        private int length;
+        private int offset;
         private int lastCount;
         final ArrayList<Decor> runs = new ArrayList<>(4);
         private HashMap<StyleAttribute<?>,Decor> byType = new HashMap<>();
@@ -567,39 +567,31 @@ public final class TextCell extends BorderPane {
             this.flow = flow;
         }
 
-        public void add(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
+        public void addRun(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
+            // compute offset
             int count = flow.getChildren().size();
-            Decor d;
-            if ((lastCount + 1) == count) {
-                // coalesce runs
-                d = byType.get(a);
-            } else {
-                // no need to coalesce
-                byType.clear();
-                d = null;
-                // account for skipped segments
-                for (int i = lastCount; i < count; i++) {
-                    Node n = flow.getChildren().get(i);
-                    if (n instanceof Text t) {
-                        length += t.getText().length();
-                    } else {
-                        length++;
-                    }
+            for (int i = lastCount; i < count; i++) {
+                Node n = flow.getChildren().get(i);
+                if (n instanceof Text t) {
+                    offset += t.getText().length();
+                } else {
+                    offset++;
                 }
+            }
+
+            int len = segment.getText().length();
+            Decor d = byType.get(a);
+            if ((d != null) && (d.end == offset)) {
+                // coalese runs
+                d.extend(len);
+            } else {
+                d = new Decor(new Operation(type, styleName), offset, len);
+                runs.add(d);
+                byType.put(a, d);
             }
             lastCount = count;
 
-            int len = segment.getText().length();
-            if(d == null) {
-                d = new Decor(new Operation(type, styleName), length, len);
-                runs.add(d);
-                byType.put(a, d);
-            } else {
-                d.extend(len);
-            }
-            length += len;
-            
-            IO.println("add: " + a + " type=" + type + " styleName=" + styleName); // FIX
+            IO.println("add: " + a + " type=" + type + " styleName=" + styleName + " offset=" + offset); // FIX
         }
     }
 }
