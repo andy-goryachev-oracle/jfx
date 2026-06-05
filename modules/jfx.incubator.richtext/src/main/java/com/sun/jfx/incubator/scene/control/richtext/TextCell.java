@@ -534,7 +534,6 @@ public final class TextCell extends BorderPane {
                 default:
                     // silently ignore
                 }
-                IO.println("applyDecorations " + op.styleName + " " + d.start + " - " + d.end); // FIX
             }
             decorator = null;
         }
@@ -594,8 +593,6 @@ public final class TextCell extends BorderPane {
                 byType.put(a, d);
             }
             lastCount = count;
-
-            IO.println("add: " + a + " type=" + type + " styleName=" + styleName + " offset=" + offset); // FIX
         }
     }
 }
