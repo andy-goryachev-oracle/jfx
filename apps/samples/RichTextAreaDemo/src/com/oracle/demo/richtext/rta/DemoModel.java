@@ -51,6 +51,20 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
  * @author Andy Goryachev
  */
 public class DemoModel extends SimpleViewOnlyStyledModel {
+    private static final StyleAttributeMap OVERLAP1 = StyleAttributeMap.builder().
+        set(StyleAttributeMap.TEXT_HIGHLIGHT_1, Boolean.TRUE).
+        setFontSize(16).
+        build();
+    private static final StyleAttributeMap OVERLAP2 = StyleAttributeMap.builder().
+        set(StyleAttributeMap.TEXT_HIGHLIGHT_1, Boolean.TRUE).
+        set(StyleAttributeMap.TEXT_HIGHLIGHT_3, Boolean.TRUE).
+        setFontSize(16).
+        build();
+    private static final StyleAttributeMap OVERLAP3 = StyleAttributeMap.builder().
+        set(StyleAttributeMap.TEXT_HIGHLIGHT_3, Boolean.TRUE).
+        setFontSize(16).
+        build();
+
     private final SimpleStringProperty textField = new SimpleStringProperty();
 
     public DemoModel() {
@@ -134,7 +148,7 @@ public class DemoModel extends SimpleViewOnlyStyledModel {
         addWavyUnderline(0, 6, "squiggly-css");
         highlight(12, 3, "highlight1", "highlight2");
         nl();
-        addSegment("Highlights via StyleAttributes:");
+        addSegment("Highlighting with StyleAttributes:");
         nl();
         addSegment("-----");
         addSegment("wavy1", StyleAttributeMap.of(StyleAttributeMap.UNDERLINE_WAVY_1, Boolean.TRUE));
@@ -160,6 +174,10 @@ public class DemoModel extends SimpleViewOnlyStyledModel {
         addSegment("33", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_3, Boolean.TRUE));
         addSegment("44", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_4, Boolean.TRUE));
         addSegment("55", StyleAttributeMap.of(StyleAttributeMap.TEXT_HIGHLIGHT_5, Boolean.TRUE));
+        nl();
+        addSegment("over", OVERLAP1);
+        addSegment("lapping high", OVERLAP2);
+        addSegment("lights", OVERLAP3);
         nl(2);
 
         addParagraph(this::createRect);
