@@ -94,7 +94,7 @@ public class FileListFormatHandler extends DataFormatHandler {
         ed.replaceText(p, p, in);
     }
 
-    // This StyledInput converts a list of files into text segments 
+    /// This StyledInput converts a list of files into regular text segments
     private static class FileListStyledInput implements StyledInput {
 
         private final List<File> files;

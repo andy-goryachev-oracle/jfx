@@ -1192,7 +1192,7 @@ public class RichTextAreaTest {
     }
 
     private void assertAttrs(int index, int charIndex, boolean leading, boolean forInsert, StyleAttributeMap expected) {
-        int off = charIndex + (leading ? 0 : 1); 
+        int off = charIndex + (leading ? 0 : 1);
         TextPos p = new TextPos(index, off, charIndex, leading);
         StyleAttributeMap a = control.getStyleAttributeMap(p, forInsert);
         assertEquals(expected, a);
@@ -1242,9 +1242,9 @@ public class RichTextAreaTest {
         assertAttrs(1, 1, false, false, UNDER);
         assertAttrs(1, 999, true, false, UNDER);
         assertAttrs(1, 999, false, false, UNDER);
-        
+
         // for insert
-        
+
         assertAttrs(1, 0, true, true, UNDER);
         assertAttrs(1, 0, false, true, UNDER);
         assertAttrs(1, 1, true, true, UNDER);

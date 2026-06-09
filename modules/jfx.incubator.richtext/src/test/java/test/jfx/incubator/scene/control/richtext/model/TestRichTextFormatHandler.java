@@ -333,6 +333,6 @@ public class TestRichTextFormatHandler {
         byte[] bytes = Base64.getDecoder().decode(RED_PNG_32x32);
         testRoundTrip(
             s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, new EmbeddedImage(bytes, 32, 32, 32)))
-            );
+        );
     }
 }

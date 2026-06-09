@@ -27,13 +27,12 @@ package jfx.incubator.scene.control.richtext.model;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Objects;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.util.StringConverter;
+import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImageHelper;
 import com.sun.jfx.incubator.scene.control.richtext.RequiresComplexLayout;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
 
@@ -51,15 +50,22 @@ public final class EmbeddedImage {
      */
     public static final StyleAttribute<EmbeddedImage> ATTRIBUTE = StyleAttribute.inlineNode("img", EmbeddedImage.class);
 
-    /**
-     * The attribute String converter.
-     */
-    public static final StringConverter<EmbeddedImage> CONVERTER = new Converter();
+    static {
+        EmbeddedImageHelper.setAccessor(new EmbeddedImageHelper.Accessor() {
+            @Override
+            public byte[] getBytes(EmbeddedImage im) {
+                return im.bytes;
+            }
+        });
+    }
 
     private final byte[] bytes;
     private final double width;
     private final double height;
     private final double targetWidth;
+    // TODO
+    //private final double targetHeight;
+    //private final boolean keepAspectRatio;
 
     /**
      * Constructor.
@@ -74,10 +80,6 @@ public final class EmbeddedImage {
         this.width = width;
         this.height = height;
         this.targetWidth = targetWidth;
-    }
-
-    private byte[] getBytes() {
-        return bytes;
     }
 
     /**
@@ -107,7 +109,7 @@ public final class EmbeddedImage {
 
     @Override
     public String toString() {
-        return "EmbeddedImage{target=" + targetWidth + "}";
+        return "EmbeddedImage{targetWidth=" + targetWidth + "}";
     }
 
     @Override
@@ -127,7 +129,7 @@ public final class EmbeddedImage {
     @Override
     public int hashCode() {
         int h = EmbeddedImage.class.hashCode();
-        h = 31 * h + Objects.hashCode(bytes);
+        h = 31 * h + Arrays.hashCode(bytes);
         h = 31 * h + Double.hashCode(width);
         h = 31 * h + Double.hashCode(height);
         h = 31 * h + Double.hashCode(targetWidth);
@@ -139,6 +141,7 @@ public final class EmbeddedImage {
      * @param target the new target width
      * @return the new instance
      */
+    // FIX with parameters, keeping bytes, original size
     public EmbeddedImage setTargetWidth(double target) {
         return new EmbeddedImage(bytes, width, height, target);
     }
@@ -150,69 +153,18 @@ public final class EmbeddedImage {
     public Node createNode() {
         Image im = new Image(new ByteArrayInputStream(bytes));
         if (targetWidth < 0) {
-            return new Scaled(im);
+            return new Tracking(im);
         } else {
             return new Fixed(im);
         }
     }
 
-    /// Embedded Image StringConverter.
-    private static class Converter extends StringConverter<EmbeddedImage> {
-
-        @Override
-        public String toString(EmbeddedImage em) {
-            byte[] b = em.getBytes();
-            double w = em.getWidth();
-            double h = em.getHeight();
-            double tw = em.getTargetWidth();
-            return
-                "w," + w +
-                ",h," + h +
-                ",tw," + tw +
-                ",b," + Base64.getEncoder().encodeToString(b);
-        }
-
-        @Override
-        public EmbeddedImage fromString(String s) {
-            String[] ss = s.split(",");
-            byte[] b = null;
-            double w = Double.NaN;
-            double h = Double.NaN;
-            double tw = FIT_WIDTH;
-            for (int i = 0; i < ss.length;) {
-                String k = ss[i++];
-                String v = ss[i++];
-                switch (k) {
-                case "b":
-                    b = Base64.getDecoder().decode(v);
-                    break;
-                case "h":
-                    h = Double.parseDouble(v);
-                    break;
-                case "tw":
-                    tw = Double.parseDouble(v);
-                    break;
-                case "w":
-                    w = Double.parseDouble(v);
-                    break;
-                default:
-                    throw new IllegalArgumentException("unknown field " + k);
-                }
-            }
-            if ((b == null) || Double.isNaN(w) || Double.isNaN(h)) {
-                // exception could include first N characters for debugging purposes
-                throw new IllegalArgumentException("failed to parse EmbeddedImage");
-            }
-            return new EmbeddedImage(b, w, h, tw);
-        }
-    }
-
-    /// Image Container that scales so as not to exceed the document width.
-    private final class Scaled extends Label implements RequiresComplexLayout {
+    /// Image Container that tracks the document width.
+    private final class Tracking extends Label implements RequiresComplexLayout {
 
         private final ImageView view;
 
-        public Scaled(Image im) {
+        public Tracking(Image im) {
             view = new ImageView(im);
             view.setSmooth(true);
             view.setPreserveRatio(true);
@@ -233,7 +185,7 @@ public final class EmbeddedImage {
         }
     }
 
-    /// Image Container with a fixed image.
+    /// Image Container with a fixed-size image.
     private final class Fixed extends Label {
 
         public Fixed(Image im) {

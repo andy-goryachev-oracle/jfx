@@ -130,6 +130,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
 
     private static final StringConverter<Boolean> BOOLEAN_CONVERTER = Converters.booleanConverter();
     private static final StringConverter<Color> COLOR_CONVERTER = Converters.colorConverter();
+    private static final StringConverter<EmbeddedImage> IMAGE_CONVERTER = Converters.imageConverter();
     private static final StringConverter<ParagraphDirection> DIRECTION_CONVERTER = Converters.paragraphDirectionConverter();
     private static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
     private static final StringConverter<String> STRING_CONVERTER = Converters.stringConverter();
@@ -155,6 +156,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
         addHandler(StyleAttributeMap.FIRST_LINE_INDENT, "firstIndent", DOUBLE_CONVERTER);
         addHandler(StyleAttributeMap.FONT_SIZE, "fs", DOUBLE_CONVERTER);
         addHandlerBoolean(StyleAttributeMap.ITALIC, "i");
+        addHandler(EmbeddedImage.ATTRIBUTE, "img", IMAGE_CONVERTER);
         addHandler(StyleAttributeMap.LINE_SPACING, "lineSpacing", DOUBLE_CONVERTER);
         addHandler(StyleAttributeMap.PARAGRAPH_DIRECTION, "dir", DIRECTION_CONVERTER);
         addHandler(StyleAttributeMap.SPACE_ABOVE, "spaceAbove", DOUBLE_CONVERTER);
@@ -166,7 +168,6 @@ public class RichTextFormatHandler extends DataFormatHandler {
         addHandler(StyleAttributeMap.TEXT_ALIGNMENT, "alignment", TEXT_ALIGNMENT_CONVERTER);
         addHandler(StyleAttributeMap.TEXT_COLOR, "tc", COLOR_CONVERTER);
         addHandlerBoolean(StyleAttributeMap.UNDERLINE, "u");
-        addHandler(EmbeddedImage.ATTRIBUTE, "img", EmbeddedImage.CONVERTER);
     }
 
     /**
@@ -319,7 +320,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
                         {
                             StyleAttributeMap attrs = seg.getStyleAttributeMap(resolver);
                             emitAttributes(attrs, false);
-    
+
                             String text = seg.getText();
                             text = encode(text);
                             wr.write(text);

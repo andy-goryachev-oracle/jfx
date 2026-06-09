@@ -130,7 +130,7 @@ Notes:
 
 #### Embedded Images
 
-Embedded images are coded as character attributes with the tag `img`.  
+Embedded images are coded as character attributes with the tag `img`.
 The data portion of the attribute specifies the following comma-delimited fields:
 
 |Code    |Type          |Description                                                     |
