@@ -332,7 +332,7 @@ public class TestRichTextFormatHandler {
         String RED_PNG_32x32 = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVR4Xu3OoQEAAAjDsP3/NPgdACaVVck8lx7XAQAAAAAAAAAAAAAAAAAALJf68OJSymrlAAAAAElFTkSuQmCC";
         byte[] bytes = Base64.getDecoder().decode(RED_PNG_32x32);
         testRoundTrip(
-            s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, new EmbeddedImage(bytes, 32, 32, 32)))
+            s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, new EmbeddedImage(bytes, 32, 32, 32, 32, true)))
         );
     }
 }

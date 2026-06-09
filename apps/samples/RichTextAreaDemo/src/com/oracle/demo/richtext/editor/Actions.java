@@ -320,9 +320,10 @@ public class Actions {
         FX.item(m, "Paragraph...", paragraphStyle);
         if (im != null) {
             Menu m2 = FX.menu(m, "Image");
-            FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH));
-            FX.item(m2, "Original Size", () -> formatImage(p, im, im.getWidth()));
-            FX.item(m2, "200 px", () -> formatImage(p, im, 200));
+            FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true));
+            FX.item(m2, "Original Size", () -> formatImage(p, im, EmbeddedImage.AUTO, EmbeddedImage.AUTO, true));
+            FX.item(m2, "200 px", () -> formatImage(p, im, 200, EmbeddedImage.AUTO, true));
+            FX.item(m2, "500 x 50", () -> formatImage(p, im, 500, 50, false));
         }
     }
 
@@ -345,10 +346,10 @@ public class Actions {
         return null;
     }
 
-    private void formatImage(TextPos p, EmbeddedImage im, double targetWidth) {
+    private void formatImage(TextPos p, EmbeddedImage im, double targetWidth, double targetHeight, boolean keepAspectRatio) {
         TextPos start = Utils.leading(p);
         TextPos end = Utils.trailing(p);
-        EmbeddedImage updated = im.setTargetWidth(targetWidth);
+        EmbeddedImage updated = im.copy(targetWidth, targetHeight, keepAspectRatio);
         StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, updated);
         editor.applyStyle(start, end, a);
     }

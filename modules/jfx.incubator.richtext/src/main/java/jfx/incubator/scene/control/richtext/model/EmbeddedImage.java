@@ -27,7 +27,6 @@ package jfx.incubator.scene.control.richtext.model;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
-import java.util.Objects;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -42,8 +41,19 @@ import com.sun.jfx.incubator.scene.control.richtext.VFlow;
  */
 public final class EmbeddedImage {
 
-    /** Limits the width of the inline to the wrapped text width. */
+    /**
+     * Sentinel value which can be passed to either {@code tagetWidth} or {@code targetHeight}
+     * to indicate that the value should be computed according to the image intrinsic aspect ratio.
+     */
+    public static final double AUTO = 0.0;
+
+    /**
+     * Sentinel value which can be passed to {@code targetWidth}
+     * to indicate that the image width should not exceed the view's wrapped text width.
+     */
     public static final double FIT_WIDTH = -1.0;
+
+    // TODO FULL_PARAGRAPH
 
     /**
      * The attribute descriptor.
@@ -63,9 +73,8 @@ public final class EmbeddedImage {
     private final double width;
     private final double height;
     private final double targetWidth;
-    // TODO
-    //private final double targetHeight;
-    //private final boolean keepAspectRatio;
+    private final double targetHeight;
+    private final boolean keepAspectRatio;
 
     /**
      * Constructor.
@@ -73,13 +82,23 @@ public final class EmbeddedImage {
      * @param bytes the image source
      * @param width the original image width
      * @param height the original image height
-     * @param targetWidth target image width, or {link #FIT_WIDTH}
+     * @param targetWidth the target image width, or {@link #FIT_WIDTH} or {@link #AUTO}
+     * @param targetHeight the target image height, or {@link #AUTO}
      */
-    public EmbeddedImage(byte[] bytes, double width, double height, double targetWidth) {
+    public EmbeddedImage(
+        byte[] bytes,
+        double width,
+        double height,
+        double targetWidth,
+        double targetHeight,
+        boolean keepAspectRatio
+    ) {
         this.bytes = bytes;
         this.width = width;
         this.height = height;
         this.targetWidth = targetWidth;
+        this.targetHeight = targetHeight;
+        this.keepAspectRatio = keepAspectRatio;
     }
 
     /**
@@ -100,16 +119,34 @@ public final class EmbeddedImage {
 
     /**
      * Returns the target image width specification: positive when specifying the final width,
+     * or {@link #AUTO} to determine the value from {@link #isKeepAspectRatio()} and {@link #getWidth()},
      * or {@link #FIT_WIDTH} to make the image not to exceed the viewport width.
-     * @return the image width
+     * @return the image target width
      */
     public double getTargetWidth() {
         return targetWidth;
     }
 
+    /**
+     * Returns the target image height specification: positive when specifying the final height,
+     * or {@link #AUTO} to determine the value from {@link #isKeepAspectRatio()} and {@link #getHeight()}.
+     * @return the image target height
+     */
+    public double getTargetHeight() {
+        return targetHeight;
+    }
+
+    public boolean isKeepAspectRatio() {
+        return keepAspectRatio;
+    }
+
     @Override
     public String toString() {
-        return "EmbeddedImage{targetWidth=" + targetWidth + "}";
+        return
+            "EmbeddedImage{targetWidth=" + targetWidth +
+            " targetHeight=" + targetHeight +
+            " keepAspectRatio=" + keepAspectRatio +
+            "}";
     }
 
     @Override
@@ -121,6 +158,8 @@ public final class EmbeddedImage {
                 (width == im.width) &&
                 (height == im.height) &&
                 (targetWidth == im.targetWidth) &&
+                (targetHeight == im.targetHeight) &&
+                (keepAspectRatio == im.keepAspectRatio) &&
                 Arrays.equals(bytes, im.bytes);
         }
         return false;
@@ -133,17 +172,20 @@ public final class EmbeddedImage {
         h = 31 * h + Double.hashCode(width);
         h = 31 * h + Double.hashCode(height);
         h = 31 * h + Double.hashCode(targetWidth);
+        h = 31 * h + Double.hashCode(targetHeight);
+        h = 31 * h + Boolean.hashCode(keepAspectRatio);
         return h;
     }
 
     /**
-     * Creates a copy of this {@code EmbeddedImage} with the specified target width.
-     * @param target the new target width
+     * Creates a copy of this {@code EmbeddedImage} with the specified target width, height, and aspect ratio.
+     * @param targetWidth the new target width
+     * @param targetHeight the new target height
+     * @param keepAspectRatio whether to keep the aspect ratio
      * @return the new instance
      */
-    // FIX with parameters, keeping bytes, original size
-    public EmbeddedImage setTargetWidth(double target) {
-        return new EmbeddedImage(bytes, width, height, target);
+    public EmbeddedImage copy(double targetWidth, double targetHeight, boolean keepAspectRatio) {
+        return new EmbeddedImage(bytes, width, height, targetWidth, targetHeight, keepAspectRatio);
     }
 
     /**
@@ -152,7 +194,7 @@ public final class EmbeddedImage {
      */
     public Node createNode() {
         Image im = new Image(new ByteArrayInputStream(bytes));
-        if (targetWidth < 0) {
+        if (targetWidth == FIT_WIDTH) {
             return new Tracking(im);
         } else {
             return new Fixed(im);
@@ -166,8 +208,9 @@ public final class EmbeddedImage {
 
         public Tracking(Image im) {
             view = new ImageView(im);
+            // view.setStyle("tracking-image"); // TODO for testing? no css should touch this node
             view.setSmooth(true);
-            view.setPreserveRatio(true);
+            view.setPreserveRatio(keepAspectRatio);
             
             setGraphic(view);
             setMaxWidth(Double.MAX_VALUE);
@@ -178,10 +221,21 @@ public final class EmbeddedImage {
         @Override
         public void updateVFlowContext(VFlow f) {
             double av = f.availableWidth();
-            if (targetWidth < 0.0) {
-                double fitWidth = ((av > 0.0) && (width > av)) ? av : width;
-                view.setFitWidth(fitWidth);
+            double fw = ((av > 0.0) && (width > av)) ? av : width;
+            double fh = computeHeight();
+            view.setFitWidth(fw);
+            view.setFitHeight(fh);
+            // takes the full paragraph
+            setPrefWidth(av);
+        }
+
+        private double computeHeight() {
+            if (!keepAspectRatio) {
+                if (targetHeight > 0.0) {
+                    return targetHeight;
+                }
             }
+            return 0.0;
         }
     }
 
@@ -191,13 +245,18 @@ public final class EmbeddedImage {
         public Fixed(Image im) {
             ImageView view = new ImageView(im);
             view.setSmooth(true);
-            view.setPreserveRatio(true);
-            view.setFitWidth(targetWidth);
+            view.setPreserveRatio(keepAspectRatio);
+            view.setFitWidth(normalize(targetWidth));
+            view.setFitHeight(normalize(targetHeight));
 
             setGraphic(view);
             setMaxWidth(USE_PREF_SIZE);
             setMinWidth(2);
             setMinHeight(2);
+        }
+
+        private static double normalize(double x) {
+            return (x < 0.0) ? 0.0 : x;
         }
     }
 }

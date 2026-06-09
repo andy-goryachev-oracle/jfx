@@ -119,7 +119,7 @@ public class FileListFormatHandler extends DataFormatHandler {
                         if (!im.isError()) {
                             double w = im.getWidth();
                             double h = im.getHeight();
-                            EmbeddedImage em = new EmbeddedImage(b, w, h, EmbeddedImage.FIT_WIDTH);
+                            EmbeddedImage em = new EmbeddedImage(b, w, h, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true);
                             StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, em);
                             return StyledSegment.of(" ", a);
                         }

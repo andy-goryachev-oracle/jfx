@@ -268,10 +268,13 @@ public class Converters {
             @Override
             public String toString(EmbeddedImage em) {
                 byte[] b = EmbeddedImageHelper.getBytes(em);
-                double w = em.getWidth();
-                double h = em.getHeight();
-                double tw = em.getTargetWidth();
-                return "w," + w + ",h," + h + ",tw," + tw + ",b," + Base64.getEncoder().encodeToString(b);
+                return
+                    "w," + em.getWidth() +
+                    ",h," + em.getHeight() +
+                    ",tw," + em.getTargetWidth() +
+                    ",th," + em.getTargetHeight() +
+                    ",a," + em.isKeepAspectRatio() +
+                    ",b," + Base64.getEncoder().encodeToString(b);
             }
 
             @Override
@@ -281,10 +284,15 @@ public class Converters {
                 double w = Double.NaN;
                 double h = Double.NaN;
                 double tw = EmbeddedImage.FIT_WIDTH;
+                double th = EmbeddedImage.AUTO;
+                boolean aspect = true;
                 for (int i = 0; i < ss.length;) {
                     String k = ss[i++];
                     String v = ss[i++];
                     switch (k) {
+                    case "a":
+                        aspect = "true".equals(v);
+                        break;
                     case "b":
                         b = Base64.getDecoder().decode(v);
                         break;
@@ -293,6 +301,9 @@ public class Converters {
                         break;
                     case "tw":
                         tw = Double.parseDouble(v);
+                        break;
+                    case "th":
+                        th = Double.parseDouble(v);
                         break;
                     case "w":
                         w = Double.parseDouble(v);
@@ -305,7 +316,7 @@ public class Converters {
                     // exception could include first N characters for debugging purposes
                     throw new IllegalArgumentException("failed to parse EmbeddedImage");
                 }
-                return new EmbeddedImage(b, w, h, tw);
+                return new EmbeddedImage(b, w, h, tw, th, aspect);
             }
         };
     }
