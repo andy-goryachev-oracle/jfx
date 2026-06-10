@@ -115,6 +115,8 @@ public class FileListFormatHandler extends DataFormatHandler {
                 File f = files.get(index++);
                 if (f.isFile()) {
                     try {
+                        // no file size checks here even though
+                        // dropping large files might cause OOME or block the FX thread
                         byte[] b = Files.readAllBytes(f.toPath());
                         Image im = new Image(new ByteArrayInputStream(b), false);
                         if (!im.isError()) {

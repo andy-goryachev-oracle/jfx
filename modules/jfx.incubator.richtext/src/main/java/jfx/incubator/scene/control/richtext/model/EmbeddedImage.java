@@ -53,7 +53,11 @@ public final class EmbeddedImage {
      */
     public static final double FIT_WIDTH = -1.0;
 
-    // TODO FULL_PARAGRAPH
+    /**
+     * Sentinel value which can be passed to {@code targetWidth}
+     * to indicate that the image width should always fit the view's wrapped text width.
+     */
+    public static final double FIT_WIDTH_ALWAYS = -2.0;
 
     /**
      * The attribute descriptor.
@@ -88,15 +92,7 @@ public final class EmbeddedImage {
     private final double targetHeight;
     private final boolean keepAspectRatio;
 
-    /**
-     * Private constructor which DOES NOT make a defensive copy of the bytes.
-     *
-     * @param bytes the image source
-     * @param width the original image width
-     * @param height the original image height
-     * @param targetWidth the target image width, or {@link #FIT_WIDTH} or {@link #AUTO}
-     * @param targetHeight the target image height, or {@link #AUTO}
-     */
+    /// Private constructor that DOES NOT make a defensive copy of the bytes.
     private EmbeddedImage(
         byte[] bytes,
         double width,
@@ -115,12 +111,16 @@ public final class EmbeddedImage {
 
     /**
      * Creates a new EmbeddedImage instance while making a defensive copy of the {@code bytes} array.
+     * <p>
+     * Any negative value passed to either {@code targetWidth} or {@code targetHeight} other than the declared
+     * sentinel values will be treated as {@link #AUTO}.
      *
      * @param bytes the image source
      * @param width the original image width
      * @param height the original image height
-     * @param targetWidth the target image width, or {@link #FIT_WIDTH} or {@link #AUTO}
+     * @param targetWidth the target image width, or {@link #FIT_WIDTH}, {@link #FIT_WIDTH_ALWAYS}, or {@link #AUTO}
      * @param targetHeight the target image height, or {@link #AUTO}
+     * @param keepAspectRatio whether to preserve the image aspect ratio
      * @return the new instance
      */
     public static EmbeddedImage of(
@@ -232,7 +232,7 @@ public final class EmbeddedImage {
      */
     public Node createNode() {
         Image im = new Image(new ByteArrayInputStream(bytes));
-        if (targetWidth == FIT_WIDTH) {
+        if ((targetWidth == FIT_WIDTH) || (targetWidth == FIT_WIDTH_ALWAYS)) {
             return new Tracking(im);
         } else {
             return new Fixed(im);
@@ -259,15 +259,26 @@ public final class EmbeddedImage {
         @Override
         public void updateVFlowContext(VFlow f) {
             double av = f.availableWidth();
-            double fw = ((av > 0.0) && (width > av)) ? av : width;
-            double fh = computeHeight();
+            double fw = computeFitWidth(av);
+            double fh = computeFitHeight();
             view.setFitWidth(fw);
             view.setFitHeight(fh);
             // takes the full paragraph
             setPrefWidth(av);
         }
 
-        private double computeHeight() {
+        private double computeFitWidth(double av) {
+            if (av >= 0.0) {
+                if (targetWidth == FIT_WIDTH_ALWAYS) {
+                    return av;
+                } else if (width > av) {
+                    return av;
+                }
+            }
+            return width;
+        }
+
+        private double computeFitHeight() {
             if (!keepAspectRatio) {
                 if (targetHeight > 0.0) {
                     return targetHeight;

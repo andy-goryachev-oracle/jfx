@@ -745,7 +745,7 @@ public class RichTextModel extends StyledTextModel {
                 removeRange(ix0, ix1);
                 if (size() == 0) {
                     // keep attributes in a zero width segment
-                    add(new RSegment("", seg.getStyleAttributeMap()));
+                    add(new RSegment("", RichUtils.filterOutNodeAttributes(seg.getStyleAttributeMap())));
                 }
             }
         }

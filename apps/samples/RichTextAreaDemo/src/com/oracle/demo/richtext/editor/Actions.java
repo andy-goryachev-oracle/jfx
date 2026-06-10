@@ -320,10 +320,21 @@ public class Actions {
         FX.item(m, "Paragraph...", paragraphStyle);
         if (im != null) {
             Menu m2 = FX.menu(m, "Image");
+            Menu m3 = FX.menu(m2, "Width");
+            FX.item(m3, "AUTO", () -> formatImage(p, im, EmbeddedImage.AUTO, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "FIT_WIDTH", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "FIT_WIDTH_ALWAYS", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH_ALWAYS, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "50", () -> formatImage(p, im, 50, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "500", () -> formatImage(p, im, 500, im.getTargetHeight(), im.isKeepAspectRatio()));
+            m3 = FX.menu(m2, "Height");
+            FX.item(m3, "AUTO", () -> formatImage(p, im, im.getTargetWidth(), EmbeddedImage.AUTO, im.isKeepAspectRatio()));
+            FX.item(m3, "50", () -> formatImage(p, im, im.getTargetWidth(), 50, im.isKeepAspectRatio()));
+            FX.item(m3, "500", () -> formatImage(p, im, im.getTargetWidth(), 500, im.isKeepAspectRatio()));
+            FX.checkItem(m2, "Keep Aspect Ratio", im.isKeepAspectRatio(), (v) -> formatImage(p, im, im.getTargetWidth(), im.getTargetHeight(), !im.isKeepAspectRatio()));
+            FX.separator(m2);
             FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true));
+            FX.item(m2, "Fit to Width Always", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH_ALWAYS, EmbeddedImage.AUTO, true));
             FX.item(m2, "Original Size", () -> formatImage(p, im, EmbeddedImage.AUTO, EmbeddedImage.AUTO, true));
-            FX.item(m2, "200 px", () -> formatImage(p, im, 200, EmbeddedImage.AUTO, true));
-            FX.item(m2, "500 x 50", () -> formatImage(p, im, 500, 50, false));
         }
     }
 
