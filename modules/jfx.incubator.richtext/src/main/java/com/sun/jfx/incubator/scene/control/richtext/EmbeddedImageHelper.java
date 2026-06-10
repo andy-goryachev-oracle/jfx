@@ -28,11 +28,21 @@ package com.sun.jfx.incubator.scene.control.richtext;
 import com.sun.javafx.util.Utils;
 import jfx.incubator.scene.control.richtext.model.EmbeddedImage;
 
-/// Helper for the EmbeddedImage class. 
+/// Helper for the EmbeddedImage class.
 public class EmbeddedImageHelper {
 
     public interface Accessor {
+
         public byte[] getBytes(EmbeddedImage im);
+
+        public EmbeddedImage create(
+            byte[] bytes,
+            double width,
+            double height,
+            double targetWidth,
+            double targetHeight,
+            boolean keepAspectRatio
+        );
     }
 
     static {
@@ -48,7 +58,20 @@ public class EmbeddedImageHelper {
         accessor = a;
     }
 
+    /// returns the image bytes with no defensive copy made.
     public static byte[] getBytes(EmbeddedImage im) {
         return accessor.getBytes(im);
+    }
+
+    /// Creates an EmbeddedImage without making defensive copy of the bytes.
+    public static EmbeddedImage create(
+        byte[] bytes,
+        double width,
+        double height,
+        double targetWidth,
+        double targetHeight,
+        boolean keepAspectRatio
+    ) {
+        return accessor.create(bytes, width, height, targetWidth, targetHeight, keepAspectRatio);
     }
 }

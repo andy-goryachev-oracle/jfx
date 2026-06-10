@@ -316,7 +316,7 @@ public class Converters {
                     // exception could include first N characters for debugging purposes
                     throw new IllegalArgumentException("failed to parse EmbeddedImage");
                 }
-                return new EmbeddedImage(b, w, h, tw, th, aspect);
+                return EmbeddedImageHelper.create(b, w, h, tw, th, aspect);
             }
         };
     }

@@ -66,6 +66,18 @@ public final class EmbeddedImage {
             public byte[] getBytes(EmbeddedImage im) {
                 return im.bytes;
             }
+
+            @Override
+            public EmbeddedImage create(
+                byte[] bytes,
+                double width,
+                double height,
+                double targetWidth,
+                double targetHeight,
+                boolean keepAspectRatio
+            ) {
+                return new EmbeddedImage(bytes, width, height, targetWidth, targetHeight, keepAspectRatio);
+            }
         });
     }
 
@@ -77,7 +89,7 @@ public final class EmbeddedImage {
     private final boolean keepAspectRatio;
 
     /**
-     * Constructor.
+     * Private constructor which DOES NOT make a defensive copy of the bytes.
      *
      * @param bytes the image source
      * @param width the original image width
@@ -85,7 +97,7 @@ public final class EmbeddedImage {
      * @param targetWidth the target image width, or {@link #FIT_WIDTH} or {@link #AUTO}
      * @param targetHeight the target image height, or {@link #AUTO}
      */
-    public EmbeddedImage(
+    private EmbeddedImage(
         byte[] bytes,
         double width,
         double height,
@@ -99,6 +111,28 @@ public final class EmbeddedImage {
         this.targetWidth = targetWidth;
         this.targetHeight = targetHeight;
         this.keepAspectRatio = keepAspectRatio;
+    }
+
+    /**
+     * Creates a new EmbeddedImage instance while making a defensive copy of the {@code bytes} array.
+     *
+     * @param bytes the image source
+     * @param width the original image width
+     * @param height the original image height
+     * @param targetWidth the target image width, or {@link #FIT_WIDTH} or {@link #AUTO}
+     * @param targetHeight the target image height, or {@link #AUTO}
+     * @return the new instance
+     */
+    public static EmbeddedImage of(
+        byte[] bytes,
+        double width,
+        double height,
+        double targetWidth,
+        double targetHeight,
+        boolean keepAspectRatio
+    ) {
+        byte[] b = Arrays.copyOf(bytes, bytes.length);
+        return new EmbeddedImage(b, width, height, targetWidth, targetHeight, keepAspectRatio); 
     }
 
     /**
@@ -136,6 +170,10 @@ public final class EmbeddedImage {
         return targetHeight;
     }
 
+    /**
+     * Indicates whether the aspect ratio of this image is preserved when scaling to fit the image within the document.
+     * @return true if the aspect ratio is preserved
+     */
     public boolean isKeepAspectRatio() {
         return keepAspectRatio;
     }
@@ -211,7 +249,7 @@ public final class EmbeddedImage {
             // view.setStyle("tracking-image"); // TODO for testing? no css should touch this node
             view.setSmooth(true);
             view.setPreserveRatio(keepAspectRatio);
-            
+
             setGraphic(view);
             setMaxWidth(Double.MAX_VALUE);
             setMinWidth(2);

@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
+import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImageHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.StyleResolver;
@@ -119,7 +120,7 @@ public class FileListFormatHandler extends DataFormatHandler {
                         if (!im.isError()) {
                             double w = im.getWidth();
                             double h = im.getHeight();
-                            EmbeddedImage em = new EmbeddedImage(b, w, h, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true);
+                            EmbeddedImage em = EmbeddedImageHelper.create(b, w, h, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true);
                             StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, em);
                             return StyledSegment.of(" ", a);
                         }
