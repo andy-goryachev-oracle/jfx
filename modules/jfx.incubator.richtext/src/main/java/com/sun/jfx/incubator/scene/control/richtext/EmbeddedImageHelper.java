@@ -25,7 +25,10 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.sun.javafx.util.Utils;
+import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.model.EmbeddedImage;
 
 /// Helper for the EmbeddedImage class.
@@ -58,7 +61,7 @@ public class EmbeddedImageHelper {
         accessor = a;
     }
 
-    /// returns the image bytes with no defensive copy made.
+    /// Returns the image bytes without making defensive copy.
     public static byte[] getBytes(EmbeddedImage im) {
         return accessor.getBytes(im);
     }
@@ -73,5 +76,19 @@ public class EmbeddedImageHelper {
         boolean keepAspectRatio
     ) {
         return accessor.create(bytes, width, height, targetWidth, targetHeight, keepAspectRatio);
+    }
+
+    /// Returns visible TextCells.
+    public static List<TextCell> getVisibleTextCells(RichTextArea r) {
+        ArrayList<TextCell> rv = new ArrayList<>();
+        VFlow f = RichTextAreaSkinHelper.getVFlow(r);
+        if (f != null) {
+            int ct = f.arrangement().getVisibleCellCount();
+            for (int i = 0; i < ct; i++) {
+                TextCell cell = f.getCell(i);
+                rv.add(cell);
+            }
+        }
+        return rv;
     }
 }

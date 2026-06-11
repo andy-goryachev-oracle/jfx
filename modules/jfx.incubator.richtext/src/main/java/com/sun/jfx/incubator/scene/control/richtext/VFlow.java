@@ -1569,7 +1569,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
         if (vsbVisible != vscroll.isVisible()) {
             if (nestedLayout && !vsbVisible) {
-                // no change to avoid inifinite cycles
+                // no change to avoid infinite cycles
                 vsbVisible = true;
             } else {
                 vscroll.setVisible(vsbVisible);

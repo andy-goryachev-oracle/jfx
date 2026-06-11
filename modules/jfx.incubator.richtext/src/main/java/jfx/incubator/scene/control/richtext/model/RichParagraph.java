@@ -385,7 +385,7 @@ public abstract class RichParagraph {
         /**
          * Adds an inline node.
          * <p>
-         * The supplied generator must not cache or keep reference to the created Node,
+         * The supplied generator must not cache or keep a reference to the created Node,
          * but the created Node can keep a reference to the model or some property therein.
          * <p>
          * For example, a bidirectional binding between an inline control and some property in the model

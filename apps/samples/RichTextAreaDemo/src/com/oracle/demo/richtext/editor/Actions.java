@@ -350,7 +350,7 @@ public class Actions {
     }
 
     private EmbeddedImage embeddedImageAt(TextPos p) {
-        if(p != null) {
+        if (p != null) {
             StyleAttributeMap a = editor.getStyleAttributeMap(p, false);
             return a.get(EmbeddedImage.ATTRIBUTE);
         }

@@ -36,13 +36,13 @@ import com.sun.jfx.incubator.scene.control.richtext.RequiresComplexLayout;
 import com.sun.jfx.incubator.scene.control.richtext.VFlow;
 
 /**
- * An attribute which allows to embed an image into the {@link RichTextModel}.
+ * An attribute which allows an image to be embedded into the {@link RichTextModel}.
  * @since 27
  */
 public final class EmbeddedImage {
 
     /**
-     * Sentinel value which can be passed to either {@code tagetWidth} or {@code targetHeight}
+     * Sentinel value which can be passed to either {@code targetWidth} or {@code targetHeight}
      * to indicate that the value should be computed according to the image intrinsic aspect ratio.
      */
     public static final double AUTO = 0.0;
@@ -113,7 +113,7 @@ public final class EmbeddedImage {
      * Creates a new EmbeddedImage instance while making a defensive copy of the {@code bytes} array.
      * <p>
      * Any negative value passed to either {@code targetWidth} or {@code targetHeight} other than the declared
-     * sentinel values will be treated as {@link #AUTO}.
+     * sentinel values the image will be rendered as if the value {@link #AUTO} was passed.
      *
      * @param bytes the image source
      * @param width the original image width
@@ -132,7 +132,7 @@ public final class EmbeddedImage {
         boolean keepAspectRatio
     ) {
         byte[] b = Arrays.copyOf(bytes, bytes.length);
-        return new EmbeddedImage(b, width, height, targetWidth, targetHeight, keepAspectRatio); 
+        return new EmbeddedImage(b, width, height, targetWidth, targetHeight, keepAspectRatio);
     }
 
     /**
@@ -154,7 +154,8 @@ public final class EmbeddedImage {
     /**
      * Returns the target image width specification: positive when specifying the final width,
      * or {@link #AUTO} to determine the value from {@link #isKeepAspectRatio()} and {@link #getWidth()},
-     * or {@link #FIT_WIDTH} to make the image not to exceed the viewport width.
+     * or {@link #FIT_WIDTH} to ensure the image does not exceed the viewport width,
+     * or {@link #FIT_WIDTH_ALWAYS} to always fit the viewport width.
      * @return the image target width
      */
     public double getTargetWidth() {
@@ -181,7 +182,9 @@ public final class EmbeddedImage {
     @Override
     public String toString() {
         return
-            "EmbeddedImage{targetWidth=" + targetWidth +
+            "EmbeddedImage{" +
+            "\"" + width + " x " + height + "\"" +
+            " targetWidth=" + targetWidth +
             " targetHeight=" + targetHeight +
             " keepAspectRatio=" + keepAspectRatio +
             "}";
@@ -239,6 +242,27 @@ public final class EmbeddedImage {
         }
     }
 
+    /// Image Container with a fixed-size image.
+    private final class Fixed extends Label {
+
+        public Fixed(Image im) {
+            ImageView view = new ImageView(im);
+            view.setSmooth(true);
+            view.setPreserveRatio(keepAspectRatio);
+            view.setFitWidth(normalize(targetWidth));
+            view.setFitHeight(normalize(targetHeight));
+
+            setGraphic(view);
+            setMaxWidth(USE_PREF_SIZE);
+            setMinWidth(2);
+            setMinHeight(2);
+        }
+
+        private static double normalize(double x) {
+            return (x < 0.0) ? 0.0 : x;
+        }
+    }
+
     /// Image Container that tracks the document width.
     private final class Tracking extends Label implements RequiresComplexLayout {
 
@@ -282,30 +306,11 @@ public final class EmbeddedImage {
             if (!keepAspectRatio) {
                 if (targetHeight > 0.0) {
                     return targetHeight;
+                } else {
+                    return height;
                 }
             }
             return 0.0;
-        }
-    }
-
-    /// Image Container with a fixed-size image.
-    private final class Fixed extends Label {
-
-        public Fixed(Image im) {
-            ImageView view = new ImageView(im);
-            view.setSmooth(true);
-            view.setPreserveRatio(keepAspectRatio);
-            view.setFitWidth(normalize(targetWidth));
-            view.setFitHeight(normalize(targetHeight));
-
-            setGraphic(view);
-            setMaxWidth(USE_PREF_SIZE);
-            setMinWidth(2);
-            setMinHeight(2);
-        }
-
-        private static double normalize(double x) {
-            return (x < 0.0) ? 0.0 : x;
         }
     }
 }

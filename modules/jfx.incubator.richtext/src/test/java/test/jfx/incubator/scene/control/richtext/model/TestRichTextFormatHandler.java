@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
@@ -49,6 +48,7 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledInput;
 import jfx.incubator.scene.control.richtext.model.StyledOutput;
 import jfx.incubator.scene.control.richtext.model.StyledSegment;
+import test.jfx.incubator.scene.control.richtext.support.RTUtil;
 
 /**
  * Tests RichTextFormatHandler.
@@ -330,8 +330,7 @@ public class TestRichTextFormatHandler {
 
     @Test
     public void embeddedImage() throws IOException {
-        String RED_PNG_32x32 = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVR4Xu3OoQEAAAjDsP3/NPgdACaVVck8lx7XAQAAAAAAAAAAAAAAAAAALJf68OJSymrlAAAAAElFTkSuQmCC";
-        byte[] bytes = Base64.getDecoder().decode(RED_PNG_32x32);
+        byte[] bytes = RTUtil.redPng32x32();
         testRoundTrip(
             s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, EmbeddedImageHelper.create(bytes, 32, 32, 32, 32, true)))
         );
