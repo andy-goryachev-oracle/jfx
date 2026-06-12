@@ -1354,7 +1354,6 @@ public class RichTextAreaTest {
             control.replaceText(TextPos.ZERO, TextPos.ZERO, new SegmentStyledInput(segments));
             control.setWrapText(true);
             RTUtil.firePulse();
-            RTUtil.firePulse();
             checkSizes(32, 32, 32);
 
             // targetWidth       targetHeight        keepAspect      containerWidth  renderedWidth       renderedHeight
@@ -1367,7 +1366,7 @@ public class RichTextAreaTest {
             c(-100, 320, false, fix(32,2), fix(32,0), 320);
             // negative          positive            true            scale           scaled              target
             c(-100, 320, true, fix(viewWidth,2), fix(320,0), 320);
-            // FIT_WIDTH         AUTO                false           view            origina             original
+            // FIT_WIDTH         AUTO                false           view            original            original
             c(EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, false, viewWidth, 32, 32);
             // FIT_WIDTH         AUTO (ignored)      true            view            view                scaled
             c(EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true, viewWidth, 32, fix(222,0)); // FIX 32*scale
@@ -1405,11 +1404,11 @@ public class RichTextAreaTest {
         }
     }
 
-    // FIX looks like a test problem: the test code does not measure the right sizes, or something else is missing
-    // once it's fixed, the method and the incorrect 'actual' values should be removed.
+    // StubToolkit does not support image resizing, see StubImageLoaderFactory:44
+    // We could remove this method once the resizing is implemented.
     @Deprecated
     private static double fix(double expected, double actual) {
-        return actual;
+        return actual; // FIX
     }
 
     private void c(double w, double h, boolean keepAspectRatio, double expContainerWidth, double expectedWidth, double expectedHeight) {
@@ -1440,10 +1439,13 @@ public class RichTextAreaTest {
         Label container = (Label)n;
         assertTrue(container.getGraphic() instanceof ImageView);
         ImageView im = (ImageView)container.getGraphic();
-        Bounds b = im.getBoundsInParent();
 
-        IO.println("container.width=" + container.getWidth() + " im.width=" + b.getWidth());
+        // fails due to StubImageLoaderFactory:44
+        //assertNull(im.getImage().getException());
+        //assertEquals(32, im.getImage().getWidth(), "image width");
+        //assertEquals(32, im.getImage().getHeight(), "image height");
 
+        Bounds b = im.getLayoutBounds();
         assertEquals(containerWidth, container.getWidth(), EPSILON, "container width");
         assertEquals(expectedWidth, b.getWidth(), EPSILON, "width");
         assertEquals(expectedHeight, b.getHeight(), EPSILON, "height");

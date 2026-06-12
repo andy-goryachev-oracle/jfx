@@ -95,7 +95,6 @@ public class RichEditorDemoWindow extends Stage {
 
         editor.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressFilter);
 
-        // support image drag and drop
         editor.getInputMap().addHandler(DragEvent.DRAG_OVER, (ev) -> {
             if (ev.getDragboard().hasFiles()) {
                 editor.setDropTarget(ev.getScreenX(), ev.getScreenY());

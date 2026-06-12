@@ -61,7 +61,7 @@ public class EmbeddedImageHelper {
         accessor = a;
     }
 
-    /// Returns the image bytes without making defensive copy.
+    /// Returns the image bytes without making a defensive copy.
     public static byte[] getBytes(EmbeddedImage im) {
         return accessor.getBytes(im);
     }

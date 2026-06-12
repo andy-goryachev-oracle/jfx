@@ -112,8 +112,8 @@ public final class EmbeddedImage {
     /**
      * Creates a new EmbeddedImage instance while making a defensive copy of the {@code bytes} array.
      * <p>
-     * Any negative value passed to either {@code targetWidth} or {@code targetHeight} other than the declared
-     * sentinel values the image will be rendered as if the value {@link #AUTO} was passed.
+     * Any negative value passed to either {@code targetWidth} or {@code targetHeight}, other than a declared
+     * sentinel value, causes the image to be rendered as if {@link #AUTO} had been passed.
      *
      * @param bytes the image source
      * @param width the original image width
