@@ -83,9 +83,10 @@ public class EmbeddedImageHelper {
         ArrayList<TextCell> rv = new ArrayList<>();
         VFlow f = RichTextAreaSkinHelper.getVFlow(r);
         if (f != null) {
-            int ct = f.arrangement().getVisibleCellCount();
+            CellArrangement ar = f.arrangement();
+            int ct = ar.getVisibleCellCount();
             for (int i = 0; i < ct; i++) {
-                TextCell cell = f.getCell(i);
+                TextCell cell = ar.getCellAt(i);
                 rv.add(cell);
             }
         }
