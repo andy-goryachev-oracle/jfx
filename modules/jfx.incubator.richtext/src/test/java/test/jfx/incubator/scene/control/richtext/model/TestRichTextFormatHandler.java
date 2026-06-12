@@ -94,8 +94,8 @@ public class TestRichTextFormatHandler {
     @Test
     public void testDocumentProperties() throws IOException {
         docp(Map.of(), 0, null);
-        docp(Map.of("{}%|\"", "{}%|\""), 1, "{@RichText-v2-incubator}{#%7B%7D%25%7C\"|%7B%7D%25%7C\"}{}{!}");
-        docp(Map.of("title", ""), 1, "{@RichText-v2-incubator}{#title|}{}{!}");
+        docp(Map.of("{}%|\"", "{}%|\""), 1, TestRichTextModel.VERSION + "{#%7B%7D%25%7C\"|%7B%7D%25%7C\"}{}{!}");
+        docp(Map.of("title", ""), 1, TestRichTextModel.VERSION + "{#title|}{}{!}");
     }
 
     private void docp(Map<String,String> props, int expectedCount, String expectedSave) throws IOException {
