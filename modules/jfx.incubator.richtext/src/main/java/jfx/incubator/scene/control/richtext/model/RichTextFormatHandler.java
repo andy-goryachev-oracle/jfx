@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javafx.scene.input.DataFormat;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TabStop;
 import javafx.scene.text.TextAlignment;
 import javafx.util.StringConverter;
 import javafx.util.converter.DoubleStringConverter;
@@ -134,7 +133,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
     private static final StringConverter<ParagraphDirection> DIRECTION_CONVERTER = Converters.paragraphDirectionConverter();
     private static final DoubleStringConverter DOUBLE_CONVERTER = new DoubleStringConverter();
     private static final StringConverter<String> STRING_CONVERTER = Converters.stringConverter();
-    private static final StringConverter<TabStop[]> TAB_STOPS_CONVERTER = Converters.tabStopsConverter();
+    private static final StringConverter<TabStops> TAB_STOPS_CONVERTER = Converters.tabStopsConverter();
     private static final StringConverter<TextAlignment> TEXT_ALIGNMENT_CONVERTER = Converters.textAlignmentConverter();
     // String -> Handler
     // StyleAttribute -> Handler
@@ -595,7 +594,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
 
         private Map<String, String> parseDocumentProperties() throws IOException {
             String s = parseString();
-            String[] ss = s.split("\\|");
+            String[] ss = s.split("\\|", -1);
             int sz = ss.length;
             if ((sz & 0x01) != 0) {
                 throw err("malformed document properties");
@@ -723,7 +722,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
                             sb.append(text, 0, i);
                         }
                     }
-                    char ch = decodeHexByte(text, i);
+                    char ch = decodeHexByte(text, i + 1);
                     i += 2;
                     sb.append(ch);
                     break;
@@ -773,8 +772,8 @@ public class RichTextFormatHandler extends DataFormatHandler {
         }
 
         private static char decodeHexByte(String text, int offset) throws IOException {
-            int v = decodeHex(text.charAt(offset++));
-            return (char)(v + decodeHex(text.charAt(offset)));
+            int v = decodeHex(text.charAt(offset++)) << 4;
+            return (char)(v | decodeHex(text.charAt(offset)));
         }
 
         private static int decodeHex(int ch) throws IOException {

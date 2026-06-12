@@ -58,7 +58,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Font;
-import javafx.scene.text.TabStop;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -89,6 +88,7 @@ import jfx.incubator.scene.control.richtext.model.SimpleViewOnlyStyledModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledSegment;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
+import jfx.incubator.scene.control.richtext.model.TabStops;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 import test.jfx.incubator.scene.control.richtext.model.TestRichTextModel;
 import test.jfx.incubator.scene.control.richtext.support.RTUtil;
@@ -1183,11 +1183,7 @@ public class RichTextAreaTest {
         assertX(2, 5, 60.5);
 
         // change the second paragraph tab stops
-        StyleAttributeMap a = StyleAttributeMap.of(StyleAttributeMap.TAB_STOPS, new TabStop[] {
-            new TabStop(55),
-            new TabStop(77),
-            new TabStop(99)
-        });
+        StyleAttributeMap a = StyleAttributeMap.of(StyleAttributeMap.TAB_STOPS, TabStops.of(55, 77, 99));
         control.applyStyle(TextPos.ofLeading(1, 0), TextPos.ofLeading(1, 999), a);
         assertX(0, 1, 100.5);
         assertX(0, 3, 200.5);
