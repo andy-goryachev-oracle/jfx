@@ -43,19 +43,19 @@ public final class EmbeddedImage {
 
     /**
      * Sentinel value which can be passed to either {@code targetWidth} or {@code targetHeight}
-     * to indicate that the value should be computed according to the image intrinsic aspect ratio.
+     * to indicate that the rendered image dimension should be computed according to the image intrinsic aspect ratio.
      */
     public static final double AUTO = 0.0;
 
     /**
      * Sentinel value which can be passed to {@code targetWidth}
-     * to indicate that the image width should not exceed the view's wrapped text width.
+     * to indicate that the rendered image width should not exceed the view's wrapped text width.
      */
     public static final double FIT_WIDTH = -1.0;
 
     /**
      * Sentinel value which can be passed to {@code targetWidth}
-     * to indicate that the image width should always fit the view's wrapped text width.
+     * to indicate that the rendered image width should always fit the view's wrapped text width.
      */
     public static final double FIT_WIDTH_ALWAYS = -2.0;
 

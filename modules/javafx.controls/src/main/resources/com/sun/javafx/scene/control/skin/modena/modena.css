@@ -3474,7 +3474,7 @@ is being used to size a border should also be in pixels.
 
 .rich-text-area .drop-target {
     -fx-stroke: black;
-     -fx-stroke-width: 2px;
+    -fx-stroke-width: 2px;
 }
 
 .rich-text-area .caret {

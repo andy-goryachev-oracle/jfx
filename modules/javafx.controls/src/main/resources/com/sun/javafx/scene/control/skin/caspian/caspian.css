@@ -4313,6 +4313,11 @@ to the top and bottom -fx-padding values of the parent toolbar. */
     -fx-prompt-text-fill: transparent;
 }
 
+.rich-text-area .drop-target {
+    -fx-stroke: black;
+    -fx-stroke-width: 2px;
+}
+
 .rich-text-area .caret {
     -fx-stroke: black;
 }

@@ -4,7 +4,7 @@ Andy Goryachev
 
 Version 3
 
-June 8, 2026
+June 15, 2026
 
 
 
@@ -135,14 +135,24 @@ The data portion of the attribute specifies the following comma-delimited fields
 
 |Code    |Type          |Description                                                     |
 |:-------|:-------------|:---------------------------------------------------------------|
+|a       |boolean       |Keep aspect ratio
 |b       |byte[]        |Base64-encoded image data
 |h       |double        |Original image height
-|tw      |double        |Target width
+|th      |double        |Target height (Note 1)
+|tw      |double        |Target width (Notes 1, 2)
 |w       |double        |Original image width
+
+Notes:
+
+1. Value of `0.0` indicates that the rendered image height or width should be computed according to the image
+   intrinsic aspect ratio.
+2. Value of `-1.0` indicates that the rendered image width should not exceed the view's wrapped text width.
+   Value of `-2.0` indicates that the rendered image width should always fit the view's wrapped text width.
+
 
 Example:
 
-`{img|w,138.0,h,102.0,tw,-1.0,b,iVBORw0KGgoAAA...}`
+`{img|w,138.0,h,102.0,tw,-1.0,th,-1.0,a,true,b,iVBORw0KGgoAAA...}`
 
 
 ### Text Segment
