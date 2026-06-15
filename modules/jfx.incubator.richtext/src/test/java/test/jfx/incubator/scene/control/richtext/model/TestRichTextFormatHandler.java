@@ -26,12 +26,18 @@
 package test.jfx.incubator.scene.control.richtext.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
@@ -59,7 +65,7 @@ public class TestRichTextFormatHandler {
 
     @Test
     public void testBasicAttributes() throws IOException {
-        testRoundTrip(
+        StyledSegment[] segments = {
             s("bold", StyleAttributeMap.BOLD),
             s("font family", a(StyleAttributeMap.FONT_FAMILY, "Arial")),
             s("font size", a(StyleAttributeMap.FONT_SIZE, 12.0)),
@@ -88,7 +94,39 @@ public class TestRichTextFormatHandler {
 
             s("combined", StyleAttributeMap.ITALIC, a(StyleAttributeMap.TEXT_COLOR, Color.RED), StyleAttributeMap.UNDERLINE),
             nl()
-        );
+        };
+        testRoundTrip(segments);
+        checkAll(segments);
+    }
+
+    /// Make sure all attributes declared in StyleAttributeMap are included.
+    private static void checkAll(StyledSegment[] segments) {
+        Set<StyleAttribute<?>> declared = new HashSet<>();
+        int mask = Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL;
+        for (Field f : StyleAttributeMap.class.getDeclaredFields()) {
+            int mod = f.getModifiers();
+            if ((mod & mask) == mask) {
+                Class<?> type = f.getType();
+                if (type.isAssignableFrom(StyleAttribute.class)) {
+                    try {
+                        declared.add((StyleAttribute<?>)f.get(null));
+                    } catch (Exception e) {
+                        fail(e);
+                    }
+                }
+            }
+        }
+
+        for (StyledSegment seg : segments) {
+            StyleAttributeMap attr = seg.getStyleAttributeMap(null);
+            if (attr != null) {
+                for (StyleAttribute<?> a : attr.getAttributes()) {
+                    declared.remove(a);
+                }
+            }
+        }
+
+        assertTrue(declared.isEmpty(), "round trip test missed " + declared);
     }
 
     @Test
