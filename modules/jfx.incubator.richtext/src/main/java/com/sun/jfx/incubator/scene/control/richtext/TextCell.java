@@ -513,11 +513,11 @@ public final class TextCell extends BorderPane {
     }
 
     // collects and coalesces decorations that run over more than one segment
-    public void decorateRun(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
+    public void decorateRun(int length, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
         if (decorator == null) {
             decorator = new Decorator(flow());
         }
-        decorator.addRun(segment, a, type, styleName);
+        decorator.addRun(length, a, type, styleName);
     }
 
     public void applyDecorations() {
@@ -570,7 +570,7 @@ public final class TextCell extends BorderPane {
             this.flow = flow;
         }
 
-        public void addRun(Text segment, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
+        public void addRun(int length, StyleAttribute<?> a, CellContext.RunDecor type, String styleName) {
             // compute offset
             int count = flow.getChildren().size();
             for (int i = lastCount; i < count; i++) {
@@ -582,13 +582,12 @@ public final class TextCell extends BorderPane {
                 }
             }
 
-            int len = segment.getText().length();
             Decor d = byType.get(a);
             if ((d != null) && (d.end == offset)) {
-                // coalese runs
-                d.extend(len);
+                // coalesce runs
+                d.extend(length);
             } else {
-                d = new Decor(new Operation(type, styleName), offset, len);
+                d = new Decor(new Operation(type, styleName), offset, length);
                 runs.add(d);
                 byType.put(a, d);
             }

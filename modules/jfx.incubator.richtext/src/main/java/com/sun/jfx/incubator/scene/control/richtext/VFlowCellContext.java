@@ -50,7 +50,8 @@ class VFlowCellContext implements CellContext {
 
     @Override
     public <T> void decorateRun(StyleAttribute<T> a, CellContext.RunDecor type, String styleName) {
-        cell.decorateRun((Text)node, a, type, styleName);
+        int len = (node instanceof Text t) ? t.getText().length() : 1;
+        cell.decorateRun(len, a, type, styleName);
     }
 
     @Override

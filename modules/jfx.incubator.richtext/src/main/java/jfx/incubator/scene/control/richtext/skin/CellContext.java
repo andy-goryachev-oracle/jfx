@@ -75,8 +75,8 @@ public interface CellContext {
     public StyleAttributeMap getAttributes();
 
     /**
-     * Decorates the current segment with the specified attribute, coalescing the adjacent runs into
-     * one decoration pass.
+     * Decorates the current segment with the specified attribute by coalescing adjacent runs into
+     * a single decoration pass.
      * <p>
      * This method is used when the visual representation requires
      * uninterrupted segments instead of several adjacent ones, for example in the case of
