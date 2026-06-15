@@ -46,7 +46,6 @@ import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImageHelper;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
 import jfx.incubator.scene.control.richtext.TextPos;
-import jfx.incubator.scene.control.richtext.model.EmbeddedImage;
 import jfx.incubator.scene.control.richtext.model.ParagraphDirection;
 import jfx.incubator.scene.control.richtext.model.RichTextFormatHandler;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
@@ -55,6 +54,7 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledInput;
 import jfx.incubator.scene.control.richtext.model.StyledOutput;
 import jfx.incubator.scene.control.richtext.model.StyledSegment;
+import jfx.incubator.scene.control.richtext.model.TabStops;
 import test.jfx.incubator.scene.control.richtext.support.RTUtil;
 
 /**
@@ -64,7 +64,7 @@ public class TestRichTextFormatHandler {
     private static boolean DEBUG = false;
 
     @Test
-    public void testBasicAttributes() throws IOException {
+    public void testStandardAttributes() throws IOException {
         StyledSegment[] segments = {
             s("bold", StyleAttributeMap.BOLD),
             s("font family", a(StyleAttributeMap.FONT_FAMILY, "Arial")),
@@ -75,7 +75,8 @@ public class TestRichTextFormatHandler {
                 a(StyleAttributeMap.BULLET, "⌘"),
                 a(StyleAttributeMap.FIRST_LINE_INDENT, 10.0),
                 a(StyleAttributeMap.LINE_SPACING, 11.0),
-                a(StyleAttributeMap.PARAGRAPH_DIRECTION, ParagraphDirection.RIGHT_TO_LEFT)
+                a(StyleAttributeMap.PARAGRAPH_DIRECTION, ParagraphDirection.RIGHT_TO_LEFT),
+                a(StyleAttributeMap.TAB_STOPS, TabStops.of(100, 200))
             ),
             nl(),
 
@@ -93,6 +94,16 @@ public class TestRichTextFormatHandler {
             nl(),
 
             s("combined", StyleAttributeMap.ITALIC, a(StyleAttributeMap.TEXT_COLOR, Color.RED), StyleAttributeMap.UNDERLINE),
+            s(" ", StyleAttributeMap.of(StyleAttributeMap.EMBEDDED_IMAGE, EmbeddedImageHelper.create(RTUtil.redPng32x32(), 32, 32, 32, 32, true))),
+            nl(),
+            s("highlight1", StyleAttributeMap.TEXT_HIGHLIGHT_1),
+            s("highlight2", StyleAttributeMap.TEXT_HIGHLIGHT_2),
+            s("highlight3", StyleAttributeMap.TEXT_HIGHLIGHT_3),
+            s("highlight4", StyleAttributeMap.TEXT_HIGHLIGHT_4),
+            s("highlight5", StyleAttributeMap.TEXT_HIGHLIGHT_5),
+            s("wavy1", StyleAttributeMap.UNDERLINE_WAVY_1),
+            s("wavy2", StyleAttributeMap.UNDERLINE_WAVY_2),
+            s("wavy3", StyleAttributeMap.UNDERLINE_WAVY_3),
             nl()
         };
         testRoundTrip(segments);
@@ -401,13 +412,5 @@ public class TestRichTextFormatHandler {
 
         assertEquals(5, m.size());
         assertEquals(156.0, m.getDefaultTabStops()); // verify tab stops are loaded
-    }
-
-    @Test
-    public void embeddedImage() throws IOException {
-        byte[] bytes = RTUtil.redPng32x32();
-        testRoundTrip(
-            s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, EmbeddedImageHelper.create(bytes, 32, 32, 32, 32, true)))
-        );
     }
 }

@@ -50,6 +50,12 @@ public final class StyleAttributeMap {
     /** Bold typeface text attribute. */
     public static final StyleAttribute<Boolean> BOLD = StyleAttribute.character("BOLD", Boolean.class);
 
+    /**
+     * Embedded image attribute.
+     * @since 27
+     */
+    public static final StyleAttribute<EmbeddedImage> EMBEDDED_IMAGE = StyleAttribute.inlineNode("img", EmbeddedImage.class);
+
     /** First line indent paragraph attribute, in pixels. */
     public static final StyleAttribute<Double> FIRST_LINE_INDENT = StyleAttribute.paragraph("FIRST_LINE_INDENT", Double.class);
 

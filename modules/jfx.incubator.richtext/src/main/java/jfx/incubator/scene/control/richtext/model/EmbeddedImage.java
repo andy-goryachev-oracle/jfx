@@ -59,11 +59,6 @@ public final class EmbeddedImage {
      */
     public static final double FIT_WIDTH_ALWAYS = -2.0;
 
-    /**
-     * The attribute descriptor.
-     */
-    public static final StyleAttribute<EmbeddedImage> ATTRIBUTE = StyleAttribute.inlineNode("img", EmbeddedImage.class);
-
     static {
         EmbeddedImageHelper.setAccessor(new EmbeddedImageHelper.Accessor() {
             @Override

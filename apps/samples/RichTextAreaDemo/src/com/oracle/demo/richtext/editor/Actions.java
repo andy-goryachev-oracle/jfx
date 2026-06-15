@@ -352,7 +352,7 @@ public class Actions {
     private EmbeddedImage embeddedImageAt(TextPos p) {
         if (p != null) {
             StyleAttributeMap a = editor.getStyleAttributeMap(p, false);
-            return a.get(EmbeddedImage.ATTRIBUTE);
+            return a.get(StyleAttributeMap.EMBEDDED_IMAGE);
         }
         return null;
     }
@@ -361,7 +361,7 @@ public class Actions {
         TextPos start = Utils.leading(p);
         TextPos end = Utils.trailing(p);
         EmbeddedImage updated = im.copy(targetWidth, targetHeight, keepAspectRatio);
-        StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, updated);
+        StyleAttributeMap a = StyleAttributeMap.of(StyleAttributeMap.EMBEDDED_IMAGE, updated);
         editor.applyStyle(start, end, a);
     }
 
