@@ -4385,9 +4385,9 @@ to the top and bottom -fx-padding values of the parent toolbar. */
 }
 
 .vflow .underline-wavy-2 {
-    -fx-stroke: blue;
+    -fx-stroke: green;
 }
 
 .vflow .underline-wavy-3 {
-    -fx-stroke: green;
+    -fx-stroke: blue;
 }

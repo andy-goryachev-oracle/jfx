@@ -99,7 +99,6 @@ public final class StyleAttributeMap {
      * Text highlight (background color 1) character attribute.
      * @since 27
      */
-    // TODO perhaps name those TEXT_HIGHLIGHT_YELLOW (ORANGE, GREEN, BLUE, ORANGE, PINK ?)
     public static final StyleAttribute<Boolean> TEXT_HIGHLIGHT_1 = StyleAttribute.character("TEXT_HIGHLIGHT_1", Boolean.class);
 
     /**
@@ -130,20 +129,19 @@ public final class StyleAttributeMap {
     public static final StyleAttribute<Boolean> UNDERLINE = StyleAttribute.character("UNDERLINE", Boolean.class);
 
     /**
-     * Wavy underline, color 1 character attribute (red).
+     * Wavy underline, color 1 character attribute.
      * @since 27
      */
     public static final StyleAttribute<Boolean> UNDERLINE_WAVY_1 = StyleAttribute.character("UNDERLINE_WAVY_1", Boolean.class);
 
     /**
-     * Wavy underline, color 2 character attribute (blue).
+     * Wavy underline, color 2 character attribute.
      * @since 27
      */
-    // TODO or maybe these should be called UNDERLINE_WAVY_BLUE, and ordered RGB?
     public static final StyleAttribute<Boolean> UNDERLINE_WAVY_2 = StyleAttribute.character("UNDERLINE_WAVY_2", Boolean.class);
 
     /**
-     * Wavy underline, color 3 character attribute (green).
+     * Wavy underline, color 3 character attribute.
      * @since 27
      */
     public static final StyleAttribute<Boolean> UNDERLINE_WAVY_3 = StyleAttribute.character("UNDERLINE_WAVY_3", Boolean.class);
