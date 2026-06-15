@@ -317,9 +317,15 @@ public class Actions {
         FX.item(m, "Select All", selectAll);
         FX.separator(m);
         // TODO Font...
+        Menu m2 = FX.menu(m, "Highlight");
+        FX.item(m2, "Color 1", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_1));
+        FX.item(m2, "Color 2", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_2));
+        FX.item(m2, "Color 3", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_3));
+        FX.item(m2, "Color 4", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_4));
+        FX.item(m2, "Color 5", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_5));
         FX.item(m, "Paragraph...", paragraphStyle);
         if (im != null) {
-            Menu m2 = FX.menu(m, "Image");
+            m2 = FX.menu(m, "Image");
             Menu m3 = FX.menu(m2, "Width");
             FX.item(m3, "AUTO", () -> formatImage(p, im, EmbeddedImage.AUTO, im.getTargetHeight(), im.isKeepAspectRatio()));
             FX.item(m3, "FIT_WIDTH", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH, im.getTargetHeight(), im.isKeepAspectRatio()));
@@ -335,6 +341,18 @@ public class Actions {
             FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true));
             FX.item(m2, "Fit to Width Always", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH_ALWAYS, EmbeddedImage.AUTO, true));
             FX.item(m2, "Original Size", () -> formatImage(p, im, EmbeddedImage.AUTO, EmbeddedImage.AUTO, true));
+        }
+    }
+
+    private void highlight(StyleAttribute<Boolean> a) {
+        SelectionSegment sel = editor.getSelection();
+        if (sel != null) {
+            if (!sel.isCollapsed()) {
+                StyleAttributeMap attr = editor.getStyleAttributeMap(sel.getMin(), false);
+                Boolean on = attr.get(a);
+                on = (on == null) ? Boolean.TRUE : !on;
+                editor.applyStyle(sel.getMin(), sel.getMax(), StyleAttributeMap.of(a, on));
+            }
         }
     }
 
