@@ -1339,7 +1339,7 @@ public class RichTextAreaTest {
 
         byte[] bytes = RTUtil.redPng32x32();
         StyledSegment[] segments = {
-            StyledSegment.of(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, EmbeddedImageHelper.create(bytes, 32, 32, 32, 32, true)))
+            StyledSegment.of(" ", StyleAttributeMap.of(StyleAttributeMap.EMBEDDED_IMAGE, EmbeddedImageHelper.create(bytes, 32, 32, 32, 32, true)))
         };
 
         control.setPrefWidth(controlWidth);
@@ -1417,7 +1417,7 @@ public class RichTextAreaTest {
         EmbeddedImage im = RTUtil.embeddedImageAt(control, TextPos.ZERO);
         assertNotNull(im, "EmbeddedImage");
         EmbeddedImage updated = im.copy(w, h, keepAspectRatio);
-        StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, updated);
+        StyleAttributeMap a = StyleAttributeMap.of(StyleAttributeMap.EMBEDDED_IMAGE, updated);
         control.applyStyle(TextPos.ZERO, new TextPos(0, 1, 1, true), a);
         assertEquals(updated, RTUtil.embeddedImageAt(control, TextPos.ZERO));
     }

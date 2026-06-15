@@ -920,7 +920,7 @@ public class RichTextModel extends StyledTextModel {
             RichParagraph.Builder b = RichParagraph.builder();
             for (RSegment seg : this) {
                 StyleAttributeMap a = seg.attrs();
-                EmbeddedImage im = a.get(EmbeddedImage.ATTRIBUTE);
+                EmbeddedImage im = a.get(StyleAttributeMap.EMBEDDED_IMAGE);
                 if (im == null) {
                     String text = seg.text();
                     b.addSegment(text, a);

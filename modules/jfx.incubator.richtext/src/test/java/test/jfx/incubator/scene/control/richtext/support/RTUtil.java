@@ -122,7 +122,7 @@ public class RTUtil {
     public static EmbeddedImage embeddedImageAt(RichTextArea t, TextPos p) {
         if (p != null) {
             StyleAttributeMap a = t.getStyleAttributeMap(p, false);
-            return a.get(EmbeddedImage.ATTRIBUTE);
+            return a.get(StyleAttributeMap.EMBEDDED_IMAGE);
         }
         return null;
     }

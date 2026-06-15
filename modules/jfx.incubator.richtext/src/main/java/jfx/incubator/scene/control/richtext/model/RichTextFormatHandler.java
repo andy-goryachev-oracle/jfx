@@ -151,11 +151,11 @@ public class RichTextFormatHandler extends DataFormatHandler {
         addHandlerBoolean(StyleAttributeMap.BOLD, "b");
         addHandler(StyleAttributeMap.BACKGROUND, "bg", COLOR_CONVERTER);
         addHandlerString(StyleAttributeMap.BULLET, "bullet");
+        addHandler(StyleAttributeMap.EMBEDDED_IMAGE, "img", IMAGE_CONVERTER);
         addHandlerString(StyleAttributeMap.FONT_FAMILY, "ff");
         addHandler(StyleAttributeMap.FIRST_LINE_INDENT, "firstIndent", DOUBLE_CONVERTER);
         addHandler(StyleAttributeMap.FONT_SIZE, "fs", DOUBLE_CONVERTER);
         addHandlerBoolean(StyleAttributeMap.ITALIC, "i");
-        addHandler(EmbeddedImage.ATTRIBUTE, "img", IMAGE_CONVERTER);
         addHandler(StyleAttributeMap.LINE_SPACING, "lineSpacing", DOUBLE_CONVERTER);
         addHandler(StyleAttributeMap.PARAGRAPH_DIRECTION, "dir", DIRECTION_CONVERTER);
         addHandler(StyleAttributeMap.SPACE_ABOVE, "spaceAbove", DOUBLE_CONVERTER);
@@ -314,7 +314,7 @@ public class RichTextFormatHandler extends DataFormatHandler {
             case INLINE_NODE:
                 StyleAttributeMap a = seg.getStyleAttributeMap(null);
                 if (a != null) {
-                    EmbeddedImage em = a.get(EmbeddedImage.ATTRIBUTE);
+                    EmbeddedImage em = a.get(StyleAttributeMap.EMBEDDED_IMAGE);
                     if (em != null) {
                         {
                             StyleAttributeMap attrs = seg.getStyleAttributeMap(resolver);

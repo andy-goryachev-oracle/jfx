@@ -26,12 +26,18 @@
 package test.jfx.incubator.scene.control.richtext.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +46,6 @@ import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImageHelper;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
 import jfx.incubator.scene.control.richtext.TextPos;
-import jfx.incubator.scene.control.richtext.model.EmbeddedImage;
 import jfx.incubator.scene.control.richtext.model.ParagraphDirection;
 import jfx.incubator.scene.control.richtext.model.RichTextFormatHandler;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
@@ -49,6 +54,7 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledInput;
 import jfx.incubator.scene.control.richtext.model.StyledOutput;
 import jfx.incubator.scene.control.richtext.model.StyledSegment;
+import jfx.incubator.scene.control.richtext.model.TabStops;
 import test.jfx.incubator.scene.control.richtext.support.RTUtil;
 
 /**
@@ -58,8 +64,8 @@ public class TestRichTextFormatHandler {
     private static boolean DEBUG = false;
 
     @Test
-    public void testBasicAttributes() throws IOException {
-        testRoundTrip(
+    public void testStandardAttributes() throws IOException {
+        StyledSegment[] segments = {
             s("bold", StyleAttributeMap.BOLD),
             s("font family", a(StyleAttributeMap.FONT_FAMILY, "Arial")),
             s("font size", a(StyleAttributeMap.FONT_SIZE, 12.0)),
@@ -69,7 +75,8 @@ public class TestRichTextFormatHandler {
                 a(StyleAttributeMap.BULLET, "⌘"),
                 a(StyleAttributeMap.FIRST_LINE_INDENT, 10.0),
                 a(StyleAttributeMap.LINE_SPACING, 11.0),
-                a(StyleAttributeMap.PARAGRAPH_DIRECTION, ParagraphDirection.RIGHT_TO_LEFT)
+                a(StyleAttributeMap.PARAGRAPH_DIRECTION, ParagraphDirection.RIGHT_TO_LEFT),
+                a(StyleAttributeMap.TAB_STOPS, TabStops.of(100, 200))
             ),
             nl(),
 
@@ -87,8 +94,41 @@ public class TestRichTextFormatHandler {
             nl(),
 
             s("combined", StyleAttributeMap.ITALIC, a(StyleAttributeMap.TEXT_COLOR, Color.RED), StyleAttributeMap.UNDERLINE),
+            s(" ", StyleAttributeMap.of(StyleAttributeMap.EMBEDDED_IMAGE, EmbeddedImageHelper.create(RTUtil.redPng32x32(), 32, 32, 32, 32, true))),
             nl()
-        );
+        };
+        testRoundTrip(segments);
+        checkAll(segments);
+    }
+
+    /// Make sure all attributes declared in StyleAttributeMap are included.
+    private static void checkAll(StyledSegment[] segments) {
+        Set<StyleAttribute<?>> declared = new HashSet<>();
+        int mask = Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL;
+        for (Field f : StyleAttributeMap.class.getDeclaredFields()) {
+            int mod = f.getModifiers();
+            if ((mod & mask) == mask) {
+                Class<?> type = f.getType();
+                if (type.isAssignableFrom(StyleAttribute.class)) {
+                    try {
+                        declared.add((StyleAttribute<?>)f.get(null));
+                    } catch (Exception e) {
+                        fail(e);
+                    }
+                }
+            }
+        }
+
+        for (StyledSegment seg : segments) {
+            StyleAttributeMap attr = seg.getStyleAttributeMap(null);
+            if (attr != null) {
+                for (StyleAttribute<?> a : attr.getAttributes()) {
+                    declared.remove(a);
+                }
+            }
+        }
+
+        assertTrue(declared.isEmpty(), "round trip test missed " + declared);
     }
 
     @Test
@@ -363,13 +403,5 @@ public class TestRichTextFormatHandler {
 
         assertEquals(5, m.size());
         assertEquals(156.0, m.getDefaultTabStops()); // verify tab stops are loaded
-    }
-
-    @Test
-    public void embeddedImage() throws IOException {
-        byte[] bytes = RTUtil.redPng32x32();
-        testRoundTrip(
-            s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, EmbeddedImageHelper.create(bytes, 32, 32, 32, 32, true)))
-        );
     }
 }
