@@ -92,10 +92,9 @@ public class RichEditorDemoWindow extends Stage {
         editor.getInputMap().register(KeyBinding.shortcut(KeyCode.W), () -> {
             System.out.println("Custom function: W key is pressed");
         });
-        
+
         editor.addEventFilter(MouseEvent.MOUSE_PRESSED, this::handleMousePressFilter);
 
-        // support image drag and drop
         editor.getInputMap().addHandler(DragEvent.DRAG_OVER, (ev) -> {
             if (ev.getDragboard().hasFiles()) {
                 editor.setDropTarget(ev.getScreenX(), ev.getScreenY());
@@ -115,7 +114,9 @@ public class RichEditorDemoWindow extends Stage {
                     actions.openFile(f);
                 } else {
                     TextPos p = editor.getDropTarget();
-                    FileListFormatHandler.handleDrop(editor, p, files);
+                    if (p != null) {
+                        FileListFormatHandler.handleDrop(editor, p, files);
+                    }
                 }
                 ev.consume();
             }

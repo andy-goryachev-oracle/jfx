@@ -1181,6 +1181,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
             DataFormatHandler h = m.getDataFormatHandler(f, false);
             Object data = Clipboard.getSystemClipboard().getContent(f);
             StyleAttributeMap a = control.getActiveStyleAttributeMap();
+            a = RichUtils.filterOutNodeAttributes(a);
             try (StyledInput in = h.createStyledInput(data, a)) {
                 TextPos p = m.replace(vflow, start, end, in);
                 moveCaret(p, false);

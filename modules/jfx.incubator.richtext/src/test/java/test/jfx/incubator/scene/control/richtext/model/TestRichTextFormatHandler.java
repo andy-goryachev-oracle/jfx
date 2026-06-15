@@ -31,11 +31,12 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
+import java.util.Map;
 import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImageHelper;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextFormatHandlerHelper;
 import com.sun.jfx.incubator.scene.control.richtext.StyleAttributeMapHelper;
 import jfx.incubator.scene.control.richtext.TextPos;
@@ -48,6 +49,7 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledInput;
 import jfx.incubator.scene.control.richtext.model.StyledOutput;
 import jfx.incubator.scene.control.richtext.model.StyledSegment;
+import test.jfx.incubator.scene.control.richtext.support.RTUtil;
 
 /**
  * Tests RichTextFormatHandler.
@@ -87,6 +89,42 @@ public class TestRichTextFormatHandler {
             s("combined", StyleAttributeMap.ITALIC, a(StyleAttributeMap.TEXT_COLOR, Color.RED), StyleAttributeMap.UNDERLINE),
             nl()
         );
+    }
+
+    @Test
+    public void testDocumentProperties() throws IOException {
+        docp(Map.of(), 0, null);
+        docp(Map.of("{}%|\"", "{}%|\""), 1, TestRichTextModel.VERSION + "{#%7B%7D%25%7C\"|%7B%7D%25%7C\"}{}{!}");
+        docp(Map.of("title", ""), 1, TestRichTextModel.VERSION + "{#title|}{}{!}");
+    }
+
+    private void docp(Map<String,String> props, int expectedCount, String expectedSave) throws IOException {
+        RichTextModel m = new RichTextModel() {
+            @Override
+            protected Map<String,String> documentProperties() {
+                return props;
+             }
+        };
+
+        String s = save(m);
+        if (expectedSave != null) {
+            assertEquals(expectedSave, s);
+        }
+
+        RichTextFormatHandler h = RichTextFormatHandler.getInstance();
+        int count = 0;
+        StyledInput in = h.createStyledInput(s, null);
+        StyledSegment seg;
+        while ((seg = in.nextSegment()) != null) {
+            switch (seg.getType()) {
+            case DOCUMENT_PROPERTIES:
+                count++;
+                Map<String,String> dp = seg.getDocumentProperties();
+                assertEquals(props, dp);
+                break;
+            }
+        }
+        assertEquals(expectedCount, count, "missing document segment");
     }
 
     // JDK-8357393
@@ -329,10 +367,9 @@ public class TestRichTextFormatHandler {
 
     @Test
     public void embeddedImage() throws IOException {
-        String RED_PNG_32x32 = "iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAALUlEQVR4Xu3OoQEAAAjDsP3/NPgdACaVVck8lx7XAQAAAAAAAAAAAAAAAAAALJf68OJSymrlAAAAAElFTkSuQmCC";
-        byte[] bytes = Base64.getDecoder().decode(RED_PNG_32x32);
+        byte[] bytes = RTUtil.redPng32x32();
         testRoundTrip(
-            s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, new EmbeddedImage(bytes, 32, 32, 32)))
-            );
+            s(" ", StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, EmbeddedImageHelper.create(bytes, 32, 32, 32, 32, true)))
+        );
     }
 }

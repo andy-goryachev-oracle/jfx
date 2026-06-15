@@ -64,7 +64,7 @@ public class TestSimpleViewOnlyStyledModel {
     }
 
     private void aa(int index, int charIndex, boolean leading, boolean forInsert, StyleAttributeMap expected) {
-        int off = charIndex + (leading ? 0 : 1); 
+        int off = charIndex + (leading ? 0 : 1);
         TextPos p = new TextPos(index, off, charIndex, leading);
         StyleAttributeMap a = model.getStyleAttributeMap(null, p, forInsert);
         assertEquals(expected, a);
@@ -114,9 +114,9 @@ public class TestSimpleViewOnlyStyledModel {
         aa(1, 1, false, false, UNDER);
         aa(1, 999, true, false, UNDER);
         aa(1, 999, false, false, UNDER);
-        
+
         // for insert
-        
+
         aa(1, 0, true, true, UNDER);
         aa(1, 0, false, true, UNDER);
         aa(1, 1, true, true, UNDER);

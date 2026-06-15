@@ -55,7 +55,6 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TabStop;
 import javafx.scene.text.TabStopPolicy;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -76,6 +75,7 @@ import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
+import jfx.incubator.scene.control.richtext.model.TabStops;
 
 /**
  * This is a bit of hack.  JavaFX has no actions (yet), so here we are using FxActions from
@@ -320,9 +320,21 @@ public class Actions {
         FX.item(m, "Paragraph...", paragraphStyle);
         if (im != null) {
             Menu m2 = FX.menu(m, "Image");
-            FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH));
-            FX.item(m2, "Original Size", () -> formatImage(p, im, im.getWidth()));
-            FX.item(m2, "200 px", () -> formatImage(p, im, 200));
+            Menu m3 = FX.menu(m2, "Width");
+            FX.item(m3, "AUTO", () -> formatImage(p, im, EmbeddedImage.AUTO, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "FIT_WIDTH", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "FIT_WIDTH_ALWAYS", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH_ALWAYS, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "50", () -> formatImage(p, im, 50, im.getTargetHeight(), im.isKeepAspectRatio()));
+            FX.item(m3, "500", () -> formatImage(p, im, 500, im.getTargetHeight(), im.isKeepAspectRatio()));
+            m3 = FX.menu(m2, "Height");
+            FX.item(m3, "AUTO", () -> formatImage(p, im, im.getTargetWidth(), EmbeddedImage.AUTO, im.isKeepAspectRatio()));
+            FX.item(m3, "50", () -> formatImage(p, im, im.getTargetWidth(), 50, im.isKeepAspectRatio()));
+            FX.item(m3, "500", () -> formatImage(p, im, im.getTargetWidth(), 500, im.isKeepAspectRatio()));
+            FX.checkItem(m2, "Keep Aspect Ratio", im.isKeepAspectRatio(), (v) -> formatImage(p, im, im.getTargetWidth(), im.getTargetHeight(), !im.isKeepAspectRatio()));
+            FX.separator(m2);
+            FX.item(m2, "Fit to Width", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true));
+            FX.item(m2, "Fit to Width Always", () -> formatImage(p, im, EmbeddedImage.FIT_WIDTH_ALWAYS, EmbeddedImage.AUTO, true));
+            FX.item(m2, "Original Size", () -> formatImage(p, im, EmbeddedImage.AUTO, EmbeddedImage.AUTO, true));
         }
     }
 
@@ -338,17 +350,17 @@ public class Actions {
     }
 
     private EmbeddedImage embeddedImageAt(TextPos p) {
-        if(p != null) {
+        if (p != null) {
             StyleAttributeMap a = editor.getStyleAttributeMap(p, false);
             return a.get(EmbeddedImage.ATTRIBUTE);
         }
         return null;
     }
 
-    private void formatImage(TextPos p, EmbeddedImage im, double targetWidth) {
+    private void formatImage(TextPos p, EmbeddedImage im, double targetWidth, double targetHeight, boolean keepAspectRatio) {
         TextPos start = Utils.leading(p);
         TextPos end = Utils.trailing(p);
-        EmbeddedImage updated = im.setTargetWidth(targetWidth);
+        EmbeddedImage updated = im.copy(targetWidth, targetHeight, keepAspectRatio);
         StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, updated);
         editor.applyStyle(start, end, a);
     }
@@ -861,8 +873,8 @@ public class Actions {
     private void handleTabStopChange() {
         SelectionSegment sel = editor.getSelection();
         if (sel != null) {
-            TabStop[] ts = tabPolicy.tabStops().toArray(TabStop[]::new);
-            StyleAttributeMap a = StyleAttributeMap.builder().set(StyleAttributeMap.TAB_STOPS, ts).build();
+            TabStops stops = new TabStops(tabPolicy.tabStops());
+            StyleAttributeMap a = StyleAttributeMap.builder().set(StyleAttributeMap.TAB_STOPS, stops).build();
             int min = sel.getMin().index();
             int max = sel.getMax().index();
             for (int ix = min; ix <= max; ix++) {

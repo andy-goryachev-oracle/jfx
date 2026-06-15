@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import javafx.scene.image.Image;
 import javafx.scene.input.DataFormat;
+import com.sun.jfx.incubator.scene.control.richtext.EmbeddedImageHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.StyleResolver;
@@ -79,22 +80,20 @@ public class FileListFormatHandler extends DataFormatHandler {
     }
 
     /**
-     * Inserts the dropped files as inline images into the {@link RichTextModel}.
-     * TODO set scale
-     * If a file cannot be loaded as an image, this function inserts the file name as text.
-     * This method clears existing selection.
+     * Inserts the dropped files as inline images into the {@link RichTextArea}.
+     * If a file cannot be loaded as an image, the file name is inserted instead.
+     * This method clears the existing selection.
      *
-     * @param ed the drop target
+     * @param t the target control
      * @param p the text position
      * @param files the list of files to be inserted
      */
-    public static void handleDrop(RichTextArea ed, TextPos p, List<File> files) {
+    public static void handleDrop(RichTextArea t, TextPos p, List<File> files) {
         FileListStyledInput in = new FileListStyledInput(files);
-        ed.clearSelection();
-        ed.replaceText(p, p, in);
+        t.clearSelection();
+        t.replaceText(p, p, in);
     }
 
-    // This StyledInput converts a list of files into text segments 
     private static class FileListStyledInput implements StyledInput {
 
         private final List<File> files;
@@ -110,16 +109,23 @@ public class FileListFormatHandler extends DataFormatHandler {
 
         @Override
         public StyledSegment nextSegment() {
+            long maxMemory = Runtime.getRuntime().maxMemory();
             while (index < files.size()) {
                 File f = files.get(index++);
                 if (f.isFile()) {
                     try {
+                        // reject files that are guaranteed to be too large for this JVM
+                        // the drop operation might still cause OOME or take too much time
+                        if (f.length() > maxMemory) {
+                            throw new Exception("File is too large: " + f);
+                        }
+                        
                         byte[] b = Files.readAllBytes(f.toPath());
                         Image im = new Image(new ByteArrayInputStream(b), false);
                         if (!im.isError()) {
                             double w = im.getWidth();
                             double h = im.getHeight();
-                            EmbeddedImage em = new EmbeddedImage(b, w, h, EmbeddedImage.FIT_WIDTH);
+                            EmbeddedImage em = EmbeddedImageHelper.create(b, w, h, EmbeddedImage.FIT_WIDTH, EmbeddedImage.AUTO, true);
                             StyleAttributeMap a = StyleAttributeMap.of(EmbeddedImage.ATTRIBUTE, em);
                             return StyledSegment.of(" ", a);
                         }
