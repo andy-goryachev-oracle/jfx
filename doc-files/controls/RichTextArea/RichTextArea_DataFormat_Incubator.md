@@ -34,7 +34,7 @@ As an example, the following rich text
 is represented by the following file:
 
 ```
-{@RichText-v3-incubator}{#tabs|99.5}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
+{@RichText-v4-incubator}{#tabs|99.5}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
 {0}default tabs:	1	2	3{!}
 {ff|System}{fs|12.0}{tc|669966}green{!}
 {b}{ff|System}{fs|12.0}bold {ff|System}{fs|12.0}{i}italic {ff|System}{fs|12.0}{ss}strikethrough{4} {ff|System}{fs|12.0}{u}underline{!}
@@ -65,7 +65,7 @@ There could be only one such segment and it must be the first one.
 
 Example:
 
-`{@RichText-v3-incubator}`
+`{@RichText-v4-incubator}`
 
 
 ### Document Properties Segment

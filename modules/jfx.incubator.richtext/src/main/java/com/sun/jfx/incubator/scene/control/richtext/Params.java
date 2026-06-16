@@ -144,4 +144,7 @@ public class Params {
 
     /** Style name for underline wavy color 3 */
     public static final String UNDERLINE_WAVY_3 = "underline-wavy-3";
+
+    /** RichTextModel format version. */
+    public static final String VERSION_4 = "RichText-v4-incubator";
 }

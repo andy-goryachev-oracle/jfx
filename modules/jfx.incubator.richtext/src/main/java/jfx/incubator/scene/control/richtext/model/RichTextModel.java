@@ -34,6 +34,7 @@ import java.util.function.Supplier;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.layout.Region;
+import com.sun.jfx.incubator.scene.control.richtext.Params;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
@@ -63,7 +64,6 @@ public class RichTextModel extends StyledTextModel {
      */
     public static final double DEFAULT_TAB_STOPS_DISABLED = -1.0;
 
-    private static final String VERSION_3 = "RichText-v3-incubator";
     private static final String PROP_TABS = "tabs";
     private final ArrayList<RParagraph> paragraphs = new ArrayList<>();
     private final HashMap<StyleAttributeMap,StyleAttributeMap> styleCache = new HashMap<>();
@@ -281,7 +281,7 @@ public class RichTextModel extends StyledTextModel {
 
     @Override
     protected String versionString() {
-        return VERSION_3;
+        return Params.VERSION_4;
     }
 
     @Override

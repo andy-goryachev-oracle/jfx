@@ -565,7 +565,7 @@ public final class TextCell extends BorderPane {
         private int lastCount;
         final ArrayList<Decor> runs = new ArrayList<>(4);
         private HashMap<StyleAttribute<?>,Decor> byType = new HashMap<>();
-        
+
         public Decorator(TextFlow flow) {
             this.flow = flow;
         }
