@@ -213,7 +213,7 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
      */
     public SimpleViewOnlyStyledModel addWavyUnderline(int start, int length, Color c) {
         Paragraph p = textParagraph();
-        p.addSquiggly(start, length, c);
+        p.addWavyUnderline(start, length, c);
         return this;
     }
 
@@ -229,7 +229,7 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
      */
     public SimpleViewOnlyStyledModel addWavyUnderline(int start, int length, String ... css) {
         Paragraph p = textParagraph();
-        p.addSquiggly(start, length, css);
+        p.addWavyUnderline(start, length, css);
         return this;
     }
 
@@ -464,22 +464,22 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
         }
 
         /**
-         * Adds a squiggly line (as seen in a spell checker) with the given color.
+         * Adds a wavy underline (as seen in a spell checker) with the given color.
          * @param start the start offset
          * @param length the end offset
          * @param color the background color
          */
-        void addSquiggly(int start, int length, Color color) {
+        void addWavyUnderline(int start, int length, Color color) {
             int end = start + length;
             highlights().add((cell) -> {
-                cell.addSquiggly(start, end, color);
+                cell.addWavyUnderline(start, end, color);
             });
         }
 
-        void addSquiggly(int start, int length, String[] css) {
+        void addWavyUnderline(int start, int length, String[] css) {
             int end = start + length;
             highlights().add((cell) -> {
-                cell.addSquiggly(start, end, css);
+                cell.addWavyUnderline(start, end, css);
             });
         }
 

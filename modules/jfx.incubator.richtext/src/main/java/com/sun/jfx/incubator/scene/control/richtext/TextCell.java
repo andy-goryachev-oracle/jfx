@@ -28,6 +28,8 @@
 package com.sun.jfx.incubator.scene.control.richtext;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -321,26 +323,26 @@ public final class TextCell extends BorderPane {
     }
 
     /**
-     * Underlines the specified text range using squiggly line (as typically used by a spell checker).
+     * Underlines the specified text range with wavy underline (as typically used by a spell checker).
      *
      * @param start start offset for the range
      * @param end end offset for the range
      * @param color highlight color
      */
-    public void addSquiggly(int start, int end, Color color) {
-        HighlightShape.addTo(content, HighlightShape.Type.SQUIGGLY, start, end, color);
+    public void addWavyUnderline(int start, int end, Color color) {
+        HighlightShape.addTo(content, HighlightShape.Type.WAVY_UNDERLINE, start, end, color);
     }
 
     /**
-     * Underlines the specified text range using squiggly line (as typically used by a spell checker),
+     * Underlines the specified text range with wavy underline (as typically used by a spell checker),
      * using style names.
      *
      * @param start start offset for the range
      * @param end end offset for the range
      * @param styles CSS style names
      */
-    public void addSquiggly(int start, int end, String... styles) {
-        HighlightShape.addTo(content, HighlightShape.Type.SQUIGGLY, start, end, styles);
+    public void addWavyUnderline(int start, int end, String... styles) {
+        HighlightShape.addTo(content, HighlightShape.Type.WAVY_UNDERLINE, start, end, styles);
     }
 
     /**
@@ -520,32 +522,33 @@ public final class TextCell extends BorderPane {
         decorator.addRun(length, a, type, styleName);
     }
 
+    /// Applies decorations in a consistent order (sorted by style name).
     public void applyDecorations() {
         if (decorator != null) {
-            for (Decor d : decorator.runs) {
-                Operation op = d.operation;
-                switch (op.type()) {
+            for (DecorationRun d : decorator.getSortedRuns()) {
+                switch (d.type) {
                 case HIGHLIGHT:
-                    addHighlight(d.start, d.end, op.styleName);
+                    addHighlight(d.start, d.end, d.styleName);
                     break;
                 case WAVY_UNDERLINE:
-                    addSquiggly(d.start, d.end, op.styleName);
+                    addWavyUnderline(d.start, d.end, d.styleName);
                     break;
-                default:
-                    // silently ignore
                 }
             }
             decorator = null;
         }
     }
 
-    private static class Decor {
-        private final Operation operation;
-        private final int start;
-        private int end;
+    /// Decoration run spans multiple segments.
+    private static class DecorationRun {
+        public final CellContext.RunDecor type;
+        public final String styleName;
+        public final int start;
+        public int end;
 
-        public Decor(Operation op, int start, int length) {
-            this.operation = op;
+        public DecorationRun(CellContext.RunDecor type, String styleName, int start, int length) {
+            this.type = type;
+            this.styleName = styleName;
             this.start = start;
             this.end = start + length;
         }
@@ -555,16 +558,14 @@ public final class TextCell extends BorderPane {
         }
     }
 
-    /// represents an operation to perform on the text run
-    private record Operation(CellContext.RunDecor type, String styleName) { }
-
     /// keeps track of coalesced decorated runs
     private static class Decorator {
         private final TextFlow flow;
         private int offset;
         private int lastCount;
-        final ArrayList<Decor> runs = new ArrayList<>(4);
-        private HashMap<StyleAttribute<?>,Decor> byType = new HashMap<>();
+        private final ArrayList<DecorationRun> runs = new ArrayList<>(4);
+        private HashMap<StyleAttribute<?>,DecorationRun> byType = new HashMap<>();
+        private static Comparator<DecorationRun> sorter;
 
         public Decorator(TextFlow flow) {
             this.flow = flow;
@@ -582,16 +583,29 @@ public final class TextCell extends BorderPane {
                 }
             }
 
-            Decor d = byType.get(a);
+            DecorationRun d = byType.get(a);
             if ((d != null) && (d.end == offset)) {
                 // coalesce runs
                 d.extend(length);
             } else {
-                d = new Decor(new Operation(type, styleName), offset, length);
+                d = new DecorationRun(type, styleName, offset, length);
                 runs.add(d);
                 byType.put(a, d);
             }
             lastCount = count;
+        }
+
+        public ArrayList<DecorationRun> getSortedRuns() {
+            if (sorter == null) {
+                sorter = new Comparator<DecorationRun>() {
+                    @Override
+                    public int compare(DecorationRun a, DecorationRun b) {
+                        return a.styleName.compareTo(b.styleName);
+                    }
+                };
+            }
+            Collections.sort(runs, sorter);
+            return runs;
         }
     }
 }

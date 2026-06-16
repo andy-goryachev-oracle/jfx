@@ -123,7 +123,7 @@ Example:
 |hi3     |TEXT_HIGHLIGHT_3      |boolean     |Text highlight color 3
 |hi4     |TEXT_HIGHLIGHT_4      |boolean     |Text highlight color 4
 |hi5     |TEXT_HIGHLIGHT_5      |boolean     |Text highlight color 5
-|i       |ITALIC                |boolean     |Italic typeface 
+|i       |ITALIC                |boolean     |Italic typeface
 |ss      |STRIKE_THROUGH        |boolean     |Strike through
 |tc      |TEXT_COLOR            |Color       |Text color (Note 3)
 |u       |UNDERLINE             |boolean     |Underline
