@@ -578,7 +578,7 @@ public final class TextCell extends BorderPane {
                 Node n = flow.getChildren().get(i);
                 if (n instanceof Text t) {
                     offset += t.getText().length();
-                } else {
+                } else if(n.isManaged()) { // ignoring highlights added in VFlow:824
                     offset++;
                 }
             }
