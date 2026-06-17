@@ -4,7 +4,7 @@ Andy Goryachev
 
 Version 4
 
-June 16, 2026
+June 17, 2026
 
 
 
@@ -16,16 +16,20 @@ WARNING: This format (as a part of an incubator module) is likely to change once
 into the JavaFX core.
 
 
-## Example
 
-In short, the format is plain text which contains a sequence of segments representing:
+## Description
 
-- format version
-- document properties
-- character attributes
-- paragraph attributes
-- text
-- newlines
+The document is persisted as a UTF-8 encoded plain text file which contains a sequence of segments.
+The first segment is the version, the second is the document properties segment, followed by one or more segments
+representing the paragraphs.
+
+Each paragraph is represented by character attribute segment(s), one segment per attribute,
+the paragraph text segments, paragraph attribute segment(s), also one segment per attribute,
+terminatedby a single `LF` character.
+
+
+
+### Example
 
 As an example, the following rich text
 
@@ -48,16 +52,6 @@ each character attribute is enclosed in `{ }`.
 
 
 
-## Description
-
-The document is persisted as a UTF-8 encoded plain text file which contains a sequence of segments.
-The first segment is the document properties segment, followed by segments representing the paragraphs.
-
-Each paragraph is represented by character attribute segment(s), one segment per attribute,
-the paragraph text segments, paragraph attribute segment(s), also one segment per attribute,
-terminatedby a single `LF` character.
-
-
 ### Format Version Segment
 
 The first segment determines the format version, enclosed in `{@ ... }`.
@@ -73,7 +67,7 @@ Example:
 The second segment is a document properties segment which contains a pipe-delimited key-value pairs enclosed in `{# ... }`.
 There is only one document properties segment per file.
 
-Example: 
+Example:
 
 `{#tabs|99.5}`
 
@@ -225,7 +219,7 @@ attributes are replaced by a numeric tokens:
 {!number}
 ```
 
-where `number` is the index of the duplicate attribute map in the document. 
+where `number` is the index of the duplicate attribute map in the document.
 
 Example:
 
