@@ -363,7 +363,7 @@ public final class StyleAttributeMap {
 
     /**
      * This convenience method returns the value of {@link #TAB_STOPS} attribute, or null.
-     * @return the paragraph alignment attribute value
+     * @return the tab stops attribute value
      * @since 27
      */
     public TabStops getTabStops() {
@@ -671,7 +671,7 @@ public final class StyleAttributeMap {
          * @return this Builder instance
          * @since 27
          */
-        public Builder setTabStops(double ... positions) {
+        public Builder setTabStops(double... positions) {
             set(TAB_STOPS, TabStops.of(positions));
             return this;
         }
