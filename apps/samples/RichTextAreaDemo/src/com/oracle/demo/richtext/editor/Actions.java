@@ -318,11 +318,15 @@ public class Actions {
         FX.separator(m);
         // TODO Font...
         Menu m2 = FX.menu(m, "Highlight");
-        FX.item(m2, "Color 1", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_1));
-        FX.item(m2, "Color 2", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_2));
-        FX.item(m2, "Color 3", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_3));
-        FX.item(m2, "Color 4", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_4));
-        FX.item(m2, "Color 5", () -> highlight(StyleAttributeMap.TEXT_HIGHLIGHT_5));
+        FX.item(m2, "Color 1", () -> toggleBooleanAttribute(StyleAttributeMap.TEXT_HIGHLIGHT_1));
+        FX.item(m2, "Color 2", () -> toggleBooleanAttribute(StyleAttributeMap.TEXT_HIGHLIGHT_2));
+        FX.item(m2, "Color 3", () -> toggleBooleanAttribute(StyleAttributeMap.TEXT_HIGHLIGHT_3));
+        FX.item(m2, "Color 4", () -> toggleBooleanAttribute(StyleAttributeMap.TEXT_HIGHLIGHT_4));
+        FX.item(m2, "Color 5", () -> toggleBooleanAttribute(StyleAttributeMap.TEXT_HIGHLIGHT_5));
+        m2 = FX.menu(m, "Wavy Underline");
+        FX.item(m2, "Color 1", () -> toggleBooleanAttribute(StyleAttributeMap.UNDERLINE_WAVY_1));
+        FX.item(m2, "Color 2", () -> toggleBooleanAttribute(StyleAttributeMap.UNDERLINE_WAVY_2));
+        FX.item(m2, "Color 3", () -> toggleBooleanAttribute(StyleAttributeMap.UNDERLINE_WAVY_3));
         FX.item(m, "Paragraph...", paragraphStyle);
         if (im != null) {
             m2 = FX.menu(m, "Image");
@@ -344,7 +348,7 @@ public class Actions {
         }
     }
 
-    private void highlight(StyleAttribute<Boolean> a) {
+    private void toggleBooleanAttribute(StyleAttribute<Boolean> a) {
         SelectionSegment sel = editor.getSelection();
         if (sel != null) {
             if (!sel.isCollapsed()) {
