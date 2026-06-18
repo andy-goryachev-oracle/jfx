@@ -61,6 +61,7 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
+import javafx.util.Subscription;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SideDecorator;
@@ -88,6 +89,7 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  *        ├─ horizontal ScrollBar
  *        └─ view port (ClippedPane) .vport
  *            └─ content (StackPane) .content
+ *                ├─ dropTarget (Path) .drop-target
  *                ├─ caret (Path) .caret
  *                ├─ cells[]
  *                ├─ selection highlight (Path) .selection-highlight
@@ -106,6 +108,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private final Path caretPath;
     private final Path caretLineHighlight;
     private final Path selectionHighlight;
+    private Path dropTarget;
     private final SimpleBooleanProperty caretVisible = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
     private final SimpleDoubleProperty offsetX = new SimpleDoubleProperty(0.0);
@@ -126,11 +129,18 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private double rightSide;
     private boolean inReflow;
     private double unwrappedContentWidth;
+    private double availableWidth;
     private double viewPortWidth;
     private double viewPortHeight;
     private double vportH;
+    private Subscription subscriptions;
     private static final Text measurer = makeMeasurer();
     private static final VFlowCellContext context = new VFlowCellContext();
+    // visual ordering (cells are at 0)
+    private static final int DROP_TARGET_ORDER = -20;
+    private static final int CARET_ORDER = -10;
+    private static final int SELECTION_ORDER = 10;
+    private static final int CARET_LINE_ORDER = 20;
 
     public VFlow(RichTextAreaSkin skin, ScrollBar vsb, ScrollBar hsb) {
         this.skin = skin;
@@ -185,10 +195,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         getChildren().addAll(leftGutter, rightGutter, vscroll, hscroll, vport);
         vport.getChildren().addAll(content);
         content.getChildren().addAll(caretLineHighlight, selectionHighlight, caretPath);
-        // caret on top, then the cells (visual order = 0), then the selection highlight, then the caret line
-        caretPath.setViewOrder(-10);
-        selectionHighlight.setViewOrder(10);
-        caretLineHighlight.setViewOrder(20);
+        // drop target on top, then caret, cells (visual order = 0), then the selection highlight, then the caret line
+        caretPath.setViewOrder(CARET_ORDER);
+        selectionHighlight.setViewOrder(SELECTION_ORDER);
+        caretLineHighlight.setViewOrder(CARET_LINE_ORDER);
 
         caretAnimation = new Timeline();
         caretAnimation.setCycleCount(Animation.INDEFINITE);
@@ -218,6 +228,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         origin.addListener((p) -> handleOriginChange());
         widthProperty().addListener((p) -> handleWidthChange());
         heightProperty().addListener((p) -> handleHeightChange());
+        // there might be more subscriptions
+        subscriptions = control.dropTargetProperty().subscribe(this::handleDropTarget);
 
         vscroll.addEventFilter(MouseEvent.ANY, this::handleVScrollMouseEvent);
 
@@ -226,6 +238,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     }
 
     public void dispose() {
+        subscriptions.unsubscribe();
         caretPath.visibleProperty().unbind();
     }
 
@@ -336,6 +349,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             or = new Origin(0, -contentPaddingTop);
         }
         origin.set(or);
+    }
+
+    public boolean inReflow() {
+        return inReflow;
     }
 
     private void handleOriginChange() {
@@ -701,7 +718,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             int ix = Math.max(0, (int)Math.round(pos * (lineCount - 1)));
             Origin p = new Origin(ix, 0.0);
             setOrigin(p);
-            layoutCells();
+            layoutCells(false);
 
             CellArrangement a = arrangement();
             int topIx = a.topIndex();
@@ -1124,7 +1141,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         try {
             n.applyCss();
             if (n instanceof Region r) {
-                double w = unwrappedContentWidth;
+                double w = r.prefWidth(-1.0);
                 double h = r.prefHeight(w);
                 RichUtils.layoutInArea(r, 0, -h, w, h);
             }
@@ -1287,7 +1304,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     protected void layoutChildren() {
         inReflow = true;
         try {
-            layoutCells();
+            layoutCells(false);
 
             checkForExcessiveWhitespaceAtTheEnd();
             updateCaretAndSelection();
@@ -1315,15 +1332,24 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             cellCache.add(cell.getIndex(), cell);
         }
 
-        // TODO skip computation if layout width is the same
+        cell.updateVFlowContext(this);
+
         Region r = cell.getContent();
-        content.getChildren().add(cell);
         cell.setMaxWidth(maxWidth);
         cell.setMaxHeight(USE_COMPUTED_SIZE);
+
+        content.getChildren().add(cell);
         cell.applyCss();
         cell.layout();
         arrangement.addCell(cell);
         return cell;
+    }
+
+    /// When wrapped, returns the available text cell width (document width minus all the decorations and padding).
+    /// When not wrapped, returns -1.
+    /// This value is valid only within layoutCells().
+    public double availableWidth() {
+        return availableWidth;
     }
 
     /**
@@ -1331,7 +1357,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
      * This process might be repeated if one of the scroll bars changes its visibility as a result.
      * (up to 4 times worst case)
      */
-    protected void layoutCells() {
+    protected void layoutCells(boolean nestedLayout) {
         if (arrangement != null) {
             arrangement.removeNodesFrom(content);
             arrangement = null;
@@ -1362,13 +1388,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
 
-        double forWidth; // to be used for cell sizing in prefHeight()
         double maxWidth; // max width to apply before the layout (or replace with cell's preferred width?)
         if (wrap) {
-            forWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
-            maxWidth = forWidth;
+            availableWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
+            maxWidth = availableWidth;
         } else {
-            forWidth = -1.0;
+            availableWidth = -1.0;
             maxWidth = Params.MAX_WIDTH_FOR_LAYOUT;
         }
 
@@ -1388,7 +1413,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         for ( ; i < paragraphCount; i++) {
             TextCell cell = prepareCell(i, maxWidth, defaultInterval);
 
-            double h = cell.prefHeight(forWidth) + getLineSpacing(cell.getContent());
+            double h = cell.prefHeight(availableWidth) + getLineSpacing(cell.getContent());
             h = snapSizeY(h);
             cell.setPosition(y, h);
 
@@ -1504,7 +1529,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         for (i = topCellIndex() - 1; i >= 0; i--) {
             TextCell cell = prepareCell(i, maxWidth, defaultInterval);
 
-            double h = cell.prefHeight(forWidth) + getLineSpacing(cell.getContent());
+            double h = cell.prefHeight(availableWidth) + getLineSpacing(cell.getContent());
             h = snapSizeY(h);
             y = snapPositionY(y - h);
             cell.setPosition(y, h);
@@ -1543,10 +1568,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 (arrangementHeight + contentPaddingTop + contentPaddingBottom) > viewPortHeight;
 
         if (vsbVisible != vscroll.isVisible()) {
-            vscroll.setVisible(vsbVisible);
-            // do another layout pass with the scrollbar updated
-            layoutCells();
-            return;
+            if (nestedLayout && !vsbVisible) {
+                // no change to avoid infinite cycles
+                vsbVisible = true;
+            } else {
+                vscroll.setVisible(vsbVisible);
+                // do another layout pass with the scrollbar updated
+                layoutCells(true);
+                return;
+            }
         }
         if (vsbVisible) {
             width -= vsbWidth;
@@ -1557,10 +1587,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             (unwrappedWidth + contentPaddingLeft + contentPaddingRight) > viewPortWidth;
 
         if (hscroll.isVisible() != hsbVisible) {
-            hscroll.setVisible(hsbVisible);
-            // do another layout pass with the scrollbar updated
-            layoutCells();
-            return;
+            if (nestedLayout && !hsbVisible) {
+                hsbVisible = true;
+            } else {
+                hscroll.setVisible(hsbVisible);
+                // do another layout pass with the scrollbar updated
+                layoutCells(true);
+                return;
+            }
         }
 
         if (useContentHeight) {
@@ -1677,7 +1711,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         RichTextAreaHelper.setDocumentArea(control, leftSide + padLeft, padTop, viewPortWidth, vportH);
     }
 
-    public Bounds getDocumentArea() {
+    public Bounds documentArea() {
         double padLeft = snappedLeftInset();
         double padTop = snappedTopInset();
         return new BoundingBox(leftSide + padLeft, padTop, viewPortWidth, vportH);
@@ -1739,5 +1773,31 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             return m.getDefaultTabStops();
         }
         return 0.0;
+    }
+
+    private void handleDropTarget(TextPos p) {
+        CaretInfo c = getCaretInfo(p);
+        if (c == null) {
+            if (dropTarget != null) {
+                dropTarget.setVisible(false);
+            }
+        } else {
+            if (dropTarget == null) {
+                dropTarget = new Path();
+                dropTarget.getStyleClass().add("drop-target");
+                dropTarget.setManaged(false);
+                dropTarget.setViewOrder(DROP_TARGET_ORDER);
+                content.getChildren().add(dropTarget);
+            }
+
+            FxPathBuilder b = new FxPathBuilder();
+            createCaretPath(b, p);
+            dropTarget.getElements().setAll(b.getPathElements());
+            dropTarget.setVisible(true);
+        }
+    }
+
+    public boolean isWrapText() {
+        return control.isWrapText();
     }
 }

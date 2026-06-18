@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2022, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -327,13 +327,14 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
     }
 
     @Override
-    public StyleAttributeMap getStyleAttributeMap(StyleResolver r, TextPos pos) {
+    public StyleAttributeMap getStyleAttributeMap(StyleResolver r, TextPos pos, boolean forInsert) {
         int index = pos.index();
         if (index < paragraphs.size()) {
-            int off = pos.offset();
             Paragraph par = paragraphs.get(index);
             StyleAttributeMap pa = par.paragraphAttributes;
-            StyleAttributeMap a = par.getStyleAttrs(r, off);
+            int cix = pos.charIndex();
+            boolean leading = pos.isLeading();
+            StyleAttributeMap a = par.getStyleAttrs(r, cix, leading, forInsert);
             if (pa == null) {
                 return a;
             } else {
@@ -356,7 +357,7 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
     }
 
     /** Encapsulates a paragraph */
-    static class Paragraph {
+    private static class Paragraph {
         private ArrayList<StyledSegment> segments;
         private ArrayList<Consumer<TextCell>> highlights;
         private StyleAttributeMap paragraphAttributes;
@@ -500,7 +501,7 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
          * @param generator the generator that provides the actual {@code Node}
          */
         void addInlineNode(Supplier<Node> generator) {
-            StyledSegment seg = StyledSegment.ofInlineNode(generator);
+            StyledSegment seg = StyledSegment.ofInlineNode(generator, null);
             segments().add(seg);
         }
 
@@ -555,19 +556,58 @@ public class SimpleViewOnlyStyledModel extends StyledTextModelViewOnlyBase {
         }
 
         // for use by SimpleReadOnlyStyledModel
-        StyleAttributeMap getStyleAttrs(StyleResolver resolver, int offset) {
-            int off = 0;
+        StyleAttributeMap getStyleAttrs(StyleResolver r, int charIndex, boolean leading, boolean forInsert) {
+            int pos = 0;
             int ct = size();
+            int last = ct - 1;
             for (int i = 0; i < ct; i++) {
                 StyledSegment seg = segments.get(i);
                 int len = seg.getTextLength();
-                if (offset < (off + len) || (i == ct - 1)) {
-                    return seg.getStyleAttributeMap(resolver);
+                pos += len;
+
+                boolean use;
+                if (i == last) {
+                    use = true;
+                } else if (charIndex == pos) {
+                    // forInsert ? leading : false;
+                    use = forInsert && leading;
+                } else {
+                    use = charIndex < pos;
                 }
-                off += len;
+
+                if (use) {
+                    return seg.getStyleAttributeMap(r);
+                }
             }
             return StyleAttributeMap.EMPTY;
         }
+        /*
+        public StyleAttributeMap getStyleAttributeMap(int charIndex, boolean leading, boolean forInsert) {
+            int pos = 0;
+            int ct = size();
+            int last = ct - 1;
+            for (int i = 0; i < ct; i++) {
+                RSegment seg = get(i);
+                int len = seg.getTextLength();
+                pos += len;
+
+                boolean use;
+                if (i == last) {
+                    use = true;
+                } else if (charIndex == pos) {
+                    // forInsert ? leading : false;
+                    use = forInsert && leading;
+                } else {
+                    use = charIndex < pos;
+                }
+
+                if (use) {
+                    return seg.getStyleAttributeMap();
+                }
+            }
+            return StyleAttributeMap.EMPTY;
+        }
+        */
 
         public RichParagraph toRichParagraph() {
             return new RichParagraph() {

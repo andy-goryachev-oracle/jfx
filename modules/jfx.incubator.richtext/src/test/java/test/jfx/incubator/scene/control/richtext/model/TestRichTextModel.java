@@ -51,7 +51,7 @@ import test.jfx.incubator.scene.control.richtext.support.RTUtil;
 public class TestRichTextModel {
 
     /** RichTextModel version string */
-    public static final String VERSION = "{@RichText-v2-incubator}";
+    public static final String VERSION = "{@RichText-v3-incubator}";
     /** standard document properties */
     public static final String DOC_PROPS = "{#tabs|0.0}";
 

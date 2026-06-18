@@ -2,9 +2,9 @@
 
 Andy Goryachev
 
-Version 2
+Version 3
 
-June 16, 2026
+June 17, 2026
 
 
 
@@ -38,7 +38,7 @@ As an example, the following rich text
 is represented by the following file:
 
 ```
-{@RichText-v2-incubator}{#tabs|99.5}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
+{@RichText-v3-incubator}{#tabs|99.5}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
 {0}default tabs:	1	2	3{!}
 {ff|System}{fs|12.0}{tc|669966}green{!}
 {b}{ff|System}{fs|12.0}bold {ff|System}{fs|12.0}{i}italic {ff|System}{fs|12.0}{ss}strikethrough{4} {ff|System}{fs|12.0}{u}underline{!}
@@ -59,7 +59,7 @@ There could be only one such segment and it must be the first one.
 
 Example:
 
-`{@RichText-v2-incubator}`
+`{@RichText-v3-incubator}`
 
 
 ### Document Properties Segment
@@ -120,6 +120,33 @@ Example:
 Notes:
 
 1. the standard JavaFX font substitution is performed to render text when the specified font family cannot be found.
+
+
+#### Embedded Images
+
+Embedded images are coded as character attributes with the tag `img`.
+The data portion of the attribute specifies the following comma-delimited fields:
+
+|Code    |Type          |Description                                                     |
+|:-------|:-------------|:---------------------------------------------------------------|
+|a       |boolean       |Keep aspect ratio
+|b       |byte[]        |Base64-encoded image data
+|h       |double        |Original image height
+|th      |double        |Target height (Note 1)
+|tw      |double        |Target width (Notes 1, 2)
+|w       |double        |Original image width
+
+Notes:
+
+1. Value of `0.0` indicates that the rendered image height or width should be computed according to the image
+   intrinsic aspect ratio.
+2. Value of `-1.0` indicates that the rendered image width should not exceed the view's wrapped text width.
+   Value of `-2.0` indicates that the rendered image width should always fit the view's wrapped text width.
+
+
+Example:
+
+`{img|w,138.0,h,102.0,tw,-1.0,th,-1.0,a,true,b,iVBORw0KGgoAAA...}`
 
 
 ### Text Segment
@@ -192,9 +219,4 @@ Example:
 {0}line2{!}
 {0}line3{!}
 ```
-
-
-## Future Enhancements
-
-- embedded image attributes
 
