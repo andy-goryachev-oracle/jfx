@@ -79,10 +79,10 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 /**
  * Contains all the parts representing the visuals of the RichTextAreaSkin.
  *
- * Component hierarchy (all the way to the top):
+ * Skin structure:
  * <pre>
  *  RichTextArea (Region) .rich-text-area
- *    └─ VFlow (Pane) .flow
+ *    └─ VFlow (Pane) .vflow
  *        ├─ left gutter (ClippedPane) .left-side
  *        ├─ right gutter (ClippedPane) .right-side
  *        ├─ vertical ScrollBar
