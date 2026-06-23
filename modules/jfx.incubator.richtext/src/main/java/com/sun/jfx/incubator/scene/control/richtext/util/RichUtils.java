@@ -175,13 +175,16 @@ public final class RichUtils {
         return Platform.isSupported(ConditionalFeature.INPUT_TOUCH);
     }
 
+    /// Computes text length for the TextFlow embedded into TextCell,
+    /// ignoring unmanagement Nodes (highlights) and counting non-Text nodes
+    /// as having length=1.
     public static int getTextLength(TextFlow f) {
         int len = 0;
         for (Node n : f.getChildrenUnmodifiable()) {
             if (n instanceof Text t) {
                 len += t.getText().length();
-            } else {
-                // treat non-Text nodes as having 1 character
+            } else if(n.isManaged()) {
+                // treat non-Text nodes as having 1 character (excluding decorations)
                 len++;
             }
         }

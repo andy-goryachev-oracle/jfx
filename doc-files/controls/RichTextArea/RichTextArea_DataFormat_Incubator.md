@@ -2,7 +2,7 @@
 
 Andy Goryachev
 
-Version 3
+Version 4
 
 June 17, 2026
 
@@ -38,7 +38,7 @@ As an example, the following rich text
 is represented by the following file:
 
 ```
-{@RichText-v3-incubator}{#tabs|99.5}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
+{@RichText-v4-incubator}{#tabs|99.5}{ff|System}{fs|12.0}tabs:	1	2	3{!tabs|149.0,190.0,229.0}
 {0}default tabs:	1	2	3{!}
 {ff|System}{fs|12.0}{tc|669966}green{!}
 {b}{ff|System}{fs|12.0}bold {ff|System}{fs|12.0}{i}italic {ff|System}{fs|12.0}{ss}strikethrough{4} {ff|System}{fs|12.0}{u}underline{!}
@@ -59,7 +59,7 @@ There could be only one such segment and it must be the first one.
 
 Example:
 
-`{@RichText-v3-incubator}`
+`{@RichText-v4-incubator}`
 
 
 ### Document Properties Segment
@@ -107,19 +107,30 @@ Example:
 
 #### Character Attributes
 
-|Name    |StyleAttributeMap     |Type        |Comments                                                      |
-|:-------|:---------------------|:-----------|:-------------------------------------------------------------|
-|b       |BOLD                  |boolean     |
-|ff      |FONT_FAMILY           |String      | Note 1
-|fs      |FONT_SIZE             |double      | must be > 0 and finite
-|i       |ITALIC                |boolean     |
-|ss      |STRIKE_THROUGH        |boolean     |
-|tc      |TEXT_COLOR            |Color       | 6 hex digits `RRGGBB`.  Example: {tc&#x007c;4D804D}
-|u       |UNDERLINE             |boolean     |
+|Name    |StyleAttributeMap     |Type        |Description                                                      |
+|:-------|:---------------------|:-----------|:----------------------------------------------------------------|
+|b       |BOLD                  |boolean     |Bold typeface
+|ff      |FONT_FAMILY           |String      |Font family (Note 1)
+|fs      |FONT_SIZE             |double      |Font size (Note 2)
+|hi1     |TEXT_HIGHLIGHT_1      |boolean     |Text highlight color 1
+|hi2     |TEXT_HIGHLIGHT_2      |boolean     |Text highlight color 2
+|hi3     |TEXT_HIGHLIGHT_3      |boolean     |Text highlight color 3
+|hi4     |TEXT_HIGHLIGHT_4      |boolean     |Text highlight color 4
+|hi5     |TEXT_HIGHLIGHT_5      |boolean     |Text highlight color 5
+|i       |ITALIC                |boolean     |Italic typeface
+|ss      |STRIKE_THROUGH        |boolean     |Strike through
+|tc      |TEXT_COLOR            |Color       |Text color (Note 3)
+|u       |UNDERLINE             |boolean     |Underline
+|uw1     |UNDERLINE_WAVY_1      |boolean     |Wavy underline color 1
+|uw2     |UNDERLINE_WAVY_2      |boolean     |Wavy underline color 2
+|uw3     |UNDERLINE_WAVY_3      |boolean     |Wavy underline color 3
+
 
 Notes:
 
 1. the standard JavaFX font substitution is performed to render text when the specified font family cannot be found.
+2. must be > 0 and finite
+3. 6 hex digits `RRGGBB`.  Example: {tc&#x007c;4D804D}
 
 
 #### Embedded Images

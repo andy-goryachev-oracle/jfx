@@ -210,7 +210,7 @@ public abstract class RichParagraph {
         public Builder addWavyUnderline(int start, int length, Color color) {
             int end = start + length;
             highlights().add((cell) -> {
-                cell.addSquiggly(start, end, color);
+                cell.addWavyUnderline(start, end, color);
             });
             return this;
         }
@@ -229,7 +229,7 @@ public abstract class RichParagraph {
         public Builder addWavyUnderline(int start, int length, String ... css) {
             int end = start + length;
             highlights().add((cell) -> {
-                cell.addSquiggly(start, end, css);
+                cell.addWavyUnderline(start, end, css);
             });
             return this;
         }

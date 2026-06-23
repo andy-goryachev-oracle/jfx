@@ -166,7 +166,15 @@ public class RichTextFormatHandler extends DataFormatHandler {
         addHandler(StyleAttributeMap.TAB_STOPS, "tabs", TAB_STOPS_CONVERTER);
         addHandler(StyleAttributeMap.TEXT_ALIGNMENT, "alignment", TEXT_ALIGNMENT_CONVERTER);
         addHandler(StyleAttributeMap.TEXT_COLOR, "tc", COLOR_CONVERTER);
+        addHandlerBoolean(StyleAttributeMap.TEXT_HIGHLIGHT_1, "hi1");
+        addHandlerBoolean(StyleAttributeMap.TEXT_HIGHLIGHT_2, "hi2");
+        addHandlerBoolean(StyleAttributeMap.TEXT_HIGHLIGHT_3, "hi3");
+        addHandlerBoolean(StyleAttributeMap.TEXT_HIGHLIGHT_4, "hi4");
+        addHandlerBoolean(StyleAttributeMap.TEXT_HIGHLIGHT_5, "hi5");
         addHandlerBoolean(StyleAttributeMap.UNDERLINE, "u");
+        addHandlerBoolean(StyleAttributeMap.UNDERLINE_WAVY_1, "uw1");
+        addHandlerBoolean(StyleAttributeMap.UNDERLINE_WAVY_2, "uw2");
+        addHandlerBoolean(StyleAttributeMap.UNDERLINE_WAVY_3, "uw3");
     }
 
     /**

@@ -75,6 +75,7 @@ import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledInput;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
+import jfx.incubator.scene.control.richtext.skin.CellContext;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 
 /**
@@ -2522,9 +2523,57 @@ public class RichTextArea extends Control {
             cx.addStyle("-fx-fill:" + color + ";");
         });
 
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_1, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_1, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_1);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_2, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_2, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_2);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_3, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_3, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_3);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_4, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_4, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_4);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.TEXT_HIGHLIGHT_5, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.TEXT_HIGHLIGHT_5, CellContext.RunDecor.HIGHLIGHT, Params.TEXT_HIGHLIGHT_5);
+            }
+        });
+
         b.setSegHandler(StyleAttributeMap.UNDERLINE, (cc, cx, v) -> {
             if (v) {
                 cx.addStyle("-fx-underline:true;");
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.UNDERLINE_WAVY_1, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.UNDERLINE_WAVY_1, CellContext.RunDecor.WAVY_UNDERLINE, Params.UNDERLINE_WAVY_1);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.UNDERLINE_WAVY_2, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.UNDERLINE_WAVY_2, CellContext.RunDecor.WAVY_UNDERLINE, Params.UNDERLINE_WAVY_2);
+            }
+        });
+
+        b.setSegHandler(StyleAttributeMap.UNDERLINE_WAVY_3, (cc, cx, v) -> {
+            if (v) {
+                cx.decorateRun(StyleAttributeMap.UNDERLINE_WAVY_3, CellContext.RunDecor.WAVY_UNDERLINE, Params.UNDERLINE_WAVY_3);
             }
         });
 

@@ -95,6 +95,15 @@ public class TestRichTextFormatHandler {
 
             s("combined", StyleAttributeMap.ITALIC, a(StyleAttributeMap.TEXT_COLOR, Color.RED), StyleAttributeMap.UNDERLINE),
             s(" ", StyleAttributeMap.of(StyleAttributeMap.EMBEDDED_IMAGE, EmbeddedImageHelper.create(RTUtil.redPng32x32(), 32, 32, 32, 32, true))),
+            nl(),
+            s("highlight1", StyleAttributeMap.TEXT_HIGHLIGHT_1),
+            s("highlight2", StyleAttributeMap.TEXT_HIGHLIGHT_2),
+            s("highlight3", StyleAttributeMap.TEXT_HIGHLIGHT_3),
+            s("highlight4", StyleAttributeMap.TEXT_HIGHLIGHT_4),
+            s("highlight5", StyleAttributeMap.TEXT_HIGHLIGHT_5),
+            s("wavy1", StyleAttributeMap.UNDERLINE_WAVY_1),
+            s("wavy2", StyleAttributeMap.UNDERLINE_WAVY_2),
+            s("wavy3", StyleAttributeMap.UNDERLINE_WAVY_3),
             nl()
         };
         testRoundTrip(segments);

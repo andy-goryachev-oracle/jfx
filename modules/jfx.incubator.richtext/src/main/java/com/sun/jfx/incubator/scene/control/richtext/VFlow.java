@@ -79,10 +79,10 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 /**
  * Contains all the parts representing the visuals of the RichTextAreaSkin.
  *
- * Component hierarchy (all the way to the top):
+ * Skin structure:
  * <pre>
  *  RichTextArea (Region) .rich-text-area
- *    └─ VFlow (Pane) .flow
+ *    └─ VFlow (Pane) .vflow
  *        ├─ left gutter (ClippedPane) .left-side
  *        ├─ right gutter (ClippedPane) .right-side
  *        ├─ vertical ScrollBar
@@ -134,8 +134,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private double viewPortHeight;
     private double vportH;
     private Subscription subscriptions;
-    private static final Text measurer = makeMeasurer();
-    private static final VFlowCellContext context = new VFlowCellContext();
+    private final Text measurer = makeMeasurer();
+    private final VFlowCellContext context = new VFlowCellContext();
     // visual ordering (cells are at 0)
     private static final int DROP_TARGET_ORDER = -20;
     private static final int CARET_ORDER = -10;
@@ -834,7 +834,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (count == 0) {
                 // a bit of a hack: avoid TextCells with an empty TextFlow,
                 // otherwise it makes the caret collapse to a single point
-                cell.addTextSegment(createTextNode("", StyleAttributeMap.EMPTY));
+                cell.addTextSegment(createTextNode(cell, "", StyleAttributeMap.EMPTY));
             } else {
                 for (int i=0; i<count; i++) {
                     StyledSegment seg = par.getSegment(i);
@@ -846,12 +846,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     case TEXT:
                         String text = seg.getText();
                         StyleAttributeMap a = seg.getStyleAttributeMap(this);
-                        Text t = createTextNode(text, a);
+                        Text t = createTextNode(cell, text, a);
                         cell.addTextSegment(t);
                         break;
                     }
                 }
             }
+
+            // multi-segment decorations
+            cell.applyDecorations();
         }
 
         if (!pa.isEmpty()) {
@@ -876,16 +879,16 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
         }
 
-        context.reset(cell.getContent(), pa);
+        context.reset(cell, cell.getContent(), pa);
         skin.applyStyles(context, pa, true);
         context.apply();
 
         return cell;
     }
 
-    private Text createTextNode(String text, StyleAttributeMap attrs) {
+    private Text createTextNode(TextCell cell, String text, StyleAttributeMap attrs) {
         Text t = new Text(text);
-        context.reset(t, attrs);
+        context.reset(cell, t, attrs);
         skin.applyStyles(context, attrs, false);
         context.apply();
         return t;
