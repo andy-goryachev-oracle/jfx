@@ -25,7 +25,9 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
+/// Internal interface which enables an implementation adjust its geometry to the current state of
+/// the enveloping `VFlow`.
 public interface RequiresComplexLayout {
-
+    /// Invoked during {@link VFlow#layoutCells(boolean)}
     public void updateVFlowContext(VFlow flow);
 }
