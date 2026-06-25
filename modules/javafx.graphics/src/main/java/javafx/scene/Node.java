@@ -163,7 +163,7 @@ import com.sun.javafx.scene.traversal.Direction;
 import com.sun.javafx.scene.traversal.TraversalMethod;
 import com.sun.javafx.sg.prism.NGNode;
 import com.sun.javafx.tk.Toolkit;
-import com.sun.javafx.util.FastMap;
+import com.sun.javafx.util.HiddenProps;
 import com.sun.javafx.util.Logging;
 import com.sun.javafx.util.PKey;
 import com.sun.javafx.util.TempState;
@@ -491,8 +491,7 @@ public abstract sealed class Node
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
     private static final PKey<BooleanProperty> K_VISIBLE = new PKey<>();
-    // TODO
-    private final FastMap props = FastMap.create(this, Node.class);
+    private final HiddenProps props = HiddenProps.create(Node.class);
 
     /*
      * Store the singleton instance of the NodeHelper subclass corresponding

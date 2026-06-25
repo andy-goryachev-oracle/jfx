@@ -30,6 +30,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -41,68 +42,48 @@ import javafx.scene.Node;
 import javafx.util.Duration;
 
 /**
- * This map-like object holds properties that are lazily created
+ * This map-like object holds properties and fields that are lazily created
  * by the Node class and its descendants (Region, etc.).
- * The main idea behind it is that on average, very few of these properties are instantiated,
- * so by placing these properties into an elastic map we could save some memory.
- * The lookup here is implemented by a super-fast '==' comparison, so every PKey must be
- * statically declared.
+ * The main idea behind it is that on average, very few of these objects are instantiated,
+ * so by placing these objects into a hidden map we could save some memory.
  */
-public class FastMap {
+public class HiddenProps {
     /** Enables periodic dumping of utilization statistics to stdout */
     private static final boolean COLLECT_STATISTICS = true;
 
-    final ArrayList<PKey<?>> keys;
-    private final ArrayList<Object> values;
+    private final HashMap<PKey<?>,Object> data;
 
-    private FastMap(Node node) {
-        int capacity = 4;
-        keys = new ArrayList<>(capacity);
-        values = new ArrayList<>(capacity);
+    private HiddenProps() {
+        this.data = new HashMap<>(4);
     }
 
-    public static FastMap create(Node node, Class<? extends Node> cls) {
-        return COLLECT_STATISTICS ? new FastMaPWithStats(node, cls) : new FastMap(node);
+    public static HiddenProps create(Class<? extends Node> cls) {
+        return COLLECT_STATISTICS ? new FastMaPWithStats(cls) : new HiddenProps();
     }
 
     public <T> T init(PKey<T> key, Supplier<T> generator) {
         T value = generator.get();
-        keys.add(key);
-        values.add(value);
+        data.put(key, value);
         return value;
     }
 
-    int indexOf(PKey<?> key) {
-        int sz = keys.size();
-        for (int i = 0; i < sz; i++) {
-            if (keys.get(i) == key) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     public <T> T get(PKey<T> key) {
-        int ix = indexOf(key);
-        if (ix < 0) {
-            return null;
-        }
-        return (T)values.get(ix);
+        return (T)data.get(key);
     }
 
     public <T> void remove(PKey<T> key) {
-        int ix = indexOf(key);
-        if (ix >= 0) {
-            keys.remove(ix);
-            values.remove(ix);
-        }
+        data.remove(key);
     }
 
     public int size() {
-        return keys.size();
+        return data.size();
     }
 
-    private static class FastMaPWithStats extends FastMap {
+    Set<PKey<?>> keys() {
+        return data.keySet();
+    }
+
+    private static class FastMaPWithStats extends HiddenProps {
         record FEntry(String name, int count) { }
         record HEntry(int size, int count) { }
         
@@ -117,8 +98,7 @@ public class FastMap {
             init();
         }
 
-        public FastMaPWithStats(Node n, Class<? extends Node> cls) {
-            super(n);
+        public FastMaPWithStats(Class<?> cls) {
             this.keyCount = countKeys(cls);
             all.put(this, null);
         }
@@ -143,12 +123,6 @@ public class FastMap {
                 t.setCycleCount(Timeline.INDEFINITE);
                 t.play();
             });
-        }
-
-        @Override
-        int indexOf(PKey<?> key) {
-            indexOfCount.incrementAndGet();
-            return super.indexOf(key);
         }
 
         private static int countKeys(Class<?> cls) {
@@ -207,7 +181,7 @@ public class FastMap {
                         top = sz;
                     }
     
-                    for (PKey k : m.keys) {
+                    for (PKey<?> k : m.keys()) {
                         AtomicInteger ct = freq.get(k);
                         if (ct == null) {
                             ct = new AtomicInteger(1);
