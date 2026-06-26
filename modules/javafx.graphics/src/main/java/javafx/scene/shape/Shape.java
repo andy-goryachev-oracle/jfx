@@ -123,6 +123,19 @@ public abstract sealed class Shape extends Node
         permits AbstractShape, Arc, Circle, CubicCurve, Ellipse, Line, Path, Polygon,
                 Polyline, QuadCurve, Rectangle, SVGPath, Text {
 
+    private static final float[] DEFAULT_PG_STROKE_DASH_ARRAY = new float[0];
+    private static final boolean DEFAULT_SMOOTH = true;
+    private static final double DEFAULT_STROKE_DASH_OFFSET = 0;
+    private static final StrokeLineCap DEFAULT_STROKE_LINE_CAP = StrokeLineCap.SQUARE;
+    private static final StrokeLineJoin DEFAULT_STROKE_LINE_JOIN = StrokeLineJoin.MITER;
+    private static final double DEFAULT_STROKE_MITER_LIMIT = 10.0;
+    private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;
+    private static final double DEFAULT_STROKE_WIDTH = 1.0;
+
+    private static final PKey<BooleanProperty> K_SMOOTH = new PKey<>();
+    private static final PKey<DoubleProperty> K_STROKE_MITER_LIMIT = new PKey<>();
+    private static final PKey<ObjectProperty<StrokeType>> K_STROKE_TYPE = new PKey<>();
+
     static {
         // This is used by classes in different packages to get access to
         // private and package private methods.
@@ -170,18 +183,6 @@ public abstract sealed class Shape extends Node
         });
     }
 
-    private static final float[] DEFAULT_PG_STROKE_DASH_ARRAY = new float[0];
-    private static final boolean DEFAULT_SMOOTH = true;
-    private static final double DEFAULT_STROKE_DASH_OFFSET = 0;
-    private static final StrokeLineCap DEFAULT_STROKE_LINE_CAP = StrokeLineCap.SQUARE;
-    private static final StrokeLineJoin DEFAULT_STROKE_LINE_JOIN = StrokeLineJoin.MITER;
-    private static final double DEFAULT_STROKE_MITER_LIMIT = 10.0;
-    private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;
-    private static final double DEFAULT_STROKE_WIDTH = 1.0;
-
-    private static final PKey<BooleanProperty> K_SMOOTH = new PKey<>();
-    private static final PKey<DoubleProperty> K_STROKE_MITER_LIMIT = new PKey<>();
-
     /**
      * Creates an empty instance of Shape.
      */
@@ -190,15 +191,6 @@ public abstract sealed class Shape extends Node
 
     StrokeLineJoin convertLineJoin(StrokeLineJoin t) {
         return t;
-    }
-
-    public final void setStrokeType(StrokeType value) {
-        strokeTypeProperty().set(value);
-    }
-
-    public final StrokeType getStrokeType() {
-        return (strokeAttributes == null) ? DEFAULT_STROKE_TYPE
-                                          : strokeAttributes.getType();
     }
 
     /**
@@ -218,7 +210,44 @@ public abstract sealed class Shape extends Node
      * @defaultValue CENTERED
      */
     public final ObjectProperty<StrokeType> strokeTypeProperty() {
-        return getStrokeAttributes().typeProperty();
+        HiddenProps props = HiddenProps.get(this);
+        ObjectProperty<StrokeType> p = props.get(K_STROKE_TYPE);
+        if (p == null) {
+            p = props.init(K_STROKE_TYPE, () -> new StyleableObjectProperty<StrokeType>(DEFAULT_STROKE_TYPE) {
+                @Override
+                public void invalidated() {
+                    Rinvalidated(StyleableProperties.STROKE_TYPE);
+                }
+
+                @Override
+                public CssMetaData<Shape,StrokeType> getCssMetaData() {
+                    return StyleableProperties.STROKE_TYPE;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeType";
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setStrokeType(StrokeType value) {
+        if ((value == DEFAULT_STROKE_TYPE) && (HiddenProps.getProperty(this, K_STROKE_TYPE) == null)) {
+            return;
+        }
+        strokeTypeProperty().set(value);
+    }
+
+    public final StrokeType getStrokeType() {
+        ObjectProperty<StrokeType> p = HiddenProps.getProperty(this, K_STROKE_TYPE);
+        return (p == null) ? DEFAULT_STROKE_TYPE : p.get();
     }
 
     public final void setStrokeWidth(double value) {
@@ -592,6 +621,7 @@ public abstract sealed class Shape extends Node
      * Defines whether antialiasing hints are used or not for this {@code Shape}.
      * If the value equals true the rendering hints are applied.
      *
+     * @return the property
      * @defaultValue true
      */
     public final BooleanProperty smoothProperty() {
@@ -853,16 +883,13 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetType();
+                return HiddenProps.isSettable(node, K_STROKE_TYPE);
             }
 
             @Override
             public StyleableProperty<StrokeType> getStyleableProperty(Shape node) {
                 return (StyleableProperty<StrokeType>)node.strokeTypeProperty();
             }
-
-
         };
 
         /**
@@ -1220,8 +1247,10 @@ public abstract sealed class Shape extends Node
 
     private boolean strokeAttributesDirty = true;
 
+    @Deprecated // FIX remove
     private StrokeAttributes strokeAttributes;
 
+    @Deprecated // FIX remove
     private StrokeAttributes getStrokeAttributes() {
         if (strokeAttributes == null) {
             strokeAttributes = new StrokeAttributes();
@@ -1246,44 +1275,11 @@ public abstract sealed class Shape extends Node
 
     @Deprecated // FIX
     private final class StrokeAttributes {
-        private ObjectProperty<StrokeType> type;
         private DoubleProperty width;
         private ObjectProperty<StrokeLineJoin> lineJoin;
         private ObjectProperty<StrokeLineCap> lineCap;
         private DoubleProperty dashOffset;
         private ObservableList<Double> dashArray;
-
-        public final StrokeType getType() {
-            return (type == null) ? DEFAULT_STROKE_TYPE : type.get();
-        }
-
-        public final ObjectProperty<StrokeType> typeProperty() {
-            if (type == null) {
-                type = new StyleableObjectProperty<StrokeType>(DEFAULT_STROKE_TYPE) {
-
-                    @Override
-                    public void invalidated() {
-                        Rinvalidated(StyleableProperties.STROKE_TYPE);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,StrokeType> getCssMetaData() {
-                        return StyleableProperties.STROKE_TYPE;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeType";
-                    }
-                };
-            }
-            return type;
-        }
 
         public double getWidth() {
             return (width == null) ? DEFAULT_STROKE_WIDTH : width.get();
@@ -1478,10 +1474,6 @@ public abstract sealed class Shape extends Node
             }
 
             return cssDashArray;
-        }
-
-        public boolean canSetType() {
-            return (type == null) || !type.isBound();
         }
 
         public boolean canSetWidth() {

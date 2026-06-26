@@ -47,7 +47,9 @@ import com.sun.javafx.scene.NodeHelper;
  * This map-like object holds properties and fields that are lazily created
  * by the Node class and its descendants (Region, etc.).
  * The main idea behind it is that on average, very few of these objects are instantiated,
- * so by placing these objects into a hidden map we could save some memory.
+ * so we could save some RAM by placing these objects into a hidden map.
+ * The other benefit is that we could freely add useful, but rarely used properties
+ * that require complex subscription chains, for example the visible parent Window.
  */
 public class HiddenProps {
     /** Enables periodic dumping of utilization statistics to stdout */
