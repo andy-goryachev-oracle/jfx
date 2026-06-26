@@ -412,7 +412,6 @@ public abstract sealed class Node
     implements EventTarget, Styleable
     permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D
 {
-    private static final double DEFAULT_VIEW_ORDER = 0;
     private static final boolean DEFAULT_CACHE = false;
     private static final CacheHint DEFAULT_CACHE_HINT = CacheHint.DEFAULT;
     private static final Node DEFAULT_CLIP = null;
@@ -420,8 +419,11 @@ public abstract sealed class Node
     private static final DepthTest DEFAULT_DEPTH_TEST = DepthTest.INHERIT;
     private static final boolean DEFAULT_DISABLE = false;
     private static final Effect DEFAULT_EFFECT = null;
+    private static final boolean DEFAULT_FOCUS_TRAVERSABLE = false;
     private static final InputMethodRequests DEFAULT_INPUT_METHOD_REQUESTS = null;
     private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
+    private static final boolean DEFAULT_VISIBLE = true;
+    private static final double DEFAULT_VIEW_ORDER = 0;
 
     // strictly speaking, tags don't have to specify type, can be a simple Object
     private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_HELP = new PKey<>();
@@ -491,7 +493,7 @@ public abstract sealed class Node
     private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
     private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
     private static final PKey<BooleanProperty> K_VISIBLE = new PKey<>();
-    private final HiddenProps props = HiddenProps.create(Node.class);
+    private final HiddenProps props = HiddenProps.create(getClass());
 
     /*
      * Store the singleton instance of the NodeHelper subclass corresponding
@@ -788,6 +790,11 @@ public abstract sealed class Node
             @Override
             public MediaQueryContext getMediaQueryContext(Node node) {
                 return node.getMediaQueryContext();
+            }
+
+            @Override
+            public HiddenProps getHiddenProps(Node n) {
+                return n.props;
             }
         });
     }
@@ -1518,7 +1525,7 @@ public abstract sealed class Node
     public final BooleanProperty visibleProperty() {
         BooleanProperty p = props.get(K_VISIBLE);
         if (p == null) {
-            p = props.init(K_VISIBLE, () -> new StyleableBooleanProperty(true) {
+            p = props.init(K_VISIBLE, () -> new StyleableBooleanProperty(DEFAULT_VISIBLE) {
                 boolean oldValue = true;
                 @Override
                 protected void invalidated() {
@@ -1556,17 +1563,15 @@ public abstract sealed class Node
     }
 
     public final void setVisible(boolean value) {
+        if ((value == DEFAULT_VISIBLE) && (props.get(K_VISIBLE) == null)) {
+            return;
+        }
         visibleProperty().set(value);
     }
 
     public final boolean isVisible() {
         BooleanProperty p = props.get(K_VISIBLE);
         return p == null ? true : p.get();
-    }
-
-    private boolean isVisibleSettable() {
-        BooleanProperty p = props.get(K_VISIBLE);
-        return (p == null) || !p.isBound();
     }
 
     public final void setCursor(Cursor value) {
@@ -1617,11 +1622,6 @@ public abstract sealed class Node
             });
         }
         return p;
-    }
-    
-    private boolean isCursorSettable() {
-        ObjectProperty<Cursor> p = props.get(K_CURSOR);
-        return (p == null) || !p.isBound();
     }
 
     /**
@@ -1737,11 +1737,6 @@ public abstract sealed class Node
     public final BlendMode getBlendMode() {
         ObjectProperty<BlendMode> p = props.get(K_BLEND_MODE);
         return p == null ? null : p.get();
-    }
-
-    private boolean isBlendModeSettable() {
-        ObjectProperty<BlendMode> p = props.get(K_BLEND_MODE);
-        return (p == null) || !p.isBound();
     }
 
     public final void setClip(Node value) {
@@ -2003,11 +1998,6 @@ public abstract sealed class Node
     public final Effect getEffect() {
         ObjectProperty<Effect> p = props.get(K_EFFECT);
         return (p == null) ? DEFAULT_EFFECT : p.get();
-    }
-
-    private boolean isEffectSettable() {
-        ObjectProperty<Effect> p = props.get(K_EFFECT);
-        return (p == null) || !p.isBound();
     }
 
     /**
@@ -6050,11 +6040,6 @@ public abstract sealed class Node
         return (p == null) ? DEFAULT_VIEW_ORDER : p.get();
     }
 
-    private boolean isViewOrderSettable() {
-        DoubleProperty p = props.get(K_VIEW_ORDER);
-        return (p == null) || !p.isBound();
-    }
-
 
     /* *************************************************************************
      *                                                                         *
@@ -6129,11 +6114,6 @@ public abstract sealed class Node
         return p;
     }
 
-    private boolean isTranslateXSettable() {
-        DoubleProperty p = props.get(K_TRANSLATE_X);
-        return (p == null) || !p.isBound();
-    }
-
     public final void setTranslateY(double value) {
         translateYProperty().set(value);
     }
@@ -6183,11 +6163,6 @@ public abstract sealed class Node
             });
         }
         return p;
-    }
-
-    private boolean isTranslateYSettable() {
-        DoubleProperty p = props.get(K_TRANSLATE_Y);
-        return (p == null) || !p.isBound();
     }
 
     public final void setTranslateZ(double value) {
@@ -6242,11 +6217,6 @@ public abstract sealed class Node
             });
         }
         return p;
-    }
-
-    private boolean isTranslateZSettable() {
-        DoubleProperty p = props.get(K_TRANSLATE_Z);
-        return (p == null) || !p.isBound();
     }
 
     public final void setScaleX(double value) {
@@ -8497,7 +8467,7 @@ public abstract sealed class Node
     public final BooleanProperty focusTraversableProperty() {
         BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
         if (p == null) {
-            p = props.init(K_FOCUS_TRAVERSABLE, () -> new StyleableBooleanProperty(false) {
+            p = props.init(K_FOCUS_TRAVERSABLE, () -> new StyleableBooleanProperty(DEFAULT_FOCUS_TRAVERSABLE) {
 
                 @Override
                 public void invalidated() {
@@ -8530,17 +8500,15 @@ public abstract sealed class Node
     }
 
     public final void setFocusTraversable(boolean value) {
+        if ((value == DEFAULT_FOCUS_TRAVERSABLE) && (props.get(K_FOCUS_TRAVERSABLE) == null)) {
+            return;
+        }
         focusTraversableProperty().set(value);
     }
 
     public final boolean isFocusTraversable() {
         BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
         return p == null ? false : p.get();
-    }
-
-    private boolean isFocusTraversableSettable() {
-        BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
-        return (p == null) || !p.isBound();
     }
 
     /**
@@ -9432,7 +9400,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isCursorSettable();
+                    return node.props.isSettable(K_CURSOR);
                 }
 
                 @Override
@@ -9452,7 +9420,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isEffectSettable();
+                    return node.props.isSettable(K_EFFECT);
                 }
 
                 @Override
@@ -9466,7 +9434,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isFocusTraversableSettable();
+                    return node.props.isSettable(K_FOCUS_TRAVERSABLE);
                 }
 
                 @Override
@@ -9501,7 +9469,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isBlendModeSettable();
+                    return node.props.isSettable(K_BLEND_MODE);
                 }
 
                 @Override
@@ -9579,7 +9547,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isTranslateXSettable();
+                    return node.props.isSettable(K_TRANSLATE_X);
                 }
 
                 @Override
@@ -9593,7 +9561,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isTranslateYSettable();
+                    return node.props.isSettable(K_TRANSLATE_Y);
                 }
 
                 @Override
@@ -9607,7 +9575,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isTranslateZSettable();
+                    return node.props.isSettable(K_TRANSLATE_Z);
                 }
 
                 @Override
@@ -9621,7 +9589,7 @@ public abstract sealed class Node
 
                      @Override
                      public boolean isSettable(Node node) {
-                         return node.isViewOrderSettable();
+                         return node.props.isSettable(K_VIEW_ORDER);
                      }
 
                      @Override
@@ -9645,7 +9613,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.isVisibleSettable();
+                    return node.props.isSettable(K_VISIBLE);
                 }
 
                 @Override

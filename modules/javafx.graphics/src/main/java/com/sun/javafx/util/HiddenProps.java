@@ -38,8 +38,10 @@ import java.util.function.Supplier;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.Property;
 import javafx.scene.Node;
 import javafx.util.Duration;
+import com.sun.javafx.scene.NodeHelper;
 
 /**
  * This map-like object holds properties and fields that are lazily created
@@ -50,15 +52,27 @@ import javafx.util.Duration;
 public class HiddenProps {
     /** Enables periodic dumping of utilization statistics to stdout */
     private static final boolean COLLECT_STATISTICS = true;
+    private static final int INITIAL_CAPACITY = 1;
 
     private final HashMap<PKey<?>,Object> data;
 
     private HiddenProps() {
-        this.data = new HashMap<>(4);
+        this.data = new HashMap<>(INITIAL_CAPACITY);
     }
 
+    // TODO class needed only for statistics, to obtain the PKey name
+    // (and even then it can be inferred from the object)
     public static HiddenProps create(Class<? extends Node> cls) {
-        return COLLECT_STATISTICS ? new FastMaPWithStats(cls) : new HiddenProps();
+        return COLLECT_STATISTICS ? new HiddenPropsWithStats(cls) : new HiddenProps();
+    }
+
+    public static HiddenProps get(Node n) {
+        return NodeHelper.getHiddenProps(n);
+    }
+
+    public static <T> T getProperty(Node n, PKey<T> key) {
+        HiddenProps props = get(n);
+        return props.get(key);
     }
 
     public <T> T init(PKey<T> key, Supplier<T> generator) {
@@ -83,7 +97,16 @@ public class HiddenProps {
         return data.keySet();
     }
 
-    private static class FastMaPWithStats extends HiddenProps {
+    public <P extends Property<?>> boolean isSettable(PKey<P> key) {
+        P p = get(key);
+        return (p == null) || !p.isBound();
+    }
+
+    public static <P extends Property<?>> boolean isSettable(Node n, PKey<P> key) {
+        return HiddenProps.get(n).isSettable(key);
+    }
+
+    private static class HiddenPropsWithStats extends HiddenProps {
         record FEntry(String name, int count) { }
         record HEntry(int size, int count) { }
         
@@ -91,14 +114,14 @@ public class HiddenProps {
         private static final AtomicLong indexOfCount = new AtomicLong();
         private static HashMap<PKey<?>,String> keyNames = new HashMap<>();
         private static HashMap<Class<?>,Integer> counts = new HashMap<>();
-        private static WeakHashMap<FastMaPWithStats,Object> all = new WeakHashMap(1000);
+        private static WeakHashMap<HiddenPropsWithStats,Object> all = new WeakHashMap(1000);
         private static Comparator<FEntry> freqComp;
         private static Comparator<HEntry> histComp;
         static {
             init();
         }
 
-        public FastMaPWithStats(Class<?> cls) {
+        public HiddenPropsWithStats(Class<?> cls) {
             this.keyCount = countKeys(cls);
             all.put(this, null);
         }
@@ -139,6 +162,9 @@ public class HiddenProps {
                     if ((f.getType() == PKey.class) && Modifier.isStatic(f.getModifiers())) {
                         // frequency dump needs the key name 
                         String name = c.getSimpleName() + "." + f.getName();
+                        if(!name.startsWith("Node")) {
+                            int zz = 0;
+                        }
                         try {
                             f.setAccessible(true);
                             PKey k = (PKey)f.get(null);
@@ -171,7 +197,7 @@ public class HiddenProps {
             int top = 0; // largest map size
             HashMap<PKey, AtomicInteger> freq = new HashMap<>();
             HashMap<Integer, AtomicInteger> hist = new HashMap<>();
-            for (FastMaPWithStats m : all.keySet()) {
+            for (HiddenPropsWithStats m : all.keySet()) {
                 if (m != null) {
                     int sz = m.size();
                     count++;

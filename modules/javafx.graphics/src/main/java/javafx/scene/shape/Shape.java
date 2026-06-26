@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,6 +25,11 @@
 
 package javafx.scene.shape;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -38,20 +43,16 @@ import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Text;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import com.sun.javafx.util.Utils;
-import com.sun.javafx.beans.event.AbstractNotifyListener;
-import com.sun.javafx.collections.TrackableObservableList;
 import javafx.css.converter.BooleanConverter;
 import javafx.css.converter.EnumConverter;
 import javafx.css.converter.PaintConverter;
 import javafx.css.converter.SizeConverter;
+import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Text;
+import com.sun.javafx.beans.event.AbstractNotifyListener;
+import com.sun.javafx.collections.TrackableObservableList;
 import com.sun.javafx.geom.Area;
 import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.PathIterator;
@@ -63,8 +64,9 @@ import com.sun.javafx.scene.shape.AbstractShape;
 import com.sun.javafx.scene.shape.ShapeHelper;
 import com.sun.javafx.sg.prism.NGShape;
 import com.sun.javafx.tk.Toolkit;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
+import com.sun.javafx.util.HiddenProps;
+import com.sun.javafx.util.PKey;
+import com.sun.javafx.util.Utils;
 
 
 /**
@@ -167,6 +169,18 @@ public abstract sealed class Shape extends Node
             }
         });
     }
+
+    private static final float[] DEFAULT_PG_STROKE_DASH_ARRAY = new float[0];
+    private static final boolean DEFAULT_SMOOTH = true;
+    private static final double DEFAULT_STROKE_DASH_OFFSET = 0;
+    private static final StrokeLineCap DEFAULT_STROKE_LINE_CAP = StrokeLineCap.SQUARE;
+    private static final StrokeLineJoin DEFAULT_STROKE_LINE_JOIN = StrokeLineJoin.MITER;
+    private static final double DEFAULT_STROKE_MITER_LIMIT = 10.0;
+    private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;
+    private static final double DEFAULT_STROKE_WIDTH = 1.0;
+
+    private static final PKey<BooleanProperty> K_SMOOTH = new PKey<>();
+    private static final PKey<DoubleProperty> K_STROKE_MITER_LIMIT = new PKey<>();
 
     /**
      * Creates an empty instance of Shape.
@@ -280,15 +294,6 @@ public abstract sealed class Shape extends Node
         return getStrokeAttributes().lineCapProperty();
     }
 
-    public final void setStrokeMiterLimit(double value) {
-        strokeMiterLimitProperty().set(value);
-    }
-
-    public final double getStrokeMiterLimit() {
-        return (strokeAttributes == null) ? DEFAULT_STROKE_MITER_LIMIT
-                                          : strokeAttributes.getMiterLimit();
-    }
-
     /**
      * Defines the limit for the {@code StrokeLineJoin.MITER} line join style.
      * A value of less than 1.0 will be treated as 1.0.
@@ -308,7 +313,41 @@ public abstract sealed class Shape extends Node
      * @defaultValue 10.0
      */
     public final DoubleProperty strokeMiterLimitProperty() {
-        return getStrokeAttributes().miterLimitProperty();
+        HiddenProps props = HiddenProps.get(this);
+        DoubleProperty p = props.get(K_STROKE_MITER_LIMIT);
+        if (p == null) {
+            p = props.init(K_STROKE_MITER_LIMIT, () -> new StyleableDoubleProperty(DEFAULT_STROKE_MITER_LIMIT) {
+                @Override
+                public void invalidated() {
+                    Rinvalidated(StyleableProperties.STROKE_MITER_LIMIT);
+                }
+
+                @Override
+                public CssMetaData<Shape, Number> getCssMetaData() {
+                    return StyleableProperties.STROKE_MITER_LIMIT;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeMiterLimit";
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setStrokeMiterLimit(double value) {
+        strokeMiterLimitProperty().set(value);
+    }
+
+    public final double getStrokeMiterLimit() {
+        DoubleProperty p = HiddenProps.getProperty(this, K_STROKE_MITER_LIMIT);
+        return (p == null) ? DEFAULT_STROKE_MITER_LIMIT : p.get();
     }
 
     public final void setStrokeDashOffset(double value) {
@@ -555,20 +594,11 @@ public abstract sealed class Shape extends Node
      *
      * @defaultValue true
      */
-    private BooleanProperty smooth;
-
-
-    public final void setSmooth(boolean value) {
-        smoothProperty().set(value);
-    }
-
-    public final boolean isSmooth() {
-        return smooth == null ? true : smooth.get();
-    }
-
     public final BooleanProperty smoothProperty() {
-        if (smooth == null) {
-            smooth = new StyleableBooleanProperty(true) {
+        HiddenProps props = HiddenProps.get(this);
+        BooleanProperty p = props.get(K_SMOOTH);
+        if (p == null) {
+            p = props.init(K_SMOOTH, () -> new StyleableBooleanProperty(DEFAULT_SMOOTH) {
 
                 @Override
                 public void invalidated() {
@@ -589,10 +619,23 @@ public abstract sealed class Shape extends Node
                 public String getName() {
                     return "smooth";
                 }
-            };
+            });
         }
-        return smooth;
+        return p;
     }
+
+    public final void setSmooth(boolean value) {
+        if ((value == DEFAULT_SMOOTH) && (HiddenProps.getProperty(this, K_SMOOTH) == null)) {
+            return;
+        }
+        smoothProperty().set(value);
+    }
+
+    public final boolean isSmooth() {
+        BooleanProperty p = HiddenProps.getProperty(this, K_SMOOTH);
+        return p == null ? DEFAULT_SMOOTH : p.get();
+    }
+
 
     /* *************************************************************************
      *                                                                         *
@@ -665,7 +708,7 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.smooth == null || !node.smooth.isBound();
+                return HiddenProps.isSettable(node, K_SMOOTH);
             }
 
             @Override
@@ -832,8 +875,7 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetMiterLimit();
+                return HiddenProps.isSettable(node, K_STROKE_MITER_LIMIT);
             }
 
             @Override
@@ -1202,22 +1244,12 @@ public abstract sealed class Shape extends Node
         return pgDashArray;
     }
 
-    private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;
-    private static final double DEFAULT_STROKE_WIDTH = 1.0;
-    private static final StrokeLineJoin DEFAULT_STROKE_LINE_JOIN =
-            StrokeLineJoin.MITER;
-    private static final StrokeLineCap DEFAULT_STROKE_LINE_CAP =
-            StrokeLineCap.SQUARE;
-    private static final double DEFAULT_STROKE_MITER_LIMIT = 10.0;
-    private static final double DEFAULT_STROKE_DASH_OFFSET = 0;
-    private static final float[] DEFAULT_PG_STROKE_DASH_ARRAY = new float[0];
-
+    @Deprecated // FIX
     private final class StrokeAttributes {
         private ObjectProperty<StrokeType> type;
         private DoubleProperty width;
         private ObjectProperty<StrokeLineJoin> lineJoin;
         private ObjectProperty<StrokeLineCap> lineCap;
-        private DoubleProperty miterLimit;
         private DoubleProperty dashOffset;
         private ObservableList<Double> dashArray;
 
@@ -1231,8 +1263,7 @@ public abstract sealed class Shape extends Node
 
                     @Override
                     public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_TYPE);
+                        Rinvalidated(StyleableProperties.STROKE_TYPE);
                     }
 
                     @Override
@@ -1264,8 +1295,7 @@ public abstract sealed class Shape extends Node
 
                     @Override
                     public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_WIDTH);
+                        Rinvalidated(StyleableProperties.STROKE_WIDTH);
                     }
 
                     @Override
@@ -1299,8 +1329,7 @@ public abstract sealed class Shape extends Node
 
                     @Override
                     public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_LINE_JOIN);
+                        Rinvalidated(StyleableProperties.STROKE_LINE_JOIN);
                     }
 
                     @Override
@@ -1334,8 +1363,7 @@ public abstract sealed class Shape extends Node
 
                     @Override
                     public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_LINE_CAP);
+                        Rinvalidated(StyleableProperties.STROKE_LINE_CAP);
                     }
 
                     @Override
@@ -1358,41 +1386,6 @@ public abstract sealed class Shape extends Node
             return lineCap;
         }
 
-        public double getMiterLimit() {
-            return (miterLimit == null) ? DEFAULT_STROKE_MITER_LIMIT
-                                        : miterLimit.get();
-        }
-
-        public final DoubleProperty miterLimitProperty() {
-            if (miterLimit == null) {
-                miterLimit = new StyleableDoubleProperty(
-                                         DEFAULT_STROKE_MITER_LIMIT) {
-                    @Override
-                    public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_MITER_LIMIT);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,Number> getCssMetaData() {
-                        return StyleableProperties.STROKE_MITER_LIMIT;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeMiterLimit";
-                    }
-                };
-            }
-
-            return miterLimit;
-        }
-
         public double getDashOffset() {
             return (dashOffset == null) ? DEFAULT_STROKE_DASH_OFFSET
                                         : dashOffset.get();
@@ -1405,8 +1398,7 @@ public abstract sealed class Shape extends Node
 
                     @Override
                     public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_DASH_OFFSET);
+                        Rinvalidated(StyleableProperties.STROKE_DASH_OFFSET);
                     }
 
                     @Override
@@ -1435,8 +1427,7 @@ public abstract sealed class Shape extends Node
                 dashArray = new TrackableObservableList<>() {
                     @Override
                     protected void onChanged(Change<Double> c) {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_DASH_ARRAY);
+                        Rinvalidated(StyleableProperties.STROKE_DASH_ARRAY);
                     }
                 };
             }
@@ -1505,10 +1496,6 @@ public abstract sealed class Shape extends Node
             return (lineCap == null) || !lineCap.isBound();
         }
 
-        public boolean canSetMiterLimit() {
-            return (miterLimit == null) || !miterLimit.isBound();
-        }
-
         public boolean canSetDashOffset() {
             return (dashOffset == null) || !dashOffset.isBound();
         }
@@ -1516,15 +1503,17 @@ public abstract sealed class Shape extends Node
         public boolean hasDashArray() {
             return (dashArray != null);
         }
+    }
 
-        private void invalidated(final CssMetaData<Shape, ?> propertyCssKey) {
-            NodeHelper.markDirty(Shape.this, DirtyBits.SHAPE_STROKEATTRS);
-            strokeAttributesDirty = true;
-            if (propertyCssKey != StyleableProperties.STROKE_DASH_OFFSET) {
-                // all stroke attributes change geometry except for the
-                // stroke dash offset
-                NodeHelper.geomChanged(Shape.this);
-            }
+    // FIX rename
+    private void Rinvalidated(final CssMetaData<Shape, ?> propertyCssKey) {
+        NodeHelper.markDirty(this, DirtyBits.SHAPE_STROKEATTRS);
+        strokeAttributesDirty = true;
+        // TODO don't call then?
+        if (propertyCssKey != StyleableProperties.STROKE_DASH_OFFSET) {
+            // all stroke attributes change geometry except for the
+            // stroke dash offset
+            NodeHelper.geomChanged(Shape.this);
         }
     }
 
