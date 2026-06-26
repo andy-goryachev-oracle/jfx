@@ -132,6 +132,8 @@ public abstract sealed class Shape extends Node
     private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;
     private static final double DEFAULT_STROKE_WIDTH = 1.0;
 
+    private static final PKey<ObjectProperty<Number[]>> K_CSS_DASH_ARRAY = new PKey<>();
+    private static final PKey<ObservableList<Double>> K_DASH_ARRAY = new PKey<>();
     private static final PKey<BooleanProperty> K_SMOOTH = new PKey<>();
     private static final PKey<DoubleProperty> K_STROKE_DASH_OFFSET = new PKey<>();
     private static final PKey<DoubleProperty> K_STROKE_MITER_LIMIT = new PKey<>();
@@ -560,7 +562,17 @@ public abstract sealed class Shape extends Node
      * @defaultValue empty
      */
     public final ObservableList<Double> getStrokeDashArray() {
-        return getStrokeAttributes().dashArrayProperty();
+        HiddenProps props = HiddenProps.get(this);
+        ObservableList<Double> p = props.get(K_DASH_ARRAY);
+        if (p == null) {
+            p = props.init(K_DASH_ARRAY, () -> new TrackableObservableList<Double>() {
+                @Override
+                protected void onChanged(Change<Double> c) {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_DASH_ARRAY);
+                }
+            });
+        }
+        return p;
     }
 
     private NGShape.Mode computeMode() {
@@ -917,7 +929,7 @@ public abstract sealed class Shape extends Node
 
             @Override
             public StyleableProperty<Number[]> getStyleableProperty(final Shape node) {
-                return (StyleableProperty<Number[]>)node.getStrokeAttributes().cssDashArrayProperty();
+                return (StyleableProperty<Number[]>)node.cssDashArray();
             }
         };
 
@@ -1100,7 +1112,7 @@ public abstract sealed class Shape extends Node
         if (strokeAttributesDirty && (getStroke() != null)) {
             // set attributes of stroke only when stroke paint is not null
             final float[] pgDashArray =
-                    (hasStrokeDashArray())
+                    (HiddenProps.hasProperty(this, K_DASH_ARRAY))
                             ? toPGDashArray(getStrokeDashArray())
                             : DEFAULT_PG_STROKE_DASH_ARRAY;
 
@@ -1351,22 +1363,6 @@ public abstract sealed class Shape extends Node
 
     private boolean strokeAttributesDirty = true;
 
-    @Deprecated // FIX remove
-    private StrokeAttributes strokeAttributes;
-
-    @Deprecated // FIX remove
-    private StrokeAttributes getStrokeAttributes() {
-        if (strokeAttributes == null) {
-            strokeAttributes = new StrokeAttributes();
-        }
-
-        return strokeAttributes;
-    }
-
-    private boolean hasStrokeDashArray() {
-        return (strokeAttributes != null) && strokeAttributes.hasDashArray();
-    }
-
     private static float[] toPGDashArray(final List<Double> dashArray) {
         final int size = dashArray.size();
         final float[] pgDashArray = new float[size];
@@ -1377,78 +1373,51 @@ public abstract sealed class Shape extends Node
         return pgDashArray;
     }
 
-    @Deprecated // FIX
-    private final class StrokeAttributes {
-        private ObservableList<Double> dashArray;
-
-        // TODO: Need to handle set from css - should clear array and add all.
-        public ObservableList<Double> dashArrayProperty() {
-            if (dashArray == null) {
-                dashArray = new TrackableObservableList<>() {
-                    @Override
-                    protected void onChanged(Change<Double> c) {
-                        invalidateStrokeAttrs(StyleableProperties.STROKE_DASH_ARRAY);
-                    }
-                };
-            }
-            return dashArray;
-        }
-
-        private ObjectProperty<Number[]> cssDashArray = null;
-        private ObjectProperty<Number[]> cssDashArrayProperty() {
-            if (cssDashArray == null) {
-                cssDashArray = new StyleableObjectProperty<>()
-                {
-
-                    @Override
-                    public void set(Number[] v) {
-
-                        ObservableList<Double> list = dashArrayProperty();
-                        list.clear();
-                        if (v != null && v.length > 0) {
-                            for (int n=0; n<v.length; n++) {
-                                list.add(v[n].doubleValue());
-                            }
+    private ObjectProperty<Number[]> cssDashArray() {
+        HiddenProps props = HiddenProps.get(this);
+        ObjectProperty<Number[]> p = props.get(K_CSS_DASH_ARRAY);
+        if (p == null) {
+            p = props.init(K_CSS_DASH_ARRAY, () -> new StyleableObjectProperty<Number[]>() {
+                @Override
+                public void set(Number[] v) {
+                    ObservableList<Double> list = getStrokeDashArray();
+                    list.clear();
+                    if (v != null && v.length > 0) {
+                        for (int n=0; n<v.length; n++) {
+                            list.add(v[n].doubleValue());
                         }
-
-                        // no need to hold onto the array
                     }
+                    // no need to hold onto the array
+                }
 
-                    @Override
-                    public Double[] get() {
-                        List<Double> list = dashArrayProperty();
-                        return list.toArray(new Double[list.size()]);
-                    }
+                @Override
+                public Double[] get() {
+                    List<Double> list = getStrokeDashArray();
+                    return list.toArray(new Double[list.size()]);
+                }
 
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
 
-                    @Override
-                    public String getName() {
-                        return "cssDashArray";
-                    }
+                @Override
+                public String getName() {
+                    return "cssDashArray";
+                }
 
-                    @Override
-                    public CssMetaData<Shape,Number[]> getCssMetaData() {
-                        return StyleableProperties.STROKE_DASH_ARRAY;
-                    }
-                };
-            }
-
-            return cssDashArray;
+                @Override
+                public CssMetaData<Shape,Number[]> getCssMetaData() {
+                    return StyleableProperties.STROKE_DASH_ARRAY;
+                }
+            });
         }
-
-        public boolean hasDashArray() {
-            return (dashArray != null);
-        }
+        return p;
     }
 
     private void invalidateStrokeAttrs(final CssMetaData<Shape, ?> propertyCssKey) {
         NodeHelper.markDirty(this, DirtyBits.SHAPE_STROKEATTRS);
         strokeAttributesDirty = true;
-        // TODO don't call then?
         if (propertyCssKey != StyleableProperties.STROKE_DASH_OFFSET) {
             // all stroke attributes change geometry except for the
             // stroke dash offset
@@ -1613,7 +1582,7 @@ public abstract sealed class Shape extends Node
                 (float) Utils.clampMin(getStrokeMiterLimit(),
                                        MIN_STROKE_MITER_LIMIT);
         final float[] dashArray =
-                (hasStrokeDashArray())
+                (HiddenProps.hasProperty(this, K_DASH_ARRAY))
                         ? toPGDashArray(getStrokeDashArray())
                         : DEFAULT_PG_STROKE_DASH_ARRAY;
 

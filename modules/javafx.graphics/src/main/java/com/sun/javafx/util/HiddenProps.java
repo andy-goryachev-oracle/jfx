@@ -72,6 +72,11 @@ public class HiddenProps {
         return NodeHelper.getHiddenProps(n);
     }
 
+    public static boolean hasProperty(Node n, PKey<?> key) {
+        HiddenProps props = get(n);
+        return (props.get(key) != null);
+    }
+
     public static <T> T getProperty(Node n, PKey<T> key) {
         HiddenProps props = get(n);
         return props.get(key);
