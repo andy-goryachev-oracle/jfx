@@ -132,28 +132,32 @@ text.setText("The quick brown fox jumps over the lazy dog");
 @DefaultProperty("text")
 public non-sealed class Text extends Shape {
 
-    private static final VPos DEFAULT_TEXT_ORIGIN = VPos.BASELINE;
     private static final TextBoundsType DEFAULT_BOUNDS_TYPE = TextBoundsType.LOGICAL;
-    private static final boolean DEFAULT_UNDERLINE = false;
-    private static final boolean DEFAULT_STRIKETHROUGH = false;
-    private static final TextAlignment DEFAULT_TEXT_ALIGNMENT = TextAlignment.LEFT;
-    private static final double DEFAULT_LINE_SPACING = 0;
+    private static final boolean DEFAULT_CARET_BIAS = true;
     private static final int DEFAULT_CARET_POSITION = -1;
-    private static final int DEFAULT_SELECTION_START = -1;
+    private static final double DEFAULT_LINE_SPACING = 0;
     private static final int DEFAULT_SELECTION_END = -1;
     private static final Color DEFAULT_SELECTION_FILL= Color.WHITE;
-    private static final boolean DEFAULT_CARET_BIAS = true;
+    private static final int DEFAULT_SELECTION_START = -1;
+    private static final boolean DEFAULT_STRIKETHROUGH = false;
+    private static final TextAlignment DEFAULT_TEXT_ALIGNMENT = TextAlignment.LEFT;
+    private static final VPos DEFAULT_TEXT_ORIGIN = VPos.BASELINE;
+    private static final boolean DEFAULT_UNDERLINE = false;
 
+    private static final PKey<ReadOnlyDoubleWrapper> K_BASELINE_OFFSET = new PKey<>();
     private static final PKey<ObjectProperty<TextBoundsType>> K_BOUNDS_TYPE = new PKey<>();
     private static final PKey<BooleanProperty> K_CARET_BIAS = new PKey<>();
     private static final PKey<IntegerProperty> K_CARET_POSITION = new PKey<>();
     private static final PKey<DoubleProperty> K_LINE_SPACING = new PKey<>();
     private static final PKey<IntegerProperty> K_SELECTION_END = new PKey<>();
     private static final PKey<ObjectProperty<Paint>> K_SELECTION_FILL = new PKey<>();
+    private static final PKey<SelectionShapeProperty> K_SELECTION_SHAPE = new PKey<>();
     private static final PKey<IntegerProperty> K_SELECTION_START = new PKey<>();
     private static final PKey<BooleanProperty> K_STRIKETHROUGH = new PKey<>();
     private static final PKey<IntegerProperty> K_TAB_SIZE = new PKey<>();
     private static final PKey<ObjectProperty<TextAlignment>> K_TEXT_ALIGNMENT = new PKey<>();
+    private static final PKey<ObjectProperty<VPos>> K_TEXT_ORIGIN = new PKey<>();
+    private static final PKey<BooleanProperty> K_UNDERLINE = new PKey<>();
 
     static {
         TextHelper.setTextAccessor(new TextHelper.TextAccessor() {
@@ -627,17 +631,6 @@ public non-sealed class Text extends Shape {
         return font;
     }
 
-    public final void setTextOrigin(VPos value) {
-        textOriginProperty().set(value);
-    }
-
-    public final VPos getTextOrigin() {
-        if (attributes == null || attributes.textOrigin == null) {
-            return DEFAULT_TEXT_ORIGIN;
-        }
-        return attributes.getTextOrigin();
-    }
-
     /**
      * Defines the origin of text coordinate system in local coordinates.
      * Note: in case multiple rows are rendered {@code VPos.BASELINE} and
@@ -648,7 +641,44 @@ public non-sealed class Text extends Shape {
      * @defaultValue VPos.BASELINE
      */
     public final ObjectProperty<VPos> textOriginProperty() {
-        return getTextAttribute().textOriginProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_TEXT_ORIGIN);
+        if (p == null) {
+            p = props.init(K_TEXT_ORIGIN, () -> new StyleableObjectProperty<VPos>(DEFAULT_TEXT_ORIGIN) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "textOrigin";
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TEXT_ORIGIN;
+                }
+
+                @Override
+                public void invalidated() {
+                    NodeHelper.geomChanged(Text.this);
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setTextOrigin(VPos value) {
+        if ((value == DEFAULT_TEXT_ORIGIN) && (HiddenProps.getProperty(this, K_TEXT_ORIGIN) == null)) {
+            return;
+        }
+        textOriginProperty().set(value);
+    }
+
+    public final VPos getTextOrigin() {
+        var p = HiddenProps.getProperty(this, K_TEXT_ORIGIN);
+        return (p == null) ? DEFAULT_TEXT_ORIGIN : p.get();
     }
 
     /**
@@ -747,17 +777,6 @@ public non-sealed class Text extends Shape {
         return wrappingWidth;
     }
 
-    public final void setUnderline(boolean value) {
-        underlineProperty().set(value);
-    }
-
-    public final boolean isUnderline() {
-        if (attributes == null || attributes.underline == null) {
-            return DEFAULT_UNDERLINE;
-        }
-        return attributes.isUnderline();
-    }
-
     /**
      * Defines if each line of text should have a line below it.
      *
@@ -765,7 +784,47 @@ public non-sealed class Text extends Shape {
      * @defaultValue false
      */
     public final BooleanProperty underlineProperty() {
-        return getTextAttribute().underlineProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_UNDERLINE);
+        if (p == null) {
+            p = props.init(K_UNDERLINE, () -> new StyleableBooleanProperty(DEFAULT_UNDERLINE) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "underline";
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.UNDERLINE;
+                }
+
+                @Override
+                public void invalidated() {
+                    NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
+                    if (getBoundsType() == TextBoundsType.VISUAL) {
+                        NodeHelper.geomChanged(Text.this);
+                    }
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setUnderline(boolean value) {
+        if ((value == DEFAULT_UNDERLINE) && (HiddenProps.getProperty(this, K_UNDERLINE) == null)) {
+            return;
+        }
+        underlineProperty().set(value);
+    }
+
+    public final boolean isUnderline() {
+        var p = HiddenProps.getProperty(this, K_UNDERLINE);
+        return (p == null) ? DEFAULT_UNDERLINE : p.get();
     }
 
     /**
@@ -946,7 +1005,29 @@ public non-sealed class Text extends Shape {
      * @return the baseline offset from this text node
      */
     public final ReadOnlyDoubleProperty baselineOffsetProperty() {
-        return getTextAttribute().baselineOffsetProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_BASELINE_OFFSET);
+        if (p == null) {
+            p = props.init(K_BASELINE_OFFSET, () -> new ReadOnlyDoubleWrapper(Text.this, "baselineOffset") {
+                {
+                    bind(new DoubleBinding() {
+                        {
+                            bind(fontProperty());
+                        }
+
+                        @Override
+                        protected double computeValue() {
+                            // This method should never be used for spans.
+                            // If it is, it will still returns the ascent
+                            // for the first line in the layout
+                            BaseBounds bounds = getLogicalBounds();
+                            return -bounds.getMinY();
+                        }
+                    });
+                }
+            });
+        }
+        return p.getReadOnlyProperty();
     }
 
     /**
@@ -997,8 +1078,9 @@ public non-sealed class Text extends Shape {
             if (attributes.caretBinding != null) {
                 attributes.caretBinding.invalidate();
             }
-            if (attributes.selectionBinding != null) {
-                attributes.selectionBinding.invalidate();
+            SelectionShapeProperty p = HiddenProps.getProperty(this, K_SELECTION_SHAPE);
+            if (p != null) {
+                p.invalidateBinding();
             }
         }
         NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY);
@@ -1012,11 +1094,16 @@ public non-sealed class Text extends Shape {
      * The shape of the selection in local coordinates.
      *
      * @return the {@code selectionShape} property
-     *
      * @since 9
      */
     public final ReadOnlyObjectProperty<PathElement[]> selectionShapeProperty() {
-        return getTextAttribute().selectionShapeProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_SELECTION_SHAPE);
+        if (p == null) {
+            p = props.init(K_SELECTION_SHAPE, () -> new SelectionShapeProperty(Text.this, "selectionShape"));
+        }
+        // FIX this is not a read only property
+        return p;
     }
 
     /**
@@ -1638,13 +1725,12 @@ public non-sealed class Text extends Shape {
 
         private static final CssMetaData<Text,Boolean> UNDERLINE =
             new CssMetaData<>("-fx-underline",
-                BooleanConverter.getInstance(), Boolean.FALSE) {
+                BooleanConverter.getInstance(),
+                DEFAULT_UNDERLINE) {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.underline == null ||
-                      !node.attributes.underline.isBound();
+                return HiddenProps.isSettable(node, K_UNDERLINE);
             }
 
             @Override
@@ -1689,13 +1775,11 @@ public non-sealed class Text extends Shape {
         private static final CssMetaData<Text,VPos> TEXT_ORIGIN =
                 new CssMetaData<>("-fx-text-origin",
                 new EnumConverter<>(VPos.class),
-                VPos.BASELINE) {
+                DEFAULT_TEXT_ORIGIN) {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.textOrigin == null ||
-                      !node.attributes.textOrigin.isBound();
+                return HiddenProps.isSettable(node, K_TEXT_ORIGIN);
             }
 
             @Override
@@ -1876,95 +1960,33 @@ public non-sealed class Text extends Shape {
         return attributes;
     }
 
+    private final class SelectionShapeProperty extends SimpleObjectProperty<PathElement[]> {
+        private final ObjectBinding<PathElement[]> selectionBinding = new ObjectBinding<>() {
+            {
+                bind(selectionStartProperty(), selectionEndProperty());
+            }
+
+            @Override
+            protected PathElement[] computeValue() {
+                int start = getSelectionStart();
+                int end = getSelectionEnd();
+                return getRange(start, end, TextLayout.TYPE_TEXT, 0.0);
+            }
+        };
+        
+        public SelectionShapeProperty(Object bean, String name) {
+            super(bean, name);
+            bind(selectionBinding);
+        }
+
+        public void invalidateBinding() {
+            selectionBinding.invalidate();
+        }
+    }
+
     // FIX remove
     @Deprecated
     private final class TextAttribute {
-
-        private ObjectProperty<VPos> textOrigin;
-
-        final VPos getTextOrigin() {
-            return textOrigin == null ? DEFAULT_TEXT_ORIGIN : textOrigin.get();
-        }
-
-        public final ObjectProperty<VPos> textOriginProperty() {
-            if (textOrigin == null) {
-                textOrigin = new StyleableObjectProperty<VPos>(DEFAULT_TEXT_ORIGIN) {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "textOrigin"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TEXT_ORIGIN;
-                    }
-                    @Override public void invalidated() {
-                        NodeHelper.geomChanged(Text.this);
-                    }
-                };
-            }
-            return textOrigin;
-        }
-
-        private BooleanProperty underline;
-
-        final boolean isUnderline() {
-            return underline == null ? DEFAULT_UNDERLINE : underline.get();
-        }
-
-        final BooleanProperty underlineProperty() {
-            if (underline == null) {
-                underline = new StyleableBooleanProperty() {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "underline"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.UNDERLINE;
-                    }
-                    @Override public void invalidated() {
-                        NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
-                        if (getBoundsType() == TextBoundsType.VISUAL) {
-                            NodeHelper.geomChanged(Text.this);
-                        }
-                    }
-                };
-            }
-            return underline;
-        }
-
-        private ReadOnlyDoubleWrapper baselineOffset;
-
-        final ReadOnlyDoubleProperty baselineOffsetProperty() {
-            if (baselineOffset == null) {
-                baselineOffset = new ReadOnlyDoubleWrapper(Text.this, "baselineOffset") {
-                    {bind(new DoubleBinding() {
-                        {bind(fontProperty());}
-                        @Override protected double computeValue() {
-                            /* This method should never be used for spans.
-                             * If it is, it will still returns the ascent
-                             * for the first line in the layout */
-                            BaseBounds bounds = getLogicalBounds();
-                            return -bounds.getMinY();
-                        }
-                    });}
-                };
-            }
-            return baselineOffset.getReadOnlyProperty();
-        }
-
-        private ObjectProperty<PathElement[]> selectionShape;
-        private ObjectBinding<PathElement[]> selectionBinding;
-
-        final ReadOnlyObjectProperty<PathElement[]> selectionShapeProperty() {
-            if (selectionShape == null) {
-                selectionBinding = new ObjectBinding<>() {
-                    {bind(selectionStartProperty(), selectionEndProperty());}
-                    @Override protected PathElement[] computeValue() {
-                        int start = getSelectionStart();
-                        int end = getSelectionEnd();
-                        return getRange(start, end, TextLayout.TYPE_TEXT, 0.0);
-                    }
-              };
-              selectionShape = new SimpleObjectProperty<>(Text.this, "selectionShape");
-              selectionShape.bind(selectionBinding);
-            }
-            return selectionShape;
-        }
 
         private ObjectProperty<PathElement[]> caretShape;
         private ObjectBinding<PathElement[]> caretBinding;
