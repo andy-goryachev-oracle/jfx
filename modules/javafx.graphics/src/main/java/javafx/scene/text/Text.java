@@ -148,6 +148,7 @@ public non-sealed class Text extends Shape {
     private static final PKey<ObjectProperty<TextBoundsType>> K_BOUNDS_TYPE = new PKey<>();
     private static final PKey<BooleanProperty> K_CARET_BIAS = new PKey<>();
     private static final PKey<IntegerProperty> K_CARET_POSITION = new PKey<>();
+    private static final PKey<CaretShapeProperty> K_CARET_SHAPE = new PKey<>();
     private static final PKey<DoubleProperty> K_LINE_SPACING = new PKey<>();
     private static final PKey<IntegerProperty> K_SELECTION_END = new PKey<>();
     private static final PKey<ObjectProperty<Paint>> K_SELECTION_FILL = new PKey<>();
@@ -1074,14 +1075,13 @@ public non-sealed class Text extends Shape {
      * Note: This method MUST only be called via its accessor method.
      */
     private void doGeomChanged() {
-        if (attributes != null) {
-            if (attributes.caretBinding != null) {
-                attributes.caretBinding.invalidate();
-            }
-            SelectionShapeProperty p = HiddenProps.getProperty(this, K_SELECTION_SHAPE);
-            if (p != null) {
-                p.invalidateBinding();
-            }
+        CaretShapeProperty cp = HiddenProps.getProperty(this, K_CARET_SHAPE);
+        if (cp != null) {
+            cp.invalidateBinding();
+        }
+        SelectionShapeProperty sp = HiddenProps.getProperty(this, K_SELECTION_SHAPE);
+        if (sp != null) {
+            sp.invalidateBinding();
         }
         NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY);
     }
@@ -1238,19 +1238,23 @@ public non-sealed class Text extends Shape {
         return (p == null) ? DEFAULT_SELECTION_FILL : p.get();
     }
 
-    public final PathElement[] getCaretShape() {
-        return caretShapeProperty().get();
-    }
-
     /**
      * The shape of caret, in local coordinates.
      *
      * @return the {@code caretShape} property
-     *
      * @since 9
      */
     public final ReadOnlyObjectProperty<PathElement[]> caretShapeProperty() {
-        return getTextAttribute().caretShapeProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_CARET_SHAPE);
+        if (p == null) {
+            p = props.init(K_CARET_SHAPE, () -> new CaretShapeProperty(Text.this, "caretShape"));
+        }
+        return p;
+    }
+
+    public final PathElement[] getCaretShape() {
+        return caretShapeProperty().get();
     }
 
     /**
@@ -1944,23 +1948,8 @@ public non-sealed class Text extends Shape {
         updatePGText();
     }
 
-    /* *************************************************************************
-     *                                                                         *
-     *                       Seldom Used Properties                            *
-     *                                                                         *
-     **************************************************************************/
-
-    private TextAttribute attributes;
-
-    @Deprecated // rm
-    private TextAttribute getTextAttribute() {
-        if (attributes == null) {
-            attributes = new TextAttribute();
-        }
-        return attributes;
-    }
-
     private final class SelectionShapeProperty extends SimpleObjectProperty<PathElement[]> {
+
         private final ObjectBinding<PathElement[]> selectionBinding = new ObjectBinding<>() {
             {
                 bind(selectionStartProperty(), selectionEndProperty());
@@ -1973,7 +1962,7 @@ public non-sealed class Text extends Shape {
                 return getRange(start, end, TextLayout.TYPE_TEXT, 0.0);
             }
         };
-        
+
         public SelectionShapeProperty(Object bean, String name) {
             super(bean, name);
             bind(selectionBinding);
@@ -1984,34 +1973,31 @@ public non-sealed class Text extends Shape {
         }
     }
 
-    // FIX remove
-    @Deprecated
-    private final class TextAttribute {
+    private final class CaretShapeProperty extends SimpleObjectProperty<PathElement[]> {
 
-        private ObjectProperty<PathElement[]> caretShape;
-        private ObjectBinding<PathElement[]> caretBinding;
-
-        final ReadOnlyObjectProperty<PathElement[]> caretShapeProperty() {
-            if (caretShape == null) {
-                caretBinding = new ObjectBinding<>() {
-                    {
-                        bind(caretPositionProperty(), caretBiasProperty());
-                    }
-
-                    @Override
-                    protected PathElement[] computeValue() {
-                        int pos = getCaretPosition();
-                        PathElement[] pe = caretShape(pos, isCaretBias());
-                        if (pe == null) {
-                            return EMPTY_PATH_ELEMENT_ARRAY;
-                        }
-                        return pe;
-                    }
-                };
-                caretShape = new SimpleObjectProperty<>(Text.this, "caretShape");
-                caretShape.bind(caretBinding);
+        private final ObjectBinding<PathElement[]> caretBinding = new ObjectBinding<>() {
+            {
+                bind(caretPositionProperty(), caretBiasProperty());
             }
-            return caretShape;
+
+            @Override
+            protected PathElement[] computeValue() {
+                int pos = getCaretPosition();
+                PathElement[] pe = caretShape(pos, isCaretBias());
+                if (pe == null) {
+                    return EMPTY_PATH_ELEMENT_ARRAY;
+                }
+                return pe;
+            }
+        };
+
+        public CaretShapeProperty(Object bean, String name) {
+            super(bean, name);
+            bind(caretBinding);
+        }
+
+        public void invalidateBinding() {
+            caretBinding.invalidate();
         }
     }
 
