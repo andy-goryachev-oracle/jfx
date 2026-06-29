@@ -53,7 +53,8 @@ import com.sun.javafx.scene.NodeHelper;
  */
 public class HiddenProps {
     /** Enables periodic dumping of utilization statistics to stdout */
-    private static final boolean COLLECT_STATISTICS = true;
+    private static final boolean COLLECT_STATISTICS = Boolean.getBoolean("HiddenProps.COLLECT_STATISTICS");
+
     private static final int INITIAL_CAPACITY = 1;
 
     private final HashMap<PKey<?>,Object> data;
