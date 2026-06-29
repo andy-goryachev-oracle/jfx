@@ -58,7 +58,9 @@ public class HiddenProps {
 
     private final HashMap<PKey<?>,Object> data;
 
+    // TODO Region
     private HiddenProps() {
+        // TODO or lazy initialization, since there is a lot of nodes with no entries
         this.data = new HashMap<>(INITIAL_CAPACITY);
     }
 
@@ -118,7 +120,7 @@ public class HiddenProps {
         record HEntry(int size, int count) { }
         
         private final int keyCount;
-        private static final AtomicLong indexOfCount = new AtomicLong();
+        public final Class<?> type;
         private static HashMap<PKey<?>,String> keyNames = new HashMap<>();
         private static HashMap<Class<?>,Integer> counts = new HashMap<>();
         private static WeakHashMap<HiddenPropsWithStats,Object> all = new WeakHashMap(1000);
@@ -130,6 +132,7 @@ public class HiddenProps {
 
         public HiddenPropsWithStats(Class<?> cls) {
             this.keyCount = countKeys(cls);
+            this.type = cls;
             all.put(this, null);
         }
 
@@ -157,10 +160,10 @@ public class HiddenProps {
 
         private static int countKeys(Class<?> cls) {
             Integer cached = counts.get(cls);
-            if(cached != null) {
+            if (cached != null) {
                 return cached.intValue();
             }
-    
+
             Class<?> c = cls;
             int count = 0;
             for (;;) {
@@ -185,7 +188,7 @@ public class HiddenProps {
     
                 if (c == Node.class) {
                     counts.put(cls, Integer.valueOf(count));
-                    System.out.println(cls + " properties=" + count);
+                    //System.out.println(cls + " properties=" + count);
                     return count;
                 }
                 c = c.getSuperclass();
@@ -200,19 +203,14 @@ public class HiddenProps {
         private static void dump() {
             int count = 0; // number of nodes
             int used = 0; // number of pointers actually used
-            int max = 0; // max number of possible pointers
-            int top = 0; // largest map size
             HashMap<PKey, AtomicInteger> freq = new HashMap<>();
             HashMap<Integer, AtomicInteger> hist = new HashMap<>();
+            HashMap<Class, AtomicInteger> classes = new HashMap<>();
             for (HiddenPropsWithStats m : all.keySet()) {
                 if (m != null) {
                     int sz = m.size();
                     count++;
                     used += m.size();
-                    max += m.keyCount;
-                    if (sz > top) {
-                        top = sz;
-                    }
     
                     for (PKey<?> k : m.keys()) {
                         AtomicInteger ct = freq.get(k);
@@ -231,24 +229,26 @@ public class HiddenProps {
                     } else {
                         ct.incrementAndGet();
                     }
+
+                    ct = classes.get(m.type);
+                    if (ct == null) {
+                        ct = new AtomicInteger(1);
+                        classes.put(m.type, ct);
+                    } else {
+                        ct.incrementAndGet();
+                    }
                 }
             }
     
-            float ut = used / ((float)max);
-            int sv = (max - used) * 8; // 64 bit pointers
             float av = used / (float)count;
-            long indof = indexOfCount.get();
             String s = MessageFormat.format(
-                "Nodes={0} utilization={1} average={2} top={3} indexOf={4} saved={5} bytes",
+                "Nodes={0} average={1}",
                 count,
-                ut,
-                av,
-                top,
-                indof,
-                sv);
+                av);
             System.out.println(s);
             System.out.println(frequencies(freq));
             System.out.println(histogram(hist));
+            System.out.println(classFrequencies(classes));
         }
 
         private static String histogram(HashMap<Integer, AtomicInteger> hist) {
@@ -292,6 +292,34 @@ public class HiddenProps {
                 sb.append(": ");
                 sb.append(en.count);
                 sb.append("\n");
+            }
+            return sb.toString();
+        }
+
+        private static String classFrequencies(HashMap<Class, AtomicInteger> freq) {
+            ArrayList<FEntry> entries = new ArrayList<>();
+            for (Class k : freq.keySet()) {
+                int ct = freq.get(k).intValue();
+                String name = k.getSimpleName();
+                if (name.trim().length() == 0) {
+                    name = k.getName();
+                }
+                entries.add(new FEntry(name, ct));
+            }
+            entries.sort(freqComp);
+
+            int max = 15;
+            StringBuilder sb = new StringBuilder();
+            for (FEntry en : entries) {
+                sb.append("   ");
+                sb.append(en.name);
+                sb.append(": ");
+                sb.append(en.count);
+                sb.append("\n");
+                if (max-- <= 0) {
+                    sb.append("   ...\n");
+                    break;
+                }
             }
             return sb.toString();
         }
