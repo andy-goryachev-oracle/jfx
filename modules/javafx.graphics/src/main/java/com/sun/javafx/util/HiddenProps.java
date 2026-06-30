@@ -55,13 +55,12 @@ public class HiddenProps {
     /** Enables periodic dumping of utilization statistics to stdout */
     private static final boolean COLLECT_STATISTICS = Boolean.getBoolean("HiddenProps.COLLECT_STATISTICS");
 
-    private static final int INITIAL_CAPACITY = 1;
+    private static final int INITIAL_CAPACITY = 0;
 
     private final HashMap<PKey<?>,Object> data;
 
     // TODO Region
     private HiddenProps() {
-        // TODO or lazy initialization, since there is a lot of nodes with no entries
         this.data = new HashMap<>(INITIAL_CAPACITY);
     }
 
