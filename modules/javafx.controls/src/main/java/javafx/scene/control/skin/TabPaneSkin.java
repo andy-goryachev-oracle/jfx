@@ -67,6 +67,7 @@ import javafx.scene.AccessibleAction;
 import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -94,6 +95,7 @@ import javafx.scene.transform.Rotate;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.Pair;
+import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.scene.control.LambdaMultiplePropertyChangeListenerHandler;
 import com.sun.javafx.scene.control.Properties;
 import com.sun.javafx.scene.control.TabObservableList;
@@ -570,7 +572,7 @@ public class TabPaneSkin extends SkinBase<TabPane> {
                     }
                 };
 
-                if (Platform.isFxApplicationThread() && (closeTabAnimation.get() == TabAnimation.GROW)) {
+                if (shouldAnimate() && (closeTabAnimation.get() == TabAnimation.GROW)) {
                     tabRegion.animationState = TabAnimationState.HIDING;
                     Timeline closedTabTimeline = tabRegion.currentAnimation =
                             createTimeline(tabRegion, Duration.millis(ANIMATION_SPEED), 0.0F, cleanup);
@@ -619,7 +621,7 @@ public class TabPaneSkin extends SkinBase<TabPane> {
             addTabContent(tab);
             final TabHeaderSkin tabRegion = tabHeaderArea.getTabHeaderSkin(tab);
             if (tabRegion != null) {
-                if (Platform.isFxApplicationThread() && (openTabAnimation.get() == TabAnimation.GROW)) {
+                if (shouldAnimate() && (openTabAnimation.get() == TabAnimation.GROW)) {
                     tabRegion.animationState = TabAnimationState.SHOWING;
                     tabRegion.animationTransition.setValue(0.0);
                     tabRegion.setVisible(true);
@@ -763,6 +765,15 @@ public class TabPaneSkin extends SkinBase<TabPane> {
 
         timeline.setOnFinished(func);
         return timeline;
+    }
+
+    private boolean shouldAnimate() {
+        TabPane skinnable = getSkinnable();
+        return skinnable != null
+            && Platform.isFxApplicationThread()
+            && NodeHelper.isTreeShowing(skinnable)
+            && skinnable.getScene() instanceof Scene scene
+            && !scene.getPreferences().isReducedMotion();
     }
 
     private boolean isHorizontal() {
@@ -1621,6 +1632,10 @@ public class TabPaneSkin extends SkinBase<TabPane> {
         };
 
         private void dispose() {
+            if (currentAnimation != null) {
+                currentAnimation.stop();
+            }
+
             tab.getStyleClass().removeListener(weakStyleClassListener);
             listener.dispose();
             setOnContextMenuRequested(null);
