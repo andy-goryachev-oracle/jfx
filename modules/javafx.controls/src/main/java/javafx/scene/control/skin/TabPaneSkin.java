@@ -164,9 +164,9 @@ public class TabPaneSkin extends SkinBase<TabPane> {
      **************************************************************************/
 
     /**
-     * Creates a new TabPaneSkin instance, installing the necessary child
-     * nodes into the Control {@link javafx.scene.Parent#getChildren() children} list, as
-     * well as the necessary input mappings for handling key, mouse, etc events.
+     * Creates a new TabPaneSkin instance, adding the necessary
+     * nodes to the {@link javafx.scene.Parent#getChildren() children} list, as
+     * well as the necessary input mappings.
      *
      * @param control The TabPane that this skin should be installed onto.
      */
@@ -260,9 +260,10 @@ public class TabPaneSkin extends SkinBase<TabPane> {
     };
 
     /**
-     * This property allows to customize the overflow menu items.  When this property is not {@code null},
-     * the {@link MenuItem} text will get initialized to be the same as the {@link Tab} text and {@code null}
-     * graphic prior to invocation of the decorator.
+     * This property allows customization of the overflow menu items.  When this property is not {@code null},
+     * the {@link MenuItem} text be set to be the same as the {@link Tab} text and {@code null}
+     * graphic prior to invocation of the decorator.  Keep in mind that {@link MenuItem#disableProperty()} gets bound
+     * to the {@link Tab#disableProperty()}.
      * <p>
      * When this property is {@code null}, the menu item is initialized with the text and the graphic
      * obtained from the corresponding {@link Tab}.  For the graphic, either an {@link ImageView}
@@ -550,6 +551,7 @@ public class TabPaneSkin extends SkinBase<TabPane> {
             Node n = tab.getGraphic();
             Node copy = copyGraphic(n);
             item.setGraphic(copy);
+            item.textProperty().bind(tab.textProperty());
         } else {
             decorator.accept(tab, item);
         }
@@ -1966,8 +1968,10 @@ public class TabPaneSkin extends SkinBase<TabPane> {
                 showControlButtons = true;
             } else {
                 setVisible(false);
-                clearPopupMenu();
-                popup = null;
+                if (popup != null) {
+                    clearPopupMenu();
+                    popup = null;
+                }
             }
 
             // This needs to be called when we are in the left tabPosition
@@ -2023,7 +2027,6 @@ public class TabPaneSkin extends SkinBase<TabPane> {
             super(tab.getText());
             this.tab = tab;
             disableProperty().bind(tab.disableProperty());
-            textProperty().bind(tab.textProperty());
         }
 
         public Tab getTab() {
