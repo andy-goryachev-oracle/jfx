@@ -41,8 +41,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import com.sun.javafx.scene.control.TabObservableList;
+import java.util.function.BiConsumer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -83,6 +82,7 @@ import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import com.sun.javafx.scene.SceneHelper;
+import com.sun.javafx.scene.control.TabObservableList;
 import com.sun.javafx.scene.input.KeyCodeMap;
 import com.sun.javafx.tk.Toolkit;
 import test.com.sun.javafx.pgstub.StubToolkit;
@@ -1402,10 +1402,14 @@ public class TabPaneTest {
     }
 
     private ContextMenu setupMenuGraphicOverride() {
-        TabPaneSkin skin = new TabPaneSkin(tabPane);
-        skin.setMenuGraphicOverride((tab) -> {
-            return new Label(tab.getText());
+        return setupMenuGraphicOverride((tab, item) -> {
+            item.setGraphic(new Label(tab.getText()));
         });
+    }
+
+    private ContextMenu setupMenuGraphicOverride(BiConsumer<Tab, MenuItem> decorator) {
+        TabPaneSkin skin = new TabPaneSkin(tabPane);
+        skin.setOverflowMenuDecorator(decorator);
         tabPane.setSkin(skin);
 
         tabPane.setMaxSize(20, 20);
@@ -1418,6 +1422,20 @@ public class TabPaneTest {
         assertNotNull(menu);
         assertEquals(3, menu.getItems().size());
         return menu;
+    }
+
+    @Test
+    public void overflowMenuDecoratorNoop() {
+        ContextMenu menu = setupMenuGraphicOverride((_, _) -> {
+            // no-op
+        });
+        for (int i = 0; i < menu.getItems().size(); i++) {
+            MenuItem mi = menu.getItems().get(i);
+            Node g = mi.getGraphic();
+            assertNull(g);
+            String tabText = tabPane.getTabs().get(i).getText();
+            assertEquals(tabText, mi.getText());
+        }
     }
 
     @Test

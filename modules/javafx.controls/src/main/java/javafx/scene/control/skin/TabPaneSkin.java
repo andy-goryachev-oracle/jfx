@@ -29,6 +29,7 @@ import static com.sun.javafx.scene.control.skin.resources.ControlResources.getSt
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiConsumer;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -92,7 +93,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.transform.Rotate;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.Pair;
 import com.sun.javafx.scene.NodeHelper;
@@ -260,22 +260,24 @@ public class TabPaneSkin extends SkinBase<TabPane> {
     };
 
     /**
-     * This property allows to override the graphic used for the overflow menu items,
-     * by generating {@code Node}s to be used as graphic when the menu is shown.
+     * This property allows to customize the overflow menu items.  When this property is not {@code null},
+     * the {@link MenuItem} text will get initialized to be the same as the {@link Tab} text and {@code null}
+     * graphic prior to invocation of the decorator.
      * <p>
-     * When this property is {@code null}, the menu provides only the basic graphic copied from the corresponding
-     * {@link Tab} - either an {@link ImageView} or a {@link Label} with an {@link ImageView} as its graphic.
+     * When this property is {@code null}, the menu item is initialized with the text and the graphic
+     * obtained from the corresponding {@link Tab}.  For the graphic, either an {@link ImageView}
+     * or a {@link Label} with an {@link ImageView} will be used.
      * <p>
      * Changing this property while the menu is shown has no effect.
      *
-     * @since 27
+     * @since 28
      * @defaultValue null
      */
-    private ObjectProperty<Callback<Tab, Node>> menuGraphicOverride;
+    private ObjectProperty<BiConsumer<Tab, MenuItem>> overflowMenuDecorator;
 
-    public final ObjectProperty<Callback<Tab, Node>> menuGraphicOverrideProperty() {
-        if (menuGraphicOverride == null) {
-            menuGraphicOverride = new SimpleObjectProperty<>() {
+    public final ObjectProperty<BiConsumer<Tab, MenuItem>> overflowMenuDecoratorProperty() {
+        if (overflowMenuDecorator == null) {
+            overflowMenuDecorator = new SimpleObjectProperty<>() {
                 @Override
                 public Object getBean() {
                     return TabPaneSkin.this;
@@ -283,19 +285,19 @@ public class TabPaneSkin extends SkinBase<TabPane> {
 
                 @Override
                 public String getName() {
-                    return "menuGraphicOverride";
+                    return "overflowMenuDecorator";
                 }
             };
         }
-        return menuGraphicOverride;
+        return overflowMenuDecorator;
     }
 
-    public final Callback<Tab, Node> getMenuGraphicOverride() {
-        return menuGraphicOverride == null ? null : menuGraphicOverride.get();
+    public final BiConsumer<Tab, MenuItem> getOverflowMenuDecorator() {
+        return overflowMenuDecorator == null ? null : overflowMenuDecorator.get();
     }
 
-    public final void setMenuGraphicOverride(Callback<Tab, Node> f) {
-        menuGraphicOverrideProperty().set(f);
+    public final void setOverflowMenuDecorator(BiConsumer<Tab, MenuItem> d) {
+        overflowMenuDecoratorProperty().set(d);
     }
 
     /* *************************************************************************
@@ -527,16 +529,6 @@ public class TabPaneSkin extends SkinBase<TabPane> {
         }
     }
 
-    private Node createGraphic(Tab t) {
-        Callback<Tab, Node> f = getMenuGraphicOverride();
-        if (f != null) {
-            return f.call(t);
-        }
-
-        Node n = t.getGraphic();
-        return copyGraphic(n);
-    }
-
     private Node copyGraphic(Node n) {
         if (n instanceof ImageView v) {
             ImageView imageview = new ImageView();
@@ -547,7 +539,19 @@ public class TabPaneSkin extends SkinBase<TabPane> {
             label.textProperty().bind(l.textProperty());
             return label;
         } else {
+            // we might extend support for more types in the future (Path?)
             return null;
+        }
+    }
+
+    private void decorateMenuItem(Tab tab, RadioMenuItem item) {
+        BiConsumer<Tab, MenuItem> decorator = getOverflowMenuDecorator();
+        if (decorator == null) {
+            Node n = tab.getGraphic();
+            Node copy = copyGraphic(n);
+            item.setGraphic(copy);
+        } else {
+            decorator.accept(tab, item);
         }
     }
 
@@ -1980,8 +1984,8 @@ public class TabPaneSkin extends SkinBase<TabPane> {
             ToggleGroup group = new ToggleGroup();
             ObservableList<RadioMenuItem> menuitems = FXCollections.<RadioMenuItem>observableArrayList();
             for (final Tab tab : getSkinnable().getTabs()) {
-                Node graphic = createGraphic(tab);
-                TabMenuItem item = new TabMenuItem(tab, graphic);
+                TabMenuItem item = new TabMenuItem(tab);
+                decorateMenuItem(tab, item);
                 item.setToggleGroup(group);
                 item.setOnAction(t -> getSkinnable().getSelectionModel().select(tab));
                 menuitems.add(item);
@@ -2015,8 +2019,8 @@ public class TabPaneSkin extends SkinBase<TabPane> {
     static class TabMenuItem extends RadioMenuItem {
         private Tab tab;
 
-        public TabMenuItem(Tab tab, Node graphic) {
-            super(tab.getText(), graphic);
+        public TabMenuItem(Tab tab) {
+            super(tab.getText());
             this.tab = tab;
             disableProperty().bind(tab.disableProperty());
             textProperty().bind(tab.textProperty());
