@@ -1401,13 +1401,13 @@ public class TabPaneTest {
         }
     }
 
-    private ContextMenu setupMenuGraphicOverride() {
-        return setupMenuGraphicOverride((tab, item) -> {
+    private ContextMenu setupOverflowMenuDecorator() {
+        return setupOverflowMenuDecorator((tab, item) -> {
             item.setGraphic(new Label(tab.getText()));
         });
     }
 
-    private ContextMenu setupMenuGraphicOverride(BiConsumer<Tab, MenuItem> decorator) {
+    private ContextMenu setupOverflowMenuDecorator(BiConsumer<Tab, MenuItem> decorator) {
         TabPaneSkin skin = new TabPaneSkin(tabPane);
         skin.setOverflowMenuDecorator(decorator);
         tabPane.setSkin(skin);
@@ -1426,7 +1426,7 @@ public class TabPaneTest {
 
     @Test
     public void overflowMenuDecoratorNoop() {
-        ContextMenu menu = setupMenuGraphicOverride((_, _) -> {
+        ContextMenu menu = setupOverflowMenuDecorator((_, _) -> {
             // no-op
         });
         for (int i = 0; i < menu.getItems().size(); i++) {
@@ -1440,7 +1440,7 @@ public class TabPaneTest {
 
     @Test
     public void menuGraphicOverride() {
-        ContextMenu menu = setupMenuGraphicOverride();
+        ContextMenu menu = setupOverflowMenuDecorator();
         for (MenuItem mi : menu.getItems()) {
             Node g = mi.getGraphic();
             assertTrue(g instanceof Label);
@@ -1450,7 +1450,7 @@ public class TabPaneTest {
 
     @Test
     public void menuBindings() {
-        ContextMenu menu = setupMenuGraphicOverride();
+        ContextMenu menu = setupOverflowMenuDecorator();
         MenuItem mi = menu.getItems().get(0);
 
         assertFalse(mi.isDisable());
@@ -1459,7 +1459,9 @@ public class TabPaneTest {
         tab1.setText("yo");
         tab1.setDisable(true);
 
+        // disable is bound
         assertTrue(mi.isDisable());
-        assertEquals("yo", mi.getText());
+        // text is not bound if decorator is on
+        assertEquals("one", mi.getText());
     }
 }
