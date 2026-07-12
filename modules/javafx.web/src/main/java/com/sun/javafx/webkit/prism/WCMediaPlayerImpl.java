@@ -116,7 +116,7 @@ final class WCMediaPlayerImpl extends WCMediaPlayer
             MediaPlayer p = null;
 
             try {
-                Locator locator = new Locator(new URI(url));
+                Locator locator = new Locator(new URI(url), null);
                 if (userAgent != null) {
                     locator.setConnectionProperty("User-Agent", userAgent);
                 }
