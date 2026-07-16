@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -94,6 +94,8 @@ import com.sun.javafx.sg.prism.NGText;
 import com.sun.javafx.text.PrismLayoutInfo;
 import com.sun.javafx.text.TextUtils;
 import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.util.HiddenProps;
+import com.sun.javafx.util.PKey;
 
 /**
  * The {@code Text} class defines a node that displays a text.
@@ -129,6 +131,35 @@ text.setText("The quick brown fox jumps over the lazy dog");
  */
 @DefaultProperty("text")
 public non-sealed class Text extends Shape {
+
+    private static final TextBoundsType DEFAULT_BOUNDS_TYPE = TextBoundsType.LOGICAL;
+    private static final boolean DEFAULT_CARET_BIAS = true;
+    private static final int DEFAULT_CARET_POSITION = -1;
+    private static final double DEFAULT_LINE_SPACING = 0;
+    private static final int DEFAULT_SELECTION_END = -1;
+    private static final Color DEFAULT_SELECTION_FILL= Color.WHITE;
+    private static final int DEFAULT_SELECTION_START = -1;
+    private static final boolean DEFAULT_STRIKETHROUGH = false;
+    private static final TextAlignment DEFAULT_TEXT_ALIGNMENT = TextAlignment.LEFT;
+    private static final VPos DEFAULT_TEXT_ORIGIN = VPos.BASELINE;
+    private static final boolean DEFAULT_UNDERLINE = false;
+
+    private static final PKey<ReadOnlyDoubleWrapper> K_BASELINE_OFFSET = new PKey<>();
+    private static final PKey<ObjectProperty<TextBoundsType>> K_BOUNDS_TYPE = new PKey<>();
+    private static final PKey<BooleanProperty> K_CARET_BIAS = new PKey<>();
+    private static final PKey<IntegerProperty> K_CARET_POSITION = new PKey<>();
+    private static final PKey<CaretShapeProperty> K_CARET_SHAPE = new PKey<>();
+    private static final PKey<DoubleProperty> K_LINE_SPACING = new PKey<>();
+    private static final PKey<IntegerProperty> K_SELECTION_END = new PKey<>();
+    private static final PKey<ObjectProperty<Paint>> K_SELECTION_FILL = new PKey<>();
+    private static final PKey<SelectionShapeProperty> K_SELECTION_SHAPE = new PKey<>();
+    private static final PKey<IntegerProperty> K_SELECTION_START = new PKey<>();
+    private static final PKey<BooleanProperty> K_STRIKETHROUGH = new PKey<>();
+    private static final PKey<IntegerProperty> K_TAB_SIZE = new PKey<>();
+    private static final PKey<ObjectProperty<TextAlignment>> K_TEXT_ALIGNMENT = new PKey<>();
+    private static final PKey<ObjectProperty<VPos>> K_TEXT_ORIGIN = new PKey<>();
+    private static final PKey<BooleanProperty> K_UNDERLINE = new PKey<>();
+
     static {
         TextHelper.setTextAccessor(new TextHelper.TextAccessor() {
             @Override
@@ -601,17 +632,6 @@ public non-sealed class Text extends Shape {
         return font;
     }
 
-    public final void setTextOrigin(VPos value) {
-        textOriginProperty().set(value);
-    }
-
-    public final VPos getTextOrigin() {
-        if (attributes == null || attributes.textOrigin == null) {
-            return DEFAULT_TEXT_ORIGIN;
-        }
-        return attributes.getTextOrigin();
-    }
-
     /**
      * Defines the origin of text coordinate system in local coordinates.
      * Note: in case multiple rows are rendered {@code VPos.BASELINE} and
@@ -622,7 +642,44 @@ public non-sealed class Text extends Shape {
      * @defaultValue VPos.BASELINE
      */
     public final ObjectProperty<VPos> textOriginProperty() {
-        return getTextAttribute().textOriginProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_TEXT_ORIGIN);
+        if (p == null) {
+            p = props.init(K_TEXT_ORIGIN, () -> new StyleableObjectProperty<VPos>(DEFAULT_TEXT_ORIGIN) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "textOrigin";
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TEXT_ORIGIN;
+                }
+
+                @Override
+                public void invalidated() {
+                    NodeHelper.geomChanged(Text.this);
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setTextOrigin(VPos value) {
+        if ((value == DEFAULT_TEXT_ORIGIN) && (HiddenProps.getProperty(this, K_TEXT_ORIGIN) == null)) {
+            return;
+        }
+        textOriginProperty().set(value);
+    }
+
+    public final VPos getTextOrigin() {
+        var p = HiddenProps.getProperty(this, K_TEXT_ORIGIN);
+        return (p == null) ? DEFAULT_TEXT_ORIGIN : p.get();
     }
 
     /**
@@ -630,43 +687,57 @@ public non-sealed class Text extends Shape {
      * Logical bounds is a more appropriate default for text than
      * the visual bounds. See {@code TextBoundsType} for more information.
      *
+     * @return the property
      * @defaultValue TextBoundsType.LOGICAL
      */
-    private ObjectProperty<TextBoundsType> boundsType;
+    public final ObjectProperty<TextBoundsType> boundsTypeProperty() {
+        HiddenProps props = HiddenProps.get(this);
+        ObjectProperty<TextBoundsType> p = props.get(K_BOUNDS_TYPE);
+        if (p == null) {
+            p = props.init(K_BOUNDS_TYPE, () -> new StyleableObjectProperty<TextBoundsType>(DEFAULT_BOUNDS_TYPE) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "boundsType";
+                }
+
+                @Override
+                public CssMetaData<Text, TextBoundsType> getCssMetaData() {
+                    return StyleableProperties.BOUNDS_TYPE;
+                }
+
+                @Override
+                public void invalidated() {
+                    TextLayout layout = getTextLayout();
+                    int type = 0;
+                    if (get() == TextBoundsType.LOGICAL_VERTICAL_CENTER) {
+                        type |= TextLayout.BOUNDS_CENTER;
+                    }
+                    if (layout.setBoundsType(type)) {
+                        needsTextLayout();
+                    } else {
+                        NodeHelper.geomChanged(Text.this);
+                    }
+                }
+            });
+        }
+        return p;
+    }
 
     public final void setBoundsType(TextBoundsType value) {
+        if ((value == DEFAULT_BOUNDS_TYPE) && (HiddenProps.getProperty(this, K_BOUNDS_TYPE) == null)) {
+            return;
+        }
         boundsTypeProperty().set(value);
     }
 
     public final TextBoundsType getBoundsType() {
-        return boundsType == null ?
-            DEFAULT_BOUNDS_TYPE : boundsTypeProperty().get();
-    }
-
-    public final ObjectProperty<TextBoundsType> boundsTypeProperty() {
-        if (boundsType == null) {
-            boundsType =
-               new StyleableObjectProperty<TextBoundsType>(DEFAULT_BOUNDS_TYPE) {
-                   @Override public Object getBean() { return Text.this; }
-                   @Override public String getName() { return "boundsType"; }
-                   @Override public CssMetaData<Text,TextBoundsType> getCssMetaData() {
-                       return StyleableProperties.BOUNDS_TYPE;
-                   }
-                   @Override public void invalidated() {
-                       TextLayout layout = getTextLayout();
-                       int type = 0;
-                       if (boundsType.get() == TextBoundsType.LOGICAL_VERTICAL_CENTER) {
-                           type |= TextLayout.BOUNDS_CENTER;
-                       }
-                       if (layout.setBoundsType(type)) {
-                           needsTextLayout();
-                       } else {
-                           NodeHelper.geomChanged(Text.this);
-                       }
-                   }
-            };
-        }
-        return boundsType;
+        var p = HiddenProps.getProperty(this, K_BOUNDS_TYPE);
+        return (p == null) ? DEFAULT_BOUNDS_TYPE : p.get();
     }
 
     /**
@@ -707,17 +778,6 @@ public non-sealed class Text extends Shape {
         return wrappingWidth;
     }
 
-    public final void setUnderline(boolean value) {
-        underlineProperty().set(value);
-    }
-
-    public final boolean isUnderline() {
-        if (attributes == null || attributes.underline == null) {
-            return DEFAULT_UNDERLINE;
-        }
-        return attributes.isUnderline();
-    }
-
     /**
      * Defines if each line of text should have a line below it.
      *
@@ -725,18 +785,47 @@ public non-sealed class Text extends Shape {
      * @defaultValue false
      */
     public final BooleanProperty underlineProperty() {
-        return getTextAttribute().underlineProperty();
-    }
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_UNDERLINE);
+        if (p == null) {
+            p = props.init(K_UNDERLINE, () -> new StyleableBooleanProperty(DEFAULT_UNDERLINE) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
 
-    public final void setStrikethrough(boolean value) {
-        strikethroughProperty().set(value);
-    }
+                @Override
+                public String getName() {
+                    return "underline";
+                }
 
-    public final boolean isStrikethrough() {
-        if (attributes == null || attributes.strikethrough == null) {
-            return DEFAULT_STRIKETHROUGH;
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.UNDERLINE;
+                }
+
+                @Override
+                public void invalidated() {
+                    NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
+                    if (getBoundsType() == TextBoundsType.VISUAL) {
+                        NodeHelper.geomChanged(Text.this);
+                    }
+                }
+            });
         }
-        return attributes.isStrikethrough();
+        return p;
+    }
+
+    public final void setUnderline(boolean value) {
+        if ((value == DEFAULT_UNDERLINE) && (HiddenProps.getProperty(this, K_UNDERLINE) == null)) {
+            return;
+        }
+        underlineProperty().set(value);
+    }
+
+    public final boolean isUnderline() {
+        var p = HiddenProps.getProperty(this, K_UNDERLINE);
+        return (p == null) ? DEFAULT_UNDERLINE : p.get();
     }
 
     /**
@@ -746,18 +835,47 @@ public non-sealed class Text extends Shape {
      * @defaultValue false
      */
     public final BooleanProperty strikethroughProperty() {
-        return getTextAttribute().strikethroughProperty();
-    }
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_STRIKETHROUGH);
+        if (p == null) {
+            p = props.init(K_STRIKETHROUGH, () -> new StyleableBooleanProperty(DEFAULT_STRIKETHROUGH) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
 
-    public final void setTextAlignment(TextAlignment value) {
-        textAlignmentProperty().set(value);
-    }
+                @Override
+                public String getName() {
+                    return "strikethrough";
+                }
 
-    public final TextAlignment getTextAlignment() {
-        if (attributes == null || attributes.textAlignment == null) {
-            return DEFAULT_TEXT_ALIGNMENT;
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.STRIKETHROUGH;
+                }
+
+                @Override
+                public void invalidated() {
+                    NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
+                    if (getBoundsType() == TextBoundsType.VISUAL) {
+                        NodeHelper.geomChanged(Text.this);
+                    }
+                }
+            });
         }
-        return attributes.getTextAlignment();
+        return p;
+    }
+
+    public final void setStrikethrough(boolean value) {
+        if ((value == DEFAULT_STRIKETHROUGH) && (HiddenProps.getProperty(this, K_STRIKETHROUGH) == null)) {
+            return;
+        }
+        strikethroughProperty().set(value);
+    }
+
+    public final boolean isStrikethrough() {
+        var p = HiddenProps.getProperty(this, K_STRIKETHROUGH);
+        return (p == null) ? DEFAULT_STRIKETHROUGH : p.get();
     }
 
     /**
@@ -773,18 +891,53 @@ public non-sealed class Text extends Shape {
      * @defaultValue TextAlignment.LEFT
      */
     public final ObjectProperty<TextAlignment> textAlignmentProperty() {
-        return getTextAttribute().textAlignmentProperty();
-    }
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_TEXT_ALIGNMENT);
+        if (p == null) {
+            p = props.init(K_TEXT_ALIGNMENT, () -> new StyleableObjectProperty<TextAlignment>(DEFAULT_TEXT_ALIGNMENT) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
 
-    public final void setLineSpacing(double spacing) {
-        lineSpacingProperty().set(spacing);
-    }
+                @Override
+                public String getName() {
+                    return "textAlignment";
+                }
 
-    public final double getLineSpacing() {
-        if (attributes == null || attributes.lineSpacing == null) {
-            return DEFAULT_LINE_SPACING;
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TEXT_ALIGNMENT;
+                }
+
+                @Override
+                public void invalidated() {
+                    if (!isSpan()) {
+                        TextAlignment alignment = get();
+                        if (alignment == null) {
+                            alignment = DEFAULT_TEXT_ALIGNMENT;
+                        }
+                        TextLayout layout = getTextLayout();
+                        if (layout.setAlignment(alignment.ordinal())) {
+                            needsTextLayout();
+                        }
+                    }
+                }
+            });
         }
-        return attributes.getLineSpacing();
+        return p;
+    }
+
+    public final void setTextAlignment(TextAlignment value) {
+        if ((value == DEFAULT_TEXT_ALIGNMENT) && (HiddenProps.getProperty(this, K_TEXT_ALIGNMENT) == null)) {
+            return;
+        }
+        textAlignmentProperty().set(value);
+    }
+
+    public final TextAlignment getTextAlignment() {
+        var p = HiddenProps.getProperty(this, K_TEXT_ALIGNMENT);
+        return (p == null) ? DEFAULT_TEXT_ALIGNMENT : p.get();
     }
 
     /**
@@ -796,7 +949,49 @@ public non-sealed class Text extends Shape {
      * @since JavaFX 8.0
      */
     public final DoubleProperty lineSpacingProperty() {
-        return getTextAttribute().lineSpacingProperty();
+        HiddenProps props = HiddenProps.get(this);
+        DoubleProperty p = props.get(K_LINE_SPACING);
+        if (p == null) {
+            p = props.init(K_LINE_SPACING, () -> new StyleableDoubleProperty(DEFAULT_LINE_SPACING) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "lineSpacing";
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.LINE_SPACING;
+                }
+
+                @Override
+                public void invalidated() {
+                    if (!isSpan()) {
+                        TextLayout layout = getTextLayout();
+                        if (layout.setLineSpacing((float)get())) {
+                            needsTextLayout();
+                        }
+                    }
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setLineSpacing(double spacing) {
+        if ((spacing == DEFAULT_LINE_SPACING) && (HiddenProps.getProperty(this, K_LINE_SPACING) == null)) {
+            return;
+        }
+        lineSpacingProperty().set(spacing);
+    }
+
+    public final double getLineSpacing() {
+        var p = HiddenProps.getProperty(this, K_LINE_SPACING);
+        return (p == null) ? DEFAULT_LINE_SPACING : p.get();
     }
 
     @Override
@@ -811,7 +1006,29 @@ public non-sealed class Text extends Shape {
      * @return the baseline offset from this text node
      */
     public final ReadOnlyDoubleProperty baselineOffsetProperty() {
-        return getTextAttribute().baselineOffsetProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_BASELINE_OFFSET);
+        if (p == null) {
+            p = props.init(K_BASELINE_OFFSET, () -> new ReadOnlyDoubleWrapper(Text.this, "baselineOffset") {
+                {
+                    bind(new DoubleBinding() {
+                        {
+                            bind(fontProperty());
+                        }
+
+                        @Override
+                        protected double computeValue() {
+                            // This method should never be used for spans.
+                            // If it is, it will still returns the ascent
+                            // for the first line in the layout
+                            BaseBounds bounds = getLogicalBounds();
+                            return -bounds.getMinY();
+                        }
+                    });
+                }
+            });
+        }
+        return p.getReadOnlyProperty();
     }
 
     /**
@@ -858,13 +1075,13 @@ public non-sealed class Text extends Shape {
      * Note: This method MUST only be called via its accessor method.
      */
     private void doGeomChanged() {
-        if (attributes != null) {
-            if (attributes.caretBinding != null) {
-                attributes.caretBinding.invalidate();
-            }
-            if (attributes.selectionBinding != null) {
-                attributes.selectionBinding.invalidate();
-            }
+        CaretShapeProperty cp = HiddenProps.getProperty(this, K_CARET_SHAPE);
+        if (cp != null) {
+            cp.invalidateBinding();
+        }
+        SelectionShapeProperty sp = HiddenProps.getProperty(this, K_SELECTION_SHAPE);
+        if (sp != null) {
+            sp.invalidateBinding();
         }
         NodeHelper.markDirty(this, DirtyBits.NODE_GEOMETRY);
     }
@@ -877,26 +1094,16 @@ public non-sealed class Text extends Shape {
      * The shape of the selection in local coordinates.
      *
      * @return the {@code selectionShape} property
-     *
      * @since 9
      */
     public final ReadOnlyObjectProperty<PathElement[]> selectionShapeProperty() {
-        return getTextAttribute().selectionShapeProperty();
-    }
-
-    public final void setSelectionStart(int value) {
-        if (value == -1 &&
-                (attributes == null || attributes.selectionStart == null)) {
-            return;
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_SELECTION_SHAPE);
+        if (p == null) {
+            p = props.init(K_SELECTION_SHAPE, () -> new SelectionShapeProperty(Text.this, "selectionShape"));
         }
-        selectionStartProperty().set(value);
-    }
-
-    public final int getSelectionStart() {
-        if (attributes == null || attributes.selectionStart == null) {
-            return DEFAULT_SELECTION_START;
-        }
-        return attributes.getSelectionStart();
+        // FIX this is not a read only property
+        return p;
     }
 
     /**
@@ -904,28 +1111,44 @@ public non-sealed class Text extends Shape {
      * If the value is -1, the selection is unset.
      *
      * @return the {@code selectionStart} property
-     *
      * @defaultValue -1
-     *
      * @since 9
      */
     public final IntegerProperty selectionStartProperty() {
-        return getTextAttribute().selectionStartProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_SELECTION_START);
+        if (p == null) {
+            p = props.init(K_SELECTION_START, () -> new IntegerPropertyBase(DEFAULT_SELECTION_START) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "selectionStart";
+                }
+
+                @Override
+                protected void invalidated() {
+                    NodeHelper.markDirty(Text.this, DirtyBits.TEXT_SELECTION);
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
+                }
+            });
+        }
+        return p;
     }
 
-    public final void setSelectionEnd(int value) {
-        if (value == -1 &&
-                (attributes == null || attributes.selectionEnd == null)) {
+    public final void setSelectionStart(int value) {
+        if ((value == DEFAULT_SELECTION_START) && (HiddenProps.getProperty(this, K_SELECTION_START) == null)) {
             return;
         }
-        selectionEndProperty().set(value);
+        selectionStartProperty().set(value);
     }
 
-    public final int getSelectionEnd() {
-        if (attributes == null || attributes.selectionEnd == null) {
-            return DEFAULT_SELECTION_END;
-        }
-        return attributes.getSelectionEnd();
+    public final int getSelectionStart() {
+        var p = HiddenProps.getProperty(this, K_SELECTION_START);
+        return (p == null) ? DEFAULT_SELECTION_START : p.get();
     }
 
     /**
@@ -933,13 +1156,45 @@ public non-sealed class Text extends Shape {
      * If the value is -1, the selection is unset.
      *
      * @return the {@code selectionEnd} property
-     *
      * @defaultValue -1
      *
      * @since 9
      */
     public final IntegerProperty selectionEndProperty() {
-        return getTextAttribute().selectionEndProperty();
+        HiddenProps props = HiddenProps.get(this);
+        IntegerProperty p = props.get(K_SELECTION_END);
+        if (p == null) {
+            p = props.init(K_SELECTION_END, () -> new IntegerPropertyBase(DEFAULT_SELECTION_END) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "selectionEnd";
+                }
+
+                @Override
+                protected void invalidated() {
+                    NodeHelper.markDirty(Text.this, DirtyBits.TEXT_SELECTION);
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setSelectionEnd(int value) {
+        if ((value == DEFAULT_SELECTION_END) && (HiddenProps.getProperty(this, K_SELECTION_END) == null)) {
+            return;
+        }
+        selectionEndProperty().set(value);
+    }
+
+    public final int getSelectionEnd() {
+        var p = HiddenProps.getProperty(this, K_SELECTION_END);
+        return (p == null) ? DEFAULT_SELECTION_END : p.get();
     }
 
     /**
@@ -949,14 +1204,53 @@ public non-sealed class Text extends Shape {
      * @since 9
      */
     public final ObjectProperty<Paint> selectionFillProperty() {
-        return getTextAttribute().selectionFillProperty();
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_SELECTION_FILL);
+        if (p == null) {
+            p = props.init(K_SELECTION_FILL, () -> new ObjectPropertyBase<Paint>(DEFAULT_SELECTION_FILL) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "selectionFill";
+                }
+
+                @Override
+                protected void invalidated() {
+                    NodeHelper.markDirty(Text.this, DirtyBits.TEXT_SELECTION);
+                }
+            });
+        }
+        return p;
     }
 
     public final void setSelectionFill(Paint paint) {
-        selectionFillProperty().set(paint);
+        if ((paint == DEFAULT_SELECTION_FILL) && (HiddenProps.getProperty(this, K_SELECTION_FILL) == null)) {
+            return;
+        }
     }
+
     public final Paint getSelectionFill() {
-        return selectionFillProperty().get();
+        var p = HiddenProps.getProperty(this, K_SELECTION_FILL);
+        return (p == null) ? DEFAULT_SELECTION_FILL : p.get();
+    }
+
+    /**
+     * The shape of caret, in local coordinates.
+     *
+     * @return the {@code caretShape} property
+     * @since 9
+     */
+    public final ReadOnlyObjectProperty<PathElement[]> caretShapeProperty() {
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_CARET_SHAPE);
+        if (p == null) {
+            p = props.init(K_CARET_SHAPE, () -> new CaretShapeProperty(Text.this, "caretShape"));
+        }
+        return p;
     }
 
     public final PathElement[] getCaretShape() {
@@ -964,57 +1258,47 @@ public non-sealed class Text extends Shape {
     }
 
     /**
-     * The shape of caret, in local coordinates.
+     * The caret index in the content.
+     * If the value is -1, the caret is unset.
      *
-     * @return the {@code caretShape} property
-     *
+     * @return the {@code caretPosition} property
+     * @defaultValue -1
      * @since 9
      */
-    public final ReadOnlyObjectProperty<PathElement[]> caretShapeProperty() {
-        return getTextAttribute().caretShapeProperty();
+    public final IntegerProperty caretPositionProperty() {
+        HiddenProps props = HiddenProps.get(this);
+        IntegerProperty p = props.get(K_CARET_POSITION);
+        if (p == null) {
+            p = props.init(K_CARET_POSITION, () -> new IntegerPropertyBase(DEFAULT_CARET_POSITION) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "caretPosition";
+                }
+
+                @Override
+                protected void invalidated() {
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
+                }
+            });
+        }
+        return p;
     }
 
     public final void setCaretPosition(int value) {
-        if (value == -1 &&
-                (attributes == null || attributes.caretPosition == null)) {
+        if ((value == DEFAULT_CARET_POSITION) && (HiddenProps.getProperty(this, K_CARET_POSITION) == null)) {
             return;
         }
         caretPositionProperty().set(value);
     }
 
     public final int getCaretPosition() {
-        if (attributes == null || attributes.caretPosition == null) {
-            return DEFAULT_CARET_POSITION;
-        }
-        return attributes.getCaretPosition();
-    }
-
-    /**
-     * The caret index in the content.
-     * If the value is -1, the caret is unset.
-     *
-     * @return the {@code caretPosition} property
-     *
-     * @defaultValue -1
-     *
-     * @since 9
-     */
-    public final IntegerProperty caretPositionProperty() {
-        return getTextAttribute().caretPositionProperty();
-    }
-
-    public final void setCaretBias(boolean value) {
-        if (value && (attributes == null || attributes.caretBias == null)) {
-            return;
-        }
-        caretBiasProperty().set(value);
-    }
-
-    public final boolean isCaretBias() {
-        if (attributes == null || attributes.caretBias == null) {
-            return DEFAULT_CARET_BIAS;
-        }
-        return getTextAttribute().isCaretBias();
+        var p = HiddenProps.getProperty(this, K_CARET_POSITION);
+        return (p == null) ? DEFAULT_CARET_POSITION : p.get();
     }
 
     /**
@@ -1028,7 +1312,24 @@ public non-sealed class Text extends Shape {
      * @since 9
      */
     public final BooleanProperty caretBiasProperty() {
-        return getTextAttribute().caretBiasProperty();
+        HiddenProps props = HiddenProps.get(this);
+        BooleanProperty p = props.get(K_CARET_BIAS);
+        if (p == null) {
+            p = props.init(K_CARET_BIAS, () -> new SimpleBooleanProperty(Text.this, "caretBias", DEFAULT_CARET_BIAS));
+        }
+        return p;
+    }
+
+    public final void setCaretBias(boolean value) {
+        if ((value == DEFAULT_CARET_BIAS) && (HiddenProps.getProperty(this, K_CARET_BIAS) == null)) {
+            return;
+        }
+        caretBiasProperty().set(value);
+    }
+
+    public final boolean isCaretBias() {
+        var p = HiddenProps.getProperty(this, K_CARET_BIAS);
+        return (p == null) ? DEFAULT_CARET_BIAS : p.get();
     }
 
     /**
@@ -1351,18 +1652,53 @@ public non-sealed class Text extends Shape {
      * @since 14
      */
     public final IntegerProperty tabSizeProperty() {
-        return getTextAttribute().tabSizeProperty();
-    }
+        HiddenProps props = HiddenProps.get(this);
+        var p = props.get(K_TAB_SIZE);
+        if (p == null) {
+            p = props.init(K_TAB_SIZE, () -> new StyleableIntegerProperty(TextLayout.DEFAULT_TAB_SIZE) {
+                @Override
+                public Object getBean() {
+                    return Text.this;
+                }
 
-    public final int getTabSize() {
-        if (attributes == null || attributes.tabSize == null) {
-            return TextLayout.DEFAULT_TAB_SIZE;
+                @Override
+                public String getName() {
+                    return "tabSize";
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TAB_SIZE;
+                }
+
+                @Override
+                protected void invalidated() {
+                    if (!isSpan()) {
+                        TextLayout layout = getTextLayout();
+                        if (layout.setTabAdvancePolicy(getTabSize(), null)) {
+                            needsTextLayout();
+                        }
+                        NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
+                        if (getBoundsType() == TextBoundsType.VISUAL) {
+                            NodeHelper.geomChanged(Text.this);
+                        }
+                    }
+                }
+            });
         }
-        return getTextAttribute().getTabSize();
+        return p;
     }
 
     public final void setTabSize(int spaces) {
+        if ((spaces == TextLayout.DEFAULT_TAB_SIZE) && (HiddenProps.getProperty(this, K_TAB_SIZE) == null)) {
+            return;
+        }
         tabSizeProperty().set(spaces);
+    }
+
+    public final int getTabSize() {
+        var p = HiddenProps.getProperty(this, K_TAB_SIZE);
+        return (p == null) ? TextLayout.DEFAULT_TAB_SIZE : p.get();
     }
 
 
@@ -1393,13 +1729,12 @@ public non-sealed class Text extends Shape {
 
         private static final CssMetaData<Text,Boolean> UNDERLINE =
             new CssMetaData<>("-fx-underline",
-                BooleanConverter.getInstance(), Boolean.FALSE) {
+                BooleanConverter.getInstance(),
+                DEFAULT_UNDERLINE) {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.underline == null ||
-                      !node.attributes.underline.isBound();
+                return HiddenProps.isSettable(node, K_UNDERLINE);
             }
 
             @Override
@@ -1410,13 +1745,12 @@ public non-sealed class Text extends Shape {
 
         private static final CssMetaData<Text,Boolean> STRIKETHROUGH =
             new CssMetaData<>("-fx-strikethrough",
-                BooleanConverter.getInstance(), Boolean.FALSE) {
+                BooleanConverter.getInstance(),
+                DEFAULT_STRIKETHROUGH) {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.strikethrough == null ||
-                      !node.attributes.strikethrough.isBound();
+                return HiddenProps.isSettable(node, K_STRIKETHROUGH);
             }
 
             @Override
@@ -1429,13 +1763,11 @@ public non-sealed class Text extends Shape {
             CssMetaData<Text,TextAlignment> TEXT_ALIGNMENT =
                 new CssMetaData<>("-fx-text-alignment",
                 new EnumConverter<>(TextAlignment.class),
-                TextAlignment.LEFT) {
+                DEFAULT_TEXT_ALIGNMENT) {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.textAlignment == null ||
-                      !node.attributes.textAlignment.isBound();
+                return HiddenProps.isSettable(node, K_TEXT_ALIGNMENT);
             }
 
             @Override
@@ -1447,13 +1779,11 @@ public non-sealed class Text extends Shape {
         private static final CssMetaData<Text,VPos> TEXT_ORIGIN =
                 new CssMetaData<>("-fx-text-origin",
                 new EnumConverter<>(VPos.class),
-                VPos.BASELINE) {
+                DEFAULT_TEXT_ORIGIN) {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.textOrigin == null ||
-                      !node.attributes.textOrigin.isBound();
+                return HiddenProps.isSettable(node, K_TEXT_ORIGIN);
             }
 
             @Override
@@ -1490,9 +1820,7 @@ public non-sealed class Text extends Shape {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.lineSpacing == null ||
-                      !node.attributes.lineSpacing.isBound();
+                return HiddenProps.isSettable(node, K_LINE_SPACING);
             }
 
             @Override
@@ -1510,7 +1838,7 @@ public non-sealed class Text extends Shape {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.boundsType == null || !node.boundsType.isBound();
+                return HiddenProps.isSettable(node, K_BOUNDS_TYPE);
             }
 
             @Override
@@ -1521,13 +1849,12 @@ public non-sealed class Text extends Shape {
 
         private static final CssMetaData<Text, Number> TAB_SIZE =
                 new CssMetaData<>("-fx-tab-size",
-                SizeConverter.getInstance(), TextLayout.DEFAULT_TAB_SIZE) {
+                SizeConverter.getInstance(),
+                TextLayout.DEFAULT_TAB_SIZE) {
 
             @Override
             public boolean isSettable(Text node) {
-                return node.attributes == null ||
-                       node.attributes.tabSize == null ||
-                      !node.attributes.tabSize.isBound();
+                return HiddenProps.isSettable(node, K_TAB_SIZE);
             }
 
             @Override
@@ -1621,353 +1948,56 @@ public non-sealed class Text extends Shape {
         updatePGText();
     }
 
-    /* *************************************************************************
-     *                                                                         *
-     *                       Seldom Used Properties                            *
-     *                                                                         *
-     **************************************************************************/
+    private final class SelectionShapeProperty extends SimpleObjectProperty<PathElement[]> {
 
-    private TextAttribute attributes;
+        private final ObjectBinding<PathElement[]> selectionBinding = new ObjectBinding<>() {
+            {
+                bind(selectionStartProperty(), selectionEndProperty());
+            }
 
-    private TextAttribute getTextAttribute() {
-        if (attributes == null) {
-            attributes = new TextAttribute();
+            @Override
+            protected PathElement[] computeValue() {
+                int start = getSelectionStart();
+                int end = getSelectionEnd();
+                return getRange(start, end, TextLayout.TYPE_TEXT, 0.0);
+            }
+        };
+
+        public SelectionShapeProperty(Object bean, String name) {
+            super(bean, name);
+            bind(selectionBinding);
         }
-        return attributes;
+
+        public void invalidateBinding() {
+            selectionBinding.invalidate();
+        }
     }
 
-    private static final VPos DEFAULT_TEXT_ORIGIN = VPos.BASELINE;
-    private static final TextBoundsType DEFAULT_BOUNDS_TYPE = TextBoundsType.LOGICAL;
-    private static final boolean DEFAULT_UNDERLINE = false;
-    private static final boolean DEFAULT_STRIKETHROUGH = false;
-    private static final TextAlignment DEFAULT_TEXT_ALIGNMENT = TextAlignment.LEFT;
-    private static final double DEFAULT_LINE_SPACING = 0;
-    private static final int DEFAULT_CARET_POSITION = -1;
-    private static final int DEFAULT_SELECTION_START = -1;
-    private static final int DEFAULT_SELECTION_END = -1;
-    private static final Color DEFAULT_SELECTION_FILL= Color.WHITE;
-    private static final boolean DEFAULT_CARET_BIAS = true;
+    private final class CaretShapeProperty extends SimpleObjectProperty<PathElement[]> {
 
-    private final class TextAttribute {
-
-        private ObjectProperty<VPos> textOrigin;
-
-        final VPos getTextOrigin() {
-            return textOrigin == null ? DEFAULT_TEXT_ORIGIN : textOrigin.get();
-        }
-
-        public final ObjectProperty<VPos> textOriginProperty() {
-            if (textOrigin == null) {
-                textOrigin = new StyleableObjectProperty<VPos>(DEFAULT_TEXT_ORIGIN) {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "textOrigin"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TEXT_ORIGIN;
-                    }
-                    @Override public void invalidated() {
-                        NodeHelper.geomChanged(Text.this);
-                    }
-                };
+        private final ObjectBinding<PathElement[]> caretBinding = new ObjectBinding<>() {
+            {
+                bind(caretPositionProperty(), caretBiasProperty());
             }
-            return textOrigin;
-        }
 
-        private BooleanProperty underline;
-
-        final boolean isUnderline() {
-            return underline == null ? DEFAULT_UNDERLINE : underline.get();
-        }
-
-        final BooleanProperty underlineProperty() {
-            if (underline == null) {
-                underline = new StyleableBooleanProperty() {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "underline"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.UNDERLINE;
-                    }
-                    @Override public void invalidated() {
-                        NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
-                        if (getBoundsType() == TextBoundsType.VISUAL) {
-                            NodeHelper.geomChanged(Text.this);
-                        }
-                    }
-                };
+            @Override
+            protected PathElement[] computeValue() {
+                int pos = getCaretPosition();
+                PathElement[] pe = caretShape(pos, isCaretBias());
+                if (pe == null) {
+                    return EMPTY_PATH_ELEMENT_ARRAY;
+                }
+                return pe;
             }
-            return underline;
+        };
+
+        public CaretShapeProperty(Object bean, String name) {
+            super(bean, name);
+            bind(caretBinding);
         }
 
-        private BooleanProperty strikethrough;
-
-        final boolean isStrikethrough() {
-            return strikethrough == null ? DEFAULT_STRIKETHROUGH : strikethrough.get();
-        }
-
-        final BooleanProperty strikethroughProperty() {
-            if (strikethrough == null) {
-                strikethrough = new StyleableBooleanProperty() {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "strikethrough"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.STRIKETHROUGH;
-                    }
-                    @Override public void invalidated() {
-                        NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
-                        if (getBoundsType() == TextBoundsType.VISUAL) {
-                            NodeHelper.geomChanged(Text.this);
-                        }
-                    }
-                };
-            }
-            return strikethrough;
-        }
-
-        private ObjectProperty<TextAlignment> textAlignment;
-
-        final TextAlignment getTextAlignment() {
-            return textAlignment == null ? DEFAULT_TEXT_ALIGNMENT : textAlignment.get();
-        }
-
-        final ObjectProperty<TextAlignment> textAlignmentProperty() {
-            if (textAlignment == null) {
-                textAlignment =
-                    new StyleableObjectProperty<TextAlignment>(DEFAULT_TEXT_ALIGNMENT) {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "textAlignment"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TEXT_ALIGNMENT;
-                    }
-                    @Override public void invalidated() {
-                        if (!isSpan()) {
-                            TextAlignment alignment = get();
-                            if (alignment == null) {
-                                alignment = DEFAULT_TEXT_ALIGNMENT;
-                            }
-                            TextLayout layout = getTextLayout();
-                            if (layout.setAlignment(alignment.ordinal())) {
-                                needsTextLayout();
-                            }
-                        }
-                    }
-                };
-            }
-            return textAlignment;
-        }
-
-        private DoubleProperty lineSpacing;
-
-        final double getLineSpacing() {
-            return lineSpacing == null ? DEFAULT_LINE_SPACING : lineSpacing.get();
-        }
-
-        final DoubleProperty lineSpacingProperty() {
-            if (lineSpacing == null) {
-                lineSpacing =
-                    new StyleableDoubleProperty(DEFAULT_LINE_SPACING) {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "lineSpacing"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.LINE_SPACING;
-                    }
-                    @Override public void invalidated() {
-                        if (!isSpan()) {
-                            TextLayout layout = getTextLayout();
-                            if (layout.setLineSpacing((float)get())) {
-                                needsTextLayout();
-                            }
-                        }
-                    }
-                };
-            }
-            return lineSpacing;
-        }
-
-        private ReadOnlyDoubleWrapper baselineOffset;
-
-        final ReadOnlyDoubleProperty baselineOffsetProperty() {
-            if (baselineOffset == null) {
-                baselineOffset = new ReadOnlyDoubleWrapper(Text.this, "baselineOffset") {
-                    {bind(new DoubleBinding() {
-                        {bind(fontProperty());}
-                        @Override protected double computeValue() {
-                            /* This method should never be used for spans.
-                             * If it is, it will still returns the ascent
-                             * for the first line in the layout */
-                            BaseBounds bounds = getLogicalBounds();
-                            return -bounds.getMinY();
-                        }
-                    });}
-                };
-            }
-            return baselineOffset.getReadOnlyProperty();
-        }
-
-        private ObjectProperty<PathElement[]> selectionShape;
-        private ObjectBinding<PathElement[]> selectionBinding;
-
-        final ReadOnlyObjectProperty<PathElement[]> selectionShapeProperty() {
-            if (selectionShape == null) {
-                selectionBinding = new ObjectBinding<>() {
-                    {bind(selectionStartProperty(), selectionEndProperty());}
-                    @Override protected PathElement[] computeValue() {
-                        int start = getSelectionStart();
-                        int end = getSelectionEnd();
-                        return getRange(start, end, TextLayout.TYPE_TEXT, 0.0);
-                    }
-              };
-              selectionShape = new SimpleObjectProperty<>(Text.this, "selectionShape");
-              selectionShape.bind(selectionBinding);
-            }
-            return selectionShape;
-        }
-
-        private ObjectProperty<Paint> selectionFill;
-
-        final ObjectProperty<Paint> selectionFillProperty() {
-            if (selectionFill == null) {
-                selectionFill =
-                    new ObjectPropertyBase<Paint>(DEFAULT_SELECTION_FILL) {
-                        @Override public Object getBean() { return Text.this; }
-                        @Override public String getName() { return "selectionFill"; }
-                        @Override protected void invalidated() {
-                            NodeHelper.markDirty(Text.this, DirtyBits.TEXT_SELECTION);
-                        }
-                    };
-            }
-            return selectionFill;
-        }
-
-        private IntegerProperty selectionStart;
-
-        final int getSelectionStart() {
-            return selectionStart == null ? DEFAULT_SELECTION_START : selectionStart.get();
-        }
-
-        final IntegerProperty selectionStartProperty() {
-            if (selectionStart == null) {
-                selectionStart =
-                    new IntegerPropertyBase(DEFAULT_SELECTION_START) {
-                        @Override public Object getBean() { return Text.this; }
-                        @Override public String getName() { return "selectionStart"; }
-                        @Override protected void invalidated() {
-                            NodeHelper.markDirty(Text.this, DirtyBits.TEXT_SELECTION);
-                            notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
-                        }
-                };
-            }
-            return selectionStart;
-        }
-
-        private IntegerProperty selectionEnd;
-
-        final int getSelectionEnd() {
-            return selectionEnd == null ? DEFAULT_SELECTION_END : selectionEnd.get();
-        }
-
-        final IntegerProperty selectionEndProperty() {
-            if (selectionEnd == null) {
-                selectionEnd =
-                    new IntegerPropertyBase(DEFAULT_SELECTION_END) {
-                        @Override public Object getBean() { return Text.this; }
-                        @Override public String getName() { return "selectionEnd"; }
-                        @Override protected void invalidated() {
-                            NodeHelper.markDirty(Text.this, DirtyBits.TEXT_SELECTION);
-                            notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
-                        }
-                    };
-            }
-            return selectionEnd;
-        }
-
-        private ObjectProperty<PathElement[]> caretShape;
-        private ObjectBinding<PathElement[]> caretBinding;
-
-        final ReadOnlyObjectProperty<PathElement[]> caretShapeProperty() {
-            if (caretShape == null) {
-                caretBinding = new ObjectBinding<>() {
-                    {
-                        bind(caretPositionProperty(), caretBiasProperty());
-                    }
-
-                    @Override
-                    protected PathElement[] computeValue() {
-                        int pos = getCaretPosition();
-                        PathElement[] pe = caretShape(pos, isCaretBias());
-                        if (pe == null) {
-                            return EMPTY_PATH_ELEMENT_ARRAY;
-                        }
-                        return pe;
-                    }
-                };
-                caretShape = new SimpleObjectProperty<>(Text.this, "caretShape");
-                caretShape.bind(caretBinding);
-            }
-            return caretShape;
-        }
-
-        private IntegerProperty caretPosition;
-
-        final int getCaretPosition() {
-            return caretPosition == null ? DEFAULT_CARET_POSITION : caretPosition.get();
-        }
-
-        final IntegerProperty caretPositionProperty() {
-            if (caretPosition == null) {
-                caretPosition =
-                    new IntegerPropertyBase(DEFAULT_CARET_POSITION) {
-                        @Override public Object getBean() { return Text.this; }
-                        @Override public String getName() { return "caretPosition"; }
-                        @Override protected void invalidated() {
-                            notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
-                        }
-                    };
-            }
-            return caretPosition;
-        }
-
-        private BooleanProperty caretBias;
-
-        final boolean isCaretBias() {
-            return caretBias == null ? DEFAULT_CARET_BIAS : caretBias.get();
-        }
-
-        final BooleanProperty caretBiasProperty() {
-            if (caretBias == null) {
-                caretBias =
-                        new SimpleBooleanProperty(Text.this, "caretBias", DEFAULT_CARET_BIAS);
-            }
-            return caretBias;
-        }
-
-        private IntegerProperty tabSize;
-
-        final int getTabSize() {
-            return tabSize == null ? TextLayout.DEFAULT_TAB_SIZE : tabSize.get();
-        }
-
-        final IntegerProperty tabSizeProperty() {
-            if (tabSize == null) {
-                tabSize = new StyleableIntegerProperty(TextLayout.DEFAULT_TAB_SIZE) {
-                    @Override public Object getBean() { return Text.this; }
-                    @Override public String getName() { return "tabSize"; }
-                    @Override public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TAB_SIZE;
-                    }
-                    @Override protected void invalidated() {
-                        if (!isSpan()) {
-                            TextLayout layout = getTextLayout();
-                            if (layout.setTabAdvancePolicy(getTabSize(), null)) {
-                                needsTextLayout();
-                            }
-                            NodeHelper.markDirty(Text.this, DirtyBits.TEXT_ATTRS);
-                            if (getBoundsType() == TextBoundsType.VISUAL) {
-                                NodeHelper.geomChanged(Text.this);
-                            }
-                        }
-                    }
-                };
-            }
-            return tabSize;
+        public void invalidateBinding() {
+            caretBinding.invalidate();
         }
     }
 

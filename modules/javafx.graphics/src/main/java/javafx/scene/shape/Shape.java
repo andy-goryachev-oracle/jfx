@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,6 +25,11 @@
 
 package javafx.scene.shape;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javafx.beans.Observable;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
@@ -38,20 +43,16 @@ import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
-import javafx.scene.Node;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
-import javafx.scene.text.Text;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import com.sun.javafx.util.Utils;
-import com.sun.javafx.beans.event.AbstractNotifyListener;
-import com.sun.javafx.collections.TrackableObservableList;
 import javafx.css.converter.BooleanConverter;
 import javafx.css.converter.EnumConverter;
 import javafx.css.converter.PaintConverter;
 import javafx.css.converter.SizeConverter;
+import javafx.scene.Node;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
+import javafx.scene.text.Text;
+import com.sun.javafx.beans.event.AbstractNotifyListener;
+import com.sun.javafx.collections.TrackableObservableList;
 import com.sun.javafx.geom.Area;
 import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.PathIterator;
@@ -63,8 +64,9 @@ import com.sun.javafx.scene.shape.AbstractShape;
 import com.sun.javafx.scene.shape.ShapeHelper;
 import com.sun.javafx.sg.prism.NGShape;
 import com.sun.javafx.tk.Toolkit;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
+import com.sun.javafx.util.HiddenProps;
+import com.sun.javafx.util.PKey;
+import com.sun.javafx.util.Utils;
 
 
 /**
@@ -120,6 +122,25 @@ import java.lang.ref.WeakReference;
 public abstract sealed class Shape extends Node
         permits AbstractShape, Arc, Circle, CubicCurve, Ellipse, Line, Path, Polygon,
                 Polyline, QuadCurve, Rectangle, SVGPath, Text {
+
+    private static final float[] DEFAULT_PG_STROKE_DASH_ARRAY = new float[0];
+    private static final boolean DEFAULT_SMOOTH = true;
+    private static final double DEFAULT_STROKE_DASH_OFFSET = 0.0;
+    private static final StrokeLineCap DEFAULT_STROKE_LINE_CAP = StrokeLineCap.SQUARE;
+    private static final StrokeLineJoin DEFAULT_STROKE_LINE_JOIN = StrokeLineJoin.MITER;
+    private static final double DEFAULT_STROKE_MITER_LIMIT = 10.0;
+    private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;
+    private static final double DEFAULT_STROKE_WIDTH = 1.0;
+
+    private static final PKey<ObjectProperty<Number[]>> K_CSS_DASH_ARRAY = new PKey<>();
+    private static final PKey<ObservableList<Double>> K_DASH_ARRAY = new PKey<>();
+    private static final PKey<BooleanProperty> K_SMOOTH = new PKey<>();
+    private static final PKey<DoubleProperty> K_STROKE_DASH_OFFSET = new PKey<>();
+    private static final PKey<DoubleProperty> K_STROKE_MITER_LIMIT = new PKey<>();
+    private static final PKey<ObjectProperty<StrokeLineCap>> K_STROKE_LINE_CAP = new PKey<>();
+    private static final PKey<ObjectProperty<StrokeLineJoin>> K_STROKE_LINE_JOIN = new PKey<>();
+    private static final PKey<ObjectProperty<StrokeType>> K_STROKE_TYPE = new PKey<>();
+    private static final PKey<DoubleProperty> K_STROKE_WIDTH = new PKey<>();
 
     static {
         // This is used by classes in different packages to get access to
@@ -178,15 +199,6 @@ public abstract sealed class Shape extends Node
         return t;
     }
 
-    public final void setStrokeType(StrokeType value) {
-        strokeTypeProperty().set(value);
-    }
-
-    public final StrokeType getStrokeType() {
-        return (strokeAttributes == null) ? DEFAULT_STROKE_TYPE
-                                          : strokeAttributes.getType();
-    }
-
     /**
      * Defines the direction (inside, centered, or outside) that the strokeWidth
      * is applied to the boundary of the shape.
@@ -204,16 +216,44 @@ public abstract sealed class Shape extends Node
      * @defaultValue CENTERED
      */
     public final ObjectProperty<StrokeType> strokeTypeProperty() {
-        return getStrokeAttributes().typeProperty();
+        HiddenProps props = HiddenProps.get(this);
+        ObjectProperty<StrokeType> p = props.get(K_STROKE_TYPE);
+        if (p == null) {
+            p = props.init(K_STROKE_TYPE, () -> new StyleableObjectProperty<StrokeType>(DEFAULT_STROKE_TYPE) {
+                @Override
+                public void invalidated() {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_TYPE);
+                }
+
+                @Override
+                public CssMetaData<Shape,StrokeType> getCssMetaData() {
+                    return StyleableProperties.STROKE_TYPE;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeType";
+                }
+            });
+        }
+        return p;
     }
 
-    public final void setStrokeWidth(double value) {
-        strokeWidthProperty().set(value);
+    public final void setStrokeType(StrokeType value) {
+        if ((value == DEFAULT_STROKE_TYPE) && (HiddenProps.getProperty(this, K_STROKE_TYPE) == null)) {
+            return;
+        }
+        strokeTypeProperty().set(value);
     }
 
-    public final double getStrokeWidth() {
-        return (strokeAttributes == null) ? DEFAULT_STROKE_WIDTH
-                                          : strokeAttributes.getWidth();
+    public final StrokeType getStrokeType() {
+        ObjectProperty<StrokeType> p = HiddenProps.getProperty(this, K_STROKE_TYPE);
+        return (p == null) ? DEFAULT_STROKE_TYPE : p.get();
     }
 
     /**
@@ -224,17 +264,44 @@ public abstract sealed class Shape extends Node
      * @defaultValue 1.0
      */
     public final DoubleProperty strokeWidthProperty() {
-        return getStrokeAttributes().widthProperty();
+        HiddenProps props = HiddenProps.get(this);
+        DoubleProperty p = props.get(K_STROKE_WIDTH);
+        if (p == null) {
+            p = props.init(K_STROKE_WIDTH, () -> new StyleableDoubleProperty(DEFAULT_STROKE_WIDTH) {
+                @Override
+                public void invalidated() {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_WIDTH);
+                }
+
+                @Override
+                public CssMetaData<Shape,Number> getCssMetaData() {
+                    return StyleableProperties.STROKE_WIDTH;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeWidth";
+                }
+            });
+        }
+        return p;
     }
 
-    public final void setStrokeLineJoin(StrokeLineJoin value) {
-        strokeLineJoinProperty().set(value);
+    public final void setStrokeWidth(double value) {
+        if ((value == DEFAULT_STROKE_WIDTH) && (HiddenProps.getProperty(this, K_STROKE_WIDTH) == null)) {
+            return;
+        }
+        strokeWidthProperty().set(value);
     }
 
-    public final StrokeLineJoin getStrokeLineJoin() {
-        return (strokeAttributes == null)
-                ? DEFAULT_STROKE_LINE_JOIN
-                : strokeAttributes.getLineJoin();
+    public final double getStrokeWidth() {
+        DoubleProperty p = HiddenProps.getProperty(this, K_STROKE_WIDTH);
+        return (p == null) ? DEFAULT_STROKE_WIDTH : p.get();
     }
 
     /**
@@ -251,16 +318,44 @@ public abstract sealed class Shape extends Node
      * @defaultValue MITER
      */
     public final ObjectProperty<StrokeLineJoin> strokeLineJoinProperty() {
-        return getStrokeAttributes().lineJoinProperty();
+        HiddenProps props = HiddenProps.get(this);
+        ObjectProperty<StrokeLineJoin> p = props.get(K_STROKE_LINE_JOIN);
+        if (p == null) {
+            p = props.init(K_STROKE_LINE_JOIN, () -> new StyleableObjectProperty<StrokeLineJoin>(DEFAULT_STROKE_LINE_JOIN) {
+                @Override
+                public void invalidated() {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_LINE_JOIN);
+                }
+
+                @Override
+                public CssMetaData<Shape, StrokeLineJoin> getCssMetaData() {
+                    return StyleableProperties.STROKE_LINE_JOIN;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeLineJoin";
+                }
+            });
+        }
+        return p;
     }
 
-    public final void setStrokeLineCap(StrokeLineCap value) {
-        strokeLineCapProperty().set(value);
+    public final void setStrokeLineJoin(StrokeLineJoin value) {
+        if ((value == DEFAULT_STROKE_LINE_JOIN) && (HiddenProps.getProperty(this, K_STROKE_LINE_JOIN) == null)) {
+            return;
+        }
+        strokeLineJoinProperty().set(value);
     }
 
-    public final StrokeLineCap getStrokeLineCap() {
-        return (strokeAttributes == null) ? DEFAULT_STROKE_LINE_CAP
-                                          : strokeAttributes.getLineCap();
+    public final StrokeLineJoin getStrokeLineJoin() {
+        ObjectProperty<StrokeLineJoin> p = HiddenProps.getProperty(this, K_STROKE_LINE_JOIN);
+        return (p == null) ? DEFAULT_STROKE_LINE_JOIN : p.get();
     }
 
     /**
@@ -277,16 +372,44 @@ public abstract sealed class Shape extends Node
      * @defaultValue SQUARE
      */
     public final ObjectProperty<StrokeLineCap> strokeLineCapProperty() {
-        return getStrokeAttributes().lineCapProperty();
+        HiddenProps props = HiddenProps.get(this);
+        ObjectProperty<StrokeLineCap> p = props.get(K_STROKE_LINE_CAP);
+        if (p == null) {
+            p = props.init(K_STROKE_LINE_CAP, () -> new StyleableObjectProperty<StrokeLineCap>(DEFAULT_STROKE_LINE_CAP) {
+                @Override
+                public void invalidated() {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_LINE_CAP);
+                }
+
+                @Override
+                public CssMetaData<Shape, StrokeLineCap> getCssMetaData() {
+                    return StyleableProperties.STROKE_LINE_CAP;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeLineCap";
+                }
+            });
+        }
+        return p;
     }
 
-    public final void setStrokeMiterLimit(double value) {
-        strokeMiterLimitProperty().set(value);
+    public final void setStrokeLineCap(StrokeLineCap value) {
+        if ((value == DEFAULT_STROKE_LINE_CAP) && (HiddenProps.getProperty(this, K_STROKE_LINE_CAP) == null)) {
+            return;
+        }
+        strokeLineCapProperty().set(value);
     }
 
-    public final double getStrokeMiterLimit() {
-        return (strokeAttributes == null) ? DEFAULT_STROKE_MITER_LIMIT
-                                          : strokeAttributes.getMiterLimit();
+    public final StrokeLineCap getStrokeLineCap() {
+        ObjectProperty<StrokeLineCap> p = HiddenProps.getProperty(this, K_STROKE_LINE_CAP);
+        return (p == null) ? DEFAULT_STROKE_LINE_CAP : p.get();
     }
 
     /**
@@ -308,16 +431,41 @@ public abstract sealed class Shape extends Node
      * @defaultValue 10.0
      */
     public final DoubleProperty strokeMiterLimitProperty() {
-        return getStrokeAttributes().miterLimitProperty();
+        HiddenProps props = HiddenProps.get(this);
+        DoubleProperty p = props.get(K_STROKE_MITER_LIMIT);
+        if (p == null) {
+            p = props.init(K_STROKE_MITER_LIMIT, () -> new StyleableDoubleProperty(DEFAULT_STROKE_MITER_LIMIT) {
+                @Override
+                public void invalidated() {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_MITER_LIMIT);
+                }
+
+                @Override
+                public CssMetaData<Shape, Number> getCssMetaData() {
+                    return StyleableProperties.STROKE_MITER_LIMIT;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeMiterLimit";
+                }
+            });
+        }
+        return p;
     }
 
-    public final void setStrokeDashOffset(double value) {
-        strokeDashOffsetProperty().set(value);
+    public final void setStrokeMiterLimit(double value) {
+        strokeMiterLimitProperty().set(value);
     }
 
-    public final double getStrokeDashOffset() {
-        return (strokeAttributes == null) ? DEFAULT_STROKE_DASH_OFFSET
-                                          : strokeAttributes.getDashOffset();
+    public final double getStrokeMiterLimit() {
+        DoubleProperty p = HiddenProps.getProperty(this, K_STROKE_MITER_LIMIT);
+        return (p == null) ? DEFAULT_STROKE_MITER_LIMIT : p.get();
     }
 
     /**
@@ -340,7 +488,44 @@ public abstract sealed class Shape extends Node
      * @defaultValue 0
      */
     public final DoubleProperty strokeDashOffsetProperty() {
-        return getStrokeAttributes().dashOffsetProperty();
+        HiddenProps props = HiddenProps.get(this);
+        DoubleProperty p = props.get(K_STROKE_DASH_OFFSET);
+        if (p == null) {
+            p = props.init(K_STROKE_DASH_OFFSET, () -> new StyleableDoubleProperty(DEFAULT_STROKE_DASH_OFFSET) {
+                @Override
+                public void invalidated() {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_DASH_OFFSET);
+                }
+
+                @Override
+                public CssMetaData<Shape, Number> getCssMetaData() {
+                    return StyleableProperties.STROKE_DASH_OFFSET;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "strokeDashOffset";
+                }
+            });
+        }
+        return p;
+    }
+
+    public final void setStrokeDashOffset(double value) {
+        if ((value == DEFAULT_STROKE_DASH_OFFSET) && (HiddenProps.getProperty(this, K_STROKE_DASH_OFFSET) == null)) {
+            return;
+        }
+        strokeDashOffsetProperty().set(value);
+    }
+
+    public final double getStrokeDashOffset() {
+        DoubleProperty p = HiddenProps.getProperty(this, K_STROKE_DASH_OFFSET);
+        return (p == null) ? DEFAULT_STROKE_DASH_OFFSET : p.get();
     }
 
     /**
@@ -377,7 +562,17 @@ public abstract sealed class Shape extends Node
      * @defaultValue empty
      */
     public final ObservableList<Double> getStrokeDashArray() {
-        return getStrokeAttributes().dashArrayProperty();
+        HiddenProps props = HiddenProps.get(this);
+        ObservableList<Double> p = props.get(K_DASH_ARRAY);
+        if (p == null) {
+            p = props.init(K_DASH_ARRAY, () -> new TrackableObservableList<Double>() {
+                @Override
+                protected void onChanged(Change<Double> c) {
+                    invalidateStrokeAttrs(StyleableProperties.STROKE_DASH_ARRAY);
+                }
+            });
+        }
+        return p;
     }
 
     private NGShape.Mode computeMode() {
@@ -553,22 +748,14 @@ public abstract sealed class Shape extends Node
      * Defines whether antialiasing hints are used or not for this {@code Shape}.
      * If the value equals true the rendering hints are applied.
      *
+     * @return the property
      * @defaultValue true
      */
-    private BooleanProperty smooth;
-
-
-    public final void setSmooth(boolean value) {
-        smoothProperty().set(value);
-    }
-
-    public final boolean isSmooth() {
-        return smooth == null ? true : smooth.get();
-    }
-
     public final BooleanProperty smoothProperty() {
-        if (smooth == null) {
-            smooth = new StyleableBooleanProperty(true) {
+        HiddenProps props = HiddenProps.get(this);
+        BooleanProperty p = props.get(K_SMOOTH);
+        if (p == null) {
+            p = props.init(K_SMOOTH, () -> new StyleableBooleanProperty(DEFAULT_SMOOTH) {
 
                 @Override
                 public void invalidated() {
@@ -589,10 +776,23 @@ public abstract sealed class Shape extends Node
                 public String getName() {
                     return "smooth";
                 }
-            };
+            });
         }
-        return smooth;
+        return p;
     }
+
+    public final void setSmooth(boolean value) {
+        if ((value == DEFAULT_SMOOTH) && (HiddenProps.getProperty(this, K_SMOOTH) == null)) {
+            return;
+        }
+        smoothProperty().set(value);
+    }
+
+    public final boolean isSmooth() {
+        BooleanProperty p = HiddenProps.getProperty(this, K_SMOOTH);
+        return p == null ? DEFAULT_SMOOTH : p.get();
+    }
+
 
     /* *************************************************************************
      *                                                                         *
@@ -665,7 +865,7 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.smooth == null || !node.smooth.isBound();
+                return HiddenProps.isSettable(node, K_SMOOTH);
             }
 
             @Override
@@ -729,9 +929,8 @@ public abstract sealed class Shape extends Node
 
             @Override
             public StyleableProperty<Number[]> getStyleableProperty(final Shape node) {
-                return (StyleableProperty<Number[]>)node.getStrokeAttributes().cssDashArrayProperty();
+                return (StyleableProperty<Number[]>)node.cssDashArray();
             }
-
         };
 
         /**
@@ -740,19 +939,17 @@ public abstract sealed class Shape extends Node
         */
         private static final CssMetaData<Shape,Number> STROKE_DASH_OFFSET =
             new CssMetaData<>("-fx-stroke-dash-offset",
-                SizeConverter.getInstance(), 0.0) {
+                SizeConverter.getInstance(), DEFAULT_STROKE_DASH_OFFSET) {
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetDashOffset();
+                return HiddenProps.isSettable(node, K_STROKE_DASH_OFFSET);
             }
 
             @Override
             public StyleableProperty<Number> getStyleableProperty(Shape node) {
                 return (StyleableProperty<Number>)node.strokeDashOffsetProperty();
             }
-
         };
 
         /**
@@ -766,15 +963,13 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetLineCap();
+                return HiddenProps.isSettable(node, K_STROKE_LINE_CAP);
             }
 
             @Override
             public StyleableProperty<StrokeLineCap> getStyleableProperty(Shape node) {
                 return (StyleableProperty<StrokeLineCap>)node.strokeLineCapProperty();
             }
-
         };
 
         /**
@@ -788,15 +983,13 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetLineJoin();
+                return HiddenProps.isSettable(node, K_STROKE_LINE_JOIN);
             }
 
             @Override
             public StyleableProperty<StrokeLineJoin> getStyleableProperty(Shape node) {
                 return (StyleableProperty<StrokeLineJoin>)node.strokeLineJoinProperty();
             }
-
         };
 
         /**
@@ -810,16 +1003,13 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetType();
+                return HiddenProps.isSettable(node, K_STROKE_TYPE);
             }
 
             @Override
             public StyleableProperty<StrokeType> getStyleableProperty(Shape node) {
                 return (StyleableProperty<StrokeType>)node.strokeTypeProperty();
             }
-
-
         };
 
         /**
@@ -832,8 +1022,7 @@ public abstract sealed class Shape extends Node
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetMiterLimit();
+                return HiddenProps.isSettable(node, K_STROKE_MITER_LIMIT);
             }
 
             @Override
@@ -847,27 +1036,23 @@ public abstract sealed class Shape extends Node
         * @css -fx-stroke-width: <a href="#typesize" class="typelink">&lt;size&gt;</a>
         * @see #strokeWidthProperty()
         */
-        private static final CssMetaData<Shape,Number> STROKE_WIDTH =
-            new CssMetaData<>("-fx-stroke-width",
-                SizeConverter.getInstance(), 1.0) {
+        private static final CssMetaData<Shape, Number> STROKE_WIDTH =
+            new CssMetaData<>("-fx-stroke-width", SizeConverter.getInstance(), DEFAULT_STROKE_WIDTH) {
 
             @Override
             public boolean isSettable(Shape node) {
-                return node.strokeAttributes == null ||
-                        node.strokeAttributes.canSetWidth();
+                return HiddenProps.isSettable(node, K_STROKE_WIDTH);
             }
 
             @Override
             public StyleableProperty<Number> getStyleableProperty(Shape node) {
                 return (StyleableProperty<Number>)node.strokeWidthProperty();
             }
+            };
 
-        };
-         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
-         static {
-
-            final List<CssMetaData<? extends Styleable, ?>> styleables =
-                new ArrayList<>(Node.getClassCssMetaData());
+        private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
+        static {
+            ArrayList<CssMetaData<? extends Styleable, ?>> styleables = new ArrayList<>(Node.getClassCssMetaData());
             styleables.add(FILL);
             styleables.add(SMOOTH);
             styleables.add(STROKE);
@@ -879,7 +1064,7 @@ public abstract sealed class Shape extends Node
             styleables.add(STROKE_MITER_LIMIT);
             styleables.add(STROKE_WIDTH);
             STYLEABLES = Collections.unmodifiableList(styleables);
-         }
+        }
     }
 
     /**
@@ -927,7 +1112,7 @@ public abstract sealed class Shape extends Node
         if (strokeAttributesDirty && (getStroke() != null)) {
             // set attributes of stroke only when stroke paint is not null
             final float[] pgDashArray =
-                    (hasStrokeDashArray())
+                    (HiddenProps.hasProperty(this, K_DASH_ARRAY))
                             ? toPGDashArray(getStrokeDashArray())
                             : DEFAULT_PG_STROKE_DASH_ARRAY;
 
@@ -1178,20 +1363,6 @@ public abstract sealed class Shape extends Node
 
     private boolean strokeAttributesDirty = true;
 
-    private StrokeAttributes strokeAttributes;
-
-    private StrokeAttributes getStrokeAttributes() {
-        if (strokeAttributes == null) {
-            strokeAttributes = new StrokeAttributes();
-        }
-
-        return strokeAttributes;
-    }
-
-    private boolean hasStrokeDashArray() {
-        return (strokeAttributes != null) && strokeAttributes.hasDashArray();
-    }
-
     private static float[] toPGDashArray(final List<Double> dashArray) {
         final int size = dashArray.size();
         final float[] pgDashArray = new float[size];
@@ -1202,329 +1373,55 @@ public abstract sealed class Shape extends Node
         return pgDashArray;
     }
 
-    private static final StrokeType DEFAULT_STROKE_TYPE = StrokeType.CENTERED;
-    private static final double DEFAULT_STROKE_WIDTH = 1.0;
-    private static final StrokeLineJoin DEFAULT_STROKE_LINE_JOIN =
-            StrokeLineJoin.MITER;
-    private static final StrokeLineCap DEFAULT_STROKE_LINE_CAP =
-            StrokeLineCap.SQUARE;
-    private static final double DEFAULT_STROKE_MITER_LIMIT = 10.0;
-    private static final double DEFAULT_STROKE_DASH_OFFSET = 0;
-    private static final float[] DEFAULT_PG_STROKE_DASH_ARRAY = new float[0];
-
-    private final class StrokeAttributes {
-        private ObjectProperty<StrokeType> type;
-        private DoubleProperty width;
-        private ObjectProperty<StrokeLineJoin> lineJoin;
-        private ObjectProperty<StrokeLineCap> lineCap;
-        private DoubleProperty miterLimit;
-        private DoubleProperty dashOffset;
-        private ObservableList<Double> dashArray;
-
-        public final StrokeType getType() {
-            return (type == null) ? DEFAULT_STROKE_TYPE : type.get();
-        }
-
-        public final ObjectProperty<StrokeType> typeProperty() {
-            if (type == null) {
-                type = new StyleableObjectProperty<StrokeType>(DEFAULT_STROKE_TYPE) {
-
-                    @Override
-                    public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_TYPE);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,StrokeType> getCssMetaData() {
-                        return StyleableProperties.STROKE_TYPE;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeType";
-                    }
-                };
-            }
-            return type;
-        }
-
-        public double getWidth() {
-            return (width == null) ? DEFAULT_STROKE_WIDTH : width.get();
-        }
-
-        public final DoubleProperty widthProperty() {
-            if (width == null) {
-                width = new StyleableDoubleProperty(DEFAULT_STROKE_WIDTH) {
-
-                    @Override
-                    public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_WIDTH);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,Number> getCssMetaData() {
-                        return StyleableProperties.STROKE_WIDTH;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeWidth";
-                    }
-                };
-            }
-            return width;
-        }
-
-        public StrokeLineJoin getLineJoin() {
-            return (lineJoin == null) ? DEFAULT_STROKE_LINE_JOIN
-                                      : lineJoin.get();
-        }
-
-        public final ObjectProperty<StrokeLineJoin> lineJoinProperty() {
-            if (lineJoin == null) {
-                lineJoin = new StyleableObjectProperty<StrokeLineJoin>(
-                                       DEFAULT_STROKE_LINE_JOIN) {
-
-                    @Override
-                    public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_LINE_JOIN);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,StrokeLineJoin> getCssMetaData() {
-                        return StyleableProperties.STROKE_LINE_JOIN;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeLineJoin";
-                    }
-                };
-            }
-            return lineJoin;
-        }
-
-        public StrokeLineCap getLineCap() {
-            return (lineCap == null) ? DEFAULT_STROKE_LINE_CAP
-                                     : lineCap.get();
-        }
-
-        public final ObjectProperty<StrokeLineCap> lineCapProperty() {
-            if (lineCap == null) {
-                lineCap = new StyleableObjectProperty<StrokeLineCap>(
-                                      DEFAULT_STROKE_LINE_CAP) {
-
-                    @Override
-                    public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_LINE_CAP);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,StrokeLineCap> getCssMetaData() {
-                        return StyleableProperties.STROKE_LINE_CAP;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeLineCap";
-                    }
-                };
-            }
-
-            return lineCap;
-        }
-
-        public double getMiterLimit() {
-            return (miterLimit == null) ? DEFAULT_STROKE_MITER_LIMIT
-                                        : miterLimit.get();
-        }
-
-        public final DoubleProperty miterLimitProperty() {
-            if (miterLimit == null) {
-                miterLimit = new StyleableDoubleProperty(
-                                         DEFAULT_STROKE_MITER_LIMIT) {
-                    @Override
-                    public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_MITER_LIMIT);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,Number> getCssMetaData() {
-                        return StyleableProperties.STROKE_MITER_LIMIT;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeMiterLimit";
-                    }
-                };
-            }
-
-            return miterLimit;
-        }
-
-        public double getDashOffset() {
-            return (dashOffset == null) ? DEFAULT_STROKE_DASH_OFFSET
-                                        : dashOffset.get();
-        }
-
-        public final DoubleProperty dashOffsetProperty() {
-            if (dashOffset == null) {
-                dashOffset = new StyleableDoubleProperty(
-                                         DEFAULT_STROKE_DASH_OFFSET) {
-
-                    @Override
-                    public void invalidated() {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_DASH_OFFSET);
-                    }
-
-                    @Override
-                    public CssMetaData<Shape,Number> getCssMetaData() {
-                        return StyleableProperties.STROKE_DASH_OFFSET;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "strokeDashOffset";
-                    }
-                };
-            }
-
-            return dashOffset;
-        }
-
-        // TODO: Need to handle set from css - should clear array and add all.
-        public ObservableList<Double> dashArrayProperty() {
-            if (dashArray == null) {
-                dashArray = new TrackableObservableList<>() {
-                    @Override
-                    protected void onChanged(Change<Double> c) {
-                        StrokeAttributes.this.invalidated(
-                                StyleableProperties.STROKE_DASH_ARRAY);
-                    }
-                };
-            }
-            return dashArray;
-        }
-
-        private ObjectProperty<Number[]> cssDashArray = null;
-        private ObjectProperty<Number[]> cssDashArrayProperty() {
-            if (cssDashArray == null) {
-                cssDashArray = new StyleableObjectProperty<>()
-                {
-
-                    @Override
-                    public void set(Number[] v) {
-
-                        ObservableList<Double> list = dashArrayProperty();
-                        list.clear();
-                        if (v != null && v.length > 0) {
-                            for (int n=0; n<v.length; n++) {
-                                list.add(v[n].doubleValue());
-                            }
+    private ObjectProperty<Number[]> cssDashArray() {
+        HiddenProps props = HiddenProps.get(this);
+        ObjectProperty<Number[]> p = props.get(K_CSS_DASH_ARRAY);
+        if (p == null) {
+            p = props.init(K_CSS_DASH_ARRAY, () -> new StyleableObjectProperty<Number[]>() {
+                @Override
+                public void set(Number[] v) {
+                    ObservableList<Double> list = getStrokeDashArray();
+                    list.clear();
+                    if (v != null && v.length > 0) {
+                        for (int n=0; n<v.length; n++) {
+                            list.add(v[n].doubleValue());
                         }
-
-                        // no need to hold onto the array
                     }
+                    // no need to hold onto the array
+                }
 
-                    @Override
-                    public Double[] get() {
-                        List<Double> list = dashArrayProperty();
-                        return list.toArray(new Double[list.size()]);
-                    }
+                @Override
+                public Double[] get() {
+                    List<Double> list = getStrokeDashArray();
+                    return list.toArray(new Double[list.size()]);
+                }
 
-                    @Override
-                    public Object getBean() {
-                        return Shape.this;
-                    }
+                @Override
+                public Object getBean() {
+                    return Shape.this;
+                }
 
-                    @Override
-                    public String getName() {
-                        return "cssDashArray";
-                    }
+                @Override
+                public String getName() {
+                    return "cssDashArray";
+                }
 
-                    @Override
-                    public CssMetaData<Shape,Number[]> getCssMetaData() {
-                        return StyleableProperties.STROKE_DASH_ARRAY;
-                    }
-                };
-            }
-
-            return cssDashArray;
+                @Override
+                public CssMetaData<Shape,Number[]> getCssMetaData() {
+                    return StyleableProperties.STROKE_DASH_ARRAY;
+                }
+            });
         }
+        return p;
+    }
 
-        public boolean canSetType() {
-            return (type == null) || !type.isBound();
-        }
-
-        public boolean canSetWidth() {
-            return (width == null) || !width.isBound();
-        }
-
-        public boolean canSetLineJoin() {
-            return (lineJoin == null) || !lineJoin.isBound();
-        }
-
-        public boolean canSetLineCap() {
-            return (lineCap == null) || !lineCap.isBound();
-        }
-
-        public boolean canSetMiterLimit() {
-            return (miterLimit == null) || !miterLimit.isBound();
-        }
-
-        public boolean canSetDashOffset() {
-            return (dashOffset == null) || !dashOffset.isBound();
-        }
-
-        public boolean hasDashArray() {
-            return (dashArray != null);
-        }
-
-        private void invalidated(final CssMetaData<Shape, ?> propertyCssKey) {
-            NodeHelper.markDirty(Shape.this, DirtyBits.SHAPE_STROKEATTRS);
-            strokeAttributesDirty = true;
-            if (propertyCssKey != StyleableProperties.STROKE_DASH_OFFSET) {
-                // all stroke attributes change geometry except for the
-                // stroke dash offset
-                NodeHelper.geomChanged(Shape.this);
-            }
+    private void invalidateStrokeAttrs(final CssMetaData<Shape, ?> propertyCssKey) {
+        NodeHelper.markDirty(this, DirtyBits.SHAPE_STROKEATTRS);
+        strokeAttributesDirty = true;
+        if (propertyCssKey != StyleableProperties.STROKE_DASH_OFFSET) {
+            // all stroke attributes change geometry except for the
+            // stroke dash offset
+            NodeHelper.geomChanged(Shape.this);
         }
     }
 
@@ -1685,7 +1582,7 @@ public abstract sealed class Shape extends Node
                 (float) Utils.clampMin(getStrokeMiterLimit(),
                                        MIN_STROKE_MITER_LIMIT);
         final float[] dashArray =
-                (hasStrokeDashArray())
+                (HiddenProps.hasProperty(this, K_DASH_ARRAY))
                         ? toPGDashArray(getStrokeDashArray())
                         : DEFAULT_PG_STROKE_DASH_ARRAY;
 
