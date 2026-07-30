@@ -64,6 +64,7 @@ import javafx.collections.ObservableMap;
 import javafx.css.CssMetaData;
 import javafx.css.PseudoClass;
 import javafx.css.StyleableObjectProperty;
+import javafx.css.Stylesheet;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -1752,7 +1753,7 @@ public class Scene implements EventTarget {
      * If a URL uses the "data" scheme and the MIME type is either empty, "text/plain", or "text/css",
      * the payload will be interpreted as a CSS file.
      * If the MIME type is "application/octet-stream", the payload will be interpreted as a binary
-     * CSS file (see {@link Stylesheet#convertToBinary(File, File)}).
+     * CSS file (see {@link javafx.css.Stylesheet#convertToBinary(File, File)}).
      * <pre><code>
      *
      * package com.example.javafx.app;
@@ -6138,7 +6139,7 @@ public class Scene implements EventTarget {
      * Contains scene preferences that can override {@link Platform.Preferences platform} preferences.
      * <p>
      * All preferences are <em>null-coalesting</em> properties: if set to {@code null} (using the setter method,
-     * {@link Property#setValue(Object)}, or with a binding), the property evalutes to the value of the corresponding
+     * {@link javafx.beans.property.Property#setValue(Object)}, or with a binding), the property evalutes to the value of the corresponding
      * platform-provided preference. Likewise, specifying a non-null value for any given property will override the
      * platform-provided value.
      *
