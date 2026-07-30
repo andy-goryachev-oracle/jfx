@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -41,6 +41,7 @@ import javafx.scene.layout.StackPane;
 import com.sun.javafx.scene.control.FakeFocusTextField;
 import com.sun.javafx.scene.control.ListenerHelper;
 import com.sun.javafx.scene.control.behavior.SpinnerBehavior;
+import com.sun.javafx.scene.control.skin.Utils;
 import com.sun.javafx.scene.traversal.TraversalUtils;
 
 /**
@@ -187,23 +188,9 @@ public class SpinnerSkin<T> extends SkinBase<Spinner<T>> {
                 // Fix for the regression noted in a comment in JDK-8115009.
                 // This forwards the event down into the TextField when
                 // the key event is actually received by the Spinner.
-                textField.fireEvent(ke.copyFor(textField, textField));
-
-                if (ke.getCode() == KeyCode.ENTER) return;
-
-                ke.consume();
-            }
-        });
-
-        // This event filter is to enable keyboard events being delivered to the
-        // spinner when the user has mouse clicked into the TextField area of the
-        // Spinner control. Without this the up/down/left/right arrow keys don't
-        // work when you click inside the TextField area (but they do in the case
-        // of tabbing in).
-        lh.addEventFilter(textField, KeyEvent.ANY, (ke) -> {
-            if (! control.isEditable() || isIncDecKeyEvent(ke)) {
-                control.fireEvent(ke.copyFor(control, control));
-                ke.consume();
+                if (Utils.dispatchToNode(ke, textField) && ke.getCode() != KeyCode.ENTER) {
+                    ke.consume();
+                }
             }
         });
 
