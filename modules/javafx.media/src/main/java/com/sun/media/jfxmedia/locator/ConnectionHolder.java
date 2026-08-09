@@ -66,6 +66,10 @@ public abstract class ConnectionHolder {
         return new HLSConnectionHolder(uri);
     }
 
+    static ConnectionHolder createInputStreamConnectionHolder(BInputStream in) {
+        return new InputStreamConnectionHolder(in);
+    }
+
     /**
      * Reads a block of data from the current position of the opened stream.
      *
@@ -108,7 +112,7 @@ public abstract class ConnectionHolder {
      *
      * @return true if the source needs a buffer, false otherwise.
      */
-    abstract boolean needBuffer();
+    abstract boolean needBuffer(); // TODO not called?
 
     /**
      * Detects whether the source is seekable.
@@ -470,6 +474,45 @@ public abstract class ConnectionHolder {
         public void closeConnection() {
             // more stream behavior mimicry
             channel = null;
+        }
+    }
+
+    private static class InputStreamConnectionHolder extends ConnectionHolder {
+        public InputStreamConnectionHolder(BInputStream in) {
+            channel = Channels.newChannel(in);
+        }
+
+        @Override
+        int readBlock(long position, int size) throws IOException {
+            if (null == channel) {
+                throw new ClosedChannelException();
+            }
+            return 0;
+        }
+
+        @Override // TODO remove method
+        public int readNextBlock() throws IOException {
+            return super.readNextBlock();
+        }
+
+        @Override
+        boolean needBuffer() {
+            return false;
+        }
+
+        @Override
+        boolean isSeekable() {
+            return false;
+        }
+
+        @Override
+        boolean isRandomAccess() {
+            return false;
+        }
+
+        @Override
+        public long seek(long position) {
+            return -1;
         }
     }
 }

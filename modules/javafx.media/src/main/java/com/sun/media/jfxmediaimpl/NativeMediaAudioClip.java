@@ -50,7 +50,7 @@ final class NativeMediaAudioClip extends AudioClip {
             Logger.logMsg(Logger.DEBUG, "Creating AudioClip for URI " + source);
         }
 
-        mediaLocator = new Locator(sourceURI);
+        mediaLocator = new Locator(sourceURI, null);
         mediaLocator.init();
         mediaLocator.cacheMedia(); // load into memory
     }

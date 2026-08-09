@@ -51,7 +51,7 @@ final class NativeAudioClip extends AudioClip {
     public static AudioClip load(URI source) {
         NativeAudioClip newClip = null;
         try {
-            Locator locator = new Locator(source);
+            Locator locator = new Locator(source, null);
             locator.init();
             newClip = new NativeAudioClip(locator);
         } catch (URISyntaxException ex) {
