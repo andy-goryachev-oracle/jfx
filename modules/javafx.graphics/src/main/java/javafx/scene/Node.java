@@ -25,9 +25,15 @@
 
 package javafx.scene;
 
-
-import com.sun.javafx.geometry.BoundsUtils;
-import com.sun.javafx.scene.traversal.TraversalMethod;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
@@ -59,6 +65,8 @@ import javafx.collections.ObservableSet;
 import javafx.css.CssMetaData;
 import javafx.css.ParsedValue;
 import javafx.css.PseudoClass;
+import javafx.css.Selector;
+import javafx.css.Style;
 import javafx.css.StyleConverter;
 import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
@@ -66,6 +74,11 @@ import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
+import javafx.css.converter.BooleanConverter;
+import javafx.css.converter.CursorConverter;
+import javafx.css.converter.EffectConverter;
+import javafx.css.converter.EnumConverter;
+import javafx.css.converter.SizeConverter;
 import javafx.event.Event;
 import javafx.event.EventDispatchChain;
 import javafx.event.EventDispatcher;
@@ -101,27 +114,14 @@ import javafx.scene.input.TouchEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.input.ZoomEvent;
 import javafx.scene.shape.Shape;
+import javafx.scene.shape.Shape3D;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Transform;
 import javafx.stage.Window;
 import javafx.util.Callback;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.sun.glass.ui.Accessible;
 import com.sun.glass.ui.Application;
-import com.sun.javafx.util.Logging;
-import com.sun.javafx.util.TempState;
-import com.sun.javafx.util.Utils;
 import com.sun.javafx.beans.IDProperty;
 import com.sun.javafx.beans.event.AbstractNotifyListener;
 import com.sun.javafx.collections.TrackableObservableList;
@@ -132,13 +132,6 @@ import com.sun.javafx.css.TransitionDefinitionConverter;
 import com.sun.javafx.css.TransitionDefinitionCssMetaData;
 import com.sun.javafx.css.TransitionTimer;
 import com.sun.javafx.css.media.MediaQueryContext;
-import javafx.css.Selector;
-import javafx.css.Style;
-import javafx.css.converter.BooleanConverter;
-import javafx.css.converter.CursorConverter;
-import javafx.css.converter.EffectConverter;
-import javafx.css.converter.EnumConverter;
-import javafx.css.converter.SizeConverter;
 import com.sun.javafx.effect.EffectDirtyBits;
 import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.BoxBounds;
@@ -149,13 +142,15 @@ import com.sun.javafx.geom.transform.Affine3D;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.javafx.geom.transform.GeneralTransform3D;
 import com.sun.javafx.geom.transform.NoninvertibleTransformException;
+import com.sun.javafx.geometry.BoundsUtils;
+import com.sun.javafx.logging.PlatformLogger;
+import com.sun.javafx.logging.PlatformLogger.Level;
 import com.sun.javafx.perf.PerformanceTracker;
 import com.sun.javafx.scene.AbstractNode;
 import com.sun.javafx.scene.BoundsAccessor;
 import com.sun.javafx.scene.CameraHelper;
 import com.sun.javafx.scene.CssFlags;
 import com.sun.javafx.scene.DirtyBits;
-import com.sun.javafx.scene.EventHandlerProperties;
 import com.sun.javafx.scene.LayoutFlags;
 import com.sun.javafx.scene.NodeEventDispatcher;
 import com.sun.javafx.scene.NodeHelper;
@@ -165,14 +160,16 @@ import com.sun.javafx.scene.input.PickResultChooser;
 import com.sun.javafx.scene.transform.TransformHelper;
 import com.sun.javafx.scene.transform.TransformUtils;
 import com.sun.javafx.scene.traversal.Direction;
+import com.sun.javafx.scene.traversal.TraversalMethod;
 import com.sun.javafx.sg.prism.NGNode;
 import com.sun.javafx.tk.Toolkit;
+import com.sun.javafx.util.HiddenProps;
+import com.sun.javafx.util.Logging;
+import com.sun.javafx.util.PKey;
+import com.sun.javafx.util.TempState;
+import com.sun.javafx.util.Utils;
 import com.sun.prism.impl.PrismSettings;
 import com.sun.scenario.effect.EffectHelper;
-
-import javafx.scene.shape.Shape3D;
-import com.sun.javafx.logging.PlatformLogger;
-import com.sun.javafx.logging.PlatformLogger.Level;
 
 /**
  * Base class for scene graph nodes. A scene graph is a set of tree data structures
@@ -412,8 +409,91 @@ import com.sun.javafx.logging.PlatformLogger.Level;
  */
 @IDProperty("id")
 public abstract sealed class Node
-        implements EventTarget, Styleable
-        permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D {
+    implements EventTarget, Styleable
+    permits AbstractNode, Camera, LightBase, Parent, SubScene, Canvas, ImageView, Shape, Shape3D
+{
+    private static final boolean DEFAULT_CACHE = false;
+    private static final CacheHint DEFAULT_CACHE_HINT = CacheHint.DEFAULT;
+    private static final Node DEFAULT_CLIP = null;
+    private static final Cursor DEFAULT_CURSOR = null;
+    private static final DepthTest DEFAULT_DEPTH_TEST = DepthTest.INHERIT;
+    private static final boolean DEFAULT_DISABLE = false;
+    private static final Effect DEFAULT_EFFECT = null;
+    private static final boolean DEFAULT_FOCUS_TRAVERSABLE = false;
+    private static final InputMethodRequests DEFAULT_INPUT_METHOD_REQUESTS = null;
+    private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
+    private static final boolean DEFAULT_VISIBLE = true;
+    private static final double DEFAULT_VIEW_ORDER = 0;
+
+    // strictly speaking, tags don't have to specify type, can be a simple Object
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_HELP = new PKey<>();
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_ROLE_DESCR = new PKey<>();
+    private static final PKey<ObjectProperty<String>> K_ACCESSIBLE_TEXT = new PKey<>();
+    private static final PKey<ObjectProperty<BlendMode>> K_BLEND_MODE = new PKey<>();
+    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_LOCAL = new PKey<>();
+    private static final PKey<LazyBoundsProperty> K_BOUNDS_IN_PARENT = new PKey<>();
+    private static final PKey<BooleanProperty> K_CACHE = new PKey<>();
+    private static final PKey<ObjectProperty<CacheHint>> K_CACHE_HINT = new PKey<>();
+    private static final PKey<ObjectProperty<Node>> K_CLIP = new PKey<>();
+    private static final PKey<ObjectProperty<Cursor>> K_CURSOR = new PKey<>();
+    private static final PKey<ObjectProperty<DepthTest>> K_DEPTH_TEST = new PKey<>();
+    private static final PKey<BooleanProperty> K_DISABLE = new PKey<>();
+    private static final PKey<ObjectProperty<Effect>> K_EFFECT = new PKey<>();
+    private static final PKey<BooleanProperty> K_FOCUS_TRAVERSABLE = new PKey<>();
+    private static final PKey<ReadOnlyBooleanWrapper> K_HOVER = new PKey<>();
+    private static final PKey<StringProperty> K_ID = new PKey<>();
+    private static final PKey<ObjectProperty<InputMethodRequests>> K_INPUT_METHOD_REQUESTS = new PKey<>();
+    private static final PKey<BooleanProperty> K_MOUSE_TRANSPARENT = new PKey<>();
+    private static final PKey<ObjectProperty<NodeOrientation>> K_NODE_ORIENTATION = new PKey<>();
+    private static final PKey<EHProperty<ContextMenuEvent>> K_ON_CONTEXT_MENU_REQUESTED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_DRAG_DETECTED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_DONE = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_DROPPED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_ENTERED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_EXITED = new PKey<>();
+    private static final PKey<EHProperty<DragEvent>> K_ON_DRAG_OVER = new PKey<>();
+    private static final PKey<EHProperty<InputMethodEvent>> K_ON_INPUT_METHOD_TEXT_CHANGED = new PKey<>();
+    private static final PKey<EHProperty<KeyEvent>> K_ON_KEY_PRESSED = new PKey<>();
+    private static final PKey<EHProperty<KeyEvent>> K_ON_KEY_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<KeyEvent>> K_ON_KEY_TYPED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_CLICKED = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_DONE = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_ENTERED = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_EXITED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_DRAGGED = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_OVER = new PKey<>();
+    private static final PKey<EHProperty<MouseDragEvent>> K_ON_MOUSE_DRAG_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_ENTERED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_EXITED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_MOVED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_PRESSED = new PKey<>();
+    private static final PKey<EHProperty<MouseEvent>> K_ON_MOUSE_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<RotateEvent>> K_ON_ROTATE = new PKey<>();
+    private static final PKey<EHProperty<RotateEvent>> K_ON_ROTATION_FINISHED = new PKey<>();
+    private static final PKey<EHProperty<RotateEvent>> K_ON_ROTATION_STARTED = new PKey<>();
+    private static final PKey<EHProperty<ScrollEvent>> K_ON_SCROLL = new PKey<>();
+    private static final PKey<EHProperty<ScrollEvent>> K_ON_SCROLL_FINISHED = new PKey<>();
+    private static final PKey<EHProperty<ScrollEvent>> K_ON_SCROLL_STARTED = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_DOWN = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_LEFT = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_RIGHT = new PKey<>();
+    private static final PKey<EHProperty<SwipeEvent>> K_ON_SWIPE_UP = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_MOVED = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_PRESSED = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_RELEASED = new PKey<>();
+    private static final PKey<EHProperty<TouchEvent>> K_ON_TOUCH_STATIONARY = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_FINISHED = new PKey<>();
+    private static final PKey<EHProperty<ZoomEvent>> K_ON_ZOOM_STARTED = new PKey<>();
+    private static final PKey<ObjectProperty<Point3D>> K_ROTATION_AXIS = new PKey<>();
+    private static final PKey<TransitionTimerCollection> K_TRANSITION_TIMERS = new PKey<>();
+    private static final PKey<DoubleProperty> K_TRANSLATE_X = new PKey<>();
+    private static final PKey<DoubleProperty> K_TRANSLATE_Y = new PKey<>();
+    private static final PKey<DoubleProperty> K_TRANSLATE_Z = new PKey<>();
+    private static final PKey<TransitionDefinitionCollection> K_TRANSITIONS_DEFINITIONS = new PKey<>();
+    private static final PKey<DoubleProperty> K_VIEW_ORDER = new PKey<>();
+    private static final PKey<BooleanProperty> K_VISIBLE = new PKey<>();
+    private final HiddenProps props = HiddenProps.create(getClass());
 
     /*
      * Store the singleton instance of the NodeHelper subclass corresponding
@@ -671,26 +751,24 @@ public abstract sealed class Node
 
             @Override
             public StyleableProperty<TransitionDefinition[]> getTransitionProperty(Node node) {
-                var definitions = node.miscProperties != null ? node.miscProperties.transitionDefinitions : null;
-                if (definitions == null) {
-                    definitions = new TransitionDefinitionCollection();
-                    node.getMiscProperties().transitionDefinitions = definitions;
+                TransitionDefinitionCollection p = node.getTransitionDefinitions();
+                if (p == null) {
+                    p = node.props.init(K_TRANSITIONS_DEFINITIONS, TransitionDefinitionCollection::new);
                 }
-
-                return definitions;
+                return p;
             }
 
             @Override
             public TransitionDefinition findTransitionDefinition(
-                    Node node, CssMetaData<? extends Styleable, ?> metadata) {
-                var definitions = node.miscProperties != null ? node.miscProperties.transitionDefinitions : null;
+                Node node, CssMetaData<? extends Styleable, ?> metadata) {
+                TransitionDefinitionCollection definitions = node.getTransitionDefinitions();
                 return definitions == null ? null : definitions.find(metadata);
             }
 
             @Override
             public Map<CssMetaData<? extends Styleable, ?>, TransitionDefinition> findTransitionDefinitions(
                     Node node, CssMetaData<? extends Styleable, ?> metadata) {
-                var definitions = node.miscProperties != null ? node.miscProperties.transitionDefinitions : null;
+                TransitionDefinitionCollection definitions = node.getTransitionDefinitions();
                 return definitions == null ? null : definitions.findAll(metadata);
             }
 
@@ -712,6 +790,11 @@ public abstract sealed class Node
             @Override
             public MediaQueryContext getMediaQueryContext(Node node) {
                 return node.getMediaQueryContext();
+            }
+
+            @Override
+            public HiddenProps getHiddenProps(Node n) {
+                return n.props;
             }
         });
     }
@@ -1259,7 +1342,6 @@ public abstract sealed class Node
     void scenesChanged(final Scene newScene, final SubScene newSubScene,
                        final Scene oldScene, final SubScene oldSubScene) { }
 
-
     /**
      * The id of this {@code Node}. This simple string identifier is useful for
      * finding a specific Node within the scene graph. While the id of a Node
@@ -1271,37 +1353,15 @@ public abstract sealed class Node
      *     be used to find this node as follows: <code>scene.lookup("#myId");</code>.
      * </p>
      *
-     * @defaultValue null
-     * @see <a href="doc-files/cssref.html">CSS Reference Guide</a>.
-     */
-    private StringProperty id;
-
-    public final void setId(String value) {
-        idProperty().set(value);
-    }
-
-    //TODO: this is copied from the property in order to add the @return statement.
-    //      We should have a better, general solution without the need to copy it.
-    /**
-     * The id of this {@code Node}. This simple string identifier is useful for
-     * finding a specific Node within the scene graph. While the id of a Node
-     * should be unique within the scene graph, this uniqueness is not enforced.
-     * This is analogous to the "id" attribute on an HTML element
-     * (<a href="http://www.w3.org/TR/CSS21/syndata.html#value-def-identifier">CSS ID Specification</a>).
-     *
      * @return the id assigned to this {@code Node} using the {@code setId}
      *         method or {@code null}, if no id has been assigned.
      * @defaultValue null
      * @see <a href="doc-files/cssref.html">CSS Reference Guide</a>
      */
-    @Override
-    public final String getId() {
-        return id == null ? null : id.get();
-    }
-
     public final StringProperty idProperty() {
-        if (id == null) {
-            id = new StringPropertyBase() {
+        StringProperty p = props.get(K_ID);
+        if (p == null) {
+            p = props.init(K_ID, () -> new StringPropertyBase() {
 
                 @Override
                 protected void invalidated() {
@@ -1320,9 +1380,19 @@ public abstract sealed class Node
                 public String getName() {
                     return "id";
                 }
-            };
+            });
         }
-        return id;
+        return p;
+    }
+    
+    public final void setId(String value) {
+        idProperty().set(value);
+    }
+
+    @Override
+    public final String getId() {
+        StringProperty p = props.get(K_ID);
+        return p == null ? null : p.get();
     }
 
     /**
@@ -1449,21 +1519,13 @@ public abstract sealed class Node
      * keyboard focus and never maintain keyboard focus when they become
      * invisible.
      *
+     * @return whether this {@code Node} is visible
      * @defaultValue true
      */
-    private BooleanProperty visible;
-
-    public final void setVisible(boolean value) {
-        visibleProperty().set(value);
-    }
-
-    public final boolean isVisible() {
-        return visible == null ? true : visible.get();
-    }
-
     public final BooleanProperty visibleProperty() {
-        if (visible == null) {
-            visible = new StyleableBooleanProperty(true) {
+        BooleanProperty p = props.get(K_VISIBLE);
+        if (p == null) {
+            p = props.init(K_VISIBLE, () -> new StyleableBooleanProperty(DEFAULT_VISIBLE) {
                 boolean oldValue = true;
                 @Override
                 protected void invalidated() {
@@ -1495,9 +1557,21 @@ public abstract sealed class Node
                 public String getName() {
                     return "visible";
                 }
-            };
+            });
         }
-        return visible;
+        return p;
+    }
+
+    public final void setVisible(boolean value) {
+        if ((value == DEFAULT_VISIBLE) && (props.get(K_VISIBLE) == null)) {
+            return;
+        }
+        visibleProperty().set(value);
+    }
+
+    public final boolean isVisible() {
+        BooleanProperty p = props.get(K_VISIBLE);
+        return p == null ? true : p.get();
     }
 
     public final void setCursor(Cursor value) {
@@ -1505,8 +1579,8 @@ public abstract sealed class Node
     }
 
     public final Cursor getCursor() {
-        return (miscProperties == null) ? DEFAULT_CURSOR
-                                        : miscProperties.getCursor();
+        ObjectProperty<Cursor> p = props.get(K_CURSOR);
+        return (p == null) ? DEFAULT_CURSOR : p.get();
     }
 
     /**
@@ -1519,7 +1593,35 @@ public abstract sealed class Node
      * @defaultValue null
      */
     public final ObjectProperty<Cursor> cursorProperty() {
-        return getMiscProperties().cursorProperty();
+        ObjectProperty<Cursor> p = props.get(K_CURSOR);
+        if (p == null) {
+            p = props.init(K_CURSOR, () -> new StyleableObjectProperty<Cursor>(DEFAULT_CURSOR) {
+
+                @Override
+                protected void invalidated() {
+                    final Scene sceneValue = getScene();
+                    if (sceneValue != null) {
+                        sceneValue.markCursorDirty();
+                    }
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.CURSOR;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "cursor";
+                }
+            });
+        }
+        return p;
     }
 
     /**
@@ -1598,20 +1700,13 @@ public abstract sealed class Node
      * A value of {@code null} is treated as pass-through. This means no effect on a
      * parent (such as a {@code Group}), and the equivalent of {@code SRC_OVER} for a single {@code Node}.
      *
+     * @return the blend mode for this {@code Node}
      * @defaultValue {@code null}
      */
-    private javafx.beans.property.ObjectProperty<BlendMode> blendMode;
-
-    public final void setBlendMode(BlendMode value) {
-        blendModeProperty().set(value);
-    }
-    public final BlendMode getBlendMode() {
-        return blendMode == null ? null : blendMode.get();
-    }
-
     public final ObjectProperty<BlendMode> blendModeProperty() {
-        if (blendMode == null) {
-            blendMode = new StyleableObjectProperty<BlendMode>(null) {
+        ObjectProperty<BlendMode> p = props.get(K_BLEND_MODE);
+        if (p == null) {
+            p = props.init(K_BLEND_MODE, () -> new StyleableObjectProperty<BlendMode>(null) {
                 @Override public void invalidated() {
                     NodeHelper.markDirty(Node.this, DirtyBits.NODE_BLENDMODE);
                 }
@@ -1630,9 +1725,18 @@ public abstract sealed class Node
                 public String getName() {
                     return "blendMode";
                 }
-            };
+            });
         }
-        return blendMode;
+        return p;
+    }
+
+    public final void setBlendMode(BlendMode value) {
+        blendModeProperty().set(value);
+    }
+
+    public final BlendMode getBlendMode() {
+        ObjectProperty<BlendMode> p = props.get(K_BLEND_MODE);
+        return p == null ? null : p.get();
     }
 
     public final void setClip(Node value) {
@@ -1640,8 +1744,8 @@ public abstract sealed class Node
     }
 
     public final Node getClip() {
-        return (miscProperties == null) ? DEFAULT_CLIP
-                                        : miscProperties.getClip();
+        ObjectProperty<Node> p = props.get(K_CLIP);
+        return (p == null) ? DEFAULT_CLIP : p.get();
     }
 
     /**
@@ -1674,7 +1778,83 @@ public abstract sealed class Node
      * @defaultValue null
      */
     public final ObjectProperty<Node> clipProperty() {
-        return getMiscProperties().clipProperty();
+        ObjectProperty<Node> p = props.get(K_CLIP);
+        if (p == null) {
+            p = props.init(K_CLIP, () -> new ObjectPropertyBase<Node>(DEFAULT_CLIP) {
+
+                //temp variables used when clip was invalid to rollback to
+                // last value
+                private Node oldClip;
+
+                @Override
+                protected void invalidated() {
+                    final Node newClip = get();
+                    if ((newClip != null)
+                            && ((newClip.isConnected()
+                                       && newClip.clipParent != Node.this)
+                                   || wouldCreateCycle(Node.this,
+                                                       newClip))) {
+                        // Assigning this node to clip is illegal.
+                        // Roll back to the previous state and throw an
+                        // exception.
+                        final String cause =
+                                newClip.isConnected()
+                                    && (newClip.clipParent != Node.this)
+                                        ? "node already connected"
+                                        : "cycle detected";
+
+                        if (isBound()) {
+                            unbind();
+                            set(oldClip);
+                            throw new IllegalArgumentException(
+                                    "Node's clip set to incorrect value "
+                                        + " through binding"
+                                        + " (" + cause + ", node  = "
+                                               + Node.this + ", clip = "
+                                               + this + ")."
+                                        + " Binding has been removed.");
+                        } else {
+                            set(oldClip);
+                            throw new IllegalArgumentException(
+                                    "Node's clip set to incorrect value"
+                                        + " (" + cause + ", node  = "
+                                               + Node.this + ", clip = "
+                                               + this + ").");
+                        }
+                    } else {
+                        if (oldClip != null) {
+                            oldClip.clipParent = null;
+                            oldClip.setScenes(null, null);
+                            oldClip.updateTreeVisible(false);
+                        }
+
+                        if (newClip != null) {
+                            newClip.clipParent = Node.this;
+                            newClip.setScenes(getScene(), getSubScene());
+                            newClip.updateTreeVisible(true);
+                        }
+
+                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_CLIP);
+
+                        // the local bounds have (probably) changed
+                        localBoundsChanged();
+
+                        oldClip = newClip;
+                    }
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "clip";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setCache(boolean value) {
@@ -1682,8 +1862,8 @@ public abstract sealed class Node
     }
 
     public final boolean isCache() {
-        return (miscProperties == null) ? DEFAULT_CACHE
-                                        : miscProperties.isCache();
+        BooleanProperty p = props.get(K_CACHE);
+        return (p == null) ? DEFAULT_CACHE : p.get();
     }
 
     /**
@@ -1709,7 +1889,26 @@ public abstract sealed class Node
      * @defaultValue false
      */
     public final BooleanProperty cacheProperty() {
-        return getMiscProperties().cacheProperty();
+        BooleanProperty p = props.get(K_CACHE);
+        if (p == null) {
+            p = props.init(K_CACHE, () -> new BooleanPropertyBase(DEFAULT_CACHE) {
+                @Override
+                protected void invalidated() {
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "cache";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setCacheHint(CacheHint value) {
@@ -1717,8 +1916,8 @@ public abstract sealed class Node
     }
 
     public final CacheHint getCacheHint() {
-        return (miscProperties == null) ? DEFAULT_CACHE_HINT
-                                        : miscProperties.getCacheHint();
+        ObjectProperty<CacheHint> p = props.get(K_CACHE_HINT);
+        return (p == null) ? DEFAULT_CACHE_HINT : p.get();
     }
 
     /**
@@ -1770,7 +1969,26 @@ public abstract sealed class Node
      * @defaultValue CacheHint.DEFAULT
      */
     public final ObjectProperty<CacheHint> cacheHintProperty() {
-        return getMiscProperties().cacheHintProperty();
+        ObjectProperty<CacheHint> p = props.get(K_CACHE_HINT);
+        if (p == null) {
+            p = props.init(K_CACHE_HINT, () -> new ObjectPropertyBase<CacheHint>(DEFAULT_CACHE_HINT) {
+                @Override
+                protected void invalidated() {
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "cacheHint";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setEffect(Effect value) {
@@ -1778,8 +1996,8 @@ public abstract sealed class Node
     }
 
     public final Effect getEffect() {
-        return (miscProperties == null) ? DEFAULT_EFFECT
-                                        : miscProperties.getEffect();
+        ObjectProperty<Effect> p = props.get(K_EFFECT);
+        return (p == null) ? DEFAULT_EFFECT : p.get();
     }
 
     /**
@@ -1800,7 +2018,77 @@ public abstract sealed class Node
      * @defaultValue null
      */
     public final ObjectProperty<Effect> effectProperty() {
-        return getMiscProperties().effectProperty();
+        ObjectProperty<Effect> p = props.get(K_EFFECT);
+        if (p == null) {
+            p = props.init(K_EFFECT, () -> new StyleableObjectProperty<Effect>(DEFAULT_EFFECT) {
+                private Effect oldEffect = null;
+                private int oldBits;
+
+                private final AbstractNotifyListener effectChangeListener =
+                        new AbstractNotifyListener() {
+
+                    @Override
+                    public void invalidated(Observable valueModel) {
+                        int newBits = ((IntegerProperty) valueModel).get();
+                        int changedBits = newBits ^ oldBits;
+                        oldBits = newBits;
+                        if (EffectDirtyBits.isSet(
+                                changedBits,
+                                EffectDirtyBits.EFFECT_DIRTY)
+                            && EffectDirtyBits.isSet(
+                                   newBits,
+                                   EffectDirtyBits.EFFECT_DIRTY)) {
+                            NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
+                        }
+                        if (EffectDirtyBits.isSet(
+                                changedBits,
+                                EffectDirtyBits.BOUNDS_CHANGED)) {
+                            localBoundsChanged();
+                        }
+                    }
+                };
+
+                @Override
+                protected void invalidated() {
+                    Effect _effect = get();
+                    if (oldEffect != null) {
+                        EffectHelper.effectDirtyProperty(oldEffect).removeListener(
+                                effectChangeListener.getWeakListener());
+                    }
+                    oldEffect = _effect;
+                    if (_effect != null) {
+                        EffectHelper.effectDirtyProperty(_effect)
+                               .addListener(
+                                   effectChangeListener.getWeakListener());
+                        if (EffectHelper.isEffectDirty(_effect)) {
+                            NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
+                        }
+                        oldBits = EffectHelper.effectDirtyProperty(_effect).get();
+                    }
+
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_EFFECT);
+                    // bounds may have changed regardless whether
+                    // the dirty flag on effect is set
+                    localBoundsChanged();
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.EFFECT;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "effect";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setDepthTest(DepthTest value) {
@@ -1808,8 +2096,8 @@ public abstract sealed class Node
     }
 
     public final DepthTest getDepthTest() {
-        return (miscProperties == null) ? DEFAULT_DEPTH_TEST
-                                        : miscProperties.getDepthTest();
+        ObjectProperty<DepthTest> p = props.get(K_DEPTH_TEST);
+        return (p == null) ? DEFAULT_DEPTH_TEST : p.get();
     }
 
     /**
@@ -1843,7 +2131,25 @@ public abstract sealed class Node
      * @defaultValue INHERIT
      */
     public final ObjectProperty<DepthTest> depthTestProperty() {
-        return getMiscProperties().depthTestProperty();
+        ObjectProperty<DepthTest> p = props.get(K_DEPTH_TEST);
+        if (p == null) {
+            p = props.init(K_DEPTH_TEST, () -> new ObjectPropertyBase<DepthTest>(DEFAULT_DEPTH_TEST) {
+                @Override protected void invalidated() {
+                    computeDerivedDepthTest();
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "depthTest";
+                }
+            });
+        }
+        return p;
     }
 
     /**
@@ -1890,8 +2196,8 @@ public abstract sealed class Node
     }
 
     public final boolean isDisable() {
-        return (miscProperties == null) ? DEFAULT_DISABLE
-                                        : miscProperties.isDisable();
+        BooleanProperty p = props.get(K_DISABLE);
+        return (p == null) ? DEFAULT_DISABLE : p.get();
     }
 
     /**
@@ -1908,9 +2214,27 @@ public abstract sealed class Node
      * @defaultValue false
      */
     public final BooleanProperty disableProperty() {
-        return getMiscProperties().disableProperty();
-    }
+        BooleanProperty p = props.get(K_DISABLE);
+        if (p == null) {
+            p = props.init(K_DISABLE, () -> new BooleanPropertyBase(DEFAULT_DISABLE) {
+                @Override
+                protected void invalidated() {
+                    updateDisabled();
+                }
 
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "disable";
+                }
+            });
+        }
+        return p;
+    }
 
 //    /**
 //     * TODO document - null by default, could be non-null in subclasses (e.g. Control)
@@ -1987,9 +2311,12 @@ public abstract sealed class Node
      * <p>
      * A disabled {@code Node} does not receive mouse or key events.
      *
+     * @return whether or not this {@code Node} is disabled
      * @defaultValue false
      */
-    private ReadOnlyBooleanWrapper disabled;
+    public final ReadOnlyBooleanProperty disabledProperty() {
+        return disabledPropertyImpl().getReadOnlyProperty();
+    }
 
     protected final void setDisabled(boolean value) {
         disabledPropertyImpl().set(value);
@@ -1997,10 +2324,6 @@ public abstract sealed class Node
 
     public final boolean isDisabled() {
         return disabled == null ? false : disabled.get();
-    }
-
-    public final ReadOnlyBooleanProperty disabledProperty() {
-        return disabledPropertyImpl().getReadOnlyProperty();
     }
 
     private ReadOnlyBooleanWrapper disabledPropertyImpl() {
@@ -2031,6 +2354,8 @@ public abstract sealed class Node
         }
         return disabled;
     }
+
+    private ReadOnlyBooleanWrapper disabled;
 
     private void updateDisabled() {
         boolean isDisabled = isDisable();
@@ -2449,14 +2774,13 @@ public abstract sealed class Node
      *                                                                        *
      *************************************************************************/
 
-    public final void setOnDragEntered(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragEntered(EventHandler<? super DragEvent> value) {
         onDragEnteredProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragEntered() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragEntered();
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2465,19 +2789,21 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture enters this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragEnteredProperty() {
-        return getEventHandlerProperties().onDragEnteredProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragEnteredProperty() {
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_ENTERED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_ENTERED, () -> new EHProperty<>("onDragEntered", DragEvent.DRAG_ENTERED));
+        }
+        return p;
     }
 
-    public final void setOnDragExited(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragExited(EventHandler<? super DragEvent> value) {
         onDragExitedProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragExited() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragExited();
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2486,19 +2812,21 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture exits this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragExitedProperty() {
-        return getEventHandlerProperties().onDragExitedProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragExitedProperty() {
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_EXITED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_EXITED, () -> new EHProperty<>("onDragExited", DragEvent.DRAG_EXITED));
+        }
+        return p;
     }
 
-    public final void setOnDragOver(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragOver(EventHandler<? super DragEvent> value) {
         onDragOverProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragOver() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragOver();
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2507,9 +2835,12 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture progresses
      * within this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragOverProperty() {
-        return getEventHandlerProperties().onDragOverProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragOverProperty() {
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_OVER);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_OVER, () -> new EHProperty<>("onDragOver", DragEvent.DRAG_OVER));
+        }
+        return p;
     }
 
     // Do we want DRAG_TRANSFER_MODE_CHANGED event?
@@ -2535,14 +2866,13 @@ public abstract sealed class Node
 //        return getEventHandlerProperties().onDragTransferModeChangedProperty();
 //    }
 
-    public final void setOnDragDropped(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragDropped(EventHandler<? super DragEvent> value) {
         onDragDroppedProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragDropped() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragDropped();
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2553,19 +2883,21 @@ public abstract sealed class Node
      * @return the event handler that is called when the mouse button is
      * released on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragDroppedProperty() {
-        return getEventHandlerProperties().onDragDroppedProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragDroppedProperty() {
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DROPPED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_DROPPED, () -> new EHProperty<>("onDragDropped", DragEvent.DRAG_DROPPED));
+        }
+        return p;
     }
 
-    public final void setOnDragDone(
-            EventHandler<? super DragEvent> value) {
+    public final void setOnDragDone(EventHandler<? super DragEvent> value) {
         onDragDoneProperty().set(value);
     }
 
     public final EventHandler<? super DragEvent> getOnDragDone() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragDone();
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -2581,9 +2913,12 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} is a drag
      * and drop gesture source after its data has been dropped on a drop target
      */
-    public final ObjectProperty<EventHandler<? super DragEvent>>
-            onDragDoneProperty() {
-        return getEventHandlerProperties().onDragDoneProperty();
+    public final ObjectProperty<EventHandler<? super DragEvent>> onDragDoneProperty() {
+        EHProperty<DragEvent> p = props.get(K_ON_DRAG_DONE);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_DONE, () -> new EHProperty<>("onDragDone", DragEvent.DRAG_DONE));
+        }
+        return p;
     }
 
     /**
@@ -2832,20 +3167,11 @@ public abstract sealed class Node
      * own layout policy.   If the node is unmanaged or parented by a {@link Group},
      * then the application may set {@code layoutX} directly to position it.
      *
+     * @return this {@code Node} layout x value
      * @see #relocate(double, double)
      * @see #layoutBoundsProperty()
      *
      */
-    private DoubleProperty layoutX;
-
-    public final void setLayoutX(double value) {
-        layoutXProperty().set(value);
-    }
-
-    public final double getLayoutX() {
-        return layoutX == null ? 0.0 : layoutX.get();
-    }
-
     public final DoubleProperty layoutXProperty() {
         if (layoutX == null) {
             layoutX = new DoublePropertyBase(0.0) {
@@ -2882,6 +3208,16 @@ public abstract sealed class Node
         return layoutX;
     }
 
+    private DoubleProperty layoutX;
+
+    public final void setLayoutX(double value) {
+        layoutXProperty().set(value);
+    }
+
+    public final double getLayoutX() {
+        return layoutX == null ? 0.0 : layoutX.get();
+    }
+
     /**
      * Defines the y coordinate of the translation that is added to this {@code Node}'s
      * transform for the purpose of layout. The value should be computed as the
@@ -2907,19 +3243,10 @@ public abstract sealed class Node
      * own layout policy.   If the node is unmanaged or parented by a {@link Group},
      * then the application may set {@code layoutY} directly to position it.
      *
+     * @return this {@code Node} layout y value
      * @see #relocate(double, double)
      * @see #layoutBoundsProperty()
      */
-    private DoubleProperty layoutY;
-
-    public final void setLayoutY(double value) {
-        layoutYProperty().set(value);
-    }
-
-    public final double getLayoutY() {
-        return layoutY == null ? 0.0 : layoutY.get();
-    }
-
     public final DoubleProperty layoutYProperty() {
         if (layoutY == null) {
             layoutY = new DoublePropertyBase(0.0) {
@@ -2951,10 +3278,19 @@ public abstract sealed class Node
                 public String getName() {
                     return "layoutY";
                 }
-
             };
         }
         return layoutY;
+    }
+
+    private DoubleProperty layoutY;
+
+    public final void setLayoutY(double value) {
+        layoutYProperty().set(value);
+    }
+
+    public final double getLayoutY() {
+        return layoutY == null ? 0.0 : layoutY.get();
     }
 
     /**
@@ -3522,12 +3858,46 @@ public abstract sealed class Node
      * @return the {@code boundsInParent} property for this {@code Node}
      */
     public final ReadOnlyObjectProperty<Bounds> boundsInParentProperty() {
-        return getMiscProperties().boundsInParentProperty();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_PARENT);
+        if (p == null) {
+            p = props.init(K_BOUNDS_IN_PARENT, () -> new LazyBoundsProperty() {
+                /**
+                 * Computes the bounds including the clip, effects, and all
+                 * transforms. This function is essentially how to compute
+                 * the boundsInParent. Optimizations are made to compute as
+                 * little as possible and create as little trash as
+                 * possible.
+                 */
+                @Override
+                protected Bounds computeBounds() {
+                    BaseBounds b = TempState.getInstance().bounds;
+                    b = getTransformedBounds(b, BaseTransform.IDENTITY_TRANSFORM);
+                    return new BoundingBox(b.getMinX(),
+                                           b.getMinY(),
+                                           b.getMinZ(),
+                                           b.getWidth(),
+                                           b.getHeight(),
+                                           b.getDepth());
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "boundsInParent";
+                }
+            });
+        }
+        return p;
     }
 
     private void invalidateBoundsInParent() {
-        if (miscProperties != null) {
-            miscProperties.invalidateBoundsInParent();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_PARENT);
+        if (p != null) {
+            p.invalidate();
         }
     }
 
@@ -3558,12 +3928,39 @@ public abstract sealed class Node
      * @return the boundsInLocal for this {@code Node}
      */
     public final ReadOnlyObjectProperty<Bounds> boundsInLocalProperty() {
-        return getMiscProperties().boundsInLocalProperty();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_LOCAL);
+        if (p == null) {
+            p = props.init(K_BOUNDS_IN_LOCAL, () -> new LazyBoundsProperty() {
+                @Override
+                protected Bounds computeBounds() {
+                    BaseBounds b = TempState.getInstance().bounds;
+                    b = getLocalBounds(b, BaseTransform.IDENTITY_TRANSFORM);
+                    return new BoundingBox(b.getMinX(),
+                                           b.getMinY(),
+                                           b.getMinZ(),
+                                           b.getWidth(),
+                                           b.getHeight(),
+                                           b.getDepth());
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "boundsInLocal";
+                }
+            });
+        }
+        return p;
     }
 
     private void invalidateBoundsInLocal() {
-        if (miscProperties != null) {
-            miscProperties.invalidateBoundsInLocal();
+        LazyBoundsProperty p = props.get(K_BOUNDS_IN_LOCAL);
+        if (p != null) {
+            p.invalidate();
         }
     }
 
@@ -5602,7 +5999,36 @@ public abstract sealed class Node
      * @since 9
      */
     public final DoubleProperty viewOrderProperty() {
-        return getMiscProperties().viewOrderProperty();
+        DoubleProperty p = props.get(K_VIEW_ORDER);
+        if (p == null) {
+            p = props.init(K_VIEW_ORDER, () -> new StyleableDoubleProperty(DEFAULT_VIEW_ORDER) {
+                @Override
+                public void invalidated() {
+                    Parent p = getParent();
+                    if (p != null) {
+                        // Parent will be responsible to update sorted children list
+                        p.markViewOrderChildrenDirty();
+                    }
+                    NodeHelper.markDirty(Node.this, DirtyBits.NODE_VIEW_ORDER);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.VIEW_ORDER;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "viewOrder";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setViewOrder(double value) {
@@ -5610,9 +6036,10 @@ public abstract sealed class Node
     }
 
     public final double getViewOrder() {
-        return (miscProperties == null) ? DEFAULT_VIEW_ORDER
-                : miscProperties.getViewOrder();
+        DoubleProperty p = props.get(K_VIEW_ORDER);
+        return (p == null) ? DEFAULT_VIEW_ORDER : p.get();
     }
+
 
     /* *************************************************************************
      *                                                                         *
@@ -5641,9 +6068,8 @@ public abstract sealed class Node
     }
 
     public final double getTranslateX() {
-        return (nodeTransformation == null)
-                ? DEFAULT_TRANSLATE_X
-                : nodeTransformation.getTranslateX();
+        DoubleProperty p = props.get(K_TRANSLATE_X);
+        return (p == null) ? DEFAULT_TRANSLATE_X : p.get();
     }
 
     /**
@@ -5661,7 +6087,31 @@ public abstract sealed class Node
      * @defaultValue 0
      */
     public final DoubleProperty translateXProperty() {
-        return getNodeTransformation().translateXProperty();
+        DoubleProperty p = props.get(K_TRANSLATE_X);
+        if (p == null) {
+            p = props.init(K_TRANSLATE_X, () -> new StyleableDoubleProperty(DEFAULT_TRANSLATE_X) {
+                @Override
+                public void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TRANSLATE_X;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "translateX";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setTranslateY(double value) {
@@ -5669,9 +6119,8 @@ public abstract sealed class Node
     }
 
     public final double getTranslateY() {
-        return (nodeTransformation == null)
-                ? DEFAULT_TRANSLATE_Y
-                : nodeTransformation.getTranslateY();
+        DoubleProperty p = props.get(K_TRANSLATE_Y);
+        return (p == null) ? DEFAULT_TRANSLATE_Y : p.get();
     }
 
     /**
@@ -5689,7 +6138,31 @@ public abstract sealed class Node
      * @defaultValue 0
      */
     public final DoubleProperty translateYProperty() {
-        return getNodeTransformation().translateYProperty();
+        DoubleProperty p = props.get(K_TRANSLATE_Y);
+        if (p == null) {
+            p = props.init(K_TRANSLATE_Y, () -> new StyleableDoubleProperty(DEFAULT_TRANSLATE_Y) {
+                @Override
+                public void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TRANSLATE_Y;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "translateY";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setTranslateZ(double value) {
@@ -5697,9 +6170,8 @@ public abstract sealed class Node
     }
 
     public final double getTranslateZ() {
-        return (nodeTransformation == null)
-                ? DEFAULT_TRANSLATE_Z
-                : nodeTransformation.getTranslateZ();
+        DoubleProperty p = props.get(K_TRANSLATE_Z);
+        return (p == null) ? DEFAULT_TRANSLATE_Z : p.get();
     }
 
     /**
@@ -5720,7 +6192,31 @@ public abstract sealed class Node
      * @defaultValue 0
      */
     public final DoubleProperty translateZProperty() {
-        return getNodeTransformation().translateZProperty();
+        DoubleProperty p = props.get(K_TRANSLATE_Z);
+        if (p == null) {
+            p = props.init(K_TRANSLATE_Z, () -> new StyleableDoubleProperty(DEFAULT_TRANSLATE_Z) {
+                @Override
+                public void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public CssMetaData getCssMetaData() {
+                    return StyleableProperties.TRANSLATE_Z;
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "translateZ";
+                }
+            });
+        }
+        return p;
     }
 
     public final void setScaleX(double value) {
@@ -5856,9 +6352,8 @@ public abstract sealed class Node
     }
 
     public final Point3D getRotationAxis() {
-        return (nodeTransformation == null)
-                ? DEFAULT_ROTATION_AXIS
-                : nodeTransformation.getRotationAxis();
+        ObjectProperty<Point3D> p = props.get(K_ROTATION_AXIS);
+        return (p == null) ? DEFAULT_ROTATION_AXIS : p.get();
     }
 
     /**
@@ -5872,7 +6367,26 @@ public abstract sealed class Node
      * @defaultValue Rotate.Z_AXIS
      */
     public final ObjectProperty<Point3D> rotationAxisProperty() {
-        return getNodeTransformation().rotationAxisProperty();
+        ObjectProperty<Point3D> p = props.get(K_ROTATION_AXIS);
+        if (p == null) {
+            p = props.init(K_ROTATION_AXIS, () -> new ObjectPropertyBase<Point3D>(DEFAULT_ROTATION_AXIS) {
+                @Override
+                protected void invalidated() {
+                    NodeHelper.transformsChanged(Node.this);
+                }
+
+                @Override
+                public Object getBean() {
+                    return Node.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "rotationAxis";
+                }
+            });
+        }
+        return p;
     }
 
     /**
@@ -5963,14 +6477,10 @@ public abstract sealed class Node
     private static final Point3D DEFAULT_ROTATION_AXIS = Rotate.Z_AXIS;
 
     private final class NodeTransformation {
-        private DoubleProperty translateX;
-        private DoubleProperty translateY;
-        private DoubleProperty translateZ;
         private DoubleProperty scaleX;
         private DoubleProperty scaleY;
         private DoubleProperty scaleZ;
         private DoubleProperty rotate;
-        private ObjectProperty<Point3D> rotationAxis;
         private ObservableList<Transform> transforms;
         private LazyTransformProperty localToParentTransform;
         private LazyTransformProperty localToSceneTransform;
@@ -6186,100 +6696,6 @@ public abstract sealed class Node
             }
         }
 
-        public double getTranslateX() {
-            return (translateX == null) ? DEFAULT_TRANSLATE_X
-                                        : translateX.get();
-        }
-
-        public final DoubleProperty translateXProperty() {
-            if (translateX == null) {
-                translateX = new StyleableDoubleProperty(DEFAULT_TRANSLATE_X) {
-                    @Override
-                    public void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TRANSLATE_X;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "translateX";
-                    }
-                };
-            }
-            return translateX;
-        }
-
-        public double getTranslateY() {
-            return (translateY == null) ? DEFAULT_TRANSLATE_Y : translateY.get();
-        }
-
-        public final DoubleProperty translateYProperty() {
-            if (translateY == null) {
-                translateY = new StyleableDoubleProperty(DEFAULT_TRANSLATE_Y) {
-                    @Override
-                    public void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TRANSLATE_Y;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "translateY";
-                    }
-                };
-            }
-            return translateY;
-        }
-
-        public double getTranslateZ() {
-            return (translateZ == null) ? DEFAULT_TRANSLATE_Z : translateZ.get();
-        }
-
-        public final DoubleProperty translateZProperty() {
-            if (translateZ == null) {
-                translateZ = new StyleableDoubleProperty(DEFAULT_TRANSLATE_Z) {
-                    @Override
-                    public void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.TRANSLATE_Z;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "translateZ";
-                    }
-                };
-            }
-            return translateZ;
-        }
-
         public double getScaleX() {
             return (scaleX == null) ? DEFAULT_SCALE_X : scaleX.get();
         }
@@ -6404,34 +6820,6 @@ public abstract sealed class Node
             return rotate;
         }
 
-        public Point3D getRotationAxis() {
-            return (rotationAxis == null) ? DEFAULT_ROTATION_AXIS
-                                          : rotationAxis.get();
-        }
-
-        public final ObjectProperty<Point3D> rotationAxisProperty() {
-            if (rotationAxis == null) {
-                rotationAxis = new ObjectPropertyBase<Point3D>(
-                                           DEFAULT_ROTATION_AXIS) {
-                    @Override
-                    protected void invalidated() {
-                        NodeHelper.transformsChanged(Node.this);
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "rotationAxis";
-                    }
-                };
-            }
-            return rotationAxis;
-        }
-
         public ObservableList<Transform> getTransforms() {
             if (transforms == null) {
                 transforms = new TrackableObservableList<>() {
@@ -6452,18 +6840,6 @@ public abstract sealed class Node
             }
 
             return transforms;
-        }
-
-        public boolean canSetTranslateX() {
-            return (translateX == null) || !translateX.isBound();
-        }
-
-        public boolean canSetTranslateY() {
-            return (translateY == null) || !translateY.isBound();
-        }
-
-        public boolean canSetTranslateZ() {
-            return (translateZ == null) || !translateZ.isBound();
         }
 
         public boolean canSetScaleX() {
@@ -6510,40 +6886,10 @@ public abstract sealed class Node
 
     /* *************************************************************************
      *                                                                         *
-     *                        Event Handler Properties                         *
-     *                                                                         *
-     **************************************************************************/
-
-    private EventHandlerProperties eventHandlerProperties;
-
-    private EventHandlerProperties getEventHandlerProperties() {
-        if (eventHandlerProperties == null) {
-            eventHandlerProperties =
-                    new EventHandlerProperties(
-                        getInternalEventDispatcher().getEventHandlerManager(),
-                        this);
-        }
-
-        return eventHandlerProperties;
-    }
-
-    /* *************************************************************************
-     *                                                                         *
      *                       Component Orientation Properties                  *
      *                                                                         *
      **************************************************************************/
 
-    /**
-     * Node orientation describes the flow of visual data within a node.
-     * In the English speaking world, visual data normally flows from
-     * left-to-right. In an Arabic or Hebrew world, visual data flows
-     * from right-to-left. This is consistent with the reading order
-     * of text in both worlds.
-     *
-     * @defaultValue {@code NodeOrientation.INHERIT}
-     * @since JavaFX 8.0
-     */
-    private ObjectProperty<NodeOrientation> nodeOrientation;
     private EffectiveOrientationProperty effectiveNodeOrientationProperty;
 
     private static final byte EFFECTIVE_ORIENTATION_LTR = 0;
@@ -6568,12 +6914,25 @@ public abstract sealed class Node
     }
 
     public final NodeOrientation getNodeOrientation() {
-        return nodeOrientation == null ? NodeOrientation.INHERIT : nodeOrientation.get();
+        ObjectProperty<NodeOrientation> p = props.get(K_NODE_ORIENTATION);
+        return p == null ? NodeOrientation.INHERIT : p.get();
     }
 
+    /**
+     * Node orientation describes the flow of visual data within a node.
+     * In the English speaking world, visual data normally flows from
+     * left-to-right. In an Arabic or Hebrew world, visual data flows
+     * from right-to-left. This is consistent with the reading order
+     * of text in both worlds.
+     *
+     * @return the node orientation for this {@code Node}
+     * @defaultValue {@code NodeOrientation.INHERIT}
+     * @since JavaFX 8.0
+     */
     public final ObjectProperty<NodeOrientation> nodeOrientationProperty() {
-        if (nodeOrientation == null) {
-            nodeOrientation = new StyleableObjectProperty<NodeOrientation>(NodeOrientation.INHERIT) {
+        ObjectProperty<NodeOrientation> p = props.get(K_NODE_ORIENTATION);
+        if (p == null) {
+            p = props.init(K_NODE_ORIENTATION, () -> new StyleableObjectProperty<NodeOrientation>(NodeOrientation.INHERIT) {
                 @Override
                 protected void invalidated() {
                     nodeResolvedOrientationInvalidated();
@@ -6594,10 +6953,9 @@ public abstract sealed class Node
                     //TODO - not supported
                     throw new UnsupportedOperationException("Not supported yet.");
                 }
-
-            };
+            });
         }
-        return nodeOrientation;
+        return p;
     }
 
     public final NodeOrientation getEffectiveNodeOrientation() {
@@ -6834,520 +7192,6 @@ public abstract sealed class Node
         }
     }
 
-    /* *************************************************************************
-     *                                                                         *
-     *                       Misc Seldom Used Properties                       *
-     *                                                                         *
-     **************************************************************************/
-
-    private MiscProperties miscProperties;
-
-    private MiscProperties getMiscProperties() {
-        if (miscProperties == null) {
-            miscProperties = new MiscProperties();
-        }
-
-        return miscProperties;
-    }
-
-    private static final double DEFAULT_VIEW_ORDER = 0;
-    private static final boolean DEFAULT_CACHE = false;
-    private static final CacheHint DEFAULT_CACHE_HINT = CacheHint.DEFAULT;
-    private static final Node DEFAULT_CLIP = null;
-    private static final Cursor DEFAULT_CURSOR = null;
-    private static final DepthTest DEFAULT_DEPTH_TEST = DepthTest.INHERIT;
-    private static final boolean DEFAULT_DISABLE = false;
-    private static final Effect DEFAULT_EFFECT = null;
-    private static final InputMethodRequests DEFAULT_INPUT_METHOD_REQUESTS =
-            null;
-    private static final boolean DEFAULT_MOUSE_TRANSPARENT = false;
-
-    private final class MiscProperties {
-        private LazyBoundsProperty boundsInParent;
-        private LazyBoundsProperty boundsInLocal;
-        private BooleanProperty cache;
-        private ObjectProperty<CacheHint> cacheHint;
-        private ObjectProperty<Node> clip;
-        private ObjectProperty<Cursor> cursor;
-        private ObjectProperty<DepthTest> depthTest;
-        private BooleanProperty disable;
-        private ObjectProperty<Effect> effect;
-        private ObjectProperty<InputMethodRequests> inputMethodRequests;
-        private BooleanProperty mouseTransparent;
-        private DoubleProperty viewOrder;
-        private TransitionTimerCollection transitionTimers;
-        private TransitionDefinitionCollection transitionDefinitions;
-
-        public double getViewOrder() {
-            return (viewOrder == null) ? DEFAULT_VIEW_ORDER : viewOrder.get();
-        }
-
-        public final DoubleProperty viewOrderProperty() {
-            if (viewOrder == null) {
-                viewOrder = new StyleableDoubleProperty(DEFAULT_VIEW_ORDER) {
-                    @Override
-                    public void invalidated() {
-                        Parent p = getParent();
-                        if (p != null) {
-                            // Parent will be responsible to update sorted children list
-                            p.markViewOrderChildrenDirty();
-                        }
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_VIEW_ORDER);
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.VIEW_ORDER;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "viewOrder";
-                    }
-                };
-            }
-            return viewOrder;
-        }
-
-        public final Bounds getBoundsInParent() {
-            return boundsInParentProperty().get();
-        }
-
-        public final ReadOnlyObjectProperty<Bounds> boundsInParentProperty() {
-            if (boundsInParent == null) {
-                boundsInParent = new LazyBoundsProperty() {
-                    /**
-                     * Computes the bounds including the clip, effects, and all
-                     * transforms. This function is essentially how to compute
-                     * the boundsInParent. Optimizations are made to compute as
-                     * little as possible and create as little trash as
-                     * possible.
-                     */
-                    @Override
-                    protected Bounds computeBounds() {
-                        BaseBounds tempBounds = TempState.getInstance().bounds;
-                        tempBounds = getTransformedBounds(
-                                             tempBounds,
-                                             BaseTransform.IDENTITY_TRANSFORM);
-                        return new BoundingBox(tempBounds.getMinX(),
-                                               tempBounds.getMinY(),
-                                               tempBounds.getMinZ(),
-                                               tempBounds.getWidth(),
-                                               tempBounds.getHeight(),
-                                               tempBounds.getDepth());
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "boundsInParent";
-                    }
-                };
-            }
-
-            return boundsInParent;
-        }
-
-        public void invalidateBoundsInParent() {
-            if (boundsInParent != null) {
-                boundsInParent.invalidate();
-            }
-        }
-
-        public final Bounds getBoundsInLocal() {
-            return boundsInLocalProperty().get();
-        }
-
-        public final ReadOnlyObjectProperty<Bounds> boundsInLocalProperty() {
-            if (boundsInLocal == null) {
-                boundsInLocal = new LazyBoundsProperty() {
-                    @Override
-                    protected Bounds computeBounds() {
-                        BaseBounds tempBounds = TempState.getInstance().bounds;
-                        tempBounds = getLocalBounds(
-                                             tempBounds,
-                                             BaseTransform.IDENTITY_TRANSFORM);
-                        return new BoundingBox(tempBounds.getMinX(),
-                                               tempBounds.getMinY(),
-                                               tempBounds.getMinZ(),
-                                               tempBounds.getWidth(),
-                                               tempBounds.getHeight(),
-                                               tempBounds.getDepth());
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "boundsInLocal";
-                    }
-                };
-            }
-
-            return boundsInLocal;
-        }
-
-        public void invalidateBoundsInLocal() {
-            if (boundsInLocal != null) {
-                boundsInLocal.invalidate();
-            }
-        }
-
-        public final boolean isCache() {
-            return (cache == null) ? DEFAULT_CACHE
-                                   : cache.get();
-        }
-
-        public final BooleanProperty cacheProperty() {
-            if (cache == null) {
-                cache = new BooleanPropertyBase(DEFAULT_CACHE) {
-                    @Override
-                    protected void invalidated() {
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "cache";
-                    }
-                };
-            }
-            return cache;
-        }
-
-        public final CacheHint getCacheHint() {
-            return (cacheHint == null) ? DEFAULT_CACHE_HINT
-                                       : cacheHint.get();
-        }
-
-        public final ObjectProperty<CacheHint> cacheHintProperty() {
-            if (cacheHint == null) {
-                cacheHint = new ObjectPropertyBase<CacheHint>(DEFAULT_CACHE_HINT) {
-                    @Override
-                    protected void invalidated() {
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_CACHE);
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "cacheHint";
-                    }
-                };
-            }
-            return cacheHint;
-        }
-
-        public final Node getClip() {
-            return (clip == null) ? DEFAULT_CLIP : clip.get();
-        }
-
-        public final ObjectProperty<Node> clipProperty() {
-            if (clip == null) {
-                clip = new ObjectPropertyBase<Node>(DEFAULT_CLIP) {
-
-                    //temp variables used when clip was invalid to rollback to
-                    // last value
-                    private Node oldClip;
-
-                    @Override
-                    protected void invalidated() {
-                        final Node newClip = get();
-                        if ((newClip != null)
-                                && ((newClip.isConnected()
-                                           && newClip.clipParent != Node.this)
-                                       || wouldCreateCycle(Node.this,
-                                                           newClip))) {
-                            // Assigning this node to clip is illegal.
-                            // Roll back to the previous state and throw an
-                            // exception.
-                            final String cause =
-                                    newClip.isConnected()
-                                        && (newClip.clipParent != Node.this)
-                                            ? "node already connected"
-                                            : "cycle detected";
-
-                            if (isBound()) {
-                                unbind();
-                                set(oldClip);
-                                throw new IllegalArgumentException(
-                                        "Node's clip set to incorrect value "
-                                            + " through binding"
-                                            + " (" + cause + ", node  = "
-                                                   + Node.this + ", clip = "
-                                                   + clip + ")."
-                                            + " Binding has been removed.");
-                            } else {
-                                set(oldClip);
-                                throw new IllegalArgumentException(
-                                        "Node's clip set to incorrect value"
-                                            + " (" + cause + ", node  = "
-                                                   + Node.this + ", clip = "
-                                                   + clip + ").");
-                            }
-                        } else {
-                            if (oldClip != null) {
-                                oldClip.clipParent = null;
-                                oldClip.setScenes(null, null);
-                                oldClip.updateTreeVisible(false);
-                            }
-
-                            if (newClip != null) {
-                                newClip.clipParent = Node.this;
-                                newClip.setScenes(getScene(), getSubScene());
-                                newClip.updateTreeVisible(true);
-                            }
-
-                            NodeHelper.markDirty(Node.this, DirtyBits.NODE_CLIP);
-
-                            // the local bounds have (probably) changed
-                            localBoundsChanged();
-
-                            oldClip = newClip;
-                        }
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "clip";
-                    }
-                };
-            }
-            return clip;
-        }
-
-        public final Cursor getCursor() {
-            return (cursor == null) ? DEFAULT_CURSOR : cursor.get();
-        }
-
-        public final ObjectProperty<Cursor> cursorProperty() {
-            if (cursor == null) {
-                cursor = new StyleableObjectProperty<Cursor>(DEFAULT_CURSOR) {
-
-                    @Override
-                    protected void invalidated() {
-                        final Scene sceneValue = getScene();
-                        if (sceneValue != null) {
-                            sceneValue.markCursorDirty();
-                        }
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.CURSOR;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "cursor";
-                    }
-
-                };
-            }
-            return cursor;
-        }
-
-        public final DepthTest getDepthTest() {
-            return (depthTest == null) ? DEFAULT_DEPTH_TEST
-                                       : depthTest.get();
-        }
-
-        public final ObjectProperty<DepthTest> depthTestProperty() {
-            if (depthTest == null) {
-                depthTest = new ObjectPropertyBase<DepthTest>(DEFAULT_DEPTH_TEST) {
-                    @Override protected void invalidated() {
-                        computeDerivedDepthTest();
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "depthTest";
-                    }
-                };
-            }
-            return depthTest;
-        }
-
-        public final boolean isDisable() {
-            return (disable == null) ? DEFAULT_DISABLE : disable.get();
-        }
-
-        public final BooleanProperty disableProperty() {
-            if (disable == null) {
-                disable = new BooleanPropertyBase(DEFAULT_DISABLE) {
-                    @Override
-                    protected void invalidated() {
-                        updateDisabled();
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "disable";
-                    }
-                };
-            }
-            return disable;
-        }
-
-        public final Effect getEffect() {
-            return (effect == null) ? DEFAULT_EFFECT : effect.get();
-        }
-
-        public final ObjectProperty<Effect> effectProperty() {
-            if (effect == null) {
-                effect = new StyleableObjectProperty<Effect>(DEFAULT_EFFECT) {
-                    private Effect oldEffect = null;
-                    private int oldBits;
-
-                    private final AbstractNotifyListener effectChangeListener =
-                            new AbstractNotifyListener() {
-
-                        @Override
-                        public void invalidated(Observable valueModel) {
-                            int newBits = ((IntegerProperty) valueModel).get();
-                            int changedBits = newBits ^ oldBits;
-                            oldBits = newBits;
-                            if (EffectDirtyBits.isSet(
-                                    changedBits,
-                                    EffectDirtyBits.EFFECT_DIRTY)
-                                && EffectDirtyBits.isSet(
-                                       newBits,
-                                       EffectDirtyBits.EFFECT_DIRTY)) {
-                                NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
-                            }
-                            if (EffectDirtyBits.isSet(
-                                    changedBits,
-                                    EffectDirtyBits.BOUNDS_CHANGED)) {
-                                localBoundsChanged();
-                            }
-                        }
-                    };
-
-                    @Override
-                    protected void invalidated() {
-                        Effect _effect = get();
-                        if (oldEffect != null) {
-                            EffectHelper.effectDirtyProperty(oldEffect).removeListener(
-                                    effectChangeListener.getWeakListener());
-                        }
-                        oldEffect = _effect;
-                        if (_effect != null) {
-                            EffectHelper.effectDirtyProperty(_effect)
-                                   .addListener(
-                                       effectChangeListener.getWeakListener());
-                            if (EffectHelper.isEffectDirty(_effect)) {
-                                NodeHelper.markDirty(Node.this, DirtyBits.EFFECT_EFFECT);
-                            }
-                            oldBits = EffectHelper.effectDirtyProperty(_effect).get();
-                        }
-
-                        NodeHelper.markDirty(Node.this, DirtyBits.NODE_EFFECT);
-                        // bounds may have changed regardless whether
-                        // the dirty flag on effect is set
-                        localBoundsChanged();
-                    }
-
-                    @Override
-                    public CssMetaData getCssMetaData() {
-                        return StyleableProperties.EFFECT;
-                    }
-
-                    @Override
-                    public Object getBean() {
-                        return Node.this;
-                    }
-
-                    @Override
-                    public String getName() {
-                        return "effect";
-                    }
-                };
-            }
-            return effect;
-        }
-
-        public final InputMethodRequests getInputMethodRequests() {
-            return (inputMethodRequests == null) ? DEFAULT_INPUT_METHOD_REQUESTS
-                                                 : inputMethodRequests.get();
-        }
-
-        public ObjectProperty<InputMethodRequests>
-                inputMethodRequestsProperty() {
-            if (inputMethodRequests == null) {
-                inputMethodRequests =
-                        new SimpleObjectProperty<>(
-                                Node.this,
-                                "inputMethodRequests",
-                                DEFAULT_INPUT_METHOD_REQUESTS);
-            }
-            return inputMethodRequests;
-        }
-
-        public final boolean isMouseTransparent() {
-            return (mouseTransparent == null) ? DEFAULT_MOUSE_TRANSPARENT
-                                              : mouseTransparent.get();
-        }
-
-        public final BooleanProperty mouseTransparentProperty() {
-            if (mouseTransparent == null) {
-                mouseTransparent =
-                        new SimpleBooleanProperty(
-                                Node.this,
-                                "mouseTransparent",
-                                DEFAULT_MOUSE_TRANSPARENT);
-            }
-            return mouseTransparent;
-        }
-
-        public boolean canSetCursor() {
-            return (cursor == null) || !cursor.isBound();
-        }
-
-        public boolean canSetEffect() {
-            return (effect == null) || !effect.isBound();
-        }
-    }
 
     /* *************************************************************************
      *                                                                         *
@@ -7360,8 +7204,8 @@ public abstract sealed class Node
     }
 
     public final boolean isMouseTransparent() {
-        return (miscProperties == null) ? DEFAULT_MOUSE_TRANSPARENT
-                                        : miscProperties.isMouseTransparent();
+        BooleanProperty p = props.get(K_MOUSE_TRANSPARENT);
+        return (p == null) ? DEFAULT_MOUSE_TRANSPARENT : p.get();
     }
 
     /**
@@ -7373,7 +7217,14 @@ public abstract sealed class Node
      * transparent to mouse events.
      */
     public final BooleanProperty mouseTransparentProperty() {
-        return getMiscProperties().mouseTransparentProperty();
+        BooleanProperty p = props.get(K_MOUSE_TRANSPARENT);
+        if (p == null) {
+            p = props.init(K_MOUSE_TRANSPARENT, () -> new SimpleBooleanProperty(
+                Node.this,
+                "mouseTransparent",
+                DEFAULT_MOUSE_TRANSPARENT));
+        }
+        return p;
     }
 
     /**
@@ -7387,25 +7238,17 @@ public abstract sealed class Node
      * have a mouse. Future implementations may provide alternative means of
      * supporting hover.
      *
+     * @return the hover value for this {@code Node}
      * @defaultValue false
      */
-    private ReadOnlyBooleanWrapper hover;
-
-    protected final void setHover(boolean value) {
-        hoverPropertyImpl().set(value);
-    }
-
-    public final boolean isHover() {
-        return hover == null ? false : hover.get();
-    }
-
     public final ReadOnlyBooleanProperty hoverProperty() {
         return hoverPropertyImpl().getReadOnlyProperty();
     }
 
     private ReadOnlyBooleanWrapper hoverPropertyImpl() {
-        if (hover == null) {
-            hover = new ReadOnlyBooleanWrapper() {
+        ReadOnlyBooleanWrapper p = props.get(K_HOVER);
+        if (p == null) {
+            p = props.init(K_HOVER, () -> new ReadOnlyBooleanWrapper() {
 
                 @Override
                 protected void invalidated() {
@@ -7425,9 +7268,18 @@ public abstract sealed class Node
                 public String getName() {
                     return "hover";
                 }
-            };
+            });
         }
-        return hover;
+        return p;
+    }
+
+    protected final void setHover(boolean value) {
+        hoverPropertyImpl().set(value);
+    }
+
+    public final boolean isHover() {
+        ReadOnlyBooleanWrapper p = props.get(K_HOVER);
+        return p == null ? false : p.get();
     }
 
     /**
@@ -7478,14 +7330,13 @@ public abstract sealed class Node
         return pressed;
     }
 
-    public final void setOnContextMenuRequested(
-            EventHandler<? super ContextMenuEvent> value) {
+    public final void setOnContextMenuRequested(EventHandler<? super ContextMenuEvent> value) {
         onContextMenuRequestedProperty().set(value);
     }
 
     public final EventHandler<? super ContextMenuEvent> getOnContextMenuRequested() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.onContextMenuRequested();
+        EHProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7495,19 +7346,21 @@ public abstract sealed class Node
      * requested on this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super ContextMenuEvent>>
-            onContextMenuRequestedProperty() {
-        return getEventHandlerProperties().onContextMenuRequestedProperty();
+    public final ObjectProperty<EventHandler<? super ContextMenuEvent>> onContextMenuRequestedProperty() {
+        EHProperty<ContextMenuEvent> p = props.get(K_ON_CONTEXT_MENU_REQUESTED);
+        if (p == null) {
+            p = props.init(K_ON_CONTEXT_MENU_REQUESTED, () -> new EHProperty<>("onMenuContextRequested", ContextMenuEvent.CONTEXT_MENU_REQUESTED));
+        }
+        return p;
     }
 
-    public final void setOnMouseClicked(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseClicked(EventHandler<? super MouseEvent> value) {
         onMouseClickedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseClicked() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseClicked();
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7516,19 +7369,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse button has been
      * clicked (pressed and released) on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseClickedProperty() {
-        return getEventHandlerProperties().onMouseClickedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseClickedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_CLICKED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_CLICKED, () -> new EHProperty<>("onMouseClicked", MouseEvent.MOUSE_CLICKED));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragged(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseDragged(EventHandler<? super MouseEvent> value) {
         onMouseDraggedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseDragged() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragged();
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7537,19 +7392,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse button is pressed
      * on this {@code Node} and then dragged
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseDraggedProperty() {
-        return getEventHandlerProperties().onMouseDraggedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseDraggedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_DRAGGED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAGGED, () -> new EHProperty<>("onMouseDragged", MouseEvent.MOUSE_DRAGGED));
+        }
+        return p;
     }
 
-    public final void setOnMouseEntered(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseEntered(EventHandler<? super MouseEvent> value) {
         onMouseEnteredProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseEntered() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseEntered();
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7557,19 +7414,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse enters this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseEnteredProperty() {
-        return getEventHandlerProperties().onMouseEnteredProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseEnteredProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_ENTERED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_ENTERED, () -> new EHProperty<>("onMouseEntered", MouseEvent.MOUSE_ENTERED));
+        }
+        return p;
     }
 
-    public final void setOnMouseExited(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseExited(EventHandler<? super MouseEvent> value) {
         onMouseExitedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseExited() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseExited();
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7577,19 +7436,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse exits this
      * {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseExitedProperty() {
-        return getEventHandlerProperties().onMouseExitedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseExitedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_EXITED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_EXITED, () -> new EHProperty<>("onMouseExited", MouseEvent.MOUSE_EXITED));
+        }
+        return p;
     }
 
-    public final void setOnMouseMoved(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnMouseMoved(EventHandler<? super MouseEvent> value) {
         onMouseMovedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseMoved() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseMoved();
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7598,19 +7459,12 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse cursor moves
      * within this {@code Node} but no buttons have been pushed
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseMovedProperty() {
-        return getEventHandlerProperties().onMouseMovedProperty();
-    }
-
-    public final void setOnMousePressed(
-            EventHandler<? super MouseEvent> value) {
-        onMousePressedProperty().set(value);
-    }
-
-    public final EventHandler<? super MouseEvent> getOnMousePressed() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMousePressed();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseMovedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_MOVED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_MOVED, () -> new EHProperty<>("onMouseMoved", MouseEvent.MOUSE_MOVED));
+        }
+        return p;
     }
 
     /**
@@ -7619,19 +7473,30 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse button has been
      * pressed on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMousePressedProperty() {
-        return getEventHandlerProperties().onMousePressedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMousePressedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_PRESSED, () -> new EHProperty<>("onMousePressed", MouseEvent.MOUSE_PRESSED));
+        }
+        return p;
     }
 
-    public final void setOnMouseReleased(
-            EventHandler<? super MouseEvent> value) {
+    public final EventHandler<? super MouseEvent> getOnMousePressed() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_PRESSED);
+        return (p == null) ? null : p.get();
+    }
+
+    public final void setOnMousePressed(EventHandler<? super MouseEvent> value) {
+        onMousePressedProperty().set(value);
+    }
+
+    public final void setOnMouseReleased(EventHandler<? super MouseEvent> value) {
         onMouseReleasedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnMouseReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseReleased();
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7640,19 +7505,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a mouse button has been
      * released on this {@code Node}
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onMouseReleasedProperty() {
-        return getEventHandlerProperties().onMouseReleasedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onMouseReleasedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_MOUSE_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_RELEASED, () -> new EHProperty<>("onMouseReleased", MouseEvent.MOUSE_RELEASED));
+        }
+        return p;
     }
 
-    public final void setOnDragDetected(
-            EventHandler<? super MouseEvent> value) {
+    public final void setOnDragDetected(EventHandler<? super MouseEvent> value) {
         onDragDetectedProperty().set(value);
     }
 
     public final EventHandler<? super MouseEvent> getOnDragDetected() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnDragDetected();
+        EHProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7661,19 +7528,21 @@ public abstract sealed class Node
      * @return the event handler that is called when drag gesture has been
      * detected
      */
-    public final ObjectProperty<EventHandler<? super MouseEvent>>
-            onDragDetectedProperty() {
-        return getEventHandlerProperties().onDragDetectedProperty();
+    public final ObjectProperty<EventHandler<? super MouseEvent>> onDragDetectedProperty() {
+        EHProperty<MouseEvent> p = props.get(K_ON_DRAG_DETECTED);
+        if (p == null) {
+            p = props.init(K_ON_DRAG_DETECTED, () -> new EHProperty<>("onDragDetected", MouseEvent.DRAG_DETECTED));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragOver(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragOver(EventHandler<? super MouseDragEvent> value) {
         onMouseDragOverProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragOver() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragOver();
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7683,19 +7552,21 @@ public abstract sealed class Node
      * gesture progresses within this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragOverProperty() {
-        return getEventHandlerProperties().onMouseDragOverProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragOverProperty() {
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_OVER);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_OVER, () -> new EHProperty<>("onMouseDragOver", MouseDragEvent.MOUSE_DRAG_OVER));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragReleased(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragReleased(EventHandler<? super MouseDragEvent> value) {
         onMouseDragReleasedProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragReleased();
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7705,19 +7576,21 @@ public abstract sealed class Node
      * gesture ends (by releasing mouse button) within this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragReleasedProperty() {
-        return getEventHandlerProperties().onMouseDragReleasedProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragReleasedProperty() {
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_RELEASED, () -> new EHProperty<>("onMouseDragReleased", MouseDragEvent.MOUSE_DRAG_RELEASED));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragEntered(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragEntered(EventHandler<? super MouseDragEvent> value) {
         onMouseDragEnteredProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragEntered() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragEntered();
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7727,19 +7600,21 @@ public abstract sealed class Node
      * gesture enters this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragEnteredProperty() {
-        return getEventHandlerProperties().onMouseDragEnteredProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragEnteredProperty() {
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_ENTERED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_ENTERED, () -> new EHProperty<>("onMouseDragEntered", MouseDragEvent.MOUSE_DRAG_ENTERED));
+        }
+        return p;
     }
 
-    public final void setOnMouseDragExited(
-            EventHandler<? super MouseDragEvent> value) {
+    public final void setOnMouseDragExited(EventHandler<? super MouseDragEvent> value) {
         onMouseDragExitedProperty().set(value);
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragExited() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnMouseDragExited();
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7749,9 +7624,12 @@ public abstract sealed class Node
      * gesture leaves this {@code Node}
      * @since JavaFX 2.1
      */
-    public final ObjectProperty<EventHandler<? super MouseDragEvent>>
-            onMouseDragExitedProperty() {
-        return getEventHandlerProperties().onMouseDragExitedProperty();
+    public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragExitedProperty() {
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_EXITED);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_EXITED, () -> new EHProperty<>("onMouseDragExited", MouseDragEvent.MOUSE_DRAG_EXITED));
+        }
+        return p;
     }
 
     public final void setOnMouseDragDone(EventHandler<? super MouseDragEvent> value) {
@@ -7759,7 +7637,8 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super MouseDragEvent> getOnMouseDragDone() {
-        return (eventHandlerProperties == null) ? null : eventHandlerProperties.getOnMouseDragDone();
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7770,7 +7649,11 @@ public abstract sealed class Node
      * @since 26
      */
     public final ObjectProperty<EventHandler<? super MouseDragEvent>> onMouseDragDoneProperty() {
-        return getEventHandlerProperties().onMouseDragDoneProperty();
+        EHProperty<MouseDragEvent> p = props.get(K_ON_MOUSE_DRAG_DONE);
+        if (p == null) {
+            p = props.init(K_ON_MOUSE_DRAG_DONE, () -> new EHProperty<>("onMouseDragDone", MouseDragEvent.MOUSE_DRAG_DONE));
+        }
+        return p;
     }
 
 
@@ -7786,8 +7669,8 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super ScrollEvent> getOnScrollStarted() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnScrollStarted();
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7796,19 +7679,21 @@ public abstract sealed class Node
      * detected
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollStartedProperty() {
-        return getEventHandlerProperties().onScrollStartedProperty();
+    public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollStartedProperty() {
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_STARTED);
+        if (p == null) {
+            p = props.init(K_ON_SCROLL_STARTED, () -> new EHProperty<>("onScrollStarted", ScrollEvent.SCROLL_STARTED));
+        }
+        return p;
     }
 
-    public final void setOnScroll(
-            EventHandler<? super ScrollEvent> value) {
+    public final void setOnScroll(EventHandler<? super ScrollEvent> value) {
         onScrollProperty().set(value);
     }
 
     public final EventHandler<? super ScrollEvent> getOnScroll() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnScroll();
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7816,19 +7701,21 @@ public abstract sealed class Node
      * @return the event handler that is called when user performs a scrolling
      * action
      */
-    public final ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollProperty() {
-        return getEventHandlerProperties().onScrollProperty();
+    public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollProperty() {
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL);
+        if (p == null) {
+            p = props.init(K_ON_SCROLL, () -> new EHProperty<>("onScroll", ScrollEvent.SCROLL));
+        }
+        return p;
     }
 
-    public final void setOnScrollFinished(
-            EventHandler<? super ScrollEvent> value) {
+    public final void setOnScrollFinished(EventHandler<? super ScrollEvent> value) {
         onScrollFinishedProperty().set(value);
     }
 
     public final EventHandler<? super ScrollEvent> getOnScrollFinished() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnScrollFinished();
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7836,19 +7723,21 @@ public abstract sealed class Node
      * @return the event handler that is called when a scrolling gesture ends
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ScrollEvent>>
-            onScrollFinishedProperty() {
-        return getEventHandlerProperties().onScrollFinishedProperty();
+    public final ObjectProperty<EventHandler<? super ScrollEvent>> onScrollFinishedProperty() {
+        EHProperty<ScrollEvent> p = props.get(K_ON_SCROLL_FINISHED);
+        if (p == null) {
+            p = props.init(K_ON_SCROLL_FINISHED, () -> new EHProperty<>("onScrollFinished", ScrollEvent.SCROLL_FINISHED));
+        }
+        return p;
     }
 
-    public final void setOnRotationStarted(
-            EventHandler<? super RotateEvent> value) {
+    public final void setOnRotationStarted(EventHandler<? super RotateEvent> value) {
         onRotationStartedProperty().set(value);
     }
 
     public final EventHandler<? super RotateEvent> getOnRotationStarted() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnRotationStarted();
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7857,19 +7746,21 @@ public abstract sealed class Node
      * detected
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotationStartedProperty() {
-        return getEventHandlerProperties().onRotationStartedProperty();
+    public final ObjectProperty<EventHandler<? super RotateEvent>> onRotationStartedProperty() {
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_STARTED);
+        if (p == null) {
+            p = props.init(K_ON_ROTATION_STARTED, () -> new EHProperty<>("onRotationStarted", RotateEvent.ROTATION_STARTED));
+        }
+        return p;
     }
 
-    public final void setOnRotate(
-            EventHandler<? super RotateEvent> value) {
+    public final void setOnRotate(EventHandler<? super RotateEvent> value) {
         onRotateProperty().set(value);
     }
 
     public final EventHandler<? super RotateEvent> getOnRotate() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnRotate();
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATE);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7878,19 +7769,21 @@ public abstract sealed class Node
      * action
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotateProperty() {
-        return getEventHandlerProperties().onRotateProperty();
+    public final ObjectProperty<EventHandler<? super RotateEvent>> onRotateProperty() {
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATE);
+        if (p == null) {
+            p = props.init(K_ON_ROTATE, () -> new EHProperty<>("onRotate", RotateEvent.ROTATE));
+        }
+        return p;
     }
 
-    public final void setOnRotationFinished(
-            EventHandler<? super RotateEvent> value) {
+    public final void setOnRotationFinished(EventHandler<? super RotateEvent> value) {
         onRotationFinishedProperty().set(value);
     }
 
     public final EventHandler<? super RotateEvent> getOnRotationFinished() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnRotationFinished();
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7898,19 +7791,12 @@ public abstract sealed class Node
      * @return the event handler that is called when a rotation gesture ends
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super RotateEvent>>
-            onRotationFinishedProperty() {
-        return getEventHandlerProperties().onRotationFinishedProperty();
-    }
-
-    public final void setOnZoomStarted(
-            EventHandler<? super ZoomEvent> value) {
-        onZoomStartedProperty().set(value);
-    }
-
-    public final EventHandler<? super ZoomEvent> getOnZoomStarted() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnZoomStarted();
+    public final ObjectProperty<EventHandler<? super RotateEvent>> onRotationFinishedProperty() {
+        EHProperty<RotateEvent> p = props.get(K_ON_ROTATION_FINISHED);
+        if (p == null) {
+            p = props.init(K_ON_ROTATION_FINISHED, () -> new EHProperty<>("onRotationFinished", RotateEvent.ROTATION_FINISHED));
+        }
+        return p;
     }
 
     /**
@@ -7919,19 +7805,21 @@ public abstract sealed class Node
      * detected
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomStartedProperty() {
-        return getEventHandlerProperties().onZoomStartedProperty();
+    public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomStartedProperty() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        if (p == null) {
+            p = props.init(K_ON_ZOOM_STARTED, () -> new EHProperty<>("onZoomStarted", ZoomEvent.ZOOM_STARTED));
+        }
+        return p;
     }
 
-    public final void setOnZoom(
-            EventHandler<? super ZoomEvent> value) {
-        onZoomProperty().set(value);
+    public final void setOnZoomStarted(EventHandler<? super ZoomEvent> value) {
+        onZoomStartedProperty().set(value);
     }
 
-    public final EventHandler<? super ZoomEvent> getOnZoom() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnZoom();
+    public final EventHandler<? super ZoomEvent> getOnZoomStarted() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_STARTED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7940,19 +7828,21 @@ public abstract sealed class Node
      * action
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomProperty() {
-        return getEventHandlerProperties().onZoomProperty();
+    public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomProperty() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        if (p == null) {
+            p = props.init(K_ON_ZOOM, () -> new EHProperty<>("onZoom", ZoomEvent.ZOOM));
+        }
+        return p;
     }
 
-    public final void setOnZoomFinished(
-            EventHandler<? super ZoomEvent> value) {
-        onZoomFinishedProperty().set(value);
+    public final EventHandler<? super ZoomEvent> getOnZoom() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM);
+        return (p == null) ? null : p.get();
     }
 
-    public final EventHandler<? super ZoomEvent> getOnZoomFinished() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnZoomFinished();
+    public final void setOnZoom(EventHandler<? super ZoomEvent> value) {
+        onZoomProperty().set(value);
     }
 
     /**
@@ -7960,19 +7850,30 @@ public abstract sealed class Node
      * @return the event handler that is called when a zooming gesture ends
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super ZoomEvent>>
-            onZoomFinishedProperty() {
-        return getEventHandlerProperties().onZoomFinishedProperty();
+    public final ObjectProperty<EventHandler<? super ZoomEvent>> onZoomFinishedProperty() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        if (p == null) {
+            p = props.init(K_ON_ZOOM_FINISHED, () -> new EHProperty<>("onZoomFinished", ZoomEvent.ZOOM_FINISHED));
+        }
+        return p;
     }
 
-    public final void setOnSwipeUp(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnZoomFinished(EventHandler<? super ZoomEvent> value) {
+        onZoomFinishedProperty().set(value);
+    }
+
+    public final EventHandler<? super ZoomEvent> getOnZoomFinished() {
+        EHProperty<ZoomEvent> p = props.get(K_ON_ZOOM_FINISHED);
+        return (p == null) ? null : p.get();
+    }
+
+    public final void setOnSwipeUp( EventHandler<? super SwipeEvent> value) {
         onSwipeUpProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeUp() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeUp();
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -7982,19 +7883,21 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeUpProperty() {
-        return getEventHandlerProperties().onSwipeUpProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeUpProperty() {
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_UP);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_UP, () -> new EHProperty<>("onSwipeUp", SwipeEvent.SWIPE_UP));
+        }
+        return p;
     }
 
-    public final void setOnSwipeDown(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnSwipeDown(EventHandler<? super SwipeEvent> value) {
         onSwipeDownProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeDown() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeDown();
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8004,19 +7907,21 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeDownProperty() {
-        return getEventHandlerProperties().onSwipeDownProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeDownProperty() {
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_DOWN);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_DOWN, () -> new EHProperty<>("onSwipeDown", SwipeEvent.SWIPE_DOWN));
+        }
+        return p;
     }
 
-    public final void setOnSwipeLeft(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnSwipeLeft(EventHandler<? super SwipeEvent> value) {
         onSwipeLeftProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeLeft() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeLeft();
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8026,19 +7931,21 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeLeftProperty() {
-        return getEventHandlerProperties().onSwipeLeftProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeLeftProperty() {
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_LEFT);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_LEFT, () -> new EHProperty<>("onSwipeLeft", SwipeEvent.SWIPE_LEFT));
+        }
+        return p;
     }
 
-    public final void setOnSwipeRight(
-            EventHandler<? super SwipeEvent> value) {
+    public final void setOnSwipeRight(EventHandler<? super SwipeEvent> value) {
         onSwipeRightProperty().set(value);
     }
 
     public final EventHandler<? super SwipeEvent> getOnSwipeRight() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnSwipeRight();
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8048,9 +7955,12 @@ public abstract sealed class Node
      * centered over this node happens
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super SwipeEvent>>
-            onSwipeRightProperty() {
-        return getEventHandlerProperties().onSwipeRightProperty();
+    public final ObjectProperty<EventHandler<? super SwipeEvent>> onSwipeRightProperty() {
+        EHProperty<SwipeEvent> p = props.get(K_ON_SWIPE_RIGHT);
+        if (p == null) {
+            p = props.init(K_ON_SWIPE_RIGHT, () -> new EHProperty<>("onSwipeRight", SwipeEvent.SWIPE_RIGHT));
+        }
+        return p;
     }
 
 
@@ -8060,34 +7970,26 @@ public abstract sealed class Node
      *                                                                         *
      **************************************************************************/
 
-    public final void setOnTouchPressed(
-            EventHandler<? super TouchEvent> value) {
-        onTouchPressedProperty().set(value);
-    }
-
-    public final EventHandler<? super TouchEvent> getOnTouchPressed() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchPressed();
-    }
-
     /**
      * Defines a function to be called when a new touch point is pressed.
      * @return the event handler that is called when a new touch point is pressed
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchPressedProperty() {
-        return getEventHandlerProperties().onTouchPressedProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchPressedProperty() {
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_PRESSED, () -> new EHProperty<>("onTouchPressed", TouchEvent.TOUCH_PRESSED));
+        }
+        return p;
     }
 
-    public final void setOnTouchMoved(
-            EventHandler<? super TouchEvent> value) {
-        onTouchMovedProperty().set(value);
+    public final void setOnTouchPressed(EventHandler<? super TouchEvent> value) {
+        onTouchPressedProperty().set(value);
     }
 
-    public final EventHandler<? super TouchEvent> getOnTouchMoved() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchMoved();
+    public final EventHandler<? super TouchEvent> getOnTouchPressed() {
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_PRESSED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8095,19 +7997,30 @@ public abstract sealed class Node
      * @return the event handler that is called when a touch point is moved
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchMovedProperty() {
-        return getEventHandlerProperties().onTouchMovedProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchMovedProperty() {
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_MOVED, () -> new EHProperty<>("onTouchMoved", TouchEvent.TOUCH_MOVED));
+        }
+        return p;
     }
 
-    public final void setOnTouchReleased(
-            EventHandler<? super TouchEvent> value) {
+    public final EventHandler<? super TouchEvent> getOnTouchMoved() {
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_MOVED);
+        return (p == null) ? null : p.get();
+    }
+
+    public final void setOnTouchMoved(EventHandler<? super TouchEvent> value) {
+        onTouchMovedProperty().set(value);
+    }
+
+    public final void setOnTouchReleased(EventHandler<? super TouchEvent> value) {
         onTouchReleasedProperty().set(value);
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchReleased();
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8115,9 +8028,12 @@ public abstract sealed class Node
      * @return the event handler that is called when a touch point is released
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchReleasedProperty() {
-        return getEventHandlerProperties().onTouchReleasedProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchReleasedProperty() {
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_RELEASED, () -> new EHProperty<>("onTouchReleased", TouchEvent.TOUCH_RELEASED));
+        }
+        return p;
     }
 
     public final void setOnTouchStationary(
@@ -8126,8 +8042,8 @@ public abstract sealed class Node
     }
 
     public final EventHandler<? super TouchEvent> getOnTouchStationary() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnTouchStationary();
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8137,9 +8053,12 @@ public abstract sealed class Node
      * and still
      * @since JavaFX 2.2
      */
-    public final ObjectProperty<EventHandler<? super TouchEvent>>
-            onTouchStationaryProperty() {
-        return getEventHandlerProperties().onTouchStationaryProperty();
+    public final ObjectProperty<EventHandler<? super TouchEvent>> onTouchStationaryProperty() {
+        EHProperty<TouchEvent> p = props.get(K_ON_TOUCH_STATIONARY);
+        if (p == null) {
+            p = props.init(K_ON_TOUCH_STATIONARY, () -> new EHProperty<>("onTouchStationary", TouchEvent.TOUCH_STATIONARY));
+        }
+        return p;
     }
 
     /* *************************************************************************
@@ -8148,14 +8067,13 @@ public abstract sealed class Node
      *                                                                         *
      **************************************************************************/
 
-    public final void setOnKeyPressed(
-            EventHandler<? super KeyEvent> value) {
+    public final void setOnKeyPressed(EventHandler<? super KeyEvent> value) {
         onKeyPressedProperty().set(value);
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyPressed() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnKeyPressed();
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8166,19 +8084,21 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} or its
      * child {@code Node} has input focus and a key has been pressed
      */
-    public final ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyPressedProperty() {
-        return getEventHandlerProperties().onKeyPressedProperty();
+    public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyPressedProperty() {
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_PRESSED);
+        if (p == null) {
+            p = props.init(K_ON_KEY_PRESSED, () -> new EHProperty<>("onKeyPressed", KeyEvent.KEY_PRESSED));
+        }
+        return p;
     }
 
-    public final void setOnKeyReleased(
-            EventHandler<? super KeyEvent> value) {
+    public final void setOnKeyReleased(EventHandler<? super KeyEvent> value) {
         onKeyReleasedProperty().set(value);
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyReleased() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnKeyReleased();
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8189,19 +8109,21 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} or its
      * child {@code Node} has input focus and a key has been released
      */
-    public final ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyReleasedProperty() {
-        return getEventHandlerProperties().onKeyReleasedProperty();
+    public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyReleasedProperty() {
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_RELEASED);
+        if (p == null) {
+            p = props.init(K_ON_KEY_RELEASED, () -> new EHProperty<>("onKeyReleased", KeyEvent.KEY_RELEASED));
+        }
+        return p;
     }
 
-    public final void setOnKeyTyped(
-            EventHandler<? super KeyEvent> value) {
+    public final void setOnKeyTyped(EventHandler<? super KeyEvent> value) {
         onKeyTypedProperty().set(value);
     }
 
     public final EventHandler<? super KeyEvent> getOnKeyTyped() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnKeyTyped();
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8212,9 +8134,12 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} or its
      * child {@code Node} has input focus and a key has been typed
      */
-    public final ObjectProperty<EventHandler<? super KeyEvent>>
-            onKeyTypedProperty() {
-        return getEventHandlerProperties().onKeyTypedProperty();
+    public final ObjectProperty<EventHandler<? super KeyEvent>> onKeyTypedProperty() {
+        EHProperty<KeyEvent> p = props.get(K_ON_KEY_TYPED);
+        if (p == null) {
+            p = props.init(K_ON_KEY_TYPED, () -> new EHProperty<>("onKeyTyped", KeyEvent.KEY_TYPED));
+        }
+        return p;
     }
 
     /* *************************************************************************
@@ -8223,15 +8148,13 @@ public abstract sealed class Node
      *                                                                         *
      **************************************************************************/
 
-    public final void setOnInputMethodTextChanged(
-            EventHandler<? super InputMethodEvent> value) {
+    public final void setOnInputMethodTextChanged(EventHandler<? super InputMethodEvent> value) {
         onInputMethodTextChangedProperty().set(value);
     }
 
-    public final EventHandler<? super InputMethodEvent>
-            getOnInputMethodTextChanged() {
-        return (eventHandlerProperties == null)
-                ? null : eventHandlerProperties.getOnInputMethodTextChanged();
+    public final EventHandler<? super InputMethodEvent> getOnInputMethodTextChanged() {
+        EHProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -8247,9 +8170,12 @@ public abstract sealed class Node
      * @return the event handler that is called when this {@code Node} has input
      * focus and the input method text has changed
      */
-    public final ObjectProperty<EventHandler<? super InputMethodEvent>>
-            onInputMethodTextChangedProperty() {
-        return getEventHandlerProperties().onInputMethodTextChangedProperty();
+    public final ObjectProperty<EventHandler<? super InputMethodEvent>> onInputMethodTextChangedProperty() {
+        EHProperty<InputMethodEvent> p = props.get(K_ON_INPUT_METHOD_TEXT_CHANGED);
+        if (p == null) {
+            p = props.init(K_ON_INPUT_METHOD_TEXT_CHANGED, () -> new EHProperty<>("onInputMethodTextChanged", InputMethodEvent.INPUT_METHOD_TEXT_CHANGED));
+        }
+        return p;
     }
 
     public final void setInputMethodRequests(InputMethodRequests value) {
@@ -8257,9 +8183,8 @@ public abstract sealed class Node
     }
 
     public final InputMethodRequests getInputMethodRequests() {
-        return (miscProperties == null)
-                       ? DEFAULT_INPUT_METHOD_REQUESTS
-                       : miscProperties.getInputMethodRequests();
+        ObjectProperty<InputMethodRequests> p = props.get(K_INPUT_METHOD_REQUESTS);
+        return (p == null) ? DEFAULT_INPUT_METHOD_REQUESTS : p.get();
     }
 
     /**
@@ -8268,8 +8193,16 @@ public abstract sealed class Node
      * @return InputMethodRequestsProperty
      */
     public final ObjectProperty<InputMethodRequests> inputMethodRequestsProperty() {
-        return getMiscProperties().inputMethodRequestsProperty();
+        ObjectProperty<InputMethodRequests> p = props.get(K_INPUT_METHOD_REQUESTS);
+        if (p == null) {
+            p = props.init(K_INPUT_METHOD_REQUESTS, () -> new SimpleObjectProperty<>(
+                Node.this,
+                "inputMethodRequests",
+                DEFAULT_INPUT_METHOD_REQUESTS));
+        }
+        return p;
     }
+
 
     /* *************************************************************************
      *                                                                         *
@@ -8527,21 +8460,14 @@ public abstract sealed class Node
      * unless the focus had been set explicitly via a call
      * to {@link #requestFocus()}.
      *
+     * @return the focus traversable value for this {@code Node}
      * @see #requestFocus()
      * @defaultValue false
      */
-    private BooleanProperty focusTraversable;
-
-    public final void setFocusTraversable(boolean value) {
-        focusTraversableProperty().set(value);
-    }
-    public final boolean isFocusTraversable() {
-        return focusTraversable == null ? false : focusTraversable.get();
-    }
-
     public final BooleanProperty focusTraversableProperty() {
-        if (focusTraversable == null) {
-            focusTraversable = new StyleableBooleanProperty(false) {
+        BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
+        if (p == null) {
+            p = props.init(K_FOCUS_TRAVERSABLE, () -> new StyleableBooleanProperty(DEFAULT_FOCUS_TRAVERSABLE) {
 
                 @Override
                 public void invalidated() {
@@ -8568,9 +8494,21 @@ public abstract sealed class Node
                 public String getName() {
                     return "focusTraversable";
                 }
-            };
+            });
         }
-        return focusTraversable;
+        return p;
+    }
+
+    public final void setFocusTraversable(boolean value) {
+        if ((value == DEFAULT_FOCUS_TRAVERSABLE) && (props.get(K_FOCUS_TRAVERSABLE) == null)) {
+            return;
+        }
+        focusTraversableProperty().set(value);
+    }
+
+    public final boolean isFocusTraversable() {
+        BooleanProperty p = props.get(K_FOCUS_TRAVERSABLE);
+        return p == null ? false : p.get();
     }
 
     /**
@@ -8661,7 +8599,7 @@ public abstract sealed class Node
         String klassName = getClass().getName();
         String simpleName = klassName.substring(klassName.lastIndexOf('.')+1);
         StringBuilder sbuf = new StringBuilder(simpleName);
-        boolean hasId = id != null && !"".equals(getId());
+        boolean hasId = (props.get(K_ID) != null) && !"".equals(getId());
         boolean hasStyleClass = !getStyleClass().isEmpty();
 
         if (!hasId) {
@@ -9170,13 +9108,11 @@ public abstract sealed class Node
      * @param timer the transition timer
      */
     private void addTransitionTimer(String propertyName, TransitionTimer timer) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
-        if (transitionTimers == null) {
-            transitionTimers = new TransitionTimerCollection();
-            getMiscProperties().transitionTimers = transitionTimers;
+        TransitionTimerCollection p = getTransitionTimers();
+        if (p == null) {
+            p = props.init(K_TRANSITION_TIMERS, TransitionTimerCollection::new);
         }
-
-        transitionTimers.put(propertyName, timer);
+        p.put(propertyName, timer);
     }
 
     /**
@@ -9187,12 +9123,12 @@ public abstract sealed class Node
      * @param propertyName the CSS name of the targeted property
      */
     private void removeTransitionTimer(String propertyName) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         if (transitionTimers != null) {
             transitionTimers.remove(propertyName);
 
             if (transitionTimers.isEmpty()) {
-                miscProperties.transitionTimers = null;
+                props.remove(K_TRANSITION_TIMERS);
             }
         }
     }
@@ -9205,7 +9141,7 @@ public abstract sealed class Node
      *         targeted by a transition timer
      */
     private TransitionTimer findTransitionTimer(String propertyName) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         return transitionTimers != null ? transitionTimers.get(propertyName) : null;
     }
 
@@ -9217,7 +9153,7 @@ public abstract sealed class Node
      *         property is not targeted by any transition timers
      */
     private Map<String, TransitionTimer> findTransitionTimers(StyleableProperty<?> property) {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         return transitionTimers != null ? transitionTimers.getAll(property) : Map.of();
     }
 
@@ -9227,7 +9163,7 @@ public abstract sealed class Node
      */
     // package-private for testing
     void completeTransitionTimers() {
-        var transitionTimers = miscProperties != null ? miscProperties.transitionTimers : null;
+        TransitionTimerCollection transitionTimers = getTransitionTimers();
         if (transitionTimers == null || transitionTimers.isEmpty()) {
             return;
         }
@@ -9240,8 +9176,8 @@ public abstract sealed class Node
     }
 
     // package-private for testing
-    Map<String, TransitionTimer> getTransitionTimers() {
-        return miscProperties != null ? miscProperties.transitionTimers : null;
+    TransitionTimerCollection getTransitionTimers() {
+        return props.get(K_TRANSITION_TIMERS);
     }
 
     /**
@@ -9380,8 +9316,8 @@ public abstract sealed class Node
     }
 
     // package-private for testing
-    List<TransitionDefinition> getTransitionDefinitions() {
-        return miscProperties != null ? miscProperties.transitionDefinitions : null;
+    TransitionDefinitionCollection getTransitionDefinitions() {
+        return props.get(K_TRANSITIONS_DEFINITIONS);
     }
 
 
@@ -9464,7 +9400,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.miscProperties == null || node.miscProperties.canSetCursor();
+                    return node.props.isSettable(K_CURSOR);
                 }
 
                 @Override
@@ -9478,14 +9414,13 @@ public abstract sealed class Node
                     // Give a way to have them return the correct default value.
                     return node.getInitialCursor();
                 }
-
             };
         private static final CssMetaData<Node,Effect> EFFECT =
             new CssMetaData<>("-fx-effect", EffectConverter.getInstance()) {
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.miscProperties == null || node.miscProperties.canSetEffect();
+                    return node.props.isSettable(K_EFFECT);
                 }
 
                 @Override
@@ -9499,7 +9434,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.focusTraversable == null || !node.focusTraversable.isBound();
+                    return node.props.isSettable(K_FOCUS_TRAVERSABLE);
                 }
 
                 @Override
@@ -9534,7 +9469,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.blendMode == null || !node.blendMode.isBound();
+                    return node.props.isSettable(K_BLEND_MODE);
                 }
 
                 @Override
@@ -9612,9 +9547,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.nodeTransformation == null
-                        || node.nodeTransformation.translateX == null
-                        || node.nodeTransformation.canSetTranslateX();
+                    return node.props.isSettable(K_TRANSLATE_X);
                 }
 
                 @Override
@@ -9628,9 +9561,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.nodeTransformation == null
-                        || node.nodeTransformation.translateY == null
-                        || node.nodeTransformation.canSetTranslateY();
+                    return node.props.isSettable(K_TRANSLATE_Y);
                 }
 
                 @Override
@@ -9644,9 +9575,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.nodeTransformation == null
-                        || node.nodeTransformation.translateZ == null
-                        || node.nodeTransformation.canSetTranslateZ();
+                    return node.props.isSettable(K_TRANSLATE_Z);
                 }
 
                 @Override
@@ -9660,9 +9589,7 @@ public abstract sealed class Node
 
                      @Override
                      public boolean isSettable(Node node) {
-                         return node.miscProperties == null
-                         || node.miscProperties.viewOrder == null
-                         || !node.miscProperties.viewOrder.isBound();
+                         return node.props.isSettable(K_VIEW_ORDER);
                      }
 
                      @Override
@@ -9686,7 +9613,7 @@ public abstract sealed class Node
 
                 @Override
                 public boolean isSettable(Node node) {
-                    return node.visible == null || !node.visible.isBound();
+                    return node.props.isSettable(K_VISIBLE);
                 }
 
                 @Override
@@ -10313,11 +10240,19 @@ public abstract sealed class Node
      * The screen reader uses the role of a node to determine the
      * attributes and actions that are supported.
      *
+     * @return the accessible role for this {@code Node}
      * @defaultValue {@link AccessibleRole#NODE}
      * @see AccessibleRole
      *
      * @since JavaFX 8u40
      */
+    public final ObjectProperty<AccessibleRole> accessibleRoleProperty() {
+        if (accessibleRole == null) {
+            accessibleRole = new SimpleObjectProperty<>(this, "accessibleRole", AccessibleRole.NODE);
+        }
+        return accessibleRole;
+    }
+
     private ObjectProperty<AccessibleRole> accessibleRole;
 
     public final void setAccessibleRole(AccessibleRole value) {
@@ -10326,15 +10261,7 @@ public abstract sealed class Node
     }
 
     public final AccessibleRole getAccessibleRole() {
-        if (accessibleRole == null) return AccessibleRole.NODE;
-        return accessibleRoleProperty().get();
-    }
-
-    public final ObjectProperty<AccessibleRole> accessibleRoleProperty() {
-        if (accessibleRole == null) {
-            accessibleRole = new SimpleObjectProperty<>(this, "accessibleRole", AccessibleRole.NODE);
-        }
-        return accessibleRole;
+        return (accessibleRole == null) ? AccessibleRole.NODE : accessibleRole.get();
     }
 
     public final void setAccessibleRoleDescription(String value) {
@@ -10342,9 +10269,8 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleRoleDescription() {
-        if (accessibilityProperties == null) return null;
-        if (accessibilityProperties.accessibleRoleDescription == null) return null;
-        return accessibleRoleDescriptionProperty().get();
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_ROLE_DESCR);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -10363,7 +10289,13 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleRoleDescriptionProperty() {
-        return getAccessibilityProperties().getAccessibleRoleDescription();
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_ROLE_DESCR);
+        if (p == null) {
+            p = props.init(K_ACCESSIBLE_ROLE_DESCR, () -> {
+                return new SimpleObjectProperty<>(Node.this, "accessibleRoleDescription", null);
+            });
+        }
+        return p;
     }
 
     public final void setAccessibleText(String value) {
@@ -10371,9 +10303,8 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleText() {
-        if (accessibilityProperties == null) return null;
-        if (accessibilityProperties.accessibleText == null) return null;
-        return accessibleTextProperty().get();
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_TEXT);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -10391,7 +10322,13 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleTextProperty() {
-        return getAccessibilityProperties().getAccessibleText();
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_TEXT);
+        if (p == null) {
+            p = props.init(K_ACCESSIBLE_TEXT, () -> {
+                return new SimpleObjectProperty<>(Node.this, "accessibleText", null);
+            });
+        }
+        return p;
     }
 
     public final void setAccessibleHelp(String value) {
@@ -10399,9 +10336,8 @@ public abstract sealed class Node
     }
 
     public final String getAccessibleHelp() {
-        if (accessibilityProperties == null) return null;
-        if (accessibilityProperties.accessibleHelp == null) return null;
-        return accessibleHelpProperty().get();
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_HELP);
+        return (p == null) ? null : p.get();
     }
 
     /**
@@ -10417,39 +10353,13 @@ public abstract sealed class Node
      * @since JavaFX 8u40
      */
     public final ObjectProperty<String> accessibleHelpProperty() {
-        return getAccessibilityProperties().getAccessibleHelp();
-    }
-
-    AccessibilityProperties accessibilityProperties;
-    private AccessibilityProperties getAccessibilityProperties() {
-        if (accessibilityProperties == null) {
-            accessibilityProperties = new AccessibilityProperties();
+        ObjectProperty<String> p = props.get(K_ACCESSIBLE_HELP);
+        if (p == null) {
+            p = props.init(K_ACCESSIBLE_HELP, () -> {
+                return new SimpleObjectProperty<>(Node.this, "accessibleHelp", null);
+            });
         }
-        return accessibilityProperties;
-    }
-
-    private class AccessibilityProperties {
-        ObjectProperty<String> accessibleRoleDescription;
-        ObjectProperty<String> getAccessibleRoleDescription() {
-            if (accessibleRoleDescription == null) {
-                accessibleRoleDescription = new SimpleObjectProperty<>(Node.this, "accessibleRoleDescription", null);
-            }
-            return accessibleRoleDescription;
-        }
-        ObjectProperty<String> accessibleText;
-        ObjectProperty<String> getAccessibleText() {
-            if (accessibleText == null) {
-                accessibleText = new SimpleObjectProperty<>(Node.this, "accessibleText", null);
-            }
-            return accessibleText;
-        }
-        ObjectProperty<String> accessibleHelp;
-        ObjectProperty<String> getAccessibleHelp() {
-            if (accessibleHelp == null) {
-                accessibleHelp = new SimpleObjectProperty<>(Node.this, "accessibleHelp", null);
-            }
-            return accessibleHelp;
-        }
+        return p;
     }
 
     /**
@@ -10589,4 +10499,29 @@ public abstract sealed class Node
         }
     }
 
+    // replaced EventHandlerProperties.EventHandlerProperty
+    private class EHProperty<T extends Event> extends ObjectPropertyBase<EventHandler<? super T>> {
+        private final String name;
+        private final EventType<T> eventType;
+
+        public EHProperty(String name, EventType<T> eventType) {
+            this.name = name;
+            this.eventType = eventType;
+        }
+
+        @Override
+        protected void invalidated() {
+            getInternalEventDispatcher().getEventHandlerManager().setEventHandler(eventType, get());
+        }
+
+        @Override
+        public Object getBean() {
+            return Node.this;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+    }
 }
