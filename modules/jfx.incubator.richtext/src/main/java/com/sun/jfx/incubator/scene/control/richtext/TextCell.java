@@ -422,8 +422,6 @@ public final class TextCell extends BorderPane {
 
     public boolean isInsideText(double x, double y, boolean down) {
         y -= snappedTopInset();
-        y -= content.snappedTopInset();
-
         RangeInfo ri = getTextRange();
         int sz = ri.getSegmentCount();
         for (int i = 0; i < sz; i++) {
@@ -438,7 +436,7 @@ public final class TextCell extends BorderPane {
     }
 
     public double findHitCandidate(double py, boolean down) {
-        double dy = snappedTopInset() + content.snappedTopInset();
+        double dy = snappedTopInset();
         double y = py - dy;
 
         RangeInfo ri = getTextRange();

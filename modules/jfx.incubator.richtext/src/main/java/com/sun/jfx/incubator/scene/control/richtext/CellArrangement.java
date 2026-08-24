@@ -132,7 +132,7 @@ public class CellArrangement {
         TextCell cell = getCell(ix);
         if (cell != null) {
             Region r = cell.getContent();
-            double y = cellY - cell.getY() - r.snappedTopInset();
+            double y = cellY - cell.getY();
             if (y < 0) {
                 return TextPos.ofLeading(cell.getIndex(), 0);
             } else if (y < cell.getCellHeight()) {
