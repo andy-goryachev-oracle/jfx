@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,33 +22,14 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+package com.sun.javafx.gradle;
 
-package javafx.util.converter;
-
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Locale;
-
-public class LocalDateTimeStringConverterShim {
-
-    public static DateTimeFormatter getldtConverterParser(LocalDateTimeStringConverter c) {
-        return c.ldtConverter.parser;
-    }
-
-    public static DateTimeFormatter getldtConverterFormatter(LocalDateTimeStringConverter c) {
-        return c.ldtConverter.formatter;
-    }
-
-    public static Locale getldtConverterLocale(LocalDateTimeStringConverter c) {
-        return c.ldtConverter.locale;
-    }
-
-    public static FormatStyle getldtConverterTimeStyle(LocalDateTimeStringConverter c) {
-        return c.ldtConverter.timeStyle;
-    }
-
-    public static FormatStyle getldtConverterDateStyle(LocalDateTimeStringConverter c) {
-        return c.ldtConverter.dateStyle;
-    }
-
+/**
+ * Struct used to contain some information passed to the closure
+ * passed to compileTargets.
+ */
+public class CompileTarget {
+    public String name;
+    public String upper;
+    public String capital;
 }

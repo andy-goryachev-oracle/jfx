@@ -25,9 +25,7 @@
 
 package com.sun.jfx.incubator.scene.control.richtext.util;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,7 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
-import javax.imageio.ImageIO;
 import javafx.application.ColorScheme;
 import javafx.application.ConditionalFeature;
 import javafx.application.Platform;
@@ -69,6 +66,7 @@ import javafx.scene.text.TextFlow;
 import com.sun.javafx.scene.text.TextFlowHelper;
 import com.sun.javafx.scene.text.TextLayout;
 import com.sun.javafx.scene.text.TextLine;
+import com.sun.javafx.util.ImageUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
@@ -435,24 +433,6 @@ public final class RichUtils {
         return sb.toString();
     }
 
-    private static byte[] writeImage(Image im, String format) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(65536);
-        try {
-            // using disk cache slows things down
-            boolean old = ImageIO.getUseCache();
-            ImageIO.setUseCache(false);
-            try {
-                BufferedImage bi = ImgUtil.fromFXImage(im, null);
-                ImageIO.write(bi, format, out);
-            } finally {
-                ImageIO.setUseCache(old);
-            }
-        } finally {
-            out.close();
-        }
-        return out.toByteArray();
-    }
-
     /**
      * Writes an Image to a byte array in JPG format.
      *
@@ -461,7 +441,7 @@ public final class RichUtils {
      * @throws IOException if an I/O error occurs
      */
     public static byte[] writeJPG(Image im) throws IOException {
-        return writeImage(im, "JPG");
+        return ImageUtils.writeImage(im, "JPG");
     }
 
     /**
@@ -472,7 +452,7 @@ public final class RichUtils {
      * @throws IOException if an I/O error occurs
      */
     public static byte[] writePNG(Image im) throws IOException {
-        return writeImage(im, "PNG");
+        return ImageUtils.writeImage(im, "PNG");
     }
 
     /**
