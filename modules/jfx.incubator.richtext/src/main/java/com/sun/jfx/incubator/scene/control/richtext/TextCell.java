@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -43,10 +44,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
+import javafx.scene.text.HitInfo;
 import javafx.scene.text.TabStopPolicy;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
+import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.TabStops;
@@ -420,19 +423,20 @@ public final class TextCell extends BorderPane {
         return RangeInfo.of(width, height);
     }
 
-    public boolean isInsideText(double x, double y, boolean down) {
+    public boolean isOutsideTextRangeY(double y, boolean down) {
+        if (getTextLength() == 0) {
+            // there is no text
+            return true;
+        }
         y -= snappedTopInset();
         RangeInfo ri = getTextRange();
         int sz = ri.getSegmentCount();
         for (int i = 0; i < sz; i++) {
-            if(ri.contains(i, x, y)) {
-                return true;
+            if (ri.containsY(i, y)) {
+                return false;
             }
         }
-        if (ri.insideY(y)) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     public double findHitCandidate(double py, boolean down) {
@@ -457,6 +461,30 @@ public final class TextCell extends BorderPane {
             int ix = ri.getSegmentCount() - 1;
             return ri.midPointY(ix) + dy;
         }
+    }
+
+    public TextPos getTextPos(double cellX, double cellY) {
+        double py = cellY - y;
+        if (py < 0) {
+            return TextPos.ofLeading(index, 0);
+        } else if (py < height) {
+            if (content instanceof TextFlow f) {
+                Point2D p = new Point2D(cellX - content.getLayoutX(), py - content.getLayoutY());
+                HitInfo h = f.getHitInfo(p);
+                int ii = h.getInsertionIndex();
+                int ci = h.getCharIndex();
+                boolean leading = h.isLeading();
+                return new TextPos(index, ii, ci, leading);
+            } else {
+                return TextPos.ofLeading(index, 0);
+            }
+        }
+
+        int cix = 0;
+        if (content instanceof TextFlow f) {
+            cix = RichUtils.getTextLength(f);
+        }
+        return TextPos.ofLeading(index, cix);
     }
 
     public Integer lineEdge(boolean start, int caretIndex, int caretOffset) {

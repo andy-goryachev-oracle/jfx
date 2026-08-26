@@ -51,7 +51,7 @@ import javafx.stage.Stage;
 import com.oracle.demo.richtext.util.FX;
 import com.oracle.demo.richtext.util.Utils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
-import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.SelectionSegment;
 import jfx.incubator.scene.control.richtext.model.ParagraphDirection;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 
@@ -228,12 +228,12 @@ public class ParagraphDialog extends Stage {
     }
 
     private void commit() {
-        TextPos p = editor.getCaretPosition();
-        if (p == null) {
+        SelectionSegment sel = editor.getSelection();
+        if (sel == null) {
             // TODO default attributes?
         } else {
             StyleAttributeMap a = getAttributes();
-            editor.applyStyle(p, p, a);
+            editor.applyStyle(sel.getMin(), sel.getMax(), a);
         }
         hide();
     }

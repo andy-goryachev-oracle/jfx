@@ -524,7 +524,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
         vflow.scrollToVisible(x, y);
 
-        TextPos p = vflow.getTextPosLocal(x, y);
+        TextPos p = vflow.findTextPosLocal(x, y);
         control.extendSelection(p);
     }
 

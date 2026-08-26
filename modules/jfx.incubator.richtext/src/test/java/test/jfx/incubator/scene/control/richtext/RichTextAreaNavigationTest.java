@@ -24,8 +24,8 @@
  */
 package test.jfx.incubator.scene.control.richtext;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import javafx.scene.Scene;
 import org.junit.jupiter.api.AfterEach;
