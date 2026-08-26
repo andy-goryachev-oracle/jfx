@@ -1178,17 +1178,6 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
      * @return the new text position, or null if no movement should occur
      */
     public TextPos moveVertically(int caretIndex, double x, double y, boolean down) {
-        // quick boundary check
-        if (down) {
-            if (caretIndex == (getParagraphCount() - 1)) {
-                return control.getDocumentEnd();
-            }
-        } else {
-            if (caretIndex == 0) {
-                return TextPos.ZERO;
-            }
-        }
-
         TextPos p = findTextPosLocal(x, y);
         if (p == null) {
             return null; // should not happen
@@ -1200,11 +1189,20 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             if (cell.isOutsideTextRangeY(y - cell.getY(), down)) {
                 // jump to the adjacent cell
                 if (down) {
-                    cell = getCell(ix + 1);
-                    y = cell.getY() + 0.5;
+                    ix++;
+                    if (ix >= getParagraphCount()) {
+                        return control.getDocumentEnd();
+                    }
+
+                    cell = getCell(ix);
+                    y = cell.getY() + cell.getFirstLineMidY() + 1.0;
                 } else {
-                    cell = getCell(ix - 1);
-                    y = cell.getY() + cell.getHeight() - 0.5;
+                    ix--;
+                    if (ix < 0) {
+                        return TextPos.ZERO;
+                    }
+                    cell = getCell(ix);
+                    y = cell.getY() + cell.getLastLineMidY() - 1.0;
                 }
                 return cell.getTextPos(x - contentPaddingLeft, y);
             }

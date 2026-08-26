@@ -30,9 +30,10 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
 
 /**
- * Represents the text geometry as a sequence of bounding rectangles.
+ * Represents the text geometry as a sequence of bounding rectangles
+ * in the TextFlow coordinates.
  */
-public class RangeInfo {
+public final class RangeInfo {
     /** the sequence of rectangles encoded as [xmin, ymin, xmax, ymax], ... */
     private final double[] data;
     private final double ymin;
@@ -138,5 +139,15 @@ public class RangeInfo {
 
     public boolean insideY(double y) {
         return (ymin <= y) && (y <= ymax);
+    }
+
+    public double getFirstLineMidY() {
+        int ct = getSegmentCount();
+        return ct == 0 ? ymin : midPointY(0);
+    }
+
+    public double getLastLineMidY() {
+        int ct = getSegmentCount() - 1;
+        return ct < 0 ? ymax : midPointY(ct);
     }
 }

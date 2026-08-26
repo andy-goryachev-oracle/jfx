@@ -411,7 +411,7 @@ public final class TextCell extends BorderPane {
         return null;
     }
 
-    private RangeInfo getTextRange() {
+    private RangeInfo textRange() {
         if (content instanceof TextFlow f) {
             int len = getTextLength();
             PathElement[] pe = f.getRangeShape(0, len, true);
@@ -429,7 +429,7 @@ public final class TextCell extends BorderPane {
             return true;
         }
         y -= snappedTopInset();
-        RangeInfo ri = getTextRange();
+        RangeInfo ri = textRange();
         int sz = ri.getSegmentCount();
         for (int i = 0; i < sz; i++) {
             if (ri.containsY(i, y)) {
@@ -439,11 +439,21 @@ public final class TextCell extends BorderPane {
         return true;
     }
 
+    public double getFirstLineMidY() {
+        RangeInfo ri = textRange();
+        return snappedTopInset() + ri.getFirstLineMidY();
+    }
+
+    public double getLastLineMidY() {
+        RangeInfo ri = textRange();
+        return snappedTopInset() + ri.getLastLineMidY();
+    }
+
     public double findHitCandidate(double py, boolean down) {
         double dy = snappedTopInset();
         double y = py - dy;
 
-        RangeInfo ri = getTextRange();
+        RangeInfo ri = textRange();
         int sz = ri.getSegmentCount();
         if (down) {
             for (int i = 0; i < sz; i++) {
