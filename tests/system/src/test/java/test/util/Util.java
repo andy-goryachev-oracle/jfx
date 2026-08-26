@@ -469,7 +469,7 @@ public class Util {
     /**
      * Parses hex string into a byte array.
      * Example: "0001" -> byte[] { 0x00, 0x01 }
-     * No spaces or symbols other than upper/lower case hex digits is allosed.
+     * No spaces or symbols other than upper/lower case hex digits is allowed.
      * @param hexPattern hex string
      * @return the byte array
      */
