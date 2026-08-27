@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -818,6 +818,11 @@ void WebPage::disableWatchdog() {
 
 using namespace WebCore;
 using namespace WTF;
+
+extern "C" JNIEXPORT void WebPage_doJSCGarbageCollection()
+{
+    WebCore::GarbageCollectionController::singleton().garbageCollectNow();
+}
 
 class WebStorageNamespaceProviderJava final : public WebCore::StorageNamespaceProvider {
 public:
@@ -2619,7 +2624,7 @@ JNIEXPORT jint JNICALL Java_com_sun_webkit_WebPage_twkWorkerThreadCount
 JNIEXPORT void JNICALL Java_com_sun_webkit_WebPage_twkDoJSCGarbageCollection
   (JNIEnv*, jclass)
 {
-   GarbageCollectionController::singleton().garbageCollectNow();
+    WebPage_doJSCGarbageCollection();
 }
 
 }

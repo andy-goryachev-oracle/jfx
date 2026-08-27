@@ -417,7 +417,11 @@ void TextFieldInputType::removeShadowSubtree()
         innerSpinButton->removeSpinButtonOwner();
     m_innerSpinButton = nullptr;
     m_capsLockIndicator = nullptr;
+    if (RefPtr autoFillButton = m_autoFillButton.get())
+        autoFillButton->removeOwner();
     m_autoFillButton = nullptr;
+    if (RefPtr dataListDropdownIndicator = m_dataListDropdownIndicator)
+        dataListDropdownIndicator->removeOwner();
     m_dataListDropdownIndicator = nullptr;
     m_container = nullptr;
 }

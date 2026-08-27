@@ -357,6 +357,7 @@
 
 #if ENABLE(WEB_AUDIO)
 #include "AudioContext.h"
+#include "WaveShaperDSPKernel.h"
 #endif
 
 #if ENABLE(WIRELESS_PLAYBACK_TARGET)
@@ -1803,7 +1804,8 @@ void Internals::simulateSpeechSynthesizerVoiceListChange()
     if (m_platformSpeechSynthesizer) {
         m_platformSpeechSynthesizer->setInitialVoiceListToEmpty(false);
         m_platformSpeechSynthesizer->initializeVoiceList();
-        m_platformSpeechSynthesizer->client().voicesDidChange();
+        if (RefPtr client = m_platformSpeechSynthesizer->client())
+            client->voicesDidChange();
         return;
     }
 
@@ -5407,6 +5409,13 @@ void Internals::setAudioContextRestrictions(AudioContext& context, StringView re
     context.addBehaviorRestriction(restrictions);
 }
 
+Vector<float> Internals::waveShaperProcessCurveWithData(Vector<float> source, Vector<float> curve)
+{
+    Vector<float> destination(source.size(), 0.0f);
+    WaveShaperDSPKernel::processCurveWithData(std::span { source }, std::span { destination }, std::span { curve });
+    return destination;
+}
+
 void Internals::useMockAudioDestinationCocoa()
 {
 #if PLATFORM(COCOA)
@@ -6397,7 +6406,7 @@ void Internals::setAsRunningUserScripts(Document& document)
 }
 
 #if ENABLE(WEBGL)
-void Internals::simulateEventForWebGLContext(SimulatedWebGLContextEvent event, WebGLRenderingContext& context)
+void Internals::simulateEventForWebGLContext(SimulatedWebGLContextEvent event, WebGLRenderingContextBase& context)
 {
     WebGLRenderingContext::SimulatedEventForTesting contextEvent;
     switch (event) {
@@ -6414,7 +6423,7 @@ void Internals::simulateEventForWebGLContext(SimulatedWebGLContextEvent event, W
     context.simulateEventForTesting(contextEvent);
 }
 
-Internals::RequestedGPU Internals::requestedGPU(WebGLRenderingContext& context)
+Internals::RequestedGPU Internals::requestedGPU(WebGLRenderingContextBase& context)
 {
     switch (context.creationAttributes().powerPreference) {
     case WebGLPowerPreference::Default:

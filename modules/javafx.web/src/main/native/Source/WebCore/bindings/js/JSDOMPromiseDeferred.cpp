@@ -179,13 +179,15 @@ void DeferredPromise::reject(Exception exception, RejectAsHandled rejectAsHandle
     auto scope = DECLARE_CATCH_SCOPE(vm);
 
     if (exception.code() == ExceptionCode::ExistingExceptionError) {
+        if (exceptionObject.isEmpty()) {
         EXCEPTION_ASSERT(scope.exception());
         auto error = scope.exception()->value();
-        bool isTerminating = handleTerminationExceptionIfNeeded(scope, lexicalGlobalObject);
-        if (!isTerminating) {
+            if (handleTerminationExceptionIfNeeded(scope, lexicalGlobalObject))
+                return;
         scope.clearException();
-            reject<IDLAny>(error, rejectAsHandled);
+            exceptionObject = error;
         }
+        reject<IDLAny>(exceptionObject, rejectAsHandled);
         return;
     }
 
@@ -237,18 +239,30 @@ void DeferredPromise::reject(ExceptionCode ec, const String& message, RejectAsHa
         handleUncaughtException(scope, lexicalGlobalObject);
 }
 
-void rejectPromiseWithExceptionIfAny(JSC::JSGlobalObject& lexicalGlobalObject, JSDOMGlobalObject& globalObject, JSPromise& promise, JSC::CatchScope& catchScope)
+static JSValue takeNonTerminationException(CatchScope& catchScope)
 {
-    UNUSED_PARAM(lexicalGlobalObject);
     if (!catchScope.exception()) [[likely]]
-        return;
+        return { };
     if (catchScope.vm().hasPendingTerminationException())
-        return;
+        return { };
 
     JSValue error = catchScope.exception()->value();
     catchScope.clearException();
+    return error;
+}
 
+void rejectPromiseWithExceptionIfAny(JSC::JSGlobalObject&, JSDOMGlobalObject& globalObject, JSPromise& promise, JSC::CatchScope& catchScope)
+{
+    if (auto error = takeNonTerminationException(catchScope)) [[unlikely]]
     DeferredPromise::create(globalObject, promise)->reject<IDLAny>(error);
+}
+
+void rejectPromisesWithExceptionIfAny(JSC::JSGlobalObject&, JSDOMGlobalObject& globalObject, JSPromise& promise1, JSPromise& promise2, JSC::CatchScope& catchScope)
+{
+    if (auto error = takeNonTerminationException(catchScope)) [[unlikely]] {
+        DeferredPromise::create(globalObject, promise1)->reject<IDLAny>(error);
+        DeferredPromise::create(globalObject, promise2)->reject<IDLAny>(error);
+    }
 }
 
 JSC::EncodedJSValue createRejectedPromiseWithTypeError(JSC::JSGlobalObject& lexicalGlobalObject, const String& errorMessage, RejectedPromiseWithTypeErrorCause cause)

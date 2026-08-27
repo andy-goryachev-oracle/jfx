@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2024 Apple Inc. All rights reserved.
+ * Copyright (C) 2026 Apple Inc. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,14 +25,27 @@
 
 #pragma once
 
-#include <JavaScriptCore/DeferredWorkTimer.h>
-#include <JavaScriptCore/JSCellInlines.h>
+#include "WebCoreOpaqueRoot.h"
+#include <wtf/ThreadSafeRefCounted.h>
 
-namespace JSC {
+namespace WebCore {
 
-inline bool DeferredWorkTimer::TicketData::isTargetObject()
-{
-    return m_dependencies.last()->isObject();
+class TrackOpaqueRoot : public ThreadSafeRefCounted<TrackOpaqueRoot> {
+public:
+    static Ref<TrackOpaqueRoot> create(const WebCoreOpaqueRoot& root)
+    {
+        return adoptRef(*new TrackOpaqueRoot(root));
+    }
+
+    WebCoreOpaqueRoot opaqueRoot() const { return m_opaqueRoot; }
+    void clear() { m_opaqueRoot = nullptr; }
+
+private:
+    TrackOpaqueRoot(const WebCoreOpaqueRoot& root)
+        : m_opaqueRoot(root)
+    { }
+
+    WebCoreOpaqueRoot m_opaqueRoot;
+};
+
 }
-
-} // namespace JSC

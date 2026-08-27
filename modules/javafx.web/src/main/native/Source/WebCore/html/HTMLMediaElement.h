@@ -116,6 +116,7 @@ class SleepDisabler;
 class SourceBuffer;
 class SpeechSynthesis;
 class TextTrackList;
+class TrackOpaqueRoot;
 class TimeRanges;
 class VideoPlaybackQuality;
 class VideoTrackList;
@@ -194,6 +195,8 @@ public:
     void ref() const final { HTMLElement::ref(); }
     void deref() const final { HTMLElement::deref(); }
     using HTMLElement::protectedScriptExecutionContext;
+
+    TrackOpaqueRoot& trackOpaqueRoot() { return m_trackOpaqueRoot; }
 
     MediaPlayer* player() const { return m_player.get(); }
     RefPtr<MediaPlayer> protectedPlayer() const { return m_player; }
@@ -1352,6 +1355,7 @@ private:
     ControlsState m_controlsState { ControlsState::None };
 
     AutoplayEventPlaybackState m_autoplayEventPlaybackState { AutoplayEventPlaybackState::None };
+    bool m_isDispatchingAutoplayPlayPauseQuirkEvents { false };
 
     String m_subtitleTrackLanguage;
     std::optional<String> m_languageOfPrimaryAudioTrack;
@@ -1359,6 +1363,7 @@ private:
 
     std::optional<CaptionUserPreferences::CaptionDisplayMode> m_captionDisplayMode;
 
+    Ref<TrackOpaqueRoot> m_trackOpaqueRoot;
     const RefPtr<AudioTrackList> m_audioTracks;
     const RefPtr<TextTrackList> m_textTracks;
     const RefPtr<VideoTrackList> m_videoTracks;
@@ -1394,7 +1399,6 @@ private:
     RefPtr<Blob> m_blob;
     URLKeepingBlobAlive m_blobURLForReading;
     MediaProvider m_mediaProvider;
-    const Ref<WTF::Observer<WebCoreOpaqueRoot()>> m_opaqueRootProvider;
 
 #if ENABLE(LEGACY_ENCRYPTED_MEDIA)
     bool m_hasNeedkeyListener { false };

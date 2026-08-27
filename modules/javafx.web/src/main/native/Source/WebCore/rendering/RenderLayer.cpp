@@ -315,8 +315,6 @@ static ScrollingScope nextScrollingScope()
     return ++currentScope;
 }
 
-WTF_MAKE_PREFERABLY_COMPACT_TZONE_ALLOCATED_IMPL(RenderLayer);
-
 RenderLayer::RenderLayer(RenderLayerModelObject& renderer)
     : m_isRenderViewLayer(renderer.isRenderView())
     , m_forcedStackingContext(renderer.isRenderMedia())
@@ -1088,7 +1086,7 @@ void RenderLayer::willUpdateLayerPositions()
         markers->invalidateRectsForAllMarkers();
 }
 
-#if !LOG_DISABLED || ENABLE(TREE_DEBUGGING)
+#if ENABLE(TREE_DEBUGGING)
 static inline bool compositingLogEnabledRenderLayer()
 {
     return LogCompositing.state == WTFLogChannelState::On;
@@ -5585,6 +5583,9 @@ LayoutRect RenderLayer::localBoundingBox(OptionSet<CalculateLayerBoundsFlag> fla
         if (!(flags & DontConstrainForMask) && box->hasMask()) {
             result = box->maskClipRect(LayoutPoint());
             box->flipForWritingMode(result); // The mask clip rect is in physical coordinates, so we have to flip, since localBoundingBox is not.
+        } else if (flags.contains(ExcludeFilterOutsetsFromSelfBounds) && !box->hasLayoutOverflow()) {
+            ASSERT(box->hasFilter());
+            result = box->applyVisualEffectOverflow(box->borderBoxRect(), { RenderBox::VisualEffectOverflowOption::ExcludeFilterOutsets });
         } else
             result = box->visualOverflowRect();
 
@@ -5678,6 +5679,7 @@ LayoutRect RenderLayer::overlapBounds() const
 
     return localBoundingBox();
 }
+
 LayoutRect RenderLayer::calculateLayerBounds(const RenderLayer* ancestorLayer, const LayoutSize& offsetFromRoot, OptionSet<CalculateLayerBoundsFlag> flags) const
 {
     if (!isSelfPaintingLayer())
@@ -5695,7 +5697,14 @@ LayoutRect RenderLayer::calculateLayerBounds(const RenderLayer* ancestorLayer, c
         return renderer().view().unscaledDocumentRect();
     }
 
-    LayoutRect boundingBoxRect = localBoundingBox(flags | IncludeRootBackgroundPaintingArea);
+    auto localBoundingBoxFlags = flags | IncludeRootBackgroundPaintingArea;
+    // When filters are composited, the compositor applies the filter effect, so the backing
+    // layer should not be inflated by filter outsets; compute bounds excluding
+    // filter outsets when possible.
+    if (isComposited() && renderer().hasFilter() && !shouldPaintWithFilters())
+        localBoundingBoxFlags.add(ExcludeFilterOutsetsFromSelfBounds);
+
+    LayoutRect boundingBoxRect = localBoundingBox(localBoundingBoxFlags);
     if (renderer().view().frameView().hasFlippedBlockRenderers()) {
         if (CheckedPtr box = dynamicDowncast<RenderBox>(renderer()))
             box->flipForWritingMode(boundingBoxRect);
@@ -6512,9 +6521,16 @@ void RenderLayer::updateFilterPaintingStrategy()
 
 IntOutsets RenderLayer::filterOutsets() const
 {
+    if (!renderer().hasFilter())
+        return { };
+
     if (m_filters)
         return m_filters->calculateOutsets(renderer(), localBoundingBox());
-    return renderer().style().filter().outsets();
+
+    if (CheckedPtr boxRenderer = renderBox())
+        return boxRenderer->filterOutsets();
+
+    return { };
 }
 
 static RenderLayer* parentLayerCrossFrame(const RenderLayer& layer)

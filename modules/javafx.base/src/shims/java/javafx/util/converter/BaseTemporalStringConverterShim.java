@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,31 +26,15 @@
 package javafx.util.converter;
 
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Locale;
+import java.time.temporal.Temporal;
 
-public class LocalDateStringConverterShim {
+public class BaseTemporalStringConverterShim {
 
-    public static DateTimeFormatter getldtConverterFormatter(LocalDateStringConverter c) {
-        return c.ldtConverter.formatter;
-    }
-    //-----------------------------------------------------
-
-    //---------
-    public static Locale getldtConverterLocale(LocalDateStringConverter c) {
-        return c.ldtConverter.locale;
+    public static DateTimeFormatter getParser(BaseTemporalStringConverter<? extends Temporal> converter) {
+        return converter.getParser();
     }
 
-    public static DateTimeFormatter getldtConverterParser(LocalDateStringConverter c) {
-        return c.ldtConverter.parser;
+    public static DateTimeFormatter getFormatter(BaseTemporalStringConverter<? extends Temporal> converter) {
+        return converter.getFormatter();
     }
-
-    public static FormatStyle getldtConverterTimeStyle(LocalDateStringConverter c) {
-        return c.ldtConverter.timeStyle;
-    }
-
-    public static FormatStyle getldtConverterDateStyle(LocalDateStringConverter c) {
-        return c.ldtConverter.dateStyle;
-    }
-
 }
