@@ -25,129 +25,78 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.PathElement;
+import java.util.List;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.text.LayoutInfo;
+import javafx.scene.text.TextLineInfo;
 
 /**
  * Represents the text geometry as a sequence of bounding rectangles
  * in the TextFlow coordinates.
  */
 public final class RangeInfo {
-    /** the sequence of rectangles encoded as [xmin, ymin, xmax, ymax], ... */
-    private final double[] data;
+    private final List<TextLineInfo> lines;
     private final double ymin;
     private final double ymax;
 
-    private RangeInfo(double[] data, double ymin, double ymax) {
-        this.data = data;
+    private RangeInfo(List<TextLineInfo> lines, double ymin, double ymax) {
+        this.lines = lines;
         this.ymin = ymin;
         this.ymax = ymax;
     }
 
     public static RangeInfo of(double width, double height) {
-        double[] d = { 0.0, 0.0, width, height };
-        return new RangeInfo(d, 0.0, height);
+        return new RangeInfo(null, 0.0, height);
     }
 
-    public static RangeInfo of(PathElement[] elements, double lineSpacing) {
-        // this code depends on the current implementation (see PrismLayout::getRange)
-        // which generates path elements with the following pattern:
-        //   result.add(new MoveTo(x + l,  y + top));
-        //   result.add(new LineTo(x + r, y + top));
-        //   result.add(new LineTo(x + r, y + bottom));
-        //   result.add(new LineTo(x + l,  y + bottom));
-        //   result.add(new LineTo(x + l,  y + top));
-        int sz = (elements.length / 5);
-        double[] d = new double[sz * 4];
-        int srcIndex = 0;
-        int tgtIndex = 0;
-        double ymin = Double.POSITIVE_INFINITY;
-        double ymax = Double.NEGATIVE_INFINITY;
-        for (int i = 0; i < sz; i++) {
-            // we could do extra checking here, but the hope is that we will create a new API
-            // for the caret info and text range which would contain information we need.
-            MoveTo m = (MoveTo)elements[srcIndex];
-            double x = m.getX();
-            double y = m.getY();
-            d[tgtIndex++] = x;
-            d[tgtIndex++] = y;
-            if (y < ymin) {
-                ymin = y;
-            }
-            if (y > ymax) {
-                ymax = y;
-            }
-
-            LineTo t = (LineTo)elements[srcIndex + 2];
-            x = t.getX();
-            y = t.getY() + lineSpacing;
-            d[tgtIndex++] = x;
-            d[tgtIndex++] = y;
-            if (y < ymin) {
-                ymin = y;
-            }
-            if (y > ymax) {
-                ymax = y;
-            }
-
-            srcIndex += 5;
-        }
-        return new RangeInfo(d, ymin, ymax);
-    }
-
-    public int getSegmentCount() {
-        return data.length / 4;
-    }
-
-    public boolean contains(int ix, double x, double y) {
-        ix *= 4;
-        if (data[ix++] <= x) {
-            if (data[ix++] <= y) {
-                if (data[ix++] >= x) {
-                    if (data[ix] >= y) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public boolean containsY(int ix, double y) {
-        ix *= 4;
-        return (data[ix + 1] <= y) && (data[ix + 3] >= y);
-    }
-
-    public boolean containsX(int ix, double x) {
-        ix *= 4;
-        return (data[ix] <= x) && (data[ix + 2] >= x);
-    }
-
-    public double midPointY(int ix) {
-        ix *= 4;
-        return (data[ix + 1] + data[ix + 3]) / 2.0;
-    }
-
-    public double getMinY(int ix) {
-        return data[ix * 4 + 1];
-    }
-
-    public double getMaxY(int ix) {
-        return data[ix * 4 + 3];
-    }
-
-    public boolean insideY(double y) {
-        return (ymin <= y) && (y <= ymax);
+    public static RangeInfo of(LayoutInfo la, double lineSpacing) {
+        Rectangle2D r = la.getLogicalBounds(false);
+        double ymin = r.getMinY();
+        double ymax = r.getMaxY();
+        List<TextLineInfo> lines = la.getTextLines(false);
+        return new RangeInfo(lines, ymin, ymax);
     }
 
     public double getFirstLineMidY() {
-        int ct = getSegmentCount();
-        return ct == 0 ? ymin : midPointY(0);
+        int sz = lines.size();
+        if (sz > 0) {
+            TextLineInfo t = lines.get(0);
+            return midPoint(t);
+        }
+        return midPoint();
     }
 
     public double getLastLineMidY() {
-        int ct = getSegmentCount() - 1;
-        return ct < 0 ? ymax : midPointY(ct);
+        int sz = lines.size();
+        if (sz > 0) {
+            TextLineInfo t = lines.get(sz - 1);
+            return midPoint(t);
+        }
+        return midPoint();
+    }
+
+    private double midPoint() {
+        return (ymax + ymin) / 2.0;
+    }
+
+    private static double midPoint(TextLineInfo t) {
+        Rectangle2D r = t.bounds();
+        return (r.getMinY() + r.getMaxY()) / 2.0;
+    }
+
+    public boolean isOutsideTextRangeY(double y) {
+        return (y < ymin) || (y >= ymax);
+    }
+
+    public double findHitMidpoint(double y) {
+        if (lines != null) {
+            for (TextLineInfo t : lines) {
+                Rectangle2D r = t.bounds();
+                if ((y >= r.getMinY()) && (y < r.getMaxY())) {
+                    return midPoint(t);
+                }
+            }
+        }
+        return midPoint();
     }
 }

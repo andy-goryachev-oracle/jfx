@@ -680,8 +680,8 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
 
         boolean down = (deltaPixels > 0);
         double y = down ?
-            ci.getMaxY() + deltaPixels + 0.5 :
-            ci.getMinY() + deltaPixels - 0.5;
+            ci.getMaxY() + ci.getLineSpacing() + deltaPixels + 1.0 :
+            ci.getMinY() + deltaPixels - 1.0;
 
         TextPos p = vflow.moveVertically(caret.index(), x, y, down);
         if (p != null) {

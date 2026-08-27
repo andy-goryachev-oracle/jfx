@@ -1195,14 +1195,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                     }
 
                     cell = getCell(ix);
-                    y = cell.getY() + cell.getFirstLineMidY() + 1.0;
+                    y = cell.getY() + cell.getFirstLineMidY();
                 } else {
                     ix--;
                     if (ix < 0) {
                         return TextPos.ZERO;
                     }
                     cell = getCell(ix);
-                    y = cell.getY() + cell.getLastLineMidY() - 1.0;
+                    y = cell.getY() + cell.getLastLineMidY();
                 }
                 return cell.getTextPos(x - contentPaddingLeft, y);
             }

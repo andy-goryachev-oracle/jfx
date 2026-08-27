@@ -71,6 +71,7 @@ public class ParagraphDialog extends Stage {
     private final ComboBox<Double> afterText;
     private final ComboBox<Double> spaceAbove;
     private final ComboBox<Double> spaceBelow;
+    private final ComboBox<Double> lineSpacing;
     // TODO FIRST_LINE_INDENT (* broken)
 
     public ParagraphDialog(RichTextArea editor) {
@@ -107,6 +108,7 @@ public class ParagraphDialog extends Stage {
         afterText = Utils.numberField();
         spaceAbove = Utils.numberField();
         spaceBelow = Utils.numberField();
+        lineSpacing = Utils.numberField();
 
         ltrButton = new RadioButton("Left-to-right");
         rtlButton = new RadioButton("Right-to-left");
@@ -164,6 +166,9 @@ public class ParagraphDialog extends Stage {
         r++;
         g.add(new Label("After:"), 1, r);
         g.add(spaceBelow, 2, r);
+        r++;
+        g.add(new Label("Line spacing:"), 1, r);
+        g.add(lineSpacing, 2, r);
 
         ButtonBar bb = new ButtonBar();
         bb.getButtons().setAll(cancelButton, okButton);
@@ -211,6 +216,7 @@ public class ParagraphDialog extends Stage {
         afterText.setValue(a.getSpaceRight());
         spaceAbove.setValue(a.getSpaceAbove());
         spaceBelow.setValue(a.getSpaceBelow());
+        lineSpacing.setValue(a.getLineSpacing());
     }
 
     private StyleAttributeMap getAttributes() {
@@ -219,11 +225,13 @@ public class ParagraphDialog extends Stage {
         b.setBullet(bullet.getValue());
         b.setParagraphDirection(rtlButton.isSelected() ? ParagraphDirection.RIGHT_TO_LEFT : ParagraphDirection.LEFT_TO_RIGHT);
         b.setTextAlignment(alignment.getSelectionModel().getSelectedItem());
+        // this code deals with null (unset) choices
         // perhaps Builder.setXXX(double) should accept a Double instead
         b.set(StyleAttributeMap.SPACE_LEFT, beforeText.getValue());
         b.set(StyleAttributeMap.SPACE_RIGHT, afterText.getValue());
         b.set(StyleAttributeMap.SPACE_ABOVE, spaceAbove.getValue());
         b.set(StyleAttributeMap.SPACE_BELOW, spaceBelow.getValue());
+        b.set(StyleAttributeMap.LINE_SPACING, lineSpacing.getValue());
         return b.build();
     }
 
@@ -235,6 +243,10 @@ public class ParagraphDialog extends Stage {
             StyleAttributeMap a = getAttributes();
             editor.applyStyle(sel.getMin(), sel.getMax(), a);
         }
+        // FIX
+        // weird issue: select all, right click, select Paragraph
+        // change spacing, click OK to dismiss the dialog -
+        // the first click on the editor does not clear the selection??
         hide();
     }
 }

@@ -45,6 +45,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
+import javafx.scene.text.LayoutInfo;
 import javafx.scene.text.TabStopPolicy;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -413,12 +414,9 @@ public final class TextCell extends BorderPane {
 
     private RangeInfo textRange() {
         if (content instanceof TextFlow f) {
-            int len = getTextLength();
-            PathElement[] pe = f.getRangeShape(0, len, true);
-            if (pe.length > 0) {
-                double sp = f.getLineSpacing();
-                return RangeInfo.of(pe, sp);
-            }
+            LayoutInfo la = f.getLayoutInfo();
+            double sp = f.getLineSpacing();
+            return RangeInfo.of(la, sp);
         }
         return RangeInfo.of(width, height);
     }
@@ -428,15 +426,8 @@ public final class TextCell extends BorderPane {
             // there is no text
             return true;
         }
-        y -= snappedTopInset();
         RangeInfo ri = textRange();
-        int sz = ri.getSegmentCount();
-        for (int i = 0; i < sz; i++) {
-            if (ri.containsY(i, y)) {
-                return false;
-            }
-        }
-        return true;
+        return ri.isOutsideTextRangeY(y - snappedTopInset());
     }
 
     public double getFirstLineMidY() {
@@ -449,28 +440,12 @@ public final class TextCell extends BorderPane {
         return snappedTopInset() + ri.getLastLineMidY();
     }
 
-    public double findHitCandidate(double py, boolean down) {
+    public double findHitCandidate(double cellY, boolean down) {
         double dy = snappedTopInset();
-        double y = py - dy;
-
+        double y = cellY - dy;
+        
         RangeInfo ri = textRange();
-        int sz = ri.getSegmentCount();
-        if (down) {
-            for (int i = 0; i < sz; i++) {
-                if (ri.getMaxY(i) >= y) {
-                    return ri.midPointY(i) + dy;
-                }
-            }
-            return ri.midPointY(0) + dy;
-        } else {
-            for (int i = sz - 1; i >= 0; i--) {
-                if (ri.getMinY(i) <= y) {
-                    return ri.midPointY(i) + dy;
-                }
-            }
-            int ix = ri.getSegmentCount() - 1;
-            return ri.midPointY(ix) + dy;
-        }
+        return ri.findHitMidpoint(y) + dy;
     }
 
     public TextPos getTextPos(double cellX, double cellY) {
