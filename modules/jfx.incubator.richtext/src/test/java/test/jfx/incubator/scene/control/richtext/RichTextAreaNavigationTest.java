@@ -139,7 +139,7 @@ public class RichTextAreaNavigationTest {
         long seed = r.nextLong();
         r = new Random(seed);
         IO.println("seed=" + seed);
-        
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 32; i++) {
             if (i > 0) {
@@ -190,7 +190,7 @@ public class RichTextAreaNavigationTest {
         stageLoader.getStage().setWidth(p.width);
         control.setPrefWidth(p.width);
         control.setWrapText(p.wrap);
-        
+
         RTUtil.firePulse();
         assertEquals(p.width, control.getWidth(), 5);
 

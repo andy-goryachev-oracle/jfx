@@ -442,10 +442,8 @@ public final class TextCell extends BorderPane {
 
     public double findHitCandidate(double cellY, boolean down) {
         double dy = snappedTopInset();
-        double y = cellY - dy;
-        
         RangeInfo ri = textRange();
-        return ri.findHitMidpoint(y) + dy;
+        return ri.findHitMidpoint(cellY - dy) + dy;
     }
 
     public TextPos getTextPos(double cellX, double cellY) {
