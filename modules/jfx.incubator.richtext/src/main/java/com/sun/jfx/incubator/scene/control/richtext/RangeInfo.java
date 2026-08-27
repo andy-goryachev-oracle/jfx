@@ -32,14 +32,16 @@ import javafx.scene.text.TextLineInfo;
 
 /**
  * Represents the text geometry as a sequence of bounding rectangles
- * in the TextFlow coordinates.
+ * in the TextFlow coordinates for the purposes of vertical navigation
+ * within the VFlow.
  */
 public final class RangeInfo {
-    private final List<TextLineInfo> lines;
+    /// { miny, maxy, ... }
+    private final double[] lines;
     private final double ymin;
     private final double ymax;
 
-    private RangeInfo(List<TextLineInfo> lines, double ymin, double ymax) {
+    private RangeInfo(double[] lines, double ymin, double ymax) {
         this.lines = lines;
         this.ymin = ymin;
         this.ymax = ymax;
@@ -53,50 +55,61 @@ public final class RangeInfo {
         Rectangle2D r = la.getLogicalBounds(false);
         double ymin = r.getMinY();
         double ymax = r.getMaxY();
-        List<TextLineInfo> lines = la.getTextLines(false);
-        return new RangeInfo(lines, ymin, ymax);
+        List<TextLineInfo> lines = la.getTextLines(true);
+        int sz = lines.size();
+        double[] d = new double[sz + sz];
+        int dest = 0;
+        for (int i = 0; i < sz; i++) {
+            r = lines.get(i).bounds();
+            d[dest++] = r.getMinY();
+            d[dest++] = r.getMaxY();
+        }
+        // remove line spacing from the last line to force navigating to the next cell
+        if (sz > 0) {
+            d[sz - 1] -= lineSpacing;
+        }
+        return new RangeInfo(d, ymin, ymax);
     }
 
     public double getFirstLineMidY() {
-        int sz = lines.size();
-        if (sz > 0) {
-            TextLineInfo t = lines.get(0);
-            return midPoint(t);
+        if ((lines != null) && (lines.length > 0)) {
+            double min = lines[0];
+            double max = lines[1];
+            return midPoint(min, max);
         }
-        return midPoint();
+        return midPoint(ymin, ymax);
     }
 
     public double getLastLineMidY() {
-        int sz = lines.size();
-        if (sz > 0) {
-            TextLineInfo t = lines.get(sz - 1);
-            return midPoint(t);
+        if (lines != null) {
+            int ix = lines.length;
+            if (ix > 0) {
+                double max = lines[--ix];
+                double min = lines[--ix];
+                return midPoint(min, max);
+            }
         }
-        return midPoint();
-    }
-
-    private double midPoint() {
-        return (ymax + ymin) / 2.0;
-    }
-
-    private static double midPoint(TextLineInfo t) {
-        Rectangle2D r = t.bounds();
-        return (r.getMinY() + r.getMaxY()) / 2.0;
-    }
-
-    public boolean isOutsideTextRangeY(double y) {
-        return (y < ymin) || (y >= ymax);
+        return midPoint(ymin, ymax);
     }
 
     public double findHitMidpoint(double y) {
         if (lines != null) {
-            for (TextLineInfo t : lines) {
-                Rectangle2D r = t.bounds();
-                if ((y >= r.getMinY()) && (y < r.getMaxY())) {
-                    return midPoint(t);
+            for (int i = 0; i < lines.length;) {
+                double min = lines[i++];
+                double max = lines[i++];
+                if ((y >= min) && (y < max)) {
+                    return midPoint(min, max);
                 }
             }
         }
-        return midPoint();
+        return midPoint(ymin, ymax);
+    }
+
+    private static double midPoint(double min, double max) {
+        return (min + max) / 2.0;
+    }
+
+    public boolean isOutsideTextRangeY(double y) {
+        return (y < ymin) || (y >= ymax);
     }
 }

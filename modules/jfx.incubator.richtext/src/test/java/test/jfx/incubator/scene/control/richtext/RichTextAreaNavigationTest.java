@@ -25,18 +25,25 @@
 package test.jfx.incubator.scene.control.richtext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import javafx.scene.Scene;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import com.sun.jfx.incubator.scene.control.richtext.CaretInfo;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
+import test.jfx.incubator.scene.control.richtext.support.RTUtil;
 import test.jfx.incubator.scene.util.StageLoader;
 import test.jfx.incubator.scene.util.TUtil;
 
@@ -53,7 +60,7 @@ public class RichTextAreaNavigationTest {
         TUtil.setUncaughtExceptionHandler();
         control = new RichTextArea();
         control.setSkin(new RichTextAreaSkin(control));
-        stageLoader = new StageLoader(new Scene(control, 100, 100));
+        stageLoader = new StageLoader(control);
     }
 
     @AfterEach
@@ -90,5 +97,142 @@ public class RichTextAreaNavigationTest {
 
         assertEquals(1, p2.index());
         assertTrue(ci2.getMaxY() > ci1.getMaxY());
+    }
+
+    private record Params(
+        double width,
+        boolean startAtLeft,
+        boolean wrap,
+        double spaceAbove,
+        double lineSpacing,
+        double spaceBelow
+    ) { }
+
+    private static List<Params> parameters() {
+        boolean[] booleans = { true, false };
+
+        ArrayList<Params> params = new ArrayList<>();
+        for (double width : new double[] { 100.0, 500.0 }) {
+            for (boolean startAtLeft : booleans) {
+                for (boolean wrap : booleans) {
+                    for (double spaceAbove : new double[] { 0.0, 11.1 }) {
+                        for (double lineSpacing : new double[] { 0.0, 12.2 }) {
+                            for (double spaceBelow : new double[] { 0.0, 13.3 }) {
+                                params.add(new Params(
+                                    width,
+                                    startAtLeft,
+                                    wrap,
+                                    spaceAbove,
+                                    lineSpacing,
+                                    spaceBelow));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return params;
+    }
+
+    private static RichTextModel createModel(Params p) {
+        Random r = new Random();
+        long seed = r.nextLong();
+        r = new Random(seed);
+        IO.println("seed=" + seed);
+        
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 32; i++) {
+            if (i > 0) {
+                sb.append("\n");
+            }
+
+            if (r.nextDouble() > 0.3) {
+                int wordCount = r.nextInt(8);
+                if (r.nextDouble() > 0.6) {
+                    wordCount *= 3;
+                }
+                wordCount++;
+                for (int j = 0; j < wordCount; j++) {
+                    if (j > 0) {
+                        sb.append(' ');
+                    }
+                    int len = 1 + r.nextInt(10);
+                    for (int w = 0; w < len; w++) {
+                        sb.append("w");
+                    }
+                }
+            }
+        }
+        String text = sb.toString();
+        RichTextModel m = new RichTextModel();
+        m.replace(null, TextPos.ZERO, TextPos.ZERO, text);
+        StyleAttributeMap.Builder b = StyleAttributeMap.builder();
+        if (p.spaceAbove > 0) {
+            b.setSpaceAbove(p.spaceAbove);
+        }
+        if (p.lineSpacing > 0) {
+            b.setLineSpacing(p.lineSpacing);
+        }
+        if (p.spaceBelow > 0) {
+            b.setSpaceBelow(p.spaceBelow);
+        }
+        m.applyStyle(TextPos.ZERO, m.getDocumentEnd(), b.build(), false);
+        return m;
+    }
+
+    /// tests navigation in a randomly created text model with all the combinations of
+    /// controld width, start cursor position, text wrap, space above/below, and line spacing.
+    @ParameterizedTest
+    @MethodSource("parameters")
+    public void navigateUpDown(Params p) {
+        RichTextModel m = createModel(p);
+        control.setModel(m);
+        stageLoader.getStage().setWidth(p.width);
+        control.setPrefWidth(p.width);
+        control.setWrapText(p.wrap);
+        
+        RTUtil.firePulse();
+        assertEquals(p.width, control.getWidth(), 5);
+
+        Stage stage = stageLoader.getStage();
+        double x = stage.getX() + (p.startAtLeft ? 0 : (stage.getWidth() / 2));
+        double y = stage.getY() + stage.getHeight() / 2.0;
+        TextPos pos = control.getTextPosition(x, y);
+        control.select(pos);
+
+        int count = 0;
+        count += navigate(p, false);
+        count += navigate(p, true);
+        count += navigate(p, false);
+        assertTrue(count > 0);
+    }
+
+    private int navigate(Params p, boolean down) {
+        TextPos end = control.getDocumentEnd();
+        assertNotNull(end);
+
+        int count = 0;
+        for (;;) {
+            TextPos p0 = control.getCaretPosition();
+
+            if (down) {
+                control.moveDown();
+            } else {
+                control.moveUp();
+            }
+            RTUtil.firePulse();
+
+            TextPos p1 = control.getCaretPosition();
+            assertNotNull(p1);
+            if (p1.equals(TextPos.ZERO)) {
+                break;
+            } else if (p1.equals(end)) {
+                break;
+            }
+            // did we actually move?
+            assertFalse(p0.equals(p1), (down ? "down" : "up") + " p0=" + p0 + " p1=" + p1 + " params=" + p);
+            count++;
+        }
+        return count;
     }
 }
