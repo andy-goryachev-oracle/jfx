@@ -140,8 +140,9 @@ public class RichTextAreaNavigationTest {
         r = new Random(seed);
         IO.println("seed=" + seed);
 
+        int lines = 128;
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < 32; i++) {
+        for (int i = 0; i < lines; i++) {
             if (i > 0) {
                 sb.append("\n");
             }
@@ -154,7 +155,11 @@ public class RichTextAreaNavigationTest {
                 wordCount++;
                 for (int j = 0; j < wordCount; j++) {
                     if (j > 0) {
-                        sb.append(' ');
+                        if (r.nextDouble() > 0.1) {
+                            sb.append(' ');
+                        } else {
+                            sb.append('\t');
+                        }
                     }
                     int len = 1 + r.nextInt(10);
                     for (int w = 0; w < len; w++) {
@@ -180,7 +185,7 @@ public class RichTextAreaNavigationTest {
         return m;
     }
 
-    /// tests navigation in a randomly created text model with all the combinations of
+    /// tests vertical navigation in a randomly created text model with all the combinations of
     /// controld width, start cursor position, text wrap, space above/below, and line spacing.
     @ParameterizedTest
     @MethodSource("parameters")
@@ -201,13 +206,19 @@ public class RichTextAreaNavigationTest {
         control.select(pos);
 
         int count = 0;
-        count += navigate(p, false);
-        count += navigate(p, true);
-        count += navigate(p, false);
+        count += navigate(p, false, false);
+        count += navigate(p, true, false);
+        count += navigate(p, false, false);
+        assertTrue(count > 0);
+
+        count = 0;
+        count += navigate(p, false, true);
+        count += navigate(p, true, true);
+        count += navigate(p, false, true);
         assertTrue(count > 0);
     }
 
-    private int navigate(Params p, boolean down) {
+    private int navigate(Params p, boolean down, boolean page) {
         TextPos end = control.getDocumentEnd();
         assertNotNull(end);
 
@@ -216,9 +227,17 @@ public class RichTextAreaNavigationTest {
             TextPos p0 = control.getCaretPosition();
 
             if (down) {
-                control.moveDown();
+                if (page) {
+                    control.pageDown();
+                } else {
+                    control.moveDown();
+                }
             } else {
-                control.moveUp();
+                if (page) {
+                    control.pageUp();
+                } else {
+                    control.moveUp();
+                }
             }
             RTUtil.firePulse();
 
