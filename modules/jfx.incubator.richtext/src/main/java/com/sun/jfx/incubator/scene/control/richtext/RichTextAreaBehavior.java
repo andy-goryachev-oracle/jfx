@@ -679,6 +679,7 @@ public class RichTextAreaBehavior extends BehaviorBase<RichTextArea> {
         }
 
         boolean down = (deltaPixels > 0);
+        // make sure the target y is outside of the current line of text
         double y = down ?
             ci.getMaxY() + ci.getLineSpacing() + deltaPixels + 1.0 :
             ci.getMinY() + deltaPixels - 1.0;

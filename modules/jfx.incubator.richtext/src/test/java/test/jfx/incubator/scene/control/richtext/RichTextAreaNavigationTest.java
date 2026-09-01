@@ -101,7 +101,7 @@ public class RichTextAreaNavigationTest {
 
     private record Params(
         double width,
-        boolean startAtLeft,
+        double startX,
         boolean wrap,
         double spaceAbove,
         double lineSpacing,
@@ -113,14 +113,14 @@ public class RichTextAreaNavigationTest {
 
         ArrayList<Params> params = new ArrayList<>();
         for (double width : new double[] { 100.0, 500.0 }) {
-            for (boolean startAtLeft : booleans) {
+            for (double startX : new double[] { 0.0, 0.3, 1.0 }) {
                 for (boolean wrap : booleans) {
                     for (double spaceAbove : new double[] { 0.0, 11.1 }) {
                         for (double lineSpacing : new double[] { 0.0, 12.2 }) {
                             for (double spaceBelow : new double[] { 0.0, 13.3 }) {
                                 params.add(new Params(
                                     width,
-                                    startAtLeft,
+                                    width * startX,
                                     wrap,
                                     spaceAbove,
                                     lineSpacing,
@@ -186,7 +186,7 @@ public class RichTextAreaNavigationTest {
     }
 
     /// tests vertical navigation in a randomly created text model with all the combinations of
-    /// controld width, start cursor position, text wrap, space above/below, and line spacing.
+    /// control width, start cursor position, text wrap, space above/below, and line spacing.
     @ParameterizedTest
     @MethodSource("parameters")
     public void navigateUpDown(Params p) {
@@ -200,7 +200,7 @@ public class RichTextAreaNavigationTest {
         assertEquals(p.width, control.getWidth(), 5);
 
         Stage stage = stageLoader.getStage();
-        double x = stage.getX() + (p.startAtLeft ? 0 : (stage.getWidth() / 2));
+        double x = stage.getX() + p.startX;
         double y = stage.getY() + stage.getHeight() / 2.0;
         TextPos pos = control.getTextPosition(x, y);
         control.select(pos);
@@ -223,7 +223,9 @@ public class RichTextAreaNavigationTest {
         assertNotNull(end);
 
         int count = 0;
-        for (;;) {
+        // this loop should exit as soon as it hits the beginning or end of the document,
+        // but let's set a limit, just in case
+        while (count < 10_000) {
             TextPos p0 = control.getCaretPosition();
 
             if (down) {

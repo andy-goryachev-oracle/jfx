@@ -1186,7 +1186,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         TextCell cell = getCell(ix);
 
         if (ix == caretIndex) {
-            if (cell.isOutsideTextRangeY(y - cell.getY(), down)) {
+            if (cell.isOutsideTextRangeY(y - cell.getY())) {
                 // jump to the adjacent cell
                 if (down) {
                     ix++;
@@ -1208,7 +1208,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             }
         }
 
-        double py = cell.findHitCandidate(y - cell.getY(), down);
+        double py = cell.findHitCandidate(y - cell.getY());
         p = findTextPosLocal(x, py + cell.getY());
         return p;
     }

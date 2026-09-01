@@ -416,12 +416,12 @@ public final class TextCell extends BorderPane {
         if (content instanceof TextFlow f) {
             LayoutInfo la = f.getLayoutInfo();
             double sp = f.getLineSpacing();
-            return RangeInfo.of(la, sp);
+            return RangeInfo.of(la, sp, height);
         }
-        return RangeInfo.of(width, height);
+        return RangeInfo.of(height);
     }
 
-    public boolean isOutsideTextRangeY(double y, boolean down) {
+    public boolean isOutsideTextRangeY(double y) {
         if (getTextLength() == 0) {
             // there is no text
             return true;
@@ -440,7 +440,7 @@ public final class TextCell extends BorderPane {
         return snappedTopInset() + ri.getLastLineMidY();
     }
 
-    public double findHitCandidate(double cellY, boolean down) {
+    public double findHitCandidate(double cellY) {
         double dy = snappedTopInset();
         RangeInfo ri = textRange();
         return ri.findHitMidpoint(cellY - dy) + dy;

@@ -36,7 +36,7 @@ import javafx.scene.text.TextLineInfo;
  * within the VFlow.
  */
 public final class RangeInfo {
-    /// { miny, maxy, ... }
+    /// { miny1, maxy1, miny2, maxy2, ... }
     private final double[] lines;
     private final double ymin;
     private final double ymax;
@@ -47,15 +47,18 @@ public final class RangeInfo {
         this.ymax = ymax;
     }
 
-    public static RangeInfo of(double width, double height) {
+    public static RangeInfo of(double height) {
         return new RangeInfo(null, 0.0, height);
     }
 
-    public static RangeInfo of(LayoutInfo la, double lineSpacing) {
+    public static RangeInfo of(LayoutInfo la, double lineSpacing, double height) {
+        List<TextLineInfo> lines = la.getTextLines(true);
+        if (lines.size() == 0) {
+            return new RangeInfo(null, 0.0, height);
+        }
         Rectangle2D r = la.getLogicalBounds(false);
         double ymin = r.getMinY();
         double ymax = r.getMaxY();
-        List<TextLineInfo> lines = la.getTextLines(true);
         int sz = lines.size();
         double[] d = new double[sz + sz];
         int dest = 0;
@@ -94,7 +97,13 @@ public final class RangeInfo {
 
     public double findHitMidpoint(double y) {
         if (lines != null) {
-            for (int i = 0; i < lines.length;) {
+            int sz = lines.length;
+            if (y < lines[0]) {
+                return midPoint(0, lines[0]);
+            } else if (y >= lines[sz - 1]) {
+                return midPoint(lines[sz - 2], lines[sz - 1]);
+            }
+            for (int i = 0; i < sz;) {
                 double min = lines[i++];
                 double max = lines[i++];
                 if ((y >= min) && (y < max)) {

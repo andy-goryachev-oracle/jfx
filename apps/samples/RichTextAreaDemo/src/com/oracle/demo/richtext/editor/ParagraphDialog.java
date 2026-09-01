@@ -243,10 +243,6 @@ public class ParagraphDialog extends Stage {
             StyleAttributeMap a = getAttributes();
             editor.applyStyle(sel.getMin(), sel.getMax(), a);
         }
-        // FIX
-        // weird issue: select all, right click, select Paragraph
-        // change spacing, click OK to dismiss the dialog -
-        // the first click on the editor does not clear the selection??
         hide();
     }
 }
