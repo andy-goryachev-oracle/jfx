@@ -68,8 +68,8 @@ public final class RangeInfo {
             d[dest++] = r.getMaxY();
         }
         // remove line spacing from the last line to force navigating to the next cell
-        if (sz > 0) {
-            d[sz - 1] -= lineSpacing;
+        if (d.length > 0) {
+            d[d.length - 1] -= lineSpacing;
         }
         return new RangeInfo(d, ymin, ymax);
     }
