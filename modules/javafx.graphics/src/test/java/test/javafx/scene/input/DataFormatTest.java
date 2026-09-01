@@ -31,9 +31,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import javafx.scene.input.DataFormat;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -132,5 +137,68 @@ public class DataFormatTest {
         assertDoesNotThrow(() -> {
             new DataFormat(mimes);
         });
+    }
+
+    @Timeout(10)
+    @Test
+    public void concurrencyWithSingleID() throws Exception {
+        long duration = 5_000;
+        int threadCount = 1 + Runtime.getRuntime().availableProcessors() * 2;
+        AtomicBoolean run = new AtomicBoolean(true);
+        AtomicBoolean error = new AtomicBoolean(false);
+        ArrayList<Thread> threads = new ArrayList<>(threadCount);
+        AtomicLong count = new AtomicLong();
+
+        for (int i = 0; i < threadCount; i++) {
+            Thread t = new Thread("concurrencyWithSingleID_" + i) {
+                @Override
+                public void run() {
+                    int num = 0;
+                    while (run.get()) {
+                        String id = "test-data-format-" + num;
+                        ++num;
+                        if (num > 10) {
+                            num = 0;
+                        }
+                        try {
+                            DataFormat f = new DataFormat(id);
+                            count.incrementAndGet();
+                        } catch (Throwable e) {
+                            error.set(true);
+                            fail(e);
+                        }
+                    }
+                }
+            };
+            threads.add(t);
+        }
+
+        for (Thread t : threads) {
+            t.start();
+        }
+
+        Thread waitingThread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(duration);
+                } catch (InterruptedException e) {
+                    // ignore
+                }
+                run.set(false);
+                for (Thread t : threads) {
+                    try {
+                        t.join();
+                    } catch (Exception e) {
+                        fail(e);
+                    }
+                }
+            }
+        };
+        waitingThread.start();
+        waitingThread.join();
+
+        assertFalse(error.get());
+        assertTrue(count.get() > 100); // millions on the current hardware
     }
 }

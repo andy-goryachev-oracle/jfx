@@ -39,7 +39,7 @@ public class DataFormat {
 
     // A static registry of DataFormats for the purposes of checking against constructing DataFormats
     // that contain mismatched mime types.
-    private static final HashMap<String,DataFormat> registry = new HashMap<>();
+    private static final HashMap<String, DataFormat> registry = new HashMap<>();
 
     /**
      * Represents a plain text string.
@@ -78,6 +78,7 @@ public class DataFormat {
      * Data format used internally, represents dragged image. Making this
      * a private field prevents user from creating this DataFormat and breaking
      * our drag view implementation.
+     * See com.sun.glass.ui.Clipboard, glass_dnd.cpp
      */
     private static final DataFormat DRAG_IMAGE = new DataFormat("application/x-java-drag-image");
 
@@ -85,6 +86,7 @@ public class DataFormat {
      * Data format used internally, represents offset in the dragged image.
      * Making this a private field prevents user from creating this DataFormat
      * and breaking our drag view implementation.
+     * See com.sun.glass.ui.Clipboard, glass_dnd.cpp
      */
     private static final DataFormat DRAG_IMAGE_OFFSET = new DataFormat("application/x-java-drag-image-offset");
 
@@ -187,14 +189,9 @@ public class DataFormat {
      * Returns a hash code for this {@code DataFormat} object.
      * @return a hash code for this {@code DataFormat} object.
      */
-    @Override public int hashCode() {
-        int hash = 7;
-
-        for (String id : identifiers) {
-            hash = 31 * hash + id.hashCode();
-        }
-
-        return hash;
+    @Override
+    public int hashCode() {
+        return identifiers.hashCode();
     }
 
     /**
