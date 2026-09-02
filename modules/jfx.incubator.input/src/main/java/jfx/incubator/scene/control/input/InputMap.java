@@ -393,7 +393,9 @@ public final class InputMap {
      * @param m the skin input map
      * @since 999 TODO
      */
-    // alternatively, we could add Skin.getSkinInputMap()
+    // TODO
+    // to avoid potential mususe, it might be better to hide this method inside of
+    // Control.setSkin(), though this will require introducing Skin.getSkinInputMap()
     public void setSkinInputMap(SkinInputMap m) {
         if (skinInputMap != null) {
             // uninstall all handlers with SKIN_* priority
