@@ -36,7 +36,7 @@ import javafx.scene.text.TextLineInfo;
  * within the VFlow.
  */
 public final class RangeInfo {
-    /// { miny1, maxy1, miny2, maxy2, ... }
+    /// contains pairs of [ miny, maxy, ... ], or null
     private final double[] lines;
     private final double ymin;
     private final double ymax;
@@ -99,7 +99,7 @@ public final class RangeInfo {
         if (lines != null) {
             int sz = lines.length;
             if (y < lines[0]) {
-                return midPoint(0, lines[0]);
+                return midPoint(lines[0], lines[1]);
             } else if (y >= lines[sz - 1]) {
                 return midPoint(lines[sz - 2], lines[sz - 1]);
             }
