@@ -34,9 +34,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 import javafx.scene.input.DataFormat;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -139,22 +139,22 @@ public class DataFormatTest {
         });
     }
 
-    @Timeout(10)
-    @Test
+    // verifies concurrency of the constructor and lookupMimeType()
+    @Timeout(15)
+    @RepeatedTest(10)
     public void concurrencyWithSingleID() throws Exception {
-        long duration = 5_000;
+        long iterationCount = 100_000; // ~0.2 seconds on mac M1
         int threadCount = 1 + Runtime.getRuntime().availableProcessors() * 2;
         AtomicBoolean run = new AtomicBoolean(true);
         AtomicBoolean error = new AtomicBoolean(false);
         ArrayList<Thread> threads = new ArrayList<>(threadCount);
-        AtomicLong count = new AtomicLong();
 
         for (int i = 0; i < threadCount; i++) {
             Thread t = new Thread("concurrencyWithSingleID_" + i) {
                 @Override
                 public void run() {
                     int num = 0;
-                    while (run.get()) {
+                    for (long i = 0; i < iterationCount; i++) {
                         String id = "test-data-format-" + num;
                         ++num;
                         if (num > 10) {
@@ -162,7 +162,7 @@ public class DataFormatTest {
                         }
                         try {
                             DataFormat f = new DataFormat(id);
-                            count.incrementAndGet();
+                            assertEquals(f, DataFormat.lookupMimeType(id));
                         } catch (Throwable e) {
                             error.set(true);
                             fail(e);
@@ -177,28 +177,14 @@ public class DataFormatTest {
             t.start();
         }
 
-        Thread waitingThread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(duration);
-                } catch (InterruptedException e) {
-                    // ignore
-                }
-                run.set(false);
-                for (Thread t : threads) {
-                    try {
-                        t.join();
-                    } catch (Exception e) {
-                        fail(e);
-                    }
-                }
+        for (Thread t : threads) {
+            try {
+                t.join();
+            } catch (Exception e) {
+                fail(e);
             }
-        };
-        waitingThread.start();
-        waitingThread.join();
+        }
 
         assertFalse(error.get());
-        assertTrue(count.get() > 100); // millions on the current hardware
     }
 }
