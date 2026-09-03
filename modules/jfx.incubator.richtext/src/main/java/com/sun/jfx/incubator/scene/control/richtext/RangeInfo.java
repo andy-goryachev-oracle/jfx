@@ -36,7 +36,7 @@ import javafx.scene.text.TextLineInfo;
  * within the VFlow.
  */
 public final class RangeInfo {
-    /// contains pairs of [ miny, maxy, ... ], or null
+    /// contains one or more pairs of {miny, maxy} values, or null
     private final double[] lines;
     private final double ymin;
     private final double ymax;
