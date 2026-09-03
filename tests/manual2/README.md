@@ -12,6 +12,12 @@ using absolute path:
 ant -Djavafx.home=<JAVAFX>
 ```
 
+The build is wired into the main gradle build:
+
+```
+gradle manualApps
+```
+
 
 ## Run
 
@@ -22,6 +28,3 @@ java -p "../../build/sdk/lib" --enable-native-access=javafx.graphics --add-modul
 ```
 
 
-## TODO
-
-The ant build should be wired into the main `build.gradle`.
