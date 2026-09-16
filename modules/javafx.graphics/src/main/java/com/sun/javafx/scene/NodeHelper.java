@@ -25,18 +25,6 @@
 
 package com.sun.javafx.scene;
 
-import com.sun.glass.ui.Accessible;
-import com.sun.javafx.css.TransitionDefinition;
-import com.sun.javafx.css.TransitionTimer;
-import com.sun.javafx.css.media.MediaQueryContext;
-import com.sun.javafx.geom.BaseBounds;
-import com.sun.javafx.geom.PickRay;
-import com.sun.javafx.geom.transform.BaseTransform;
-import com.sun.javafx.scene.input.PickResultChooser;
-import com.sun.javafx.scene.traversal.Direction;
-import com.sun.javafx.scene.traversal.TraversalMethod;
-import com.sun.javafx.sg.prism.NGNode;
-import com.sun.javafx.util.Utils;
 import java.util.List;
 import java.util.Map;
 import javafx.beans.binding.BooleanExpression;
@@ -51,6 +39,19 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SubScene;
 import javafx.scene.text.Font;
+import com.sun.glass.ui.Accessible;
+import com.sun.javafx.css.TransitionDefinition;
+import com.sun.javafx.css.TransitionTimer;
+import com.sun.javafx.css.media.MediaQueryContext;
+import com.sun.javafx.geom.BaseBounds;
+import com.sun.javafx.geom.PickRay;
+import com.sun.javafx.geom.transform.BaseTransform;
+import com.sun.javafx.scene.input.PickResultChooser;
+import com.sun.javafx.scene.traversal.Direction;
+import com.sun.javafx.scene.traversal.TraversalMethod;
+import com.sun.javafx.sg.prism.NGNode;
+import com.sun.javafx.util.HiddenProps;
+import com.sun.javafx.util.Utils;
 
 /**
  * Used to access internal methods of Node.
@@ -356,6 +357,10 @@ public abstract class NodeHelper {
         return nodeAccessor.getMediaQueryContext(node);
     }
 
+    public static HiddenProps getHiddenProps(Node n) {
+        return nodeAccessor.getHiddenProps(n);
+    }
+
     public static void setNodeAccessor(final NodeAccessor newAccessor) {
         if (nodeAccessor != null) {
             throw new IllegalStateException();
@@ -431,6 +436,6 @@ public abstract class NodeHelper {
         void removeTransitionTimer(Node node, String propertyName);
         TransitionTimer findTransitionTimer(Node node, String propertyName);
         MediaQueryContext getMediaQueryContext(Node node);
+        HiddenProps getHiddenProps(Node n);
     }
-
 }
