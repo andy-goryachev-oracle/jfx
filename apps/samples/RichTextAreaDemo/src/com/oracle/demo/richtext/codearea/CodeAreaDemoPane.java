@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -34,6 +34,7 @@ package com.oracle.demo.richtext.codearea;
 
 import java.nio.charset.Charset;
 import java.util.Base64;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -56,6 +57,7 @@ import javafx.util.StringConverter;
 import com.oracle.demo.richtext.rta.FontOption;
 import com.oracle.demo.richtext.rta.ROptionPane;
 import com.oracle.demo.richtext.util.FX;
+import com.oracle.demo.richtext.util.NamedValue;
 import jfx.incubator.scene.control.richtext.CodeArea;
 import jfx.incubator.scene.control.richtext.SyntaxDecorator;
 import jfx.incubator.scene.control.richtext.TextPos;
@@ -69,12 +71,14 @@ import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
  * @author Andy Goryachev
  */
 public class CodeAreaDemoPane extends BorderPane {
+    public final static SimpleObjectProperty<CodeTextModel> modelProperty = new SimpleObjectProperty<>(new CodeTextModel());
     public final ROptionPane op;
     public final CodeArea control;
 
-    public CodeAreaDemoPane(CodeTextModel m) {
+    public CodeAreaDemoPane() {
         FX.name(this, "CodeAreaDemoPane");
-        control = new CodeArea(m);
+        control = new CodeArea();
+        control.modelProperty().bind(modelProperty);
 
         SplitPane hsplit = new SplitPane(control, pane());
         FX.name(hsplit, "hsplit");
@@ -184,6 +188,16 @@ public class CodeAreaDemoPane extends BorderPane {
         FX.name(lineNumbers, "lineNumbers");
         lineNumbers.selectedProperty().bindBidirectional(control.lineNumbersEnabledProperty());
 
+        ComboBox<NamedValue<CodeTextModel>> model = new ComboBox<>();
+        model.getItems().setAll(
+            new NamedValue<>("<null>", null),
+            new NamedValue<>("CodeTextModel", new CodeTextModel()),
+            new NamedValue<>("Code Folding", new CodeFoldingModel())
+        );
+        model.getSelectionModel().selectedItemProperty().addListener((_,_,v) -> {
+            modelProperty.set(v.value());
+        });
+
         ComboBox<SyntaxDecorator> syntax = new ComboBox<>();
         FX.name(syntax, "syntax");
         syntax.getItems().addAll(
@@ -207,23 +221,25 @@ public class CodeAreaDemoPane extends BorderPane {
         });
 
         op = new ROptionPane();
-        op.option(editable);
-        op.label("Font:");
-        op.option(fontOption);
-        op.option(wrapText);
-        op.option(displayCaret);
-        op.option(fatCaret);
-        op.option(highlightCurrentLine);
-        op.option(lineNumbers);
-        op.label("Tab Size:");
-        op.option(tabSize);
-        op.option(customPopup);
         op.label("Content Padding:");
         op.option(contentPadding);
+        op.option(customPopup);
+        op.option(displayCaret);
+        op.option(editable);
+        op.option(fatCaret);
+        op.label("Font:");
+        op.option(fontOption);
+        op.option(highlightCurrentLine);
+        op.option(lineNumbers);
         op.label("Line Spacing:");
         op.option(lineSpacing);
+        op.label("Model:");
+        op.option(model);
         op.label("Syntax Highlighter:");
         op.option(syntax);
+        op.label("Tab Size:");
+        op.option(tabSize);
+        op.option(wrapText);
 
         setCenter(vsplit);
         setRight(op);

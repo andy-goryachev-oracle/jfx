@@ -55,6 +55,9 @@ public class Params {
     /** default value for {@code displayCaret} property */
     public static final boolean DEFAULT_DISPLAY_CARET = true;
 
+    /** default value for {@code CodeArea.foldingProperty} */
+    public static final boolean DEFAULT_FOLDING_ENABLED = false;
+
     /** default value for {@code highlightCurrentParagraph} property */
     public static final boolean DEFAULT_HIGHLIGHT_CURRENT_PARAGRAPH = false;
 

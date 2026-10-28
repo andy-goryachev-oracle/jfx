@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -51,13 +51,11 @@ import jfx.incubator.scene.control.richtext.model.CodeTextModel;
  * @author Andy Goryachev
  */
 public class CodeAreaWindow extends Stage {
-    private CodeTextModel model;
     public final CodeAreaDemoPane demoPane;
     public final Label status;
 
-    public CodeAreaWindow(CodeTextModel m) {
-        model = (m == null ? new CodeTextModel() : m);
-        demoPane = new CodeAreaDemoPane(model);
+    public CodeAreaWindow() {
+        demoPane = new CodeAreaDemoPane();
 
         MenuBar mb = new MenuBar();
         FX.menu(mb, "File");
@@ -104,7 +102,7 @@ public class CodeAreaWindow extends Stage {
     protected void newWindow() {
         double offset = 20;
 
-        CodeAreaWindow w = new CodeAreaWindow(model);
+        CodeAreaWindow w = new CodeAreaWindow();
         w.setX(getX() + offset);
         w.setY(getY() + offset);
         w.setWidth(getWidth());

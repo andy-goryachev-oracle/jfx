@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -35,8 +35,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.WritableValue;
 import javafx.css.CssMetaData;
 import javafx.css.FontCssMetaData;
+import javafx.css.StyleConverter;
 import javafx.css.StyleOrigin;
 import javafx.css.Styleable;
+import javafx.css.StyleableBooleanProperty;
 import javafx.css.StyleableDoubleProperty;
 import javafx.css.StyleableIntegerProperty;
 import javafx.css.StyleableObjectProperty;
@@ -86,6 +88,7 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  * @since 24
  */
 public class CodeArea extends RichTextArea {
+    private StyleableBooleanProperty foldingEnabled;
     private BooleanProperty lineNumbers;
     private StyleableIntegerProperty tabSize;
     private StyleableObjectProperty<Font> font;
@@ -144,6 +147,43 @@ public class CodeArea extends RichTextArea {
     public final SyntaxDecorator getSyntaxDecorator() {
         CodeTextModel m = codeModel();
         return (m == null) ? null : m.getDecorator();
+    }
+
+    /**
+     * Determines whether the code folding UI is enabled.
+     *
+     * @return the code folding enabled property
+     * @defaultValue false
+     * @since 999 TODO
+     */
+    public final BooleanProperty foldingEnabledProperty() {
+        if (foldingEnabled == null) {
+            foldingEnabled = new StyleableBooleanProperty(Params.DEFAULT_FOLDING_ENABLED) {
+                @Override
+                public Object getBean() {
+                    return CodeArea.this;
+                }
+
+                @Override
+                public String getName() {
+                    return "foldingEnabled";
+                }
+
+                @Override
+                public CssMetaData<CodeArea, Boolean> getCssMetaData() {
+                    return StyleableProperties.FOLDING_ENABLED;
+                }
+            };
+        }
+        return foldingEnabled;
+    }
+
+    public final boolean isFoldingEnabled() {
+        return foldingEnabled == null ? Params.DEFAULT_FOLDING_ENABLED : foldingEnabled.get();
+    }
+
+    public final void setFoldingEnabled(boolean on) {
+        foldingEnabledProperty().set(on);
     }
 
     /**
@@ -365,6 +405,20 @@ public class CodeArea extends RichTextArea {
             }
         };
 
+        private static final CssMetaData<CodeArea,Boolean> FOLDING_ENABLED =
+            new CssMetaData<>("-fx-folding-enabled", StyleConverter.getBooleanConverter(), Params.DEFAULT_FOLDING_ENABLED)
+        {
+            @Override
+            public boolean isSettable(CodeArea t) {
+                return t.foldingEnabled == null || !t.foldingEnabled.isBound();
+            }
+
+            @Override
+            public StyleableProperty<Boolean> getStyleableProperty(CodeArea t) {
+                return (StyleableProperty<Boolean>)t.foldingEnabledProperty();
+            }
+        };
+
         private static final FontCssMetaData<CodeArea> FONT =
             new FontCssMetaData<>("-fx-font", defaultFont())
         {
@@ -395,6 +449,7 @@ public class CodeArea extends RichTextArea {
 
         private static final List<CssMetaData<? extends Styleable, ?>> STYLEABLES = RichUtils.combine(
             RichTextArea.getClassCssMetaData(),
+            FOLDING_ENABLED,
             FONT,
             LINE_SPACING,
             TAB_SIZE

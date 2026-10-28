@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@
 
 package jfx.incubator.scene.control.richtext.model;
 
+import java.util.List;
 import java.util.Set;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -120,5 +121,33 @@ public class CodeTextModel extends BasicTextModel {
             d.handleChange(this, start, end, charsTop, linesAdded, charsBottom);
         }
         super.fireChangeEvent(start, end, charsTop, linesAdded, charsBottom);
+    }
+
+    /**
+     * Determines whether the model supports code folding.
+     * When this method returns {@code true}, the folding regions can be queried
+     * through {@link #getFoldRanges()}.
+     *
+     * @return whether the model supports code folding
+     * @since 999 TODO
+     */
+    public boolean isFoldingSupported() {
+        // the base model does not support code folding
+        return false;
+    }
+
+    /**
+     * Returns the list of fold ranges between the start and end positions.
+     * Sorting: TODO
+     * This method may return null when folding ranges are not available or code folding is not supported.
+     *
+     * @param start the start paragraph index
+     * @param end the end paragraph index
+     * @return the list of ranges, or null
+     * @since 999 TODO
+     */
+    public List<FoldRange> getFoldRanges(int start, int end) {
+        // the base model does not support code folding
+        return null;
     }
 }

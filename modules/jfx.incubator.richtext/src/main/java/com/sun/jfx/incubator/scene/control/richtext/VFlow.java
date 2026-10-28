@@ -160,7 +160,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         hscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
         hscroll.setBlockIncrement(Params.SCROLL_BARS_BLOCK_INCREMENT);
 
-        cellCache = new FastCache(Params.CELL_CACHE_SIZE);
+        cellCache = new FastCache<>(Params.CELL_CACHE_SIZE);
 
         getStyleClass().add("vflow");
         setPadding(new Insets(Params.LAYOUT_FOCUS_BORDER));
