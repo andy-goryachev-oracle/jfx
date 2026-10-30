@@ -188,11 +188,26 @@ public class CodeAreaDemoPane extends BorderPane {
         FX.name(lineNumbers, "lineNumbers");
         lineNumbers.selectedProperty().bindBidirectional(control.lineNumbersEnabledProperty());
 
+        FoldingCodeTextModel fm = new FoldingCodeTextModel();
+        fm.replace(null, TextPos.ZERO, TextPos.ZERO,
+            """
+            {
+                a: 1,
+                b: 2,
+                c: {
+                    d: "yo"
+                },
+                e: {
+                    f: true,
+                    g: 6
+                }
+            }
+            """);
         ComboBox<NamedValue<CodeTextModel>> model = new ComboBox<>();
         model.getItems().setAll(
             new NamedValue<>("<null>", null),
             new NamedValue<>("CodeTextModel", new CodeTextModel()),
-            new NamedValue<>("Code Folding", new CodeFoldingModel())
+            new NamedValue<>("Code Folding", fm)
         );
         model.getSelectionModel().selectedItemProperty().addListener((_,_,v) -> {
             modelProperty.set(v.value());

@@ -126,7 +126,7 @@ public class CodeTextModel extends BasicTextModel {
     /**
      * Determines whether the model supports code folding.
      * When this method returns {@code true}, the folding regions can be queried
-     * through {@link #getFoldRanges()}.
+     * through {@link #getFoldRanges(int, int)}.
      *
      * @return whether the model supports code folding
      * @since 999 TODO
@@ -138,6 +138,7 @@ public class CodeTextModel extends BasicTextModel {
 
     /**
      * Returns the list of fold ranges between the start and end positions.
+     * The ranges should be considered transient - they stop being valid once the text in the model is changed.
      * Sorting: TODO
      * This method may return null when folding ranges are not available or code folding is not supported.
      *
@@ -146,6 +147,7 @@ public class CodeTextModel extends BasicTextModel {
      * @return the list of ranges, or null
      * @since 999 TODO
      */
+    // TODO perhaps it should not invalidate if the edit is after the range, but there is no way of signaling that.
     public List<FoldRange> getFoldRanges(int start, int end) {
         // the base model does not support code folding
         return null;
