@@ -3531,7 +3531,7 @@ is being used to size a border should also be in pixels.
     -fx-alignment: center;
     -fx-background-color: -fx-text-background-color;
 	-fx-padding: 0.333333em 0.229em 0.333333em 0.229em; /* 4 */
-    -fx-position-shape: false;
+    -fx-position-shape: true;
 	-fx-shape: "M 0 -3.5 L 4 0 L 0 3.5 z";
     -fx-rotate: 90;
 }
