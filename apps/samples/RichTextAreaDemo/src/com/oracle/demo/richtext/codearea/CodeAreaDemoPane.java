@@ -98,6 +98,10 @@ public class CodeAreaDemoPane extends BorderPane {
         FX.name(editable, "editable");
         editable.selectedProperty().bindBidirectional(control.editableProperty());
 
+        CheckBox foldingEnabled = new CheckBox("folding enabled");
+        FX.name(foldingEnabled, "foldingEnabled");
+        foldingEnabled.selectedProperty().bindBidirectional(control.foldingEnabledProperty());
+
         CheckBox wrapText = new CheckBox("wrap text");
         FX.name(wrapText, "wrapText");
         wrapText.selectedProperty().bindBidirectional(control.wrapTextProperty());
@@ -242,6 +246,7 @@ public class CodeAreaDemoPane extends BorderPane {
         op.option(displayCaret);
         op.option(editable);
         op.option(fatCaret);
+        op.option(foldingEnabled);
         op.label("Font:");
         op.option(fontOption);
         op.option(highlightCurrentLine);

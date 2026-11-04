@@ -53,6 +53,12 @@ public class CodeAreaSkin extends RichTextAreaSkin {
             control.lineSpacingProperty(),
             control.tabSizeProperty()
         );
+        lh.addInvalidationListener(
+            () -> handleFoldingEnabled(control),
+            true,
+            control.modelProperty(),
+            control.foldingEnabledProperty()
+        );
     }
 
     @Override
@@ -90,5 +96,10 @@ public class CodeAreaSkin extends RichTextAreaSkin {
             int tabSize = control.getTabSize();
             cx.addStyle("-fx-tab-size:" + tabSize + ";");
         }
+    }
+
+    private void handleFoldingEnabled(CodeArea c) {
+        vflow.setFoldingEnabled(c.isFoldingEnabled());
+        refreshLayout();
     }
 }

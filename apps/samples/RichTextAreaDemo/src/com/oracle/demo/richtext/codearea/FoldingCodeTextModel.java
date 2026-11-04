@@ -89,8 +89,8 @@ public class FoldingCodeTextModel extends CodeTextModel {
                             f.extra--;
                             continue;
                         }
+                        f.end = ix;
                     }
-                    f.end = ix;
                     break;
                 }
             }

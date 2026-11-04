@@ -87,7 +87,7 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 public class RichTextAreaSkin extends SkinBase<RichTextArea> {
     private final ListenerHelper listenerHelper;
     private final RichTextAreaBehavior behavior;
-    private final VFlow vflow;
+    final VFlow vflow;
     private final ScrollBar vscroll;
     private final ScrollBar hscroll;
     private final EventHandler<InputMethodEvent> inputMethodTextChangedHandler = this::handleInputMethodEvent;
@@ -99,7 +99,7 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
             @Override
             public VFlow getVFlow(Skin<?> skin) {
                 if (skin instanceof RichTextAreaSkin s) {
-                    return s.getVFlow();
+                    return s.vflow;
                 }
                 return null;
             }
@@ -401,10 +401,6 @@ public class RichTextAreaSkin extends SkinBase<RichTextArea> {
      */
     protected ScrollBar createHScrollBar() {
         return new ScrollBar();
-    }
-
-    private VFlow getVFlow() {
-        return vflow;
     }
 
     /**

@@ -74,6 +74,7 @@ import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledSegment;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
+import jfx.incubator.scene.control.richtext.skin.FoldGutter;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 
 /**
@@ -84,6 +85,7 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  *  RichTextArea (Region) .rich-text-area
  *    └─ VFlow (Pane) .vflow
  *        ├─ left gutter (ClippedPane) .left-side
+ *        ├─ fold gutter (ClippedPane) .fold-gutter
  *        ├─ right gutter (ClippedPane) .right-side
  *        ├─ vertical ScrollBar
  *        ├─ horizontal ScrollBar
@@ -109,6 +111,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private final Path caretLineHighlight;
     private final Path selectionHighlight;
     private Path dropTarget;
+    private FoldGutter foldGutter;
     private final SimpleBooleanProperty caretVisible = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
     private final SimpleDoubleProperty offsetX = new SimpleDoubleProperty(0.0);
@@ -1366,6 +1369,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
         arrangement = new CellArrangement(this, contentPaddingTop, contentPaddingBottom);
 
+        // TODO move before creating the arrangement?
         double width = getWidth();
         if (width == 0.0) {
             return;
@@ -1389,10 +1393,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double height = getHeight();
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
+        double foldWidth = foldGutter == null ? 0.0 : foldGutter.prefWidth(-1);
 
         double maxWidth; // max width to apply before the layout (or replace with cell's preferred width?)
         if (wrap) {
-            availableWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
+            availableWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight - foldWidth;
             maxWidth = availableWidth;
         } else {
             availableWidth = -1.0;
@@ -1551,10 +1556,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         arrangement.setTopHeight(-y);
 
         if (useContentWidth) {
-            width = unwrappedWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + padLeft + padRight;
+            width = unwrappedWidth + leftSide + foldWidth + rightSide + contentPaddingLeft + contentPaddingRight + padLeft + padRight;
         }
 
-        viewPortWidth = width - leftSide - rightSide - vsbWidth - padLeft - padRight;
+        viewPortWidth = width - leftSide - foldWidth - rightSide - vsbWidth - padLeft - padRight;
         if (viewPortWidth < Params.MIN_VIEWPORT_WIDTH) {
             viewPortWidth = Params.MIN_VIEWPORT_WIDTH;
         }
@@ -1620,6 +1625,14 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             RichUtils.layoutInArea(leftGutter, padLeft, padTop, leftSide, vportH);
         }
 
+        if (foldGutter != null) {
+            // update fold toggles
+            // TODO pass current folding state
+            // FIX arrangmenet is not public API
+            foldGutter.update(control.getModel(), arrangement);
+            RichUtils.layoutInArea(foldGutter, padLeft + leftSide, padTop, foldWidth, vportH);
+        }
+
         if (rightDecorator == null) {
             rightGutter.setVisible(false);
         } else {
@@ -1627,7 +1640,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             RichUtils.layoutInArea(rightGutter, width - rightSide - padRight, padTop, rightSide, vportH);
         }
 
-        RichUtils.layoutInArea(vport, leftSide + padLeft, padTop, viewPortWidth, vportH);
+        RichUtils.layoutInArea(vport, leftSide + padLeft + foldWidth, padTop, viewPortWidth, vportH);
         // vport is a child of content
         RichUtils.layoutInArea(content, 0.0, 0.0, viewPortWidth, vportH);
 
@@ -1801,5 +1814,21 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     public boolean isWrapText() {
         return control.isWrapText();
+    }
+
+    // FIX should it start listening to the model property and model events?
+    public void setFoldingEnabled(boolean on) {
+        if (on) {
+            if (foldGutter == null) {
+                foldGutter = new FoldGutter();
+                // TODO pref width - bind with font size % ?
+                getChildren().add(foldGutter);
+            }
+        } else {
+            if (foldGutter != null) {
+                getChildren().remove(foldGutter);
+                foldGutter = null;
+            }
+        }
     }
 }
