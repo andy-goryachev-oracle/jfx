@@ -107,10 +107,6 @@ public class CellArrangement {
         return unwrappedWidth;
     }
 
-    public int getOriginIndex() {
-        return origin.index();
-    }
-
     public int getVisibleCellCount() {
         return visibleCount;
     }

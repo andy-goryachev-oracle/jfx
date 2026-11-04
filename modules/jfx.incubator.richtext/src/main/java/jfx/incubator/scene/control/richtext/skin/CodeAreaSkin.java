@@ -26,6 +26,8 @@
 package jfx.incubator.scene.control.richtext.skin;
 
 import java.util.Locale;
+import javafx.scene.Node;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Font;
 import com.sun.jfx.incubator.scene.control.richtext.RichTextAreaSkinHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.ListenerHelper;
@@ -101,5 +103,15 @@ public class CodeAreaSkin extends RichTextAreaSkin {
     private void handleFoldingEnabled(CodeArea c) {
         vflow.setFoldingEnabled(c.isFoldingEnabled());
         refreshLayout();
+    }
+
+    /**
+     * Create code folding toggle node.
+     * The toggle might receive COLLAPSED pseudostyle to indicate collapsed paragraphs.
+     * @return the toggle node
+     * @since 28
+     */
+    public Node createToggle() {
+        return new StackPane();
     }
 }

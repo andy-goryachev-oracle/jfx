@@ -3523,6 +3523,10 @@ is being used to size a border should also be in pixels.
     -fx-pref-width: 1em;
 }
 
+.fold-toggle-outer {
+    -fx-background-color: red; /* FIX remove */
+}
+
 .fold-toggle {
     -fx-alignment: center;
     -fx-background-color: -fx-text-background-color;

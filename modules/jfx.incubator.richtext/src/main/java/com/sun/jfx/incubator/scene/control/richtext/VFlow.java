@@ -67,14 +67,16 @@ import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SideDecorator;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.CodeTextModel;
 import jfx.incubator.scene.control.richtext.model.ContentChange;
+import jfx.incubator.scene.control.richtext.model.FoldRange;
 import jfx.incubator.scene.control.richtext.model.ParagraphDirection;
 import jfx.incubator.scene.control.richtext.model.RichParagraph;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.StyledSegment;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
-import jfx.incubator.scene.control.richtext.skin.FoldGutter;
+import jfx.incubator.scene.control.richtext.skin.CodeAreaSkin;
 import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
 
 /**
@@ -86,6 +88,8 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  *    └─ VFlow (Pane) .vflow
  *        ├─ left gutter (ClippedPane) .left-side
  *        ├─ fold gutter (ClippedPane) .fold-gutter
+ *        │    └─ toggle wrapper (Pane) .fold-toggle-outer
+ *        │         └─ fold toggle (Node) .fold-toggle
  *        ├─ right gutter (ClippedPane) .right-side
  *        ├─ vertical ScrollBar
  *        ├─ horizontal ScrollBar
@@ -111,7 +115,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private final Path caretLineHighlight;
     private final Path selectionHighlight;
     private Path dropTarget;
-    private FoldGutter foldGutter;
+    private Pane foldGutter;
     private final SimpleBooleanProperty caretVisible = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
     private final SimpleDoubleProperty offsetX = new SimpleDoubleProperty(0.0);
@@ -1626,10 +1630,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         if (foldGutter != null) {
-            // update fold toggles
-            // TODO pass current folding state
-            // FIX arrangmenet is not public API
-            foldGutter.update(control.getModel(), arrangement);
+            updateToggles(control.getModel());
             RichUtils.layoutInArea(foldGutter, padLeft + leftSide, padTop, foldWidth, vportH);
         }
 
@@ -1816,12 +1817,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         return control.isWrapText();
     }
 
-    // FIX should it start listening to the model property and model events?
     public void setFoldingEnabled(boolean on) {
         if (on) {
             if (foldGutter == null) {
-                foldGutter = new FoldGutter();
-                // TODO pref width - bind with font size % ?
+                foldGutter = new ClippedPane("fold-gutter");
+                foldGutter.setManaged(false);
+                // FIX 1em width does not work
+                // TODO is this needed? or percentage of font size?
+                // also, depends on the size of the toggle (both variants), unless the toggle is auto-sizing to parent
+                //setPrefWidth(13);
                 getChildren().add(foldGutter);
             }
         } else {
@@ -1830,5 +1834,56 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 foldGutter = null;
             }
         }
+    }
+
+    private void updateToggles(StyledTextModel model) {
+        List<FoldRange> fs;
+        if (model instanceof CodeTextModel m) {
+            int start = arrangement.topIndex();
+            int end = arrangement.bottomIndex();
+            fs = m.getFoldRanges(start, end);
+        } else {
+            fs = null;
+        }
+
+        List<Node> children = foldGutter.getChildren();
+        if ((fs == null) || fs.isEmpty()) {
+            children.clear();
+            return;
+        }
+
+        // remove overflow
+        int ct = children.size();
+        for (int i = ct - 1; i >= fs.size(); i--) {
+            children.remove(i);
+        }
+
+        // update visible toggles
+        int i = 0;
+        for ( ; i < fs.size(); i++) {
+            FoldRange f = fs.get(i);
+            Node ch;
+            if (i < ct) {
+                ch = children.get(i);
+            } else {
+                Node t = ((CodeAreaSkin)skin).createToggle();
+                t.setMouseTransparent(true);
+                t.getStyleClass().add("fold-toggle");
+
+                ch = new Pane(t);
+                ch.getStyleClass().add("fold-toggle-outer");
+                // FIX one more stack pane for padding and event handling!
+                ch.addEventHandler(MouseEvent.MOUSE_CLICKED, (ev) -> {
+                    handleToggle(f);
+                });
+                children.add(ch);
+            }
+            TextCell c = arrangement.getCell(f.getStart());
+            RichUtils.layoutInArea(ch, 0, c.getY(), getWidth(), c.getHeight());
+        }
+    }
+
+    private void handleToggle(FoldRange f) {
+        IO.println(f); // FIX
     }
 }
