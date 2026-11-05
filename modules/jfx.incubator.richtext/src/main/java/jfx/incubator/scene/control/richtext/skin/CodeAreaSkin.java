@@ -49,12 +49,15 @@ public class CodeAreaSkin extends RichTextAreaSkin {
         ListenerHelper lh = RichTextAreaSkinHelper.getListenerHelper(this);
         lh.addInvalidationListener(
             this::refreshLayout,
-            control.fontProperty(),
             control.lineSpacingProperty(),
             control.tabSizeProperty()
         );
         lh.addInvalidationListener(
-            () -> handleFoldingEnabled(control),
+            this::handleFontUpdate,
+            control.fontProperty()
+        );
+        lh.addInvalidationListener(
+            () -> handleFoldingEnabled(control.isFoldingEnabled()),
             true,
             control.modelProperty(),
             control.foldingEnabledProperty()
@@ -98,8 +101,13 @@ public class CodeAreaSkin extends RichTextAreaSkin {
         }
     }
 
-    private void handleFoldingEnabled(CodeArea c) {
-        vflow.setFoldingEnabled(c.isFoldingEnabled());
+    private void handleFontUpdate() {
+        vflow.handleFontUpdate_CodeArea();
+        refreshLayout();
+    }
+
+    private void handleFoldingEnabled(boolean on) {
+        vflow.setFoldingEnabled(on);
         refreshLayout();
     }
 }

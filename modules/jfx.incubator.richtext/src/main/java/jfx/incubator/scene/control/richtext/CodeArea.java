@@ -48,6 +48,7 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
 import javafx.scene.control.Labeled;
 import javafx.scene.text.Font;
+import com.sun.javafx.scene.NodeHelper;
 import com.sun.jfx.incubator.scene.control.richtext.Params;
 import com.sun.jfx.incubator.scene.control.richtext.StringBuilderStyledOutput;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
@@ -195,7 +196,6 @@ public class CodeArea extends RichTextArea {
      * @defaultValue false
      */
     // TODO should there be a way to customize the line number component? createLineNumberDecorator() ?
-    // TODO should this be a styleable property?
     public final BooleanProperty lineNumbersEnabledProperty() {
         if (lineNumbers == null) {
             lineNumbers = new SimpleBooleanProperty() {
@@ -290,7 +290,6 @@ public class CodeArea extends RichTextArea {
 
                 @Override
                 public void applyStyle(StyleOrigin newOrigin, Font value) {
-                    // TODO perhaps this is not needed
                     // RT-20727 JDK-8127428
                     // if CSS is setting the font, then make sure invalidate doesn't call NodeHelper.reapplyCSS
                     try {
@@ -308,10 +307,20 @@ public class CodeArea extends RichTextArea {
                 @Override
                 public void set(Font value) {
                     Font old = get();
-                    if (value == null ? old == null : value.equals(old)) {
-                        return;
+                    if (value != null ? !value.equals(old) : old != null) {
+                        super.set(value);
+                        NodeHelper.recalculateRelativeSizeProperties(CodeArea.this, value);
                     }
-                    super.set(value);
+                }
+
+                @Override
+                protected void invalidated() {
+                    // JDK-8127428 - if font is changed by calling setFont, then
+                    // css might need to be reapplied since font size affects
+                    // calculated values for styles with relative values
+                    if (fontSetByCss == false) {
+                        NodeHelper.reapplyCSS(CodeArea.this);
+                    }
                 }
 
                 @Override

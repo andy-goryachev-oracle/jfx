@@ -62,6 +62,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import javafx.util.Subscription;
+import com.sun.javafx.scene.NodeHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SideDecorator;
@@ -1627,7 +1628,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
 
         if (foldController != null) {
-            foldController.updateToggles(control.getModel(), arrangement);
+            foldController.updateToggles(arrangement);
             RichUtils.layoutInArea(foldController.getGutter(), padLeft + leftSide, padTop, foldWidth, vportH);
         }
 
@@ -1825,6 +1826,16 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 getChildren().remove(foldController.getGutter());
                 foldController.dispose();
                 foldController = null;
+            }
+        }
+    }
+
+    // only for CodeArea
+    public void handleFontUpdate_CodeArea() {
+        if (foldController != null) {
+            NodeHelper.reapplyCSS(this);
+            if (foldController != null) {
+                NodeHelper.reapplyCSS(foldController.getGutter());
             }
         }
     }

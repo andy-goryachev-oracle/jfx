@@ -25,20 +25,27 @@
 
 package com.sun.jfx.incubator.scene.control.richtext;
 
+import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import javafx.util.Subscription;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.model.CodeTextModel;
+import jfx.incubator.scene.control.richtext.model.ContentChange;
 import jfx.incubator.scene.control.richtext.model.FoldRange;
 import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 
 /// Contains code folding logic and the visuals.
-public class FoldController {
+public class FoldController implements StyledTextModel.Listener {
 
+    // let's just assume the number of collapsed ranges is small, so linear search is ok
+    private ArrayList<FoldRange> collapsed;
     private final Pane foldGutter;
+    private CodeTextModel model;
+    private Subscription sub;
 
     public FoldController(ObjectProperty<StyledTextModel> p) {
         foldGutter = new ClippedPane("fold-gutter");
@@ -46,13 +53,25 @@ public class FoldController {
         // FIX 1em width does not work
         // TODO is this needed? or percentage of font size?
         // also, depends on the size of the toggle (both variants), unless the toggle is auto-sizing to parent
-        //setPrefWidth(13);
+        // setPrefWidth(13);
 
-        // TODO listen to the model
+        // listen to the model changes
+        sub = p.subscribe((m) -> {
+            if (model != null) {
+                model.removeListener(this);
+                model = null;
+            }
+            if (m instanceof CodeTextModel cm) {
+                m.addListener(this);
+                model = cm;
+            }
+        });
     }
 
     public void dispose() {
-        // TODO
+        if (sub != null) {
+            sub.unsubscribe();
+        }
     }
 
     public Pane getGutter() {
@@ -63,12 +82,17 @@ public class FoldController {
         return foldGutter.prefWidth(-1);
     }
 
-    public void updateToggles(StyledTextModel model, CellArrangement arrangement) {
+    public boolean isCollapsed(int modelIndex) {
+        // TODO
+        return false;
+    }
+
+    public void updateToggles(CellArrangement arrangement) {
         List<FoldRange> fs;
-        if (model instanceof CodeTextModel m) {
+        if (model != null) {
             int start = arrangement.topIndex();
             int end = arrangement.bottomIndex();
-            fs = m.getFoldRanges(start, end);
+            fs = model.getFoldRanges(start, end);
         } else {
             fs = null;
         }
@@ -116,7 +140,24 @@ public class FoldController {
         return ch;
     }
 
+    @Override
+    public void onContentChange(ContentChange ch) {
+        if (!ch.isEdit()) {
+            return;
+        }
+        // TODO
+        IO.println(ch); // FIX
+        // if edit is within the collapsed region -> expand!
+        // if linesAdded + end.index - start.index = 0 - return (no lines updated)
+    }
+
     private void handleToggle(FoldRange f) {
+        if (isCollapsed(f.getStart())) {
+            // TODO expand
+        } else {
+            // TODO collapse
+        }
+        // TODO refresh
         IO.println(f); // FIX
     }
 }
