@@ -62,6 +62,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import javafx.util.Subscription;
+import com.sun.javafx.scene.NodeHelper;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.RichTextArea;
 import jfx.incubator.scene.control.richtext.SideDecorator;
@@ -84,6 +85,9 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  *  RichTextArea (Region) .rich-text-area
  *    └─ VFlow (Pane) .vflow
  *        ├─ left gutter (ClippedPane) .left-side
+ *        ├─ fold gutter (ClippedPane) .fold-gutter
+ *        │    └─ toggle wrapper (Pane) .fold-toggle-outer
+ *        │         └─ fold toggle (Node) .fold-toggle
  *        ├─ right gutter (ClippedPane) .right-side
  *        ├─ vertical ScrollBar
  *        ├─ horizontal ScrollBar
@@ -109,6 +113,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private final Path caretLineHighlight;
     private final Path selectionHighlight;
     private Path dropTarget;
+    private FoldController foldController;
     private final SimpleBooleanProperty caretVisible = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty suppressBlink = new SimpleBooleanProperty(false);
     private final SimpleDoubleProperty offsetX = new SimpleDoubleProperty(0.0);
@@ -160,7 +165,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         hscroll.setUnitIncrement(Params.SCROLL_BARS_UNIT_INCREMENT);
         hscroll.setBlockIncrement(Params.SCROLL_BARS_BLOCK_INCREMENT);
 
-        cellCache = new FastCache(Params.CELL_CACHE_SIZE);
+        cellCache = new FastCache<>(Params.CELL_CACHE_SIZE);
 
         getStyleClass().add("vflow");
         setPadding(new Insets(Params.LAYOUT_FOCUS_BORDER));
@@ -1366,6 +1371,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         }
         arrangement = new CellArrangement(this, contentPaddingTop, contentPaddingBottom);
 
+        // TODO move before creating the arrangement?
         double width = getWidth();
         if (width == 0.0) {
             return;
@@ -1389,10 +1395,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double height = getHeight();
         double vsbWidth = vscroll.isVisible() ? vscroll.prefWidth(-1) : 0.0;
         double hsbHeight = hscroll.isVisible() ? hscroll.prefHeight(-1) : 0.0;
+        double foldWidth = foldController == null ? 0.0 : foldController.getWidth();
 
         double maxWidth; // max width to apply before the layout (or replace with cell's preferred width?)
         if (wrap) {
-            availableWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight;
+            availableWidth = width - leftSide - rightSide - contentPaddingLeft - contentPaddingRight - vsbWidth - padLeft - padRight - foldWidth;
             maxWidth = availableWidth;
         } else {
             availableWidth = -1.0;
@@ -1551,10 +1558,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         arrangement.setTopHeight(-y);
 
         if (useContentWidth) {
-            width = unwrappedWidth + leftSide + rightSide + contentPaddingLeft + contentPaddingRight + padLeft + padRight;
+            width = unwrappedWidth + leftSide + foldWidth + rightSide + contentPaddingLeft + contentPaddingRight + padLeft + padRight;
         }
 
-        viewPortWidth = width - leftSide - rightSide - vsbWidth - padLeft - padRight;
+        viewPortWidth = width - leftSide - foldWidth - rightSide - vsbWidth - padLeft - padRight;
         if (viewPortWidth < Params.MIN_VIEWPORT_WIDTH) {
             viewPortWidth = Params.MIN_VIEWPORT_WIDTH;
         }
@@ -1620,6 +1627,11 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             RichUtils.layoutInArea(leftGutter, padLeft, padTop, leftSide, vportH);
         }
 
+        if (foldController != null) {
+            foldController.updateToggles(arrangement);
+            RichUtils.layoutInArea(foldController.getGutter(), padLeft + leftSide, padTop, foldWidth, vportH);
+        }
+
         if (rightDecorator == null) {
             rightGutter.setVisible(false);
         } else {
@@ -1627,7 +1639,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             RichUtils.layoutInArea(rightGutter, width - rightSide - padRight, padTop, rightSide, vportH);
         }
 
-        RichUtils.layoutInArea(vport, leftSide + padLeft, padTop, viewPortWidth, vportH);
+        RichUtils.layoutInArea(vport, leftSide + padLeft + foldWidth, padTop, viewPortWidth, vportH);
         // vport is a child of content
         RichUtils.layoutInArea(content, 0.0, 0.0, viewPortWidth, vportH);
 
@@ -1801,5 +1813,30 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     public boolean isWrapText() {
         return control.isWrapText();
+    }
+
+    public void setFoldingEnabled(boolean on) {
+        if (on) {
+            if (foldController == null) {
+                foldController = new FoldController(control.modelProperty());
+                getChildren().add(foldController.getGutter());
+            }
+        } else {
+            if (foldController != null) {
+                getChildren().remove(foldController.getGutter());
+                foldController.dispose();
+                foldController = null;
+            }
+        }
+    }
+
+    // only for CodeArea
+    public void handleFontUpdate_CodeArea() {
+        if (foldController != null) {
+            NodeHelper.reapplyCSS(this);
+            if (foldController != null) {
+                NodeHelper.reapplyCSS(foldController.getGutter());
+            }
+        }
     }
 }

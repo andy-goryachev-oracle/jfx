@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2024, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -137,6 +137,17 @@ public abstract class ContentChange {
             public int getCharsAddedBottom() {
                 return charsAddedBottom;
             }
+
+            @Override
+            public String toString() {
+                return "ContentChange{edit, start=" +
+                    start + ", end=" +
+                    end + ", top=" +
+                    charsAddedTop + ", lines=" +
+                    linesAdded + ", btm=" +
+                    charsAddedBottom +
+                    "}";
+            }
         };
     }
 
@@ -152,6 +163,14 @@ public abstract class ContentChange {
             @Override
             public boolean isEdit() {
                 return false;
+            }
+
+            @Override
+            public String toString() {
+                return "ContentChange{style, start=" +
+                    start + ", end=" +
+                    end +
+                    "}";
             }
         };
     }
