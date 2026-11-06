@@ -245,6 +245,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     public void dispose() {
         subscriptions.unsubscribe();
         caretPath.visibleProperty().unbind();
+        if (foldController != null) {
+            foldController.dispose();
+            foldController = null;
+        }
     }
 
     public Pane getContentPane() {
@@ -1818,7 +1822,8 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     public void setFoldingEnabled(boolean on) {
         if (on) {
             if (foldController == null) {
-                foldController = new FoldController(control.modelProperty());
+                // TODO refresh == layout control? check scroll bars
+                foldController = new FoldController(control.modelProperty(), this::layoutChildren);
                 getChildren().add(foldController.getGutter());
             }
         } else {

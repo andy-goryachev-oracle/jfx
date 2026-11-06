@@ -30,25 +30,50 @@ package jfx.incubator.scene.control.richtext.model;
  *
  * @since 999 TODO
  */
-public interface FoldRange {
+public abstract class FoldRange {
+    private final int start;
+    private final int end;
 
-    /**
-     * Fold range start paragraph index.
-     * @return the start index
-     */
-    public int getStart();
-
-    /**
-     * Fold range end paragraph index.
-     * TODO last index of the folded range?
-     * @return the end index
-     */
-    public int getEnd();
+    public FoldRange(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
 
     /**
      * Provides the content to be displayed in place of the folded range.
      * A {@code null} value will be shown as a blank line.
      * @return the placeholder paragraph
      */
-    public RichParagraph getPlaceholder();
+    public abstract RichParagraph getPlaceholder();
+
+    /**
+     * Fold range start paragraph index.
+     * @return the start index
+     */
+    public final int getStart() {
+        return start;
+    }
+
+    /**
+     * Fold range end paragraph index.
+     * TODO last index of the folded range?
+     * @return the end index
+     */
+    public final int getEnd() {
+        return end;
+    }
+
+    /**
+     * Returns true if the specified paragraph index is within this range.
+     * @param index the paragraph index
+     * @return true if the index is within this range
+     */
+    public final boolean contains(int index) {
+        return (index >= start) && (index <= end); // TODO inclusive?
+    }
+
+    @Override
+    public String toString() {
+        return "FoldRange(" + start + "," + end + ")";
+    }
 }

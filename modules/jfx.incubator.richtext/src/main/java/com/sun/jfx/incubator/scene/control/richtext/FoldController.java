@@ -41,15 +41,16 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 /// Contains code folding logic and the visuals.
 public class FoldController implements StyledTextModel.Listener {
 
-    // let's just assume the number of collapsed ranges is small, so linear search is ok
-    private ArrayList<FoldRange> collapsed;
-    private final Pane foldGutter;
+    private final Runnable refresh;
+    private final Pane gutter;
     private CodeTextModel model;
     private Subscription sub;
+    private ArrayList<FoldRange> collapsed;
 
-    public FoldController(ObjectProperty<StyledTextModel> p) {
-        foldGutter = new ClippedPane("fold-gutter");
-        foldGutter.setManaged(false);
+    public FoldController(ObjectProperty<StyledTextModel> p, Runnable refresh) {
+        this.refresh = refresh;
+        gutter = new ClippedPane("fold-gutter");
+        gutter.setManaged(false);
         // FIX 1em width does not work
         // TODO is this needed? or percentage of font size?
         // also, depends on the size of the toggle (both variants), unless the toggle is auto-sizing to parent
@@ -75,15 +76,22 @@ public class FoldController implements StyledTextModel.Listener {
     }
 
     public Pane getGutter() {
-        return foldGutter;
+        return gutter;
     }
 
     public double getWidth() {
-        return foldGutter.prefWidth(-1);
+        return gutter.prefWidth(-1);
     }
 
     public boolean isCollapsed(int modelIndex) {
-        // TODO
+        if (collapsed != null) {
+            // expecting a small number of folded ranges, so linear search should be ok
+            for (FoldRange f : collapsed) {
+                if (f.contains(modelIndex)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 
@@ -97,7 +105,7 @@ public class FoldController implements StyledTextModel.Listener {
             fs = null;
         }
 
-        List<Node> children = foldGutter.getChildren();
+        List<Node> children = gutter.getChildren();
         if ((fs == null) || fs.isEmpty()) {
             children.clear();
             return;
@@ -149,15 +157,22 @@ public class FoldController implements StyledTextModel.Listener {
         IO.println(ch); // FIX
         // if edit is within the collapsed region -> expand!
         // if linesAdded + end.index - start.index = 0 - return (no lines updated)
+        refresh();
     }
 
     private void handleToggle(FoldRange f) {
         if (isCollapsed(f.getStart())) {
-            // TODO expand
+            collapsed.remove(f);
         } else {
-            // TODO collapse
+            if (collapsed == null) {
+                collapsed = new ArrayList<>();
+            }
+            collapsed.add(f);
         }
-        // TODO refresh
-        IO.println(f); // FIX
+        refresh();
+    }
+
+    private void refresh() {
+        refresh.run();
     }
 }
