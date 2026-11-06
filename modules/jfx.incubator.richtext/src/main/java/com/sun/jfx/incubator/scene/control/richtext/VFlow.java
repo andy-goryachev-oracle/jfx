@@ -69,6 +69,7 @@ import jfx.incubator.scene.control.richtext.SideDecorator;
 import jfx.incubator.scene.control.richtext.StyleResolver;
 import jfx.incubator.scene.control.richtext.TextPos;
 import jfx.incubator.scene.control.richtext.model.ContentChange;
+import jfx.incubator.scene.control.richtext.model.FoldRange;
 import jfx.incubator.scene.control.richtext.model.ParagraphDirection;
 import jfx.incubator.scene.control.richtext.model.RichParagraph;
 import jfx.incubator.scene.control.richtext.model.RichTextModel;
@@ -102,7 +103,7 @@ import jfx.incubator.scene.control.richtext.skin.RichTextAreaSkin;
  */
 public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listener {
     private final RichTextAreaSkin skin;
-    private final RichTextArea control;
+    final RichTextArea control;
     private final ScrollBar vscroll;
     private final ScrollBar hscroll;
     private final ClippedPane leftGutter;
@@ -264,6 +265,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     public void handleModelChange() {
         setOrigin(new Origin(0, -contentPaddingTop));
         handleWrapText();
+        setFoldingEnabled(false);
 //        setUnwrappedContentWidth(0.0);
 //        setOffsetX(0.0);
 //        requestControlLayout(true);
@@ -807,11 +809,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         return arrangement().getCell(modelIndex);
     }
 
-    private TextCell createTextCell(int index, RichParagraph par, double defaultInterval) {
-        if (par == null) {
-            return null;
-        }
-
+    private TextCell createTextCell(int index, RichParagraph par, double defaultInterval, FoldRange fold) {
         StyleAttributeMap pa = par.getParagraphAttributes();
         if (pa == null) {
             pa = StyleAttributeMap.EMPTY;
@@ -822,10 +820,10 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         if (gen != null) {
             // it's a paragraph node
             Region content = gen.get();
-            cell = new TextCell(index, content, true);
+            cell = new TextCell(index, content, true, fold);
         } else {
             // it's a regular text cell
-            cell = new TextCell(index);
+            cell = new TextCell(index, fold);
 
             // first line indent operates on TextCell and not its content
             cell.setParagraphAttributes(pa, defaultInterval);
@@ -1338,8 +1336,15 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
     private TextCell prepareCell(int modelIndex, double maxWidth, double defaultInterval) {
         TextCell cell = cellCache.get(modelIndex);
         if (cell == null) {
-            RichParagraph rp = control.getModel().getParagraph(modelIndex);
-            cell = createTextCell(modelIndex, rp, defaultInterval);
+            RichParagraph rp;
+            FoldRange fold;
+            if ((foldController != null) && (fold = foldController.getCollapsedRange(modelIndex)) != null) {
+                rp = fold.getPlaceholder();
+            } else {
+                fold = null;
+                rp = control.getModel().getParagraph(modelIndex);
+            }
+            cell = createTextCell(modelIndex, rp, defaultInterval, fold);
             cellCache.add(cell.getIndex(), cell);
         }
 
@@ -1422,9 +1427,13 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double defaultInterval = getDefaultInterval();
 
         // populating visible part of the sliding window + bottom margin
-        int i = topCellIndex();
-        for ( ; i < paragraphCount; i++) {
-            TextCell cell = prepareCell(i, maxWidth, defaultInterval);
+        int index = topCellIndex();
+        for ( ; index < paragraphCount; index++) {
+            TextCell cell = prepareCell(index, maxWidth, defaultInterval);
+            FoldRange fold = cell.getFoldRange();
+            if(fold != null) {
+                index = fold.getEnd();
+            }
 
             double h = cell.prefHeight(availableWidth) + getLineSpacing(cell.getContent());
             h = snapSizeY(h);
@@ -1481,7 +1490,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             arrangement.setVisibleCellCount(count);
         }
 
-        if (i == paragraphCount) {
+        if (index == paragraphCount) {
             y += contentPaddingBottom;
         }
 
@@ -1491,7 +1500,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 leftCache = updateSideCache(leftDecorator, null);
             }
 
-            for (i = 0; i < arrangement.getVisibleCellCount(); i++) {
+            for (int i = 0; i < arrangement.getVisibleCellCount(); i++) {
                 TextCell cell = arrangement.getCellAt(i);
                 int ix = cell.getIndex();
                 Node n = leftCache.get(ix);
@@ -1513,7 +1522,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
                 rightCache = updateSideCache(rightDecorator, null);
             }
 
-            for (i = 0; i < arrangement.getVisibleCellCount(); i++) {
+            for (int i = 0; i < arrangement.getVisibleCellCount(); i++) {
                 TextCell cell = arrangement.getCellAt(i);
                 int ix = cell.getIndex();
                 Node n = rightCache.get(ix);
@@ -1539,8 +1548,12 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         y = ytop;
 
         // populate top margin, going backwards from topCellIndex
-        for (i = topCellIndex() - 1; i >= 0; i--) {
-            TextCell cell = prepareCell(i, maxWidth, defaultInterval);
+        for (index = topCellIndex() - 1; index >= 0; index--) {
+            TextCell cell = prepareCell(index, maxWidth, defaultInterval);
+            FoldRange fold = cell.getFoldRange();
+            if(fold != null) {
+                index = fold.getStart();
+            }
 
             double h = cell.prefHeight(availableWidth) + getLineSpacing(cell.getContent());
             h = snapSizeY(h);
@@ -1696,7 +1709,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         double x = wrap ? 0.0 : contentPaddingLeft;
 
         int sz = arrangement.getVisibleCellCount();
-        for (i = 0; i < sz; i++) {
+        for (int i = 0; i < sz; i++) {
             TextCell cell = arrangement.getCellAt(i);
             double ch = cell.getCellHeight();
             double cy = cell.getY();
@@ -1823,7 +1836,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         if (on) {
             if (foldController == null) {
                 // TODO refresh == layout control? check scroll bars
-                foldController = new FoldController(control.modelProperty(), this::layoutChildren);
+                foldController = new FoldController(this);
                 getChildren().add(foldController.getGutter());
             }
         } else {

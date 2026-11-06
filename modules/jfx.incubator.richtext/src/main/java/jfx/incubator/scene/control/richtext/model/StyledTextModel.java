@@ -151,7 +151,7 @@ public abstract class StyledTextModel {
     public abstract String getPlainText(int index);
 
     /**
-     * Returns a {@link RichParagraph} at the given model index.
+     * Returns a non-null {@link RichParagraph} at the given model index.
      * The callers must ensure that the value of {@code index} is within the valid document range,
      * since doing otherwise might result in an exception or undetermined behavior.
      * <p>

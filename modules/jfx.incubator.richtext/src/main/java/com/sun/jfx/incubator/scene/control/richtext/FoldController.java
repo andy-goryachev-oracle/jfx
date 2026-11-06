@@ -28,6 +28,7 @@ package com.sun.jfx.incubator.scene.control.richtext;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.ObjectProperty;
+import javafx.css.PseudoClass;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -41,14 +42,16 @@ import jfx.incubator.scene.control.richtext.model.StyledTextModel;
 /// Contains code folding logic and the visuals.
 public class FoldController implements StyledTextModel.Listener {
 
-    private final Runnable refresh;
+    private static final PseudoClass COLLAPSED = PseudoClass.getPseudoClass("collapsed");
+    private final VFlow vflow;
     private final Pane gutter;
     private CodeTextModel model;
     private Subscription sub;
     private ArrayList<FoldRange> collapsed;
 
-    public FoldController(ObjectProperty<StyledTextModel> p, Runnable refresh) {
-        this.refresh = refresh;
+    // TODO alternative: pass VFlow instance instead
+    public FoldController(VFlow vflow) {
+        this.vflow = vflow;
         gutter = new ClippedPane("fold-gutter");
         gutter.setManaged(false);
         // FIX 1em width does not work
@@ -57,7 +60,7 @@ public class FoldController implements StyledTextModel.Listener {
         // setPrefWidth(13);
 
         // listen to the model changes
-        sub = p.subscribe((m) -> {
+        sub = vflow.control.modelProperty().subscribe((m) -> {
             if (model != null) {
                 model.removeListener(this);
                 model = null;
@@ -83,16 +86,16 @@ public class FoldController implements StyledTextModel.Listener {
         return gutter.prefWidth(-1);
     }
 
-    public boolean isCollapsed(int modelIndex) {
+    public FoldRange getCollapsedRange(int modelIndex) {
         if (collapsed != null) {
             // expecting a small number of folded ranges, so linear search should be ok
             for (FoldRange f : collapsed) {
                 if (f.contains(modelIndex)) {
-                    return true;
+                    return f;
                 }
             }
         }
-        return false;
+        return null;
     }
 
     public void updateToggles(CellArrangement arrangement) {
@@ -127,7 +130,7 @@ public class FoldController implements StyledTextModel.Listener {
             } else {
                 ch = createToggle();
                 ch.addEventHandler(MouseEvent.MOUSE_CLICKED, (ev) -> {
-                    handleToggle(f);
+                    handleToggle(ch, f);
                 });
                 children.add(ch);
             }
@@ -157,22 +160,24 @@ public class FoldController implements StyledTextModel.Listener {
         IO.println(ch); // FIX
         // if edit is within the collapsed region -> expand!
         // if linesAdded + end.index - start.index = 0 - return (no lines updated)
-        refresh();
+        vflow.layoutChildren();
     }
 
-    private void handleToggle(FoldRange f) {
-        if (isCollapsed(f.getStart())) {
+    private void handleToggle(Node n, FoldRange f) {
+        boolean folded = (getCollapsedRange(f.getStart()) != null);
+        if (folded) {
+            // expand
             collapsed.remove(f);
         } else {
+            // collapse
             if (collapsed == null) {
                 collapsed = new ArrayList<>();
             }
             collapsed.add(f);
         }
-        refresh();
-    }
-
-    private void refresh() {
-        refresh.run();
+        // TODO maybe own class?
+        ((Pane)n).getChildren().get(0).pseudoClassStateChanged(COLLAPSED, !folded);
+        vflow.invalidateLayout();
+        //vflow.layoutChildren();
     }
 }

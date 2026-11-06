@@ -129,8 +129,7 @@ public class FoldingCodeTextModel extends CodeTextModel {
         return new FoldRange(f.start, f.end) {
             @Override
             public RichParagraph getPlaceholder() {
-                // TODO
-                return null;
+                return RichParagraph.builder().build();
             }
         };
     }

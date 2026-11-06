@@ -32,8 +32,13 @@ package jfx.incubator.scene.control.richtext.model;
  */
 public abstract class FoldRange {
     private final int start;
-    private final int end;
+    private final int end; // TODO inclusive? exclusive?
 
+    /**
+     * Constructor.
+     * @param start the start paragraph index
+     * @param end the end paragraph index (TODO inclusive?)
+     */
     public FoldRange(int start, int end) {
         this.start = start;
         this.end = end;
@@ -41,8 +46,7 @@ public abstract class FoldRange {
 
     /**
      * Provides the content to be displayed in place of the folded range.
-     * A {@code null} value will be shown as a blank line.
-     * @return the placeholder paragraph
+     * @return the placeholder paragraph, cannot be null
      */
     public abstract RichParagraph getPlaceholder();
 

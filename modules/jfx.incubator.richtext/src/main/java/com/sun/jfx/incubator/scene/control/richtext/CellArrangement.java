@@ -69,7 +69,7 @@ public class CellArrangement {
 
     // TODO not called right now, use it to skip reflow when not necessary
     // (may need to include left and right content padding or a sum thereof */
-    public boolean isValid(VFlow f, double padLeft, double padTop) {
+    private boolean isValid_UNUSED(VFlow f, double padLeft, double padTop) {
         return
             (f.getWidth() == flowWidth) &&
             (f.getHeight() == flowHeight) &&
@@ -133,6 +133,7 @@ public class CellArrangement {
     }
 
     /** returns the cell contained in this layout, or null */
+    // FIX folding breaks the linearity!
     public TextCell getCell(int modelIndex) {
         int ix = modelIndex - origin.index();
         if (ix < 0) {
