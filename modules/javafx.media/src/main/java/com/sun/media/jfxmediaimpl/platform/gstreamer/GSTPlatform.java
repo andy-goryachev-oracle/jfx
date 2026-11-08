@@ -71,7 +71,8 @@ public final class GSTPlatform extends Platform {
         "http",
         "https",
         "jrt",
-        "resource"
+        "resource",
+        "input-stream"
     };
 
     private static GSTPlatform globalInstance = null;
