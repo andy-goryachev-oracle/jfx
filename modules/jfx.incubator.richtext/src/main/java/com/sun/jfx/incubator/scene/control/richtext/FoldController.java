@@ -114,19 +114,18 @@ public class FoldController implements StyledTextModel.Listener {
             return;
         }
 
-        // remove overflow
-        int ct = children.size();
-        for (int i = ct - 1; i >= fs.size(); i--) {
-            children.remove(i);
-        }
-
         // update visible toggles
-        int i = 0;
-        for ( ; i < fs.size(); i++) {
-            FoldRange f = fs.get(i);
+        int n = 0;
+        for (FoldRange f: fs) {
+            TextCell c = arrangement.getCell(f.getStart());
+            if(c == null) {
+                // can be inside a folded range already
+                continue;
+            }
+
             Node ch;
-            if (i < ct) {
-                ch = children.get(i);
+            if (n < children.size()) {
+                ch = children.get(n);
             } else {
                 ch = createToggle();
                 ch.addEventHandler(MouseEvent.MOUSE_CLICKED, (ev) -> {
@@ -134,9 +133,15 @@ public class FoldController implements StyledTextModel.Listener {
                 });
                 children.add(ch);
             }
-            TextCell c = arrangement.getCell(f.getStart());
+
             // FIX does not fill height, don't know why
             RichUtils.layoutInArea(ch, 0, c.getY(), getWidth(), c.getHeight());
+            n++;
+        }
+
+        // remove overflow
+        for (int i = children.size() - 1; i >= n; --i) {
+            children.remove(i);
         }
     }
 

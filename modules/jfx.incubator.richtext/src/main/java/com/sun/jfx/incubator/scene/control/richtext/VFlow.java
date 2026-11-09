@@ -565,6 +565,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
 
     /** in vflow.content coordinates */
     public TextPos findTextPosLocal(double localX, double localY) {
+        // TODO check with folding!
         return arrangement().findTextPos(localX - contentPaddingLeft, localY);
     }
 
@@ -1166,7 +1167,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
         Integer off = cell.lineEdge(start, caretIndex, caretOffset);
         if (off == null) {
             return null;
-        } else if(start || off == 0) {
+        } else if (start || off == 0) {
             return TextPos.ofLeading(caretIndex, off);
         } else {
             return new TextPos(caretIndex, off, off - 1, false);
@@ -1378,9 +1379,9 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
             arrangement.removeNodesFrom(content);
             arrangement = null;
         }
-        arrangement = new CellArrangement(this, contentPaddingTop, contentPaddingBottom);
 
-        // TODO move before creating the arrangement?
+        arrangement = new CellArrangement(this, contentPaddingTop, contentPaddingBottom, foldController != null);
+
         double width = getWidth();
         if (width == 0.0) {
             return;
