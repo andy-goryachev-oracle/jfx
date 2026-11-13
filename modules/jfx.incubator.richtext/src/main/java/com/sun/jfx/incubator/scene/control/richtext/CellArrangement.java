@@ -28,6 +28,7 @@
 package com.sun.jfx.incubator.scene.control.richtext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -49,6 +50,7 @@ public class CellArrangement {
     private final int lineCount;
     private final double contentPaddingTop; // snapped
     private final double contentPaddingBottom; // snapped
+    private final HashMap<Integer,Integer> foldMap;
     private final Origin origin;
     private int visibleCount;
     private int bottomCount;
@@ -58,24 +60,14 @@ public class CellArrangement {
     private Node[] left;
     private Node[] right;
 
-    public CellArrangement(VFlow f, double contentPaddingTop, double contentPaddingBottom) {
+    public CellArrangement(VFlow f, double contentPaddingTop, double contentPaddingBottom, boolean foldingEnabled) {
         this.flowWidth = f.getWidth();
         this.flowHeight = f.getViewPortHeight();
         this.origin = f.getOrigin();
         this.lineCount = f.getParagraphCount();
         this.contentPaddingTop = contentPaddingTop;
         this.contentPaddingBottom = contentPaddingBottom;
-    }
-
-    // TODO not called right now, use it to skip reflow when not necessary
-    // (may need to include left and right content padding or a sum thereof */
-    public boolean isValid(VFlow f, double padLeft, double padTop) {
-        return
-            (f.getWidth() == flowWidth) &&
-            (f.getHeight() == flowHeight) &&
-            (f.topCellIndex() == origin.index()) &&
-            (contentPaddingTop == padTop) &&
-            (contentPaddingBottom == contentPaddingBottom);
+        this.foldMap = foldingEnabled ? new HashMap<>() : null;
     }
 
     @Override
@@ -95,7 +87,11 @@ public class CellArrangement {
     }
 
     public void addCell(TextCell cell) {
+        int ix = cells.size();
         cells.add(cell);
+        if (foldMap != null) {
+            foldMap.put(cell.getIndex(), ix);
+        }
     }
 
     public void setUnwrappedWidth(double w) {
@@ -134,24 +130,40 @@ public class CellArrangement {
 
     /** returns the cell contained in this layout, or null */
     public TextCell getCell(int modelIndex) {
-        int ix = modelIndex - origin.index();
-        if (ix < 0) {
-            if ((ix + topCount()) >= 0) {
-                // cells in the top part come after bottom part, and in reverse order
-                return cells.get(bottomCount - ix - 1);
+        if (foldMap == null) {
+            int ix = modelIndex - origin.index();
+            if (ix < 0) {
+                if ((ix + topCount()) >= 0) {
+                    // cells in the top part come after bottom part, and in reverse order
+                    return cells.get(bottomCount - ix - 1);
+                }
+            } else if (ix < bottomCount) {
+                // cells in the normal (bottom) part
+                return cells.get(ix);
             }
-        } else if (ix < bottomCount) {
-            // cells in the normal (bottom) part
-            return cells.get(ix);
+        } else {
+            Integer ix = foldMap.get(modelIndex);
+            if (ix != null) {
+                return cells.get(ix);
+            }
         }
         return null;
     }
 
     /** returns a visible cell, or null */
     public TextCell getVisibleCell(int modelIndex) {
-        int ix = modelIndex - origin.index();
-        if ((ix >= 0) && (ix < visibleCount)) {
-            return cells.get(ix);
+        if (foldMap == null) {
+            int ix = modelIndex - origin.index();
+            if ((ix >= 0) && (ix < visibleCount)) {
+                return cells.get(ix);
+            }
+        } else {
+            Integer ix = foldMap.get(modelIndex);
+            if (ix != null) {
+                if (ix < visibleCount) {
+                    return cells.get(ix);
+                }
+            }
         }
         return null;
     }
@@ -277,12 +289,35 @@ public class CellArrangement {
 
     /** returns a model index of the first cell in the sliding window top margin */
     public int topIndex() {
-        return origin.index() - topCount();
+        if (foldMap == null) {
+            return origin.index() - topCount();
+        } else {
+            int sz = cells.size();
+            if (sz == 0) {
+                return origin.index();
+            } else if (sz == bottomCount) {
+                return cells.get(0).getIndex();
+            } else {
+                return cells.get(sz - 1).getIndex();
+            }
+        }
     }
 
     /** returns a model index of the last cell in the sliding window bottom margin + 1 */
     public int bottomIndex() {
-        return origin.index() + bottomCount;
+        if (foldMap == null) {
+            return origin.index() + bottomCount;
+        } else {
+            if (bottomCount == 0) {
+                if (visibleCount == 0) {
+                    return origin.index();
+                } else {
+                    return cells.get(visibleCount - 1).getIndex();
+                }
+            } else {
+                return cells.get(bottomCount - 1).getIndex();
+            }
+        }
     }
 
     /** returns the new origin after scrolling for delta pixels within the arrangement */

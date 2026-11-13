@@ -51,6 +51,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import com.sun.jfx.incubator.scene.control.richtext.util.RichUtils;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.FoldRange;
 import jfx.incubator.scene.control.richtext.model.StyleAttribute;
 import jfx.incubator.scene.control.richtext.model.StyleAttributeMap;
 import jfx.incubator.scene.control.richtext.model.TabStops;
@@ -76,18 +77,21 @@ public final class TextCell extends BorderPane {
     private boolean embedsNode;
     private Decorator decorator;
     private List<RequiresComplexLayout> clients;
+    private FoldRange fold;
 
     /**
      * Creates a text cell with the specified {@code Region} as its content.
      * @param index paragraph index
      * @param content non-null content
      * @param embedsNode whether the content is a paragraph
+     * @param fold fold range, or null
      */
-    public TextCell(int index, Region content, boolean embedsNode) {
+    public TextCell(int index, Region content, boolean embedsNode, FoldRange fold) {
         Objects.requireNonNull(content);
         this.index = index;
         this.content = content;
         this.embedsNode = embedsNode;
+        this.fold = fold;
         setManaged(false);
         setCenter(content);
         checkClient(content);
@@ -97,8 +101,8 @@ public final class TextCell extends BorderPane {
      * Creates a text cell with {@link TextFlow} as its content.
      * @param index paragraph index
      */
-    public TextCell(int index) {
-        this(index, textFlow(), false);
+    public TextCell(int index, FoldRange fold) {
+        this(index, textFlow(), false, fold);
     }
 
     private static TextFlow textFlow() {
@@ -148,6 +152,14 @@ public final class TextCell extends BorderPane {
      */
     public final int getIndex() {
         return index;
+    }
+
+    /**
+     * Returns the fold range, if the cell corresponds to a collapsed range.
+     * @return the fold range or null
+     */
+    public final FoldRange getFoldRange() {
+        return fold;
     }
 
     /**
