@@ -35,6 +35,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.PathElement;
 import jfx.incubator.scene.control.richtext.TextPos;
+import jfx.incubator.scene.control.richtext.model.FoldRange;
 
 /**
  * Manages TextCells in a sliding window, comprised of the visible area and some number of screenfuls
@@ -120,7 +121,7 @@ public class CellArrangement {
         int topIx = topIndex();
         int btmIx = bottomIndex();
 
-        int ix = binarySearch(cellY, topIx, btmIx - 1);
+        int ix = find(cellY, topIx, btmIx - 1);
         TextCell cell = getCell(ix);
         if (cell == null) {
             return TextPos.ZERO;
@@ -257,7 +258,30 @@ public class CellArrangement {
      * finds a model index of a cell that contains the given localY.
      * (in vflow frame of reference).
      * Should not be called with localY outside of this layout sliding window.
+     * @param localY the y coordinate in the local frame of reference
+     * @param low the smaller model index
+     * @param high the greater model index, inclusive
      */
+    private int find(double localY, int low, int high) {
+        IO.println("find " + low + " " + high);// FIX
+        if (foldMap == null) {
+            return binarySearch(localY, low, high);
+        }
+
+        // do simple linear search when folding is enabled
+        for (int i = low; i < high; i++) {
+            TextCell cell = getCell(i);
+            if (cell == null) {
+                break;
+            }
+            int cmp = compare(cell, localY);
+            if (cmp >= 0) {
+                return i;
+            }
+        }
+        return low;
+    }
+
     private int binarySearch(double localY, int low, int high) {
         while (low <= high) {
             int mid = (low + high) >>> 1;
@@ -337,7 +361,7 @@ public class CellArrangement {
             }
         }
 
-        int ix = binarySearch(y, topIx, btmIx - 1);
+        int ix = find(y, topIx, btmIx - 1);
         TextCell cell = getCell(ix);
         double off = y - cell.getY();
 

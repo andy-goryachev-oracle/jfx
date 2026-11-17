@@ -183,6 +183,7 @@ public class FoldController implements StyledTextModel.Listener {
         // TODO maybe own class?
         ((Pane)n).getChildren().get(0).pseudoClassStateChanged(COLLAPSED, !folded);
         vflow.invalidateLayout();
+        IO.println("handleToggle " + f);// FIX
         //vflow.layoutChildren();
     }
 }

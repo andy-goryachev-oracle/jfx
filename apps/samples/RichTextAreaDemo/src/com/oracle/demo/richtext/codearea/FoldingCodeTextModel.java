@@ -126,10 +126,12 @@ public class FoldingCodeTextModel extends CodeTextModel {
     }
 
     private FoldRange toFoldRange(Fold f) {
-        return new FoldRange(f.start, f.end) {
+        int start = f.start;
+        int end = f.end;
+        return new FoldRange(start, end) {
             @Override
             public RichParagraph getPlaceholder() {
-                return RichParagraph.builder().build();
+                return RichParagraph.builder().addSegment("<" + (start + 1) + ".." + (end + 1) + ">").build();
             }
         };
     }

@@ -1375,6 +1375,7 @@ public class VFlow extends Pane implements StyleResolver, StyledTextModel.Listen
      * (up to 4 times worst case)
      */
     protected void layoutCells(boolean nestedLayout) {
+        IO.println("layoutCells");// FIX
         if (arrangement != null) {
             arrangement.removeNodesFrom(content);
             arrangement = null;
