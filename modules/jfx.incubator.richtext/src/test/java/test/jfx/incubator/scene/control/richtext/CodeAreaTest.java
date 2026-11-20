@@ -217,7 +217,7 @@ public class CodeAreaTest {
     public void getControlCssMetaData() {
         List<CssMetaData<? extends Styleable, ?>> md = control.getControlCssMetaData();
         // CodeArea:395
-        int styleablesCount = 3;
+        int styleablesCount = 4;
         assertEquals(md.size(), RichTextArea.getClassCssMetaData().size() + styleablesCount);
     }
 

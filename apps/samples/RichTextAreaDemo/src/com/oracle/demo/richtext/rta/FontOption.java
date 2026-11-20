@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024, Oracle and/or its affiliates.
+ * Copyright (c) 2023, 2026, Oracle and/or its affiliates.
  * All rights reserved. Use is subject to license terms.
  *
  * This file is available and licensed under the following license:
@@ -62,6 +62,7 @@ public class FontOption extends HBox {
         }
 
         FX.name(fontField, name + "_FONT");
+        fontField.setMaxWidth(150);
         fontField.getItems().setAll(collectFonts(allowNull));
         fontField.getSelectionModel().selectedItemProperty().addListener((x) -> {
             String fam = fontField.getSelectionModel().getSelectedItem();
@@ -70,11 +71,13 @@ public class FontOption extends HBox {
         });
 
         FX.name(styleField, name + "_STYLE");
+        styleField.setMaxWidth(80);
         styleField.getSelectionModel().selectedItemProperty().addListener((x) -> {
             update();
         });
 
         FX.name(sizeField, name + "_SIZE");
+        sizeField.setMaxWidth(60);
         sizeField.getItems().setAll(
             1.0,
             2.5,

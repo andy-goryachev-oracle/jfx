@@ -3518,6 +3518,28 @@ is being used to size a border should also be in pixels.
     -fx-cursor: text;
 }
 
+.code-area .fold-gutter {
+    -fx-background-color: rgba(127,127,127,0.1);
+    -fx-pref-width: 1em;
+}
+
+.fold-toggle-outer {
+    -fx-background-color: red; /* FIX remove */
+}
+
+.fold-toggle {
+    -fx-alignment: center;
+    -fx-background-color: -fx-text-background-color;
+	-fx-padding: 0.333333em 0.229em 0.333333em 0.229em; /* 4 */
+    -fx-position-shape: true;
+	-fx-shape: "M 0 -3.5 L 4 0 L 0 3.5 z";
+    -fx-rotate: 90;
+}
+
+.fold-toggle:collapsed {
+    -fx-rotate: 0;
+}
+
 .rich-text-area .text-highlight-1 {
     -fx-fill: #e7ff0055;
     -fx-stroke-width: 0;
